@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../componentesAdmin/header_admin";
 import FooterAdmin from "../componentesAdmin/footer_admin";
-import { UserPlus, Car, SlidersVertical, PersonStanding } from "lucide-react";
+import { UserPlus, Car, SlidersVertical, PersonStanding, WalletCards } from "lucide-react";
 
 const DashboardHeaderSkeleton = () => (
   <section className="dashboard-header-skeleton" aria-label="Cargando dashboard">
@@ -15,7 +15,7 @@ const DashboardHeaderSkeleton = () => (
 
 const DashboardSkeletonGrid = () => (
   <div className="dashboard-grid" aria-label="Cargando acciones rapidas">
-    {Array.from({ length: 4 }).map((_, index) => (
+    {Array.from({ length: 5 }).map((_, index) => (
       <article className="dashboard-card dashboard-card-skeleton" key={index}>
         <span className="dashboard-skeleton-icon" />
 
@@ -86,6 +86,13 @@ function AdminDashboard() {
               titulo="Control de acceso"
               descripcion="Control de entradas y salidas"
               onClick={() => navigate("/control-acceso")}
+            />
+
+            <DashboardBoton
+              icono={<WalletCards />}
+              titulo="Pagos"
+              descripcion="Consultá saldos, liquidaciones y movimientos"
+              onClick={() => navigate("/admin_pagos")}
             />
           </div>
         )}

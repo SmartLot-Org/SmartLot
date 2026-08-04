@@ -1,0 +1,90 @@
+export const cuentasCorrientesMock = [
+  {
+    id: "cc-001",
+    garage: "Garage Centro",
+    periodo: "Julio 2026",
+    periodoId: "2026-07",
+    consumos: 42,
+    importe: 485000,
+    vencimiento: "2026-08-01",
+    estado: "Vencido",
+    movimientos: [
+      { id: "m-001", fecha: "2026-07-29", concepto: "Reserva SL-1842", importe: 12500 },
+      { id: "m-002", fecha: "2026-07-21", concepto: "Reservas corporativas · semana 3", importe: 168000 },
+      { id: "m-003", fecha: "2026-07-14", concepto: "Reservas corporativas · semana 2", importe: 154500 },
+      { id: "m-004", fecha: "2026-07-07", concepto: "Reservas corporativas · semana 1", importe: 150000 },
+    ],
+  },
+  {
+    id: "cc-002",
+    garage: "Parking Puerto Madero",
+    periodo: "Julio 2026",
+    periodoId: "2026-07",
+    consumos: 31,
+    importe: 372400,
+    vencimiento: "2026-08-03",
+    estado: "Vencido",
+    movimientos: [
+      { id: "m-005", fecha: "2026-07-28", concepto: "Reservas corporativas · segunda quincena", importe: 196400 },
+      { id: "m-006", fecha: "2026-07-14", concepto: "Reservas corporativas · primera quincena", importe: 176000 },
+    ],
+  },
+  {
+    id: "cc-003",
+    garage: "Estacionamiento Palermo",
+    periodo: "Julio 2026",
+    periodoId: "2026-07",
+    consumos: 27,
+    importe: 298700,
+    vencimiento: "2026-08-08",
+    estado: "Próximo a vencer",
+    movimientos: [
+      { id: "m-007", fecha: "2026-07-25", concepto: "Reservas corporativas · segunda quincena", importe: 142700 },
+      { id: "m-008", fecha: "2026-07-10", concepto: "Reservas corporativas · primera quincena", importe: 156000 },
+    ],
+  },
+  {
+    id: "cc-004",
+    garage: "Cochera Belgrano Norte",
+    periodo: "Agosto 2026",
+    periodoId: "2026-08",
+    consumos: 18,
+    importe: 214900,
+    vencimiento: "2026-09-05",
+    estado: "Pendiente",
+    movimientos: [
+      { id: "m-009", fecha: "2026-08-03", concepto: "Reservas corporativas · semana 1", importe: 214900 },
+    ],
+  },
+  {
+    id: "cc-005",
+    garage: "Garage Tribunales",
+    periodo: "Junio 2026",
+    periodoId: "2026-06",
+    consumos: 36,
+    importe: 0,
+    importeLiquidado: 401200,
+    vencimiento: "2026-07-08",
+    estado: "Al día",
+    movimientos: [
+      { id: "m-010", fecha: "2026-07-06", concepto: "Liquidación cancelada", importe: -401200 },
+      { id: "m-011", fecha: "2026-06-30", concepto: "Consumos del período", importe: 401200 },
+    ],
+  },
+  {
+    id: "cc-006",
+    garage: "Parking Recoleta",
+    periodo: "Agosto 2026",
+    periodoId: "2026-08",
+    consumos: 14,
+    importe: 176500,
+    vencimiento: "2026-09-10",
+    estado: "Pendiente",
+    movimientos: [
+      { id: "m-012", fecha: "2026-08-02", concepto: "Reservas corporativas · semana 1", importe: 176500 },
+    ],
+  },
+];
+
+export const estadosCuenta = ["Al día", "Pendiente", "Próximo a vencer", "Vencido"];
+

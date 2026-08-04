@@ -12,6 +12,7 @@ import AgregarZona from "./vistasAdmin/agregar_zona";
 import PerfilAdmin from "./vistasAdmin/perfil_admin";
 import AdminPanelControl from "./vistasAdmin/admin_panel_de_control";
 import AdminReportesAnalisis from "./vistasAdmin/admin_reportes_analisis";
+import AdminPagos from "./vistasAdmin/admin_pagos";
 
 // Vistas de Superadmin
 import SuperadminDashboard from "./vistasSuperadmin/superadmin_dashboard";
@@ -171,6 +172,11 @@ function AppRoutes() {
       <Route path="/admin_reportes_analisis" element={
         <ProtectedRoute allowedRoles={[1]} usuario={usuario}>
           <AdminReportesAnalisis />
+        </ProtectedRoute>
+      } />
+      <Route path="/admin_pagos" element={
+        <ProtectedRoute allowedRoles={[1]} usuario={usuario}>
+          <AdminPagos />
         </ProtectedRoute>
       } />
 
