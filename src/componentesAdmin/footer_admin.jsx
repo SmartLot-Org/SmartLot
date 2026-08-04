@@ -4,6 +4,7 @@ import {
   CarFront,
   UsersRound,
   ChartBarDecreasing,
+  CreditCard,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -32,6 +33,11 @@ const FOOTER_ITEMS = [
     titulo: "PANEL",
     path: "/admin_panel_de_control",
     icono: <ChartBarDecreasing size={28} />,
+  },
+  {
+    titulo: "PAGOS",
+    path: "/admin_pagos",
+    icono: <CreditCard size={28} />,
   },
 ];
 
@@ -67,7 +73,7 @@ function FooterAdmin() {
   return (
     <footer
       className={`footer-admin${compacto ? " footer-compacto" : ""}`}
-      style={{ "--footer-active-offset": activeOffset }}
+      style={{ "--footer-active-offset": activeOffset, "--footer-items": FOOTER_ITEMS.length }}
       aria-label="Navegacion principal del administrador"
     >
       <span className="footer-active-indicator" aria-hidden="true" />
