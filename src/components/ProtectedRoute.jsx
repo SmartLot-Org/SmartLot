@@ -24,6 +24,7 @@ export default function ProtectedRoute({ allowedRoles, children, usuario }) {
         2: '/empleados_dashboard',
         3: '/garagista_dashboard',
         4: '/superadmin_dashboard',
+        5: '/duenio-garage/dashboard',
       };
       const ruta = rutas[userRole] || '/';
       navigate(ruta, { replace: true });

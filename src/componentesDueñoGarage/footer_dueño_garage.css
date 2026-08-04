@@ -1,0 +1,76 @@
+.duenio-footer {
+  position: fixed;
+  left: 50%;
+  bottom: 20px;
+  z-index: 45;
+  width: min(560px, calc(100vw - 28px));
+  height: 78px;
+  padding: 8px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border: 1px solid rgba(191, 219, 254, 0.18);
+  border-radius: 28px;
+  background: rgba(12, 30, 63, 0.9);
+  box-shadow: 0 24px 70px rgba(2, 6, 23, 0.28);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  transform: translateX(-50%);
+}
+
+.duenio-footer-indicator {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: calc((100% - 16px) / 3);
+  height: calc(100% - 16px);
+  border-radius: 22px;
+  background: linear-gradient(135deg, #2563eb, #156fe5);
+  box-shadow: 0 14px 28px rgba(37, 99, 235, 0.34);
+  transform: translateX(var(--duenio-footer-offset));
+  transition: transform 0.28s ease;
+}
+
+.duenio-footer-item {
+  position: relative;
+  z-index: 1;
+  border: 0;
+  border-radius: 22px;
+  background: transparent;
+  color: #94a3b8;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+  cursor: pointer;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.duenio-footer-item.is-active {
+  color: #ffffff;
+}
+
+.duenio-footer-item:hover {
+  transform: translateY(-2px);
+}
+
+@media (max-width: 520px) {
+  .duenio-footer {
+    bottom: 12px;
+    height: 68px;
+    border-radius: 22px;
+  }
+
+  .duenio-footer-indicator,
+  .duenio-footer-item {
+    border-radius: 17px;
+  }
+
+  .duenio-footer-item span {
+    font-size: 0.64rem;
+  }
+}

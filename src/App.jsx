@@ -13,6 +13,11 @@ import PerfilAdmin from "./vistasAdmin/perfil_admin";
 import AdminPanelControl from "./vistasAdmin/admin_panel_de_control";
 import AdminReportesAnalisis from "./vistasAdmin/admin_reportes_analisis";
 
+// Vistas Dueño de Garage
+import DuenioGarageDashboard from "./vistasDueñoGarage/duenio_garage_dashboard";
+import CrearGarageDueño from "./vistasDueñoGarage/crear_garage_dueño";
+import SolicitudesDueñoGarage from "./vistasDueñoGarage/solicitudes_dueño_garage";
+
 // Vistas de Superadmin
 import SuperadminDashboard from "./vistasSuperadmin/superadmin_dashboard";
 import GestionUsuarios from "./vistasSuperadmin/gestion_usuarios";
@@ -171,6 +176,23 @@ function AppRoutes() {
       <Route path="/admin_reportes_analisis" element={
         <ProtectedRoute allowedRoles={[1]} usuario={usuario}>
           <AdminReportesAnalisis />
+        </ProtectedRoute>
+      } />
+
+      {/* Rutas protegidas - Dueño de Garage */}
+      <Route path="/duenio-garage/dashboard" element={
+        <ProtectedRoute allowedRoles={[5]} usuario={usuario}>
+          <DuenioGarageDashboard />
+        </ProtectedRoute>
+      } />
+      <Route path="/duenio-garage/crear-garage" element={
+        <ProtectedRoute allowedRoles={[5]} usuario={usuario}>
+          <CrearGarageDueño />
+        </ProtectedRoute>
+      } />
+      <Route path="/duenio-garage/solicitudes" element={
+        <ProtectedRoute allowedRoles={[5]} usuario={usuario}>
+          <SolicitudesDueñoGarage />
         </ProtectedRoute>
       } />
 

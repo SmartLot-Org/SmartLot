@@ -1,0 +1,130 @@
+.duenio-request-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(220px, 0.75fr) auto;
+  gap: 1rem;
+  align-items: center;
+  padding: 1rem;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 18px 44px rgba(15, 23, 42, 0.08);
+}
+
+.duenio-request-main {
+  display: grid;
+  gap: 0.45rem;
+  text-align: left;
+}
+
+.duenio-request-status {
+  width: fit-content;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.28rem 0.55rem;
+  border-radius: 999px;
+  background: #fefce8;
+  color: #a16207;
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.duenio-request-status.status-aprobada,
+.duenio-request-status.status-aceptada {
+  background: #f0fdf4;
+  color: #15803d;
+}
+
+.duenio-request-status.status-rechazada {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.duenio-request-main h3 {
+  margin: 0;
+  color: #0c1e3f;
+  font-size: 1.25rem;
+  font-weight: 900;
+}
+
+.duenio-request-main p {
+  color: #64748b;
+  line-height: 1.45;
+}
+
+.duenio-request-side {
+  display: grid;
+  gap: 0.55rem;
+  text-align: left;
+}
+
+.duenio-request-side div {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #1e293b;
+  font-weight: 900;
+}
+
+.duenio-request-side svg {
+  color: #2563eb;
+}
+
+.duenio-request-side strong {
+  color: #94a3b8;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.duenio-request-actions {
+  display: flex;
+  gap: 0.55rem;
+}
+
+.duenio-request-actions button {
+  min-height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  border: 0;
+  border-radius: 14px;
+  padding: 0 0.8rem;
+  cursor: pointer;
+  font-weight: 900;
+  transition: transform 0.18s ease, opacity 0.18s ease;
+}
+
+.duenio-request-actions button:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+.duenio-request-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.duenio-request-actions .reject {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.duenio-request-actions .accept {
+  background: #2563eb;
+  color: #ffffff;
+  box-shadow: 0 12px 24px rgba(37, 99, 235, 0.22);
+}
+
+@media (max-width: 860px) {
+  .duenio-request-card {
+    grid-template-columns: 1fr;
+  }
+
+  .duenio-request-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+}

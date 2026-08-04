@@ -31,6 +31,7 @@ const obtenerMensajeError = (datos, fallback) => {
 const ROLE_OPTIONS = [
   { id: 1, label: "Admin" },
   { id: 4, label: "Superadmin" },
+  { id: 5, label: "Dueño de garage" },
   { id: 2, label: "Empleado" },
   { id: 3, label: "Garagista" },
 ];

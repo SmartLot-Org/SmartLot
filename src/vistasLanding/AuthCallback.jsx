@@ -35,6 +35,7 @@ export default function AuthCallback() {
           2: '/empleados_dashboard',
           3: '/garagista_dashboard',
           4: '/superadmin_dashboard',
+          5: '/duenio-garage/dashboard',
         };
         navigate(rutas[Number(usuario.id_rol)] || '/', { replace: true });
       })

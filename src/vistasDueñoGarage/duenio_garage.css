@@ -1,0 +1,404 @@
+.duenio-garage-page {
+  --duenio-navy: #0c1e3f;
+  --duenio-blue: #2563eb;
+  --duenio-blue-hot: #156fe5;
+  --duenio-ink: #0f172a;
+  --duenio-muted: #64748b;
+  --duenio-line: #e2e8f0;
+  min-height: 100vh;
+  padding-bottom: 128px;
+  background:
+    radial-gradient(circle at 18% 8%, rgba(37, 99, 235, 0.18), transparent 31rem),
+    radial-gradient(circle at 86% 2%, rgba(34, 197, 94, 0.08), transparent 22rem),
+    linear-gradient(180deg, #f8fbff 0%, #eef4ff 46%, #f5f7fb 100%);
+  color: var(--duenio-ink);
+  text-align: left;
+}
+
+.duenio-garage-shell {
+  width: min(1180px, calc(100% - 8%));
+  margin: 0 auto;
+}
+
+.duenio-hero {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 2rem;
+  align-items: end;
+  padding: clamp(1.2rem, 4vw, 2.4rem);
+  overflow: hidden;
+  border: 1px solid rgba(37, 99, 235, 0.12);
+  border-radius: 34px;
+  background:
+    linear-gradient(135deg, rgba(12, 30, 63, 0.96), rgba(12, 30, 63, 0.82)),
+    var(--duenio-navy);
+  box-shadow: 0 28px 80px rgba(12, 30, 63, 0.22);
+  isolation: isolate;
+}
+
+.duenio-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.5;
+  background:
+    linear-gradient(120deg, transparent 0 42%, rgba(37, 99, 235, 0.32) 42% 43%, transparent 43%),
+    repeating-linear-gradient(90deg, rgba(219, 234, 254, 0.09) 0 1px, transparent 1px 58px);
+}
+
+.duenio-hero::after {
+  content: "";
+  position: absolute;
+  right: -70px;
+  top: -90px;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(96, 165, 250, 0.42), transparent 68%);
+  z-index: -1;
+}
+
+.duenio-kicker,
+.duenio-section-head span {
+  color: #60a5fa;
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.duenio-hero-copy h1,
+.duenio-section-head h1,
+.duenio-section-head h2 {
+  margin: 0.55rem 0 0;
+  color: #ffffff;
+  font-family: var(--heading);
+  font-size: clamp(2.4rem, 6vw, 5.2rem);
+  line-height: 0.92;
+  letter-spacing: -0.07em;
+  max-width: 850px;
+}
+
+.duenio-hero-copy p,
+.duenio-section-head p {
+  max-width: 690px;
+  margin-top: 1.05rem;
+  color: #cbd5e1;
+  font-size: clamp(1rem, 1.6vw, 1.18rem);
+  line-height: 1.55;
+}
+
+.duenio-hero-actions,
+.duenio-form-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.duenio-hero-actions button,
+.duenio-form-actions button,
+.duenio-empty-state button,
+.duenio-back-button {
+  min-height: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  border: 0;
+  border-radius: 16px;
+  padding: 0 1rem;
+  cursor: pointer;
+  font-weight: 900;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.duenio-hero-actions button,
+.duenio-form-actions button,
+.duenio-empty-state button {
+  background: var(--duenio-blue);
+  color: #ffffff;
+  box-shadow: 0 16px 30px rgba(37, 99, 235, 0.25);
+}
+
+.duenio-hero-actions button:hover,
+.duenio-form-actions button:hover:not(:disabled),
+.duenio-empty-state button:hover,
+.duenio-back-button:hover {
+  transform: translateY(-2px);
+}
+
+.duenio-hero-actions .secondary,
+.duenio-form-actions .secondary {
+  background: rgba(255, 255, 255, 0.1);
+  color: #dbeafe;
+  border: 1px solid rgba(219, 234, 254, 0.16);
+  box-shadow: none;
+}
+
+.duenio-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 1rem 0 2.6rem;
+}
+
+.duenio-stats-grid article {
+  position: relative;
+  min-height: 142px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+  border: 1px solid rgba(226, 232, 240, 0.86);
+  border-radius: 26px;
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: 0 18px 42px rgba(15, 23, 42, 0.07);
+  backdrop-filter: blur(14px);
+}
+
+.duenio-stats-grid article::after {
+  content: "";
+  position: absolute;
+  inset: auto -40px -56px auto;
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  background: rgba(37, 99, 235, 0.1);
+}
+
+.duenio-stats-grid svg {
+  color: var(--duenio-blue);
+}
+
+.duenio-stats-grid span {
+  color: var(--duenio-muted);
+  font-size: 0.82rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.duenio-stats-grid strong {
+  color: var(--duenio-ink);
+  font-family: var(--heading);
+  font-size: 2.35rem;
+  line-height: 1;
+  letter-spacing: -0.06em;
+}
+
+.duenio-section-head {
+  margin: 0 0 1.25rem;
+  text-align: center;
+}
+
+.duenio-section-head.left {
+  text-align: left;
+}
+
+.duenio-section-head h1,
+.duenio-section-head h2 {
+  color: var(--duenio-ink);
+  font-size: clamp(2rem, 5vw, 4rem);
+}
+
+.duenio-section-head p {
+  color: var(--duenio-muted);
+}
+
+.duenio-garages-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+  gap: 1rem;
+}
+
+.duenio-card-skeleton,
+.duenio-request-skeleton {
+  min-height: 340px;
+  border-radius: 30px;
+  background: linear-gradient(90deg, #e2e8f0, #f8fafc, #e2e8f0);
+  background-size: 220% 100%;
+  animation: duenio-shimmer 1.3s infinite linear;
+}
+
+.duenio-feedback {
+  margin: 1rem 0;
+  padding: 0.9rem 1rem;
+  border-radius: 18px;
+  font-weight: 800;
+}
+
+.duenio-feedback.error {
+  border: 1px solid rgba(239, 68, 68, 0.24);
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.duenio-empty-state {
+  display: grid;
+  justify-items: center;
+  gap: 0.75rem;
+  padding: 2.2rem;
+  border: 1px dashed rgba(37, 99, 235, 0.36);
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.72);
+  text-align: center;
+}
+
+.duenio-empty-state h3 {
+  margin: 0;
+  color: var(--duenio-ink);
+  font-size: 1.4rem;
+}
+
+.duenio-empty-state p {
+  max-width: 560px;
+  color: var(--duenio-muted);
+}
+
+.duenio-back-button {
+  margin-bottom: 1rem;
+  border: 1px solid rgba(37, 99, 235, 0.14);
+  background: #ffffff;
+  color: var(--duenio-blue);
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.07);
+}
+
+.duenio-form-shell {
+  width: min(920px, calc(100% - 8%));
+}
+
+.duenio-form-card {
+  display: grid;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid rgba(226, 232, 240, 0.92);
+  border-radius: 30px;
+  background: rgba(255, 255, 255, 0.84);
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.08);
+}
+
+.duenio-form-card .formulario-zona,
+.duenio-form-card .formulario-capacidad {
+  box-shadow: none;
+  border-color: rgba(226, 232, 240, 0.9);
+}
+
+.duenio-form-actions {
+  margin-top: 1rem;
+}
+
+.duenio-form-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+  transform: none;
+}
+
+.duenio-requests-summary {
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr);
+  gap: 1rem;
+  align-items: center;
+  margin: 1rem 0;
+  padding: 1rem;
+  border-radius: 24px;
+  background: var(--duenio-navy);
+  color: #ffffff;
+  box-shadow: 0 20px 52px rgba(12, 30, 63, 0.18);
+}
+
+.duenio-requests-summary > svg {
+  color: #60a5fa;
+}
+
+.duenio-requests-summary div {
+  display: grid;
+}
+
+.duenio-requests-summary span {
+  color: #93c5fd;
+  font-size: 0.75rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.duenio-requests-summary strong {
+  font-family: var(--heading);
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.duenio-requests-summary p {
+  justify-self: end;
+  color: #cbd5e1;
+  font-size: 0.9rem;
+}
+
+.duenio-requests-list {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.duenio-request-skeleton {
+  min-height: 116px;
+}
+
+@keyframes duenio-shimmer {
+  to {
+    background-position: -220% 0;
+  }
+}
+
+@media (max-width: 900px) {
+  .duenio-hero {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  .duenio-stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .duenio-requests-summary {
+    grid-template-columns: auto 1fr;
+  }
+
+  .duenio-requests-summary p {
+    grid-column: 1 / -1;
+    justify-self: start;
+  }
+}
+
+@media (max-width: 560px) {
+  .duenio-garage-page {
+    padding-bottom: 108px;
+  }
+
+  .duenio-garage-shell,
+  .duenio-form-shell {
+    width: calc(100% - 1.5rem);
+  }
+
+  .duenio-hero {
+    border-radius: 26px;
+  }
+
+  .duenio-hero-actions,
+  .duenio-form-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .duenio-stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .duenio-form-card {
+    padding: 0.7rem;
+    border-radius: 24px;
+  }
+}

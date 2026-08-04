@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { useAuth } from '../../contexts/useAuth';
@@ -9,8 +9,6 @@ export default function Navbar() {
   const { usuario } = useAuth();
   const navigate = useNavigate();
   const navRef = useRef();
-  const location = useLocation();
-  const isLanding = location.pathname === '/';
 
   const handleLoginClick = (e) => {
     if (usuario) {
@@ -21,6 +19,7 @@ export default function Navbar() {
         2: '/empleados_dashboard',
         3: '/garagista_dashboard',
         4: '/superadmin_dashboard',
+        5: '/duenio-garage/dashboard',
       };
       const ruta = rutas[Number(usuario.id_rol)] || '/';
       setTimeout(() => navigate(ruta), 1500);

@@ -326,6 +326,7 @@
 .role-pill.active.role-superadmin { background: #F59E0B; }
 .role-pill.active.role-empleado { background: #10B981; }
 .role-pill.active.role-garagista { background: #8B5CF6; }
+.role-pill.active.role-duenio-garage { background: #0C1E3F; }
 
 /* GRILLA DE USUARIOS */
 .usuarios-grid {
@@ -410,6 +411,7 @@
 .usuario-role-badge.role-superadmin { background: rgba(245, 158, 11, 0.1); color: #F59E0B; }
 .usuario-role-badge.role-empleado { background: rgba(16, 185, 129, 0.1); color: #10B981; }
 .usuario-role-badge.role-garagista { background: rgba(139, 92, 246, 0.1); color: #8B5CF6; }
+.usuario-role-badge.role-duenio-garage { background: rgba(12, 30, 63, 0.1); color: #0C1E3F; }
 
 .usuario-card-body {
   display: flex;

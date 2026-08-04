@@ -15,14 +15,13 @@ export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState(() => location.state?.error || "");
   const [cooldown, setCooldown] = useState(0);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [googleError, setGoogleError] = useState("");
 
   useEffect(() => {
     if (location.state?.error) {
-      setError(location.state.error);
       window.history.replaceState({}, document.title);
     }
   }, [location.state]);
@@ -81,6 +80,7 @@ export default function LoginForm() {
         2: "/empleados_dashboard",
         3: "/garagista_dashboard",
         4: "/superadmin_dashboard",
+        5: "/duenio-garage/dashboard",
       };
 
       const rutaDestino = rutas[Number(usuario?.id_rol)] || "/";

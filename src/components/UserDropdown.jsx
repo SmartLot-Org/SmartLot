@@ -16,6 +16,7 @@ const ROLE_LABELS = {
   2: 'Empleado',
   3: 'Garagista',
   4: 'Superadmin',
+  5: 'Dueño de garage',
 };
 
 const AVATAR_GRADIENTS = [
@@ -130,6 +131,9 @@ export default function UserDropdown() {
       case 4:
         navigate('/superadmin_dashboard');
         break;
+      case 5:
+        navigate('/duenio-garage/dashboard');
+        break;
       default:
         navigate('/');
         break;
@@ -170,7 +174,7 @@ export default function UserDropdown() {
 
     setUsuario(null);
     navigate('/login', { replace: true });
-  }, [navigate, setUsuario]);
+  }, [navigate, setRoleTransition, setUsuario]);
 
   return (
     <div className="relative" ref={containerRef} onKeyDown={handleKeyDown}>

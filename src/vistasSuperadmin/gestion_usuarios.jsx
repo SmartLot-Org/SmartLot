@@ -57,6 +57,7 @@ const ROLE_LABELS = {
   2: "Empleado",
   3: "Garagista",
   4: "Superadmin",
+  5: "Dueño de garage",
 };
 
 const ROLE_CLASSES = {
@@ -64,9 +65,10 @@ const ROLE_CLASSES = {
   2: "role-empleado",
   3: "role-garagista",
   4: "role-superadmin",
+  5: "role-duenio-garage",
 };
 
-const ROLE_ORDER = [4, 1, 3, 2];
+const ROLE_ORDER = [4, 5, 1, 3, 2];
 
 const obtenerActorAuditoria = (item, tipo) => {
   const nombre = item?.[`${tipo}ByNombre`]?.trim?.();
@@ -539,6 +541,7 @@ const GestionUsuarios = () => {
       1: '/admin_dashboard',
       2: '/empleados_dashboard',
       3: '/garagista_dashboard',
+      5: '/duenio-garage/dashboard',
     };
     navigate(rutas[targetUser.id_rol] || '/');
   };

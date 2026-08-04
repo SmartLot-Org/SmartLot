@@ -9,6 +9,7 @@ const RUTAS_POR_ROL = {
   2: '/empleados_dashboard',
   3: '/garagista_dashboard',
   4: '/superadmin_dashboard',
+  5: '/duenio-garage/dashboard',
 };
 
 export default function Login() {
