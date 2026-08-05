@@ -79,6 +79,7 @@ function invalidateCacheForMutation(config = {}) {
     invalidateByPrefix('reservas:');
     invalidateByPrefix('conflictos:');
     invalidateByPrefix('vehiculos:');
+    invalidateByPrefix('tratos:');
   }
 
   if (url.includes('/api/empresa')) {
@@ -88,6 +89,7 @@ function invalidateCacheForMutation(config = {}) {
     invalidateByPrefix('garages:');
     invalidateByPrefix('reservas:');
     invalidateByPrefix('conflictos:');
+    invalidateByPrefix('tratos:');
   }
 
   if (url.includes('/api/sede')) {
@@ -104,6 +106,13 @@ function invalidateCacheForMutation(config = {}) {
     invalidateByPrefix('reservas:');
     invalidateByPrefix('conflictos:');
     invalidateByPrefix('reservas:disponibilidad:');
+    invalidateByPrefix('tratos:');
+  }
+
+  if (url.includes('/api/trato-empresa-garage')) {
+    invalidateByPrefix('tratos:');
+    invalidateByPrefix('garages:');
+    invalidateByPrefix('empresas:');
   }
 
   if (url.includes('/api/reserva')) {

@@ -41,6 +41,7 @@ import {
 import { EmpresasGetAll } from "../servicies/API_Empresa";
 import { SedesGetAll } from "../servicies/API_Sede";
 import { GaragesGetAll } from "../servicies/API_Garage";
+import { getUserHomeRoute } from '../helpers/roles';
 
 gsap.registerPlugin(useGSAP);
 
@@ -537,13 +538,7 @@ const GestionUsuarios = () => {
     setRoleTransition(true);
     setUsuario(finalUser);
 
-    const rutas = {
-      1: '/admin_dashboard',
-      2: '/empleados_dashboard',
-      3: '/garagista_dashboard',
-      5: '/duenio-garage/dashboard',
-    };
-    navigate(rutas[targetUser.id_rol] || '/');
+    navigate(getUserHomeRoute(finalUser));
   };
 
   // Animaciones iniciales

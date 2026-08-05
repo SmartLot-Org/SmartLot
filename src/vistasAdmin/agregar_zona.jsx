@@ -10,6 +10,8 @@ import BotonGenerico from "../componentesAdmin/boton_generico";
 import { GaragesCreate } from "../servicies/API_Garage";
 import { SedesGetAll } from "../servicies/API_Sede";
 import useLiveValidation from "../hooks/useLiveValidation";
+import FormularioPreciosGarage from "../componentesCompartidos/FormularioPreciosGarage";
+import { buildGaragePricesPayload } from "../helpers/prices";
 
 function AgregarZona() {
   const navigate = useNavigate();
@@ -24,7 +26,7 @@ function AgregarZona() {
     capacidad_reservas: "",
     capacidad_para_no_reservas: "",
     id_sede: usuario?.id_sede ?? "",
-    dias: []
+    dias: [], precio_pickup: "", precio_auto: "", precio_moto: ""
   });
   const [coordenadas, setCoordenadas] = useState({ lat: null, lng: null, direccion: '' });
   const [sedes, setSedes] = useState([]);
@@ -160,6 +162,10 @@ function AgregarZona() {
     const capNoRes = Number(formData.capacidad_para_no_reservas);
     const cap = capRes + capNoRes;
 
+    let precios;
+    try { precios = buildGaragePricesPayload(formData); }
+    catch (validationError) { setError(validationError.message); return; }
+
     setLoading(true);
 
     const garage = {
@@ -177,7 +183,8 @@ function AgregarZona() {
       capacidad_reservas: capRes,
       ocupacion_reservas: 0,
       ocupacion_no_reservas: 0,
-      dias: formData.dias
+      dias: formData.dias,
+      ...precios
     };
 
     const response = await GaragesCreate(garage);
@@ -221,6 +228,7 @@ function AgregarZona() {
             formData={formData}
             onChange={handleChange}
           />
+          <FormularioPreciosGarage values={formData} onChange={handleChange} disabled={loading} />
         </div>
 
         {error && <p className="form-error" style={{ color: '#d32f2f', padding: '12px', marginBottom: '16px', backgroundColor: '#ffebee', borderRadius: '4px', fontWeight: 'bold' }}>{error}</p>}

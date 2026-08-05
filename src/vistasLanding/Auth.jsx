@@ -5,14 +5,7 @@ import { useGSAP } from '@gsap/react';
 import LoginForm from '../componentesLanding/auth/LoginForm';
 import BrandPanel from '../componentesLanding/auth/BrandPanel';
 import { useAuth } from '../contexts/useAuth';
-
-const RUTAS_POR_ROL = {
-  1: '/admin_dashboard',
-  2: '/empleados_dashboard',
-  3: '/garagista_dashboard',
-  4: '/superadmin_dashboard',
-  5: '/duenio-garage/dashboard',
-};
+import { getUserHomeRoute } from '../helpers/roles';
 
 export default function Auth() {
   const { usuario } = useAuth();
@@ -39,7 +32,7 @@ export default function Auth() {
   }, { scope: container });
 
   if (usuario) {
-    return <Navigate to={RUTAS_POR_ROL[Number(usuario.id_rol)] || '/'} replace />;
+    return <Navigate to={getUserHomeRoute(usuario)} replace />;
   }
 
   return (

@@ -3,14 +3,7 @@ import { Link } from 'react-router-dom';
 import { Eye, EyeOff, Lock, LogIn, Mail, ParkingSquare } from 'lucide-react';
 import apiClient from '../api/client';
 import './Login.css';
-
-const RUTAS_POR_ROL = {
-  1: '/admin_dashboard',
-  2: '/empleados_dashboard',
-  3: '/garagista_dashboard',
-  4: '/superadmin_dashboard',
-  5: '/duenio-garage/dashboard',
-};
+import { getUserHomeRoute } from '../helpers/roles';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -46,7 +39,7 @@ export default function Login() {
       }, { _skipAuthRedirect: true });
 
       const usuario = res.data?.usuario;
-      window.location.href = RUTAS_POR_ROL[Number(usuario?.id_rol)] || '/';
+      window.location.href = getUserHomeRoute(usuario);
     } catch (err) {
       const msg = err.response?.data?.message || 'Error de conexión.';
       setError(msg);

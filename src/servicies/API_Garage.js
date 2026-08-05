@@ -42,6 +42,8 @@ const GaragesGetAll = async ({ force = false } = {}) => {
     } catch (error) {
 
         logApiError(error);
+        returnObject.datos = error.response?.data || { message: error.message };
+        returnObject.status = error.response?.status || 0;
         return returnObject;
     }
 };
@@ -138,6 +140,8 @@ const GaragesGetById = async (id, { force = false } = {}) => {
             console.log("Full error:", error);
             console.groupEnd();
         }
+        returnObject.datos = error.response?.data || { message: error.message };
+        returnObject.status = error.response?.status || 0;
         return returnObject;
     }
 };

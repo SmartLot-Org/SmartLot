@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import apiClient from '../api/client';
 import { useAuth } from '../contexts/useAuth';
+import { getUserHomeRoute } from '../helpers/roles';
 
 export default function AuthCallback() {
   const navigate = useNavigate();
@@ -30,14 +31,7 @@ export default function AuthCallback() {
           navigate('/login', { replace: true, state: { error: 'No se recibieron datos del usuario.' } });
           return;
         }
-        const rutas = {
-          1: '/admin_dashboard',
-          2: '/empleados_dashboard',
-          3: '/garagista_dashboard',
-          4: '/superadmin_dashboard',
-          5: '/duenio-garage/dashboard',
-        };
-        navigate(rutas[Number(usuario.id_rol)] || '/', { replace: true });
+        navigate(getUserHomeRoute(usuario), { replace: true });
       })
       .catch((err) => {
         const msg = err.response?.data?.message || 'Error al iniciar sesión con Google.';

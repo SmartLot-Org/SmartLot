@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../componentesAdmin/header_admin";
 import FooterAdmin from "../componentesAdmin/footer_admin";
-import { UserPlus, Car, SlidersVertical, PersonStanding, WalletCards } from "lucide-react";
+import { UserPlus, Car, SlidersVertical, PersonStanding, WalletCards, Handshake } from "lucide-react";
 
 const DashboardHeaderSkeleton = () => (
   <section className="dashboard-header-skeleton" aria-label="Cargando dashboard">
@@ -94,6 +94,7 @@ function AdminDashboard() {
               descripcion="Consultá saldos, liquidaciones y movimientos"
               onClick={() => navigate("/admin_pagos")}
             />
+            <DashboardBoton icono={<Handshake />} titulo="Tratos con garages" descripcion="Acuerdos de cocheras y precios" onClick={() => navigate('/admin/tratos-garages')} />
           </div>
         )}
       </div>

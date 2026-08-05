@@ -12,6 +12,8 @@ import { GaragesGetAll } from "../servicies/API_Garage";
 import useLiveValidation from "../hooks/useLiveValidation";
 import FieldValidation from "../components/FieldValidation";
 import { showToast } from "../helpers/toast";
+import { RolesGetAll } from '../servicies/API_Rol';
+import { normalizeRoleName } from '../helpers/roles';
 
 const obtenerListado = (datos) => {
   if (Array.isArray(datos)) return datos;
@@ -31,7 +33,6 @@ const obtenerMensajeError = (datos, fallback) => {
 const ROLE_OPTIONS = [
   { id: 1, label: "Admin" },
   { id: 4, label: "Superadmin" },
-  { id: 5, label: "Dueño de garage" },
   { id: 2, label: "Empleado" },
   { id: 3, label: "Garagista" },
 ];
@@ -80,6 +81,7 @@ function AgregarUsuario() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [loadingCatalogos, setLoadingCatalogos] = useState(true);
+  const [roleOptions, setRoleOptions] = useState(ROLE_OPTIONS);
 
   const idRol = Number(formData.id_rol);
 
@@ -89,15 +91,23 @@ function AgregarUsuario() {
     const fetchData = async () => {
       setLoadingCatalogos(true);
       try {
-        const [empRes, sedRes, garRes] = await Promise.all([
+        const [empRes, sedRes, garRes, rolesRes] = await Promise.all([
           EmpresasGetAll(),
           SedesGetAll(),
           GaragesGetAll(),
+          RolesGetAll(),
         ]);
         if (!mounted) return;
         if (empRes.respuesta) setEmpresas(obtenerListado(empRes.datos));
         if (sedRes.respuesta) setSedes(obtenerListado(sedRes.datos));
         if (garRes.respuesta) setGarages(obtenerListado(garRes.datos));
+        if (rolesRes.respuesta) {
+          const roles = obtenerListado(rolesRes.datos);
+          const owner = roles.find((role) => normalizeRoleName(role.tipo_rol) === 'due\u00f1o_garage');
+          if (owner) {
+            setRoleOptions([...ROLE_OPTIONS, { id: Number(owner.id), label: 'Dueño de garage' }]);
+          }
+        }
       } finally {
         if (mounted) setLoadingCatalogos(false);
       }
@@ -225,14 +235,10 @@ function AgregarUsuario() {
       email: emailNormalizado,
       telefono: formData.telefono.trim(),
       contraseña: formData.contraseña,
-      id_empresa: ROLES_NEED_EMPRESA.includes(idRol) ? Number(formData.id_empresa) : '',
-      id_sede: ROLES_NEED_SEDE.includes(idRol)
-        ? formData.id_sede === "sede_general"
-          ? null
-          : Number(formData.id_sede) || ''
-        : '',
-      id_garage: ROLES_NEED_GARAGE.includes(idRol) ? Number(formData.id_garage) || '' : '',
     };
+    if (ROLES_NEED_EMPRESA.includes(idRol)) payload.id_empresa = Number(formData.id_empresa);
+    if (ROLES_NEED_SEDE.includes(idRol)) payload.id_sede = formData.id_sede === "sede_general" ? null : Number(formData.id_sede);
+    if (ROLES_NEED_GARAGE.includes(idRol)) payload.id_garage = Number(formData.id_garage);
 
     const response = await UsuariosCreate(payload);
 
@@ -342,7 +348,7 @@ function AgregarUsuario() {
                 required
               >
                 <option value="">Seleccionar rol...</option>
-                {ROLE_OPTIONS.map((rol) => (
+                {roleOptions.map((rol) => (
                   <option key={rol.id} value={rol.id}>
                     {rol.label}
                   </option>

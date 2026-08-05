@@ -1,10 +1,10 @@
-import { Bell, Building2 } from "lucide-react";
+import { Building2, Handshake } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import UserDropdown from "../components/UserDropdown";
 import logo from "../Imagenes/Logo_SmartLot-removebg-preview.png";
 import "./header_dueño_garage.css";
 
-function HeaderDueñoGarage({ solicitudesPendientes = 0 }) {
+function HeaderDueñoGarage() {
   const navigate = useNavigate();
 
   return (
@@ -24,10 +24,7 @@ function HeaderDueñoGarage({ solicitudesPendientes = 0 }) {
             <Building2 size={16} />
             Dueño de garage
           </span>
-          <button className="duenio-header-bell" aria-label="Solicitudes pendientes">
-            <Bell size={19} />
-            {solicitudesPendientes > 0 && <span>{solicitudesPendientes}</span>}
-          </button>
+          <button className="duenio-header-bell" aria-label="Ver tratos" onClick={() => navigate('/duenio-garage/tratos')}><Handshake size={19} /></button>
           <UserDropdown />
         </div>
       </header>

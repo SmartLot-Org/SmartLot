@@ -32,6 +32,8 @@ import { GaragesUpdate } from "../servicies/API_Garage";
 import { UsuariosGetByGarage, UsuariosPatchEstado } from '../servicies/API_Usuario';
 import useLiveValidation from "../hooks/useLiveValidation";
 import FieldValidation from "../components/FieldValidation";
+import FormularioPreciosGarage from "../componentesCompartidos/FormularioPreciosGarage";
+import { buildGaragePricesPayload } from "../helpers/prices";
 
 const libraries = ['places'];
 
@@ -72,7 +74,7 @@ function EditarZona() {
     setToast({ id: toastKeyRef.current, mensaje, onDeshacer });
   };
 
-  const handleArchivarEmpleado = async (id, nombre) => {
+  const handleArchivarEmpleado = async (id) => {
     try {
       const response = await UsuariosPatchEstado(id, false);
 
@@ -128,6 +130,7 @@ function EditarZona() {
     return garageData ? obtenerHoraGarage(garageData, ['hora_cierre', 'horaCierre', 'cierre']) : '';
   });
   const [es24Horas, setEs24Horas] = useState(false);
+  const [precios, setPrecios] = useState({ precio_pickup: garageData?.precio_pickup ?? '', precio_auto: garageData?.precio_auto ?? '', precio_moto: garageData?.precio_moto ?? '' });
 
   const [diasSeleccionados, setDiasSeleccionados] = useState(() => {
     let diasArray = garageData?.dias;
@@ -214,7 +217,7 @@ function EditarZona() {
     ],
   });
 
-  const { isValid, touched, touch } = useLiveValidation(formDataVal, getSchema());
+  const { isValid, touched, touch, touchAll } = useLiveValidation(formDataVal, getSchema());
 
   const buildConditions = (fieldName) => {
     const schema = getSchema();
@@ -253,8 +256,11 @@ function EditarZona() {
       capacidadReservas !== origCapReservas ||
       capacidadNoReservas !== origCapNoReservas ||
       [...diasSeleccionados].sort().join(',') !== origDias.join(',')
+      || precios.precio_pickup !== (garageData.precio_pickup ?? '')
+      || precios.precio_auto !== (garageData.precio_auto ?? '')
+      || precios.precio_moto !== (garageData.precio_moto ?? '')
     );
-  }, [nombreGarage, piso, ubicacion, horaApertura, horaCierre, estadoActivo, capacidadReservas, capacidadNoReservas, diasSeleccionados, garageData]);
+  }, [nombreGarage, piso, ubicacion, horaApertura, horaCierre, estadoActivo, capacidadReservas, capacidadNoReservas, diasSeleccionados, garageData, precios]);
 
   // Prevenir cierre accidental de pestaña o recarga del navegador
   useEffect(() => {
@@ -360,6 +366,7 @@ function EditarZona() {
          capacidad_reservas: Number(capacidadReservas),
          capacidad_para_no_reservas: Number(capacidadNoReservas),
          dias: diasSeleccionados
+         ,...buildGaragePricesPayload(precios)
       };
 
       const id = obtenerIdGarage(garageData);
@@ -411,6 +418,8 @@ function EditarZona() {
         </section>
 
         <form className="formulario-editar-zona" onSubmit={guardarCambios}>
+          <FormularioPreciosGarage values={precios} onChange={(name, value) => setPrecios((current) => ({ ...current, [name]: value }))} disabled={loading} />
+
           <section className="bloque-formulario">
             <div className="bloque-titulo">
               <span className="bloque-icono">

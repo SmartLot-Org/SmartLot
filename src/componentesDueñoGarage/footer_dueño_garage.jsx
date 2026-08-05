@@ -5,7 +5,7 @@ import "./footer_dueño_garage.css";
 const ITEMS = [
   { label: "Garages", path: "/duenio-garage/dashboard", icon: <Building2 size={24} /> },
   { label: "Crear", path: "/duenio-garage/crear-garage", icon: <CirclePlus size={24} /> },
-  { label: "Solicitudes", path: "/duenio-garage/solicitudes", icon: <ClipboardList size={24} /> },
+  { label: "Tratos", path: "/duenio-garage/tratos", icon: <ClipboardList size={24} /> },
 ];
 
 function FooterDueñoGarage() {

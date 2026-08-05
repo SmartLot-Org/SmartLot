@@ -1,12 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowUpRight, CirclePlus, ClipboardList, Gauge, Warehouse } from "lucide-react";
-import { useAuth } from "../contexts/useAuth";
 import HeaderDueñoGarage from "../componentesDueñoGarage/header_dueño_garage";
 import FooterDueñoGarage from "../componentesDueñoGarage/footer_dueño_garage";
 import TarjetaGarageDueño from "../componentesDueñoGarage/tarjeta_garage_dueño";
 import { GaragesGetAll } from "../servicies/API_Garage";
-import { SolicitudesGarageGetAll } from "../servicies/API_SolicitudGarage";
+import { TratosGetAll } from "../servicies/API_TratoEmpresaGarage";
 import "./duenio_garage.css";
 
 const obtenerListado = (datos) => {
@@ -18,17 +17,7 @@ const obtenerListado = (datos) => {
   return [];
 };
 
-const obtenerIdGarage = (garage, index) =>
-  garage.id_garage ?? garage.idGarage ?? garage.id ?? garage._id ?? index;
-
-const obtenerIdDueñoGarage = (garage) =>
-  garage.id_duenio ?? garage.id_dueño ?? garage.id_propietario ?? garage.id_owner ?? garage.owner_id ?? garage.id_usuario_duenio ?? garage.id_usuario_dueño;
-
-const perteneceAlDueño = (garage, usuario) => {
-  const idDueño = obtenerIdDueñoGarage(garage);
-  if (idDueño == null || idDueño === "") return true;
-  return Number(idDueño) === Number(usuario?.id ?? usuario?.id_usuario ?? usuario?.idUsuario);
-};
+const obtenerIdGarage = (garage, index) => garage.id ?? index;
 
 const obtenerOcupacion = (garage) =>
   Number(garage.ocupacion_reservas || 0) + Number(garage.ocupacion_no_reservas || 0);
@@ -41,9 +30,8 @@ const obtenerPorcentajeOcupacion = (garage) => {
 
 function DuenioGarageDashboard() {
   const navigate = useNavigate();
-  const { usuario } = useAuth();
   const [garages, setGarages] = useState([]);
-  const [solicitudesPendientes, setSolicitudesPendientes] = useState(0);
+  const [tratos, setTratos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -54,27 +42,21 @@ function DuenioGarageDashboard() {
       setLoading(true);
       setError("");
 
-      const [garagesRes, solicitudesRes] = await Promise.all([
+      const [garagesRes, tratosRes] = await Promise.all([
         GaragesGetAll(),
-        SolicitudesGarageGetAll(),
+        TratosGetAll(),
       ]);
 
       if (!montado) return;
 
       if (garagesRes.respuesta) {
-        const lista = obtenerListado(garagesRes.datos).filter((garage) => perteneceAlDueño(garage, usuario));
-        setGarages(lista);
+        setGarages(obtenerListado(garagesRes.datos));
       } else {
-        setError("No se pudieron cargar tus garages.");
+        setGarages([]);
+        setError(garagesRes.status === 403 ? "No tenés permiso para consultar estos garages." : "No se pudieron cargar tus garages.");
       }
 
-      if (solicitudesRes.respuesta) {
-        const pendientes = obtenerListado(solicitudesRes.datos).filter((solicitud) => {
-          const estado = String(solicitud.estado || "pendiente").toLowerCase();
-          return estado === "pendiente" || estado === "pending";
-        });
-        setSolicitudesPendientes(pendientes.length);
-      }
+      if (tratosRes.respuesta) setTratos(obtenerListado(tratosRes.datos));
 
       setLoading(false);
     };
@@ -84,7 +66,7 @@ function DuenioGarageDashboard() {
     return () => {
       montado = false;
     };
-  }, [usuario]);
+  }, []);
 
   const resumen = useMemo(() => {
     const capacidadTotal = garages.reduce((total, garage) => total + Number(garage.capacidad || 0), 0);
@@ -97,7 +79,7 @@ function DuenioGarageDashboard() {
 
   return (
     <div className="duenio-garage-page">
-      <HeaderDueñoGarage solicitudesPendientes={solicitudesPendientes} />
+      <HeaderDueñoGarage />
 
       <main className="duenio-garage-shell">
         <section className="duenio-hero">
@@ -105,7 +87,7 @@ function DuenioGarageDashboard() {
             <span className="duenio-kicker">SMARTLOT OWNER</span>
             <h1>Controla tus garages como activos operativos.</h1>
             <p>
-              Visualiza tus propiedades, disponibilidad y solicitudes de empresas desde una consola separada del flujo admin.
+              Visualiza tus propiedades, disponibilidad y tratos con empresas desde una consola separada del flujo admin.
             </p>
           </div>
 
@@ -114,9 +96,9 @@ function DuenioGarageDashboard() {
               <CirclePlus size={19} />
               Crear garage
             </button>
-            <button className="secondary" onClick={() => navigate("/duenio-garage/solicitudes")}>
+            <button className="secondary" onClick={() => navigate("/duenio-garage/tratos")}>
               <ClipboardList size={19} />
-              Ver solicitudes
+              Ver tratos
             </button>
           </div>
         </section>
@@ -134,8 +116,8 @@ function DuenioGarageDashboard() {
           </article>
           <article>
             <ClipboardList size={22} />
-            <span>Solicitudes pendientes</span>
-            <strong>{solicitudesPendientes}</strong>
+            <span>Tratos vigentes</span>
+            <strong>{tratos.length}</strong>
           </article>
           <article>
             <ArrowUpRight size={22} />
@@ -177,7 +159,7 @@ function DuenioGarageDashboard() {
                 key={obtenerIdGarage(garage, index)}
                 garage={garage}
                 porcentajeOcupacion={obtenerPorcentajeOcupacion(garage)}
-                onClick={() => navigate("/editar_zona", { state: { garage } })}
+                onClick={() => navigate(`/duenio-garage/garage/${garage.id}/editar`)}
               />
             ))}
           </div>

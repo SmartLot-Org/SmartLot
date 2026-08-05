@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import apiClient from "../../api/client";
+import { getUserHomeRoute } from "../../helpers/roles";
 import "./LoginForm.css";   
 
 gsap.registerPlugin(useGSAP);
@@ -75,15 +76,7 @@ export default function LoginForm() {
       );
 
       const usuario = res.data?.usuario;
-      const rutas = {
-        1: "/admin_dashboard",
-        2: "/empleados_dashboard",
-        3: "/garagista_dashboard",
-        4: "/superadmin_dashboard",
-        5: "/duenio-garage/dashboard",
-      };
-
-      const rutaDestino = rutas[Number(usuario?.id_rol)] || "/";
+      const rutaDestino = getUserHomeRoute(usuario);
       window.location.href = rutaDestino;
     } catch (err) {
       const msg = err.response?.data?.message || "Error de conexión.";

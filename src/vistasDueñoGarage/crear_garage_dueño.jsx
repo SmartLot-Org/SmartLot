@@ -10,6 +10,8 @@ import { GaragesCreate } from "../servicies/API_Garage";
 import { SedesGetAll } from "../servicies/API_Sede";
 import useLiveValidation from "../hooks/useLiveValidation";
 import "./duenio_garage.css";
+import FormularioPreciosGarage from "../componentesCompartidos/FormularioPreciosGarage";
+import { buildGaragePricesPayload } from "../helpers/prices";
 
 function CrearGarageDueño() {
   const navigate = useNavigate();
@@ -24,6 +26,9 @@ function CrearGarageDueño() {
     capacidad_para_no_reservas: "",
     id_sede: usuario?.id_sede ?? "",
     dias: [],
+    precio_pickup: "",
+    precio_auto: "",
+    precio_moto: "",
   });
   const [coordenadas, setCoordenadas] = useState({ lat: null, lng: null, direccion: "" });
   const [sedes, setSedes] = useState([]);
@@ -134,12 +139,16 @@ function CrearGarageDueño() {
 
     const capReservas = Number(formData.capacidad_reservas);
     const capNoReservas = Number(formData.capacidad_para_no_reservas);
-    const idUsuario = usuario?.id ?? usuario?.id_usuario ?? usuario?.idUsuario;
+    let precios;
+    try {
+      precios = buildGaragePricesPayload(formData);
+    } catch (validationError) {
+      setError(validationError.message);
+      return;
+    }
 
     const garage = {
       id_sede: Number(formData.id_sede),
-      id_duenio: idUsuario,
-      id_propietario: idUsuario,
       nombre: formData.nombre.trim(),
       piso: String(formData.piso).trim(),
       ubicacion: formData.ubicacion.trim(),
@@ -154,6 +163,7 @@ function CrearGarageDueño() {
       ocupacion_reservas: 0,
       ocupacion_no_reservas: 0,
       dias: formData.dias,
+      ...precios,
     };
 
     setLoading(true);
@@ -194,6 +204,7 @@ function CrearGarageDueño() {
             onCoordenadasChange={setCoordenadas}
           />
           <FormularioCapacidad formData={formData} onChange={handleChange} />
+          <FormularioPreciosGarage values={formData} onChange={handleChange} disabled={loading} />
         </div>
 
         {error && <p className="duenio-feedback error">{error}</p>}

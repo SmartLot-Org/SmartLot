@@ -1,6 +1,7 @@
 import { ArrowUpRight, Clock3, MapPin, ParkingCircle, ShieldCheck } from "lucide-react";
 import { getDiaDisplay } from "../helpers/diasSemana";
 import "./tarjeta_garage_dueño.css";
+import { formatARS } from "../helpers/prices";
 
 function TarjetaGarageDueño({ garage, porcentajeOcupacion = 0, onClick }) {
   const nombre = garage.nombre || garage.name || garage.descripcion || "Garage sin nombre";
@@ -18,6 +19,12 @@ function TarjetaGarageDueño({ garage, porcentajeOcupacion = 0, onClick }) {
         <button onClick={onClick} aria-label={`Ver detalle de ${nombre}`}>
           <ArrowUpRight size={19} />
         </button>
+      </div>
+
+      <div className="duenio-garage-prices">
+        <span>Auto <strong>{formatARS(garage.precio_auto)}</strong></span>
+        <span>Moto <strong>{formatARS(garage.precio_moto)}</strong></span>
+        <span>Pickup <strong>{formatARS(garage.precio_pickup)}</strong></span>
       </div>
 
       <div className="duenio-garage-title">

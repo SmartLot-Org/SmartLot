@@ -10,14 +10,7 @@ import { useAuth } from '../contexts/useAuth';
 import { obtenerSuperadminBackup, eliminarSuperadminBackup, eliminarUsuarioImpersonado } from '../helpers/superadminSession';
 import { clearCache } from '../cache/cacheStore';
 import apiClient from '../api/client';
-
-const ROLE_LABELS = {
-  1: 'Admin',
-  2: 'Empleado',
-  3: 'Garagista',
-  4: 'Superadmin',
-  5: 'Dueño de garage',
-};
+import { getUserHomeRoute, getUserRoleLabel } from '../helpers/roles';
 
 const AVATAR_GRADIENTS = [
   'from-brand-blue to-brand-sky',
@@ -55,7 +48,7 @@ export default function UserDropdown() {
     ? `${usuario.nombre || ''} ${usuario.apellido || ''}`.trim()
     : '';
   const displayName = fullName || usuario?.email?.split('@')[0] || 'Usuario';
-  const roleLabel = ROLE_LABELS[usuario?.id_rol] || 'Usuario';
+  const roleLabel = getUserRoleLabel(usuario);
   const initial = getInitial(displayName);
   const gradient = getAvatarGradient(displayName);
 
@@ -118,26 +111,7 @@ export default function UserDropdown() {
       return;
     }
 
-    switch (usuario.id_rol) {
-      case 1:
-        navigate('/perfil_admin');
-        break;
-      case 2:
-        navigate('/perfil_empleado');
-        break;
-      case 3:
-        navigate('/garagista_dashboard');
-        break;
-      case 4:
-        navigate('/superadmin_dashboard');
-        break;
-      case 5:
-        navigate('/duenio-garage/dashboard');
-        break;
-      default:
-        navigate('/');
-        break;
-    }
+    navigate(getUserHomeRoute(usuario));
   }, [navigate, usuario]);
 
   const handleLogout = useCallback(async () => {

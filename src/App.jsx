@@ -17,7 +17,9 @@ import AdminPagos from "./vistasAdmin/admin_pagos";
 // Vistas Dueño de Garage
 import DuenioGarageDashboard from "./vistasDueñoGarage/duenio_garage_dashboard";
 import CrearGarageDueño from "./vistasDueñoGarage/crear_garage_dueño";
-import SolicitudesDueñoGarage from "./vistasDueñoGarage/solicitudes_dueño_garage";
+import TratosEmpresaGarage from "./vistasDueñoGarage/tratos_empresa_garage";
+import EditarGarageDueño from "./vistasDueñoGarage/editar_garage_dueño";
+import AdminTratosGarages from "./vistasAdmin/admin_tratos_garages";
 
 // Vistas de Superadmin
 import SuperadminDashboard from "./vistasSuperadmin/superadmin_dashboard";
@@ -184,23 +186,22 @@ function AppRoutes() {
           <AdminPagos />
         </ProtectedRoute>
       } />
+      <Route path="/admin/tratos-garages" element={<ProtectedRoute allowedRoles={["admin"]} usuario={usuario}><AdminTratosGarages /></ProtectedRoute>} />
 
       {/* Rutas protegidas - Dueño de Garage */}
       <Route path="/duenio-garage/dashboard" element={
-        <ProtectedRoute allowedRoles={[5]} usuario={usuario}>
+        <ProtectedRoute allowedRoles={["dueño_garage"]} usuario={usuario}>
           <DuenioGarageDashboard />
         </ProtectedRoute>
       } />
       <Route path="/duenio-garage/crear-garage" element={
-        <ProtectedRoute allowedRoles={[5]} usuario={usuario}>
+        <ProtectedRoute allowedRoles={["dueño_garage"]} usuario={usuario}>
           <CrearGarageDueño />
         </ProtectedRoute>
       } />
-      <Route path="/duenio-garage/solicitudes" element={
-        <ProtectedRoute allowedRoles={[5]} usuario={usuario}>
-          <SolicitudesDueñoGarage />
-        </ProtectedRoute>
-      } />
+      <Route path="/duenio-garage/tratos" element={<ProtectedRoute allowedRoles={["dueño_garage"]} usuario={usuario}><TratosEmpresaGarage /></ProtectedRoute>} />
+      <Route path="/duenio-garage/garage/:id/editar" element={<ProtectedRoute allowedRoles={["dueño_garage"]} usuario={usuario}><EditarGarageDueño /></ProtectedRoute>} />
+      <Route path="/duenio-garage/solicitudes" element={<Navigate to="/duenio-garage/tratos" replace />} />
 
       {/* Rutas protegidas - Superadmin */}
       <Route path="/superadmin_dashboard" element={

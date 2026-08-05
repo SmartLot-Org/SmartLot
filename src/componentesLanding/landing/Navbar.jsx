@@ -4,6 +4,7 @@ import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { useAuth } from '../../contexts/useAuth';
 import { showToast } from '../../helpers/toast';
+import { getUserHomeRoute } from '../../helpers/roles';
 
 export default function Navbar() {
   const { usuario } = useAuth();
@@ -14,15 +15,7 @@ export default function Navbar() {
     if (usuario) {
       e.preventDefault();
       showToast('Ya tenés una sesión activa. Redirigiendo a tu panel…', 'info');
-      const rutas = {
-        1: '/admin_dashboard',
-        2: '/empleados_dashboard',
-        3: '/garagista_dashboard',
-        4: '/superadmin_dashboard',
-        5: '/duenio-garage/dashboard',
-      };
-      const ruta = rutas[Number(usuario.id_rol)] || '/';
-      setTimeout(() => navigate(ruta), 1500);
+      setTimeout(() => navigate(getUserHomeRoute(usuario)), 1500);
     }
   };
 
