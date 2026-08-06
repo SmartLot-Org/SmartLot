@@ -48,6 +48,18 @@ const GaragesGetAll = async ({ force = false } = {}) => {
     }
 };
 
+const GaragesGetCercanos = async (sedeId, radioKm = 50, { force = false } = {}) => {
+    const key = `garages:cercanos:${sedeId}:${radioKm}`;
+    try {
+        return await getFromCache(key, async () => ({
+            respuesta: true,
+            datos: (await apiClient.get('/api/garage/cercanos', { params: { sede_id: sedeId, radio_km: radioKm } })).data,
+        }), { ttlMs: OCUPACION_TTL_MS, force });
+    } catch (error) {
+        return { respuesta: false, datos: error.response?.data || { message: error.message }, status: error.response?.status || 0 };
+    }
+};
+
 
 
 const GaragesGetOcupacionReserva = async (id, { force = false } = {}) => {
@@ -252,6 +264,7 @@ const GaragesGetDistanciaSede = async (id) => {
 
 export {
     GaragesGetAll,
+    GaragesGetCercanos,
     GaragesGetOcupacionReserva,
     GaragesGetOcupacionNoReserva,
     GaragesGetById,

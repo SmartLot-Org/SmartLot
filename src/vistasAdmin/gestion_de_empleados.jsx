@@ -6,7 +6,6 @@ import {
   UserPlus,
   ArrowLeft,
   ChevronDown,
-  SlidersHorizontal,
   MapPin,
   Trash2,
   Car,
@@ -25,11 +24,10 @@ import Header from "../componentesAdmin/header_admin";
 import FooterAdmin from "../componentesAdmin/footer_admin";
 import BotonGenerico from "../componentesAdmin/boton_generico";
 import ModalPortal from "../componentesCompartidos/ModalPortal";
-import { UsuariosGetAll, UsuariosGetByGarage, UsuariosDelete, UsuariosPatchEstado } from "../servicies/API_Usuario";
+import { UsuariosGetAll, UsuariosDelete, UsuariosPatchEstado } from "../servicies/API_Usuario";
 import { VehiculosGetAll } from "../servicies/API_Vehiculo";
 import { ModelosGetAll } from "../servicies/API_Modelo";
 import { SedesGetAll } from "../servicies/API_Sede";
-import { GaragesGetAll } from "../servicies/API_Garage";
 
 gsap.registerPlugin(useGSAP);
 
@@ -87,18 +85,6 @@ const obtenerGarage = (usuario, garagesMap) => {
   return garagesMap[Number(idGarage)] || "Garage";
 };
 
-const completarGarageUsuario = (usuario, garagesPorUsuario) => {
-  const idUsuario = obtenerIdUsuario(usuario);
-  const idGarageAsignado = garagesPorUsuario.get(Number(idUsuario));
-
-  if (!idGarageAsignado || obtenerIdGarageUsuario(usuario)) return usuario;
-
-  return {
-    ...usuario,
-    id_garage: idGarageAsignado,
-  };
-};
-
 const normalizarEmpleado = (usuario, vehiculo = null, modeloNombre = null, sedesMap = {}, garagesMap = {}) => {
   const id = obtenerIdUsuario(usuario);
   const patente = vehiculo?.patente || usuario.patente;
@@ -121,12 +107,6 @@ const normalizarEmpleado = (usuario, vehiculo = null, modeloNombre = null, sedes
   };
 };
 
-const EmpleadosActionSkeleton = () => (
-  <div className="animate-header btn-container-mobile">
-    <span className="empleados-btn-skeleton" />
-  </div>
-);
-
 const EmpleadosToolbarSkeleton = () => (
   <section className="barra-herramientas animate-toolbar" aria-label="Cargando filtros de empleados">
     <div className="empleados-search-skeleton" />
@@ -135,11 +115,6 @@ const EmpleadosToolbarSkeleton = () => (
       <span className="empleados-filter-skeleton" />
     </div>
   </section>
-);
-
-// SKELETON COMPACTO ADAPTADO PARA TU INTERRUPTOR
-const RoleSwitchSkeleton = () => (
-  <div className="role-switch-skeleton" />
 );
 
 const EmpleadosSkeletonGrid = () => (
@@ -178,14 +153,10 @@ const GestionEmpleados = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchArchivedTerm, setSearchArchivedTerm] = useState("");
   const [selectedSede, setSelectedSede] = useState("");
-  const [selectedGarage, setSelectedGarage] = useState("");
   const [empleados, setEmpleados] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [sedesMap, setSedesMap] = useState({});
-  const [garagesMap, setGaragesMap] = useState({});
   const [showArchived, setShowArchived] = useState(false);
-  const [filtroRolSwitch, setFiltroRolSwitch] = useState("Empleado");
   const [toast, setToast] = useState(null);
   const toastKeyRef = useRef(0);
 
@@ -195,11 +166,6 @@ const GestionEmpleados = () => {
   };
 
   useEffect(() => {
-    setSelectedSede("");
-    setSelectedGarage("");
-  }, [filtroRolSwitch]);
-
-  useEffect(() => {
     let estaMontado = true;
 
     const cargarEmpleados = async () => {
@@ -207,12 +173,11 @@ const GestionEmpleados = () => {
       setError("");
 
       try {
-        const [responseUsuarios, responseVehiculos, responseModelos, responseSedes, responseGarages] = await Promise.all([
+        const [responseUsuarios, responseVehiculos, responseModelos, responseSedes] = await Promise.all([
           UsuariosGetAll(),
           VehiculosGetAll(),
           ModelosGetAll(),
           SedesGetAll(),
-          GaragesGetAll(),
         ]);
 
         if (!estaMontado) return;
@@ -227,7 +192,6 @@ const GestionEmpleados = () => {
         const vehiculos = responseVehiculos.respuesta ? obtenerListadoUsuarios(responseVehiculos.datos) : [];
         const modelos = responseModelos.respuesta ? obtenerListadoUsuarios(responseModelos.datos) : [];
         const todasLasSedes = responseSedes.respuesta ? obtenerListadoUsuarios(responseSedes.datos) : [];
-        const todosLosGarages = obtenerListadoUsuarios(responseGarages.datos);
 
         const adminSinSede = !usuario?.id_sede;
         const empresaAdmin = Number(usuario?.id_empresa);
@@ -240,30 +204,11 @@ const GestionEmpleados = () => {
             : todasLasSedes
           : todasLasSedes.filter((s) => Number(s.id) === Number(usuario?.id_sede));
 
-        const sedesIdsEmpresa = new Set(sedes.map((s) => Number(s.id)));
-
-        const garages = adminSinSede
-          ? tieneEmpresa
-            ? todosLosGarages.filter((g) => sedesIdsEmpresa.has(Number(g.id_sede ?? g.idSede)))
-            : todosLosGarages
-          : todosLosGarages.filter((g) => {
-              const idSede = g.id_sede ?? g.idSede;
-              return Number(idSede) === Number(usuario?.id_sede);
-            });
-
-        const garagesDeSedeIds = new Set(
-          garages.map((g) => Number(g.id_garage ?? g.idGarage ?? g.id ?? g._id))
-        );
-
         const usuarios = todosLosUsuarios.filter((u) => {
           const idSede = u.id_sede ?? u.idSede;
           const idRol = Number(u.id_rol);
-          if (idRol === 1 || idRol === 4) return false;
+          if (idRol !== 2) return false;
           if (filtrarPorEmpresa && Number(u.id_empresa) !== empresaAdmin) return false;
-          if (idRol === 3) {
-            const idGarage = Number(obtenerIdGarageUsuario(u));
-            return !isNaN(idGarage) && garagesDeSedeIds.has(idGarage);
-          }
           return adminSinSede || Number(idSede) === Number(usuario?.id_sede);
         });
 
@@ -271,54 +216,12 @@ const GestionEmpleados = () => {
         const modeloNombrePorId = new Map(modelos.map((m) => [m.id, m.nombre]));
 
         const sedeNombrePorId = Object.fromEntries(sedes.map((s) => [Number(s.id), s.nombre]));
-        setSedesMap(sedeNombrePorId);
-
-        const mapaDeGarajesIndexado = {};
-        const idsGarages = [];
-        garages.forEach((g) => {
-          const idLimpio = g.id_garage ?? g.idGarage ?? g.id ?? g._id;
-          if (idLimpio !== undefined && idLimpio !== null) {
-            const idGarage = Number(idLimpio);
-            idsGarages.push(idGarage);
-            mapaDeGarajesIndexado[idGarage] = g.nombre || g.name || g.descripcion || g.ubicacion || g.nombre_garage || g.garage_nombre || "Garage";
-          }
-        });
-        setGaragesMap(mapaDeGarajesIndexado);
-
-        const garagistasPorGarage = await Promise.all(
-          idsGarages.map(async (idGarage) => {
-            const response = await UsuariosGetByGarage(idGarage);
-            return {
-              idGarage,
-              usuarios: response.respuesta ? obtenerListadoUsuarios(response.datos) : [],
-            };
-          })
-        );
-
-        if (!estaMontado) return;
-
-        const garagesPorUsuario = new Map();
-        const idsUsuariosEnLista = new Set(usuarios.map((u) => Number(obtenerIdUsuario(u))));
-        garagistasPorGarage.forEach(({ idGarage, usuarios: usuariosGarage }) => {
-          usuariosGarage.forEach((usuarioGarage) => {
-            const idUsuario = obtenerIdUsuario(usuarioGarage);
-            if (idUsuario !== undefined && idUsuario !== null) {
-              const idNum = Number(idUsuario);
-              garagesPorUsuario.set(idNum, idGarage);
-              if (!idsUsuariosEnLista.has(idNum)) {
-                idsUsuariosEnLista.add(idNum);
-                usuarios.push(usuarioGarage);
-              }
-            }
-          });
-        });
 
         setEmpleados(
           usuarios.map((usuario) => {
-            const usuarioConGarage = completarGarageUsuario(usuario, garagesPorUsuario);
-            const vehiculo = vehiculosPorUsuario.get(obtenerIdUsuario(usuarioConGarage));
+            const vehiculo = vehiculosPorUsuario.get(obtenerIdUsuario(usuario));
             const modeloNombre = vehiculo ? modeloNombrePorId.get(vehiculo.id_modelo) : null;
-            return normalizarEmpleado(usuarioConGarage, vehiculo, modeloNombre, sedeNombrePorId, mapaDeGarajesIndexado);
+            return normalizarEmpleado(usuario, vehiculo, modeloNombre, sedeNombrePorId, {});
           })
         );
       } catch (err) {
@@ -334,13 +237,10 @@ const GestionEmpleados = () => {
     return () => {
       estaMontado = false;
     };
-  }, []);
+  }, [usuario?.id_empresa, usuario?.id_sede]);
 
   useEffect(() => {
-    if (!showArchived) {
-      setSearchArchivedTerm("");
-      return;
-    }
+    if (!showArchived) return;
 
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
@@ -356,7 +256,7 @@ const GestionEmpleados = () => {
     };
   }, [showArchived]);
 
-  const handleArchivarEmpleado = async (id, name) => {
+  const handleArchivarEmpleado = async (id) => {
     try {
       const response = await UsuariosPatchEstado(id, false);
 
@@ -460,13 +360,6 @@ const GestionEmpleados = () => {
     return Array.from(new Set(empleadosDeRol.map((emp) => emp.sede))).filter(Boolean);
   }, [empleados]);
 
-  const garagesDisponibles = useMemo(() => {
-    const garajistasActivos = empleados.filter(
-      (emp) => emp.role === "Garagista" && emp.activo !== false && emp.garage !== "Sin garage"
-    );
-    return Array.from(new Set(garajistasActivos.map((emp) => emp.garage))).filter(Boolean);
-  }, [empleados]);
-
   const empleadosFiltrados = useMemo(() => {
     const query = searchTerm.toLowerCase().trim();
 
@@ -476,18 +369,10 @@ const GestionEmpleados = () => {
         emp.email.toLowerCase().includes(query) ||
         emp.role.toLowerCase().includes(query);
 
-      let coincideUbicacion = true;
-      if (filtroRolSwitch === "Empleado") {
-        coincideUbicacion = !selectedSede || (selectedSede === "Todas" && emp.sede !== "Sin sede") || emp.sede === selectedSede;
-      } else {
-        coincideUbicacion = !selectedGarage || (selectedGarage === "Todas" && emp.garage !== "Sin garage") || emp.garage === selectedGarage;
-      }
-
-      const coincideRolSwitch = emp.role === filtroRolSwitch;
-
-      return coincideBusqueda && coincideUbicacion && coincideRolSwitch && emp.activo !== false;
+      const coincideUbicacion = !selectedSede || (selectedSede === "Todas" && emp.sede !== "Sin sede") || emp.sede === selectedSede;
+      return coincideBusqueda && coincideUbicacion && emp.role === "Empleado" && emp.activo !== false;
     });
-  }, [searchTerm, selectedSede, selectedGarage, filtroRolSwitch, empleados]);
+  }, [searchTerm, selectedSede, empleados]);
 
   const empleadosArchivados = useMemo(() => {
     const query = searchArchivedTerm.toLowerCase().trim();
@@ -583,15 +468,13 @@ const GestionEmpleados = () => {
               )}
             </BotonGenerico>
 
-            {filtroRolSwitch === "Empleado" && ( // cuando esta en empleado te aparece el boton de agregar empleados 
-              <BotonGenerico
+            <BotonGenerico
                 className="btn-primario"
                 onClick={() => navigate("/agregar_empleado")}
               >
                 <UserPlus size={20} />
                 <span>Agregar empleado</span>
-              </BotonGenerico>
-            )}
+            </BotonGenerico>
           </div>
         </header>
 
@@ -613,30 +496,8 @@ const GestionEmpleados = () => {
 
 
             {/* POSICIÓN FIJA ORIGINAL: El renderizado condicional del Switch o su Skeleton según la API */}
-            {loading ? (
-              <RoleSwitchSkeleton />
-            ) : (
-              <div className="role-switch-container">
-                <div className={`role-switch-slider ${filtroRolSwitch === "Garagista" ? "slide-right" : ""}`} />
-                <button
-                  type="button"
-                  className={`role-switch-btn ${filtroRolSwitch === "Empleado" ? "active" : ""}`}
-                  onClick={() => setFiltroRolSwitch("Empleado")}
-                >
-                  <span className="switchSpan" style={{ color: filtroRolSwitch === "Empleado" ? "white" : "#64748B" }}>Empleados</span>
-                </button>
-                <button
-                  type="button"
-                  className={`role-switch-btn ${filtroRolSwitch === "Garagista" ? "active" : ""}`}
-                  onClick={() => setFiltroRolSwitch("Garagista")}
-                >
-                  <span className="switchSpan"  style={{ color: filtroRolSwitch === "Garagista" ? "white" : "#64748B" }}>Garagistas</span>
-                </button>
-              </div>
-            )}
             <div className="filtros-grupo">
               <div className="select-wrapper">
-                {filtroRolSwitch === "Empleado" ? (
                   <select
                     className="btn-selector-sede"
                     value={selectedSede}
@@ -650,31 +511,15 @@ const GestionEmpleados = () => {
                       </option>
                     ))}
                   </select>
-                ) : (
-                  <select
-                    className="btn-selector-sede"
-                    value={selectedGarage}
-                    onChange={(e) => setSelectedGarage(e.target.value)}
-                  >
-                    <option value="">Filtrar por garage</option>
-                    <option value="Todas">Todos los garages</option>
-                    {garagesDisponibles.map((garage) => (
-                      <option key={garage} value={garage}>
-                        {garage}
-                      </option>
-                    ))}
-                  </select>
-                )}
                 <ChevronDown size={18} className="chevron-select-icon" />
               </div>
 
-              {((filtroRolSwitch === "Empleado" && selectedSede) || (filtroRolSwitch === "Garagista" && selectedGarage)) && (
+              {selectedSede && (
                 <button
                   className="btn-icon-filtros"
                   type="button"
                   onClick={() => {
                     setSelectedSede("");
-                    setSelectedGarage("");
                   }}
                   aria-label="Restablecer filtros"
                 >
@@ -707,11 +552,11 @@ const GestionEmpleados = () => {
                   <div className="card-body-v3">
                     <div className="empleado-sede-line">
                       <MapPin size={14} />
-                      <span>{filtroRolSwitch === "Empleado" ? emp.sede : emp.garage}</span>
+                      <span>{emp.sede}</span>
                     </div>
                   </div>
 
-                  {filtroRolSwitch === "Empleado" && (
+                  {(
                     <div className="parking-section-v3">
                       <div className="parking-pill-v3">
                         <div className="p-icon-box"><Car size={25} /></div>

@@ -7,7 +7,6 @@ import GestionEmpleados from "./vistasAdmin/gestion_de_empleados";
 import GestionGarages from "./vistasAdmin/gestion_garages";
 import EditarZona from "./vistasAdmin/editar_zona";
 import AgregarEmpleado from "./vistasAdmin/agregar_empleado";
-import AgregarGarajista from "./vistasAdmin/agregar_garajista";
 import AgregarZona from "./vistasAdmin/agregar_zona";
 import PerfilAdmin from "./vistasAdmin/perfil_admin";
 import AdminPanelControl from "./vistasAdmin/admin_panel_de_control";
@@ -19,7 +18,6 @@ import DuenioGarageDashboard from "./vistasDueñoGarage/duenio_garage_dashboard"
 import CrearGarageDueño from "./vistasDueñoGarage/crear_garage_dueño";
 import TratosEmpresaGarage from "./vistasDueñoGarage/tratos_empresa_garage";
 import EditarGarageDueño from "./vistasDueñoGarage/editar_garage_dueño";
-import AdminTratosGarages from "./vistasAdmin/admin_tratos_garages";
 
 // Vistas de Superadmin
 import SuperadminDashboard from "./vistasSuperadmin/superadmin_dashboard";
@@ -153,7 +151,7 @@ function AppRoutes() {
       } />
       <Route path="/agregar_garajista" element={
         <ProtectedRoute allowedRoles={[1]} usuario={usuario}>
-          <AgregarGarajista />
+          <Navigate to="/gestion_de_empleados" replace />
         </ProtectedRoute>
       } />
       <Route path="/gestion_garages" element={
@@ -162,12 +160,12 @@ function AppRoutes() {
         </ProtectedRoute>
       } />
       <Route path="/agregar_zona" element={
-        <ProtectedRoute allowedRoles={[1,4]} usuario={usuario}>
+        <ProtectedRoute allowedRoles={[4]} usuario={usuario}>
           <AgregarZona />
         </ProtectedRoute>
       } />
       <Route path="/editar_zona" element={
-        <ProtectedRoute allowedRoles={[1, 4]} usuario={usuario}>
+        <ProtectedRoute allowedRoles={[4]} usuario={usuario}>
           <EditarZona />
         </ProtectedRoute>
       } />
@@ -186,7 +184,7 @@ function AppRoutes() {
           <AdminPagos />
         </ProtectedRoute>
       } />
-      <Route path="/admin/tratos-garages" element={<ProtectedRoute allowedRoles={["admin"]} usuario={usuario}><AdminTratosGarages /></ProtectedRoute>} />
+      <Route path="/admin/tratos-garages" element={<ProtectedRoute allowedRoles={["admin"]} usuario={usuario}><Navigate to="/gestion_garages" replace /></ProtectedRoute>} />
 
       {/* Rutas protegidas - Dueño de Garage */}
       <Route path="/duenio-garage/dashboard" element={

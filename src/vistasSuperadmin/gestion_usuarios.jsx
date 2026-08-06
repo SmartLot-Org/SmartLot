@@ -544,21 +544,23 @@ const GestionUsuarios = () => {
   // Animaciones iniciales
   useGSAP(
     () => {
+      const header = containerRef.current?.querySelector(".usuarios-animate-header");
+      const toolbar = containerRef.current?.querySelector(".usuarios-animate-toolbar");
+      if (!header) return;
+
       const tl = gsap.timeline({ defaults: { ease: "power3.out", duration: 0.8 } });
-      tl.from(".usuarios-animate-header", { y: 30, opacity: 0 }).from(
-        ".usuarios-animate-toolbar",
-        { y: 20, opacity: 0 },
-        "-=0.5"
-      );
+      tl.from(header, { y: 30, opacity: 0 });
+      if (toolbar) tl.from(toolbar, { y: 20, opacity: 0 }, "-=0.5");
     },
     { scope: containerRef }
   );
 
   // Animación de lista de tarjetas
   useGSAP(() => {
-    if (usuariosFiltrados.length > 0) {
+    const cards = containerRef.current?.querySelectorAll(".usuario-card") ?? [];
+    if (cards.length > 0) {
       gsap.fromTo(
-        ".usuario-card",
+        cards,
         { y: 16, opacity: 0 },
         {
           y: 0,

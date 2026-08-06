@@ -1,308 +1,155 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "../contexts/useAuth";
-import { ArrowLeft, CirclePlus, MapPinned, BarChart3 } from "lucide-react";
-import "./gestion_garages.css";
-import TarjetaGarage from "../componentesAdmin/tarjeta_garages";
-import Header from "../componentesAdmin/header_admin";
-import FooterAdmin from "../componentesAdmin/footer_admin";
-import BotonGenerico from "../componentesAdmin/boton_generico";
-import { GaragesGetAll } from "../servicies/API_Garage";
-import { SedesGetAll } from "../servicies/API_Sede";
-import fotoGarage1 from "../Imagenes/Garage1.jpg";
-import fotoGarage2 from "../Imagenes/Garage2.jpg";
-import fotoGarage3 from "../Imagenes/Garage3.jpg";
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { ArrowLeft, Search } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
+import { useAuth } from '../contexts/useAuth';
+import Header from '../componentesAdmin/header_admin';
+import FooterAdmin from '../componentesAdmin/footer_admin';
+import { SedesGetAll } from '../servicies/API_Sede';
+import { GaragesGetCercanos } from '../servicies/API_Garage';
+import { TratosDelete, TratosGetAll, TratosUpdate } from '../servicies/API_TratoEmpresaGarage';
+import { SolicitudesCreate, SolicitudesGetEnviadas } from '../servicies/API_SolicitudEmpresaGarage';
+import { buildSolicitudPayload, filterGarages, normalizeDays, normalizeList, parsePositiveInteger } from '../helpers/tratos';
+import './gestion_garages.css';
 
-const imagenesGarage = [fotoGarage1, fotoGarage2, fotoGarage3];
+const money = (value) => `$${Number(value || 0).toLocaleString('es-AR')}`;
+const messageOf = (response) => response?.datos?.message || response?.datos?.error || 'No se pudo completar la operación.';
 
-const obtenerListadoGarages = (datos) => {
-  if (Array.isArray(datos)) return datos;
-  if (Array.isArray(datos?.datos)) return datos.datos;
-  if (Array.isArray(datos?.data)) return datos.data;
-  if (Array.isArray(datos?.garages)) return datos.garages;
-  if (Array.isArray(datos?.value)) return datos.value;
-  return [];
-};
-
-const obtenerIdGarage = (garage, index) =>
-  garage.id_garage ?? garage.idGarage ?? garage.id ?? garage._id ?? index;
-
-const obtenerEstadoGarage = (estado) => {
-  if (typeof estado === "boolean") return estado ? "Abierto" : "Cerrado";
-  if (typeof estado === "number") return estado === 1 ? "Abierto" : "Cerrado";
-
-  if (typeof estado === "string") {
-    const estadoNormalizado = estado.toLowerCase();
-    return ["true", "activo", "abierto", "1"].includes(estadoNormalizado)
-      ? "Abierto"
-      : "Cerrado";
-  }
-
-  return "Abierto";
-};
-
-const obtenerOcupacion = (garage) =>
-  Number(garage.ocupacion_reservas || 0) +
-  Number(garage.ocupacion_no_reservas || 0);
-
-const obtenerCapacidadPorcentaje = (garage) => {
-  const capacidad = Number(garage.capacidad || 0);
-  if (capacidad <= 0) return "0%";
-
-  const porcentaje = Math.min(
-    100,
-    Math.round((obtenerOcupacion(garage) / capacidad) * 100)
-  );
-
-  return `${porcentaje}%`;
-};
-
-const GarageSkeletonGrid = () => (    // Muestra 6 tarjetas esqueléticas para simular la carga de garages
-  <div className="contenedor-tarjetas" aria-label="Cargando garages">
-    {Array.from({ length: 6 }).map((_, index) => (   //se encarga de generar un array con 6 tarjetas fantasmas y a su vez estas estan vacias 
-      <article className="tarjeta-garage-skeleton" key={index}> {/*al poner el article lo que estoy haciendo es simular que se crea una card de garage */}
-        <div className="skeleton-media">
-          <span className="skeleton-pill" />
-        </div>
-
-        <div className="skeleton-content">
-          <div className="skeleton-header">
-            <span className="skeleton-line skeleton-title" />
-            <span className="skeleton-button" />
-          </div>
-
-          <div className="skeleton-meta">
-            <span className="skeleton-line skeleton-meta-item" />
-            <span className="skeleton-line skeleton-meta-item skeleton-meta-short" />
-          </div>
-
-          <div className="skeleton-capacity">
-            <div className="skeleton-capacity-label">
-              <span className="skeleton-line skeleton-label" />
-              <span className="skeleton-line skeleton-percent" />
-            </div>
-
-            <span className="skeleton-bar" />
-          </div>
-        </div>
-      </article>
-    ))}
-  </div>
-);
-
-const GarageStatsSkeleton = () => (
-  <section className="stats-container" aria-label="Cargando resumen de garages">
-    {Array.from({ length: 2 }).map((_, index) => (
-      <div className="stats-card stats-card-skeleton" key={index}>
-        <div className="stats-card-content">
-          <div className="stats-card-header">
-            <span className="skeleton-stat-line skeleton-stat-badge" />
-            <span className="skeleton-stat-icon-block" />
-          </div>
-          <span className="skeleton-stat-line skeleton-stat-value-lg" />
-          <span className="skeleton-stat-line skeleton-stat-desc" />
-        </div>
-      </div>
-    ))}
-  </section>
-);
-
-const GarageActionSkeleton = () => (
-  <section className="garages-actions" aria-label="Cargando acciones de garages">
-    <span className="btn-nueva-zona-skeleton" />
-  </section>
-);
-
-function GestionGarages() {
+export default function GestionGarages() {
   const navigate = useNavigate();
   const { usuario } = useAuth();
-  const [garages, setGarages] = useState([]); // Estado para almacenar la lista de garages
-  const [loading, setLoading] = useState(true); // Estado para controlar la carga de datos
-  const [error, setError] = useState("");
+  const [tab, setTab] = useState('contratados');
+  const [sedes, setSedes] = useState([]);
+  const [sedeId, setSedeId] = useState(usuario?.id_sede ? String(usuario.id_sede) : '');
+  const [tratos, setTratos] = useState([]);
+  const [cercanos, setCercanos] = useState([]);
+  const [search, setSearch] = useState('');
+  const [radio, setRadio] = useState(50);
+  const [availableOnly, setAvailableOnly] = useState(false);
+  const [activeOnly, setActiveOnly] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [selected, setSelected] = useState(null);
+  const [cantidad, setCantidad] = useState('');
+  const [descripcion, setDescripcion] = useState('');
+  const [solicitudes, setSolicitudes] = useState([]);
+  const [submitting, setSubmitting] = useState(false);
+
+  const loadContracts = useCallback(async () => {
+    const response = await TratosGetAll({ force: true });
+    if (!response.respuesta) throw new Error(messageOf(response));
+    setTratos(normalizeList(response.datos));
+  }, []);
+
+  const loadRequests = useCallback(async () => {
+    const response = await SolicitudesGetEnviadas({ force: true });
+    if (!response.respuesta) throw new Error(messageOf(response));
+    setSolicitudes(normalizeList(response.datos));
+  }, []);
 
   useEffect(() => {
-    let estaMontado = true; 
-
-    const cargarGarages = async () => {
-      setLoading(true); // Inicia la carga de datos
-      setError("");
-
-      const [garagesRes, sedesRes] = await Promise.all([
-        GaragesGetAll(),
-        SedesGetAll(),
-      ]);
-
-      if (!estaMontado) return;
-
-      if (garagesRes.respuesta) {
-        const todosLosGarages = obtenerListadoGarages(garagesRes.datos);
-
-        let garagesDeSede;
-        if (usuario?.id_sede) {
-          garagesDeSede = todosLosGarages.filter((g) => {
-            const idSede = g.id_sede ?? g.idSede;
-            return Number(idSede) === Number(usuario?.id_sede);
-          });
-        } else {
-          const sedesEmpresa = Array.isArray(sedesRes.datos)
-            ? sedesRes.datos
-            : Array.isArray(sedesRes.datos?.datos) ? sedesRes.datos.datos : [];
-          const sedesIdsEmpresa = new Set(
-            sedesEmpresa
-              .filter((s) => Number(s.id_empresa) === Number(usuario?.id_empresa))
-              .map((s) => Number(s.id))
-          );
-          garagesDeSede = todosLosGarages.filter((g) => {
-            const idSede = g.id_sede ?? g.idSede;
-            return sedesIdsEmpresa.has(Number(idSede));
-          });
-        }
-        setGarages(garagesDeSede);
-      } else {
-        setError("No se pudieron cargar los garages.");
+    let active = true;
+    (async () => {
+      setLoading(true); setError('');
+      const response = await SedesGetAll();
+      if (!active) return;
+      if (!response.respuesta) setError('No se pudieron cargar las sedes.');
+      else {
+        const rows = normalizeList(response.datos);
+        setSedes(rows);
+        if (usuario?.id_sede) setSedeId(String(usuario.id_sede));
+        else if (rows.length === 1) setSedeId(String(rows[0].id));
       }
+      try { await Promise.all([loadContracts(), loadRequests()]); } catch (e) { if (active) setError(e.message); }
+      if (active) setLoading(false);
+    })();
+    return () => { active = false; };
+  }, [loadContracts, loadRequests, usuario?.id_sede]);
 
-      setLoading(false); // Finaliza la carga de datos
-    };
+  useEffect(() => {
+    if (tab !== 'buscar' || !sedeId) return;
+    let active = true;
+    (async () => {
+      setLoading(true); setError('');
+      const response = await GaragesGetCercanos(Number(sedeId), radio, { force: true });
+      if (!active) return;
+      if (response.respuesta) setCercanos(normalizeList(response.datos));
+      else setError(messageOf(response));
+      setLoading(false);
+    })();
+    return () => { active = false; };
+  }, [tab, sedeId, radio]);
 
-    cargarGarages(); // Llama a la función para cargar los garages al montar el componente
+  const contracts = useMemo(() => tratos.filter((t) =>
+    (!sedeId || Number(t.id_sede) === Number(sedeId)) &&
+    `${t.garage_nombre || ''} ${t.garage_ubicacion || ''}`.toLowerCase().includes(search.toLowerCase())
+  ), [tratos, sedeId, search]);
+  const results = useMemo(() => filterGarages(cercanos, { search, maxDistance: radio, availableOnly, activeOnly }), [cercanos, search, radio, availableOnly, activeOnly]);
+  const pendingGarageIds = useMemo(() => new Set(solicitudes.filter((s) => s.estado === 'pendiente').map((s) => Number(s.id_garage))), [solicitudes]);
+  const cantidadNumero = Number(cantidad);
+  const cantidadValida = Number.isInteger(cantidadNumero) && cantidadNumero > 0 && cantidadNumero <= Number(selected?.cocheras_disponibles || 0);
 
-    return () => {
-      estaMontado = false;
-    };
-  }, [usuario]);
+  const openRequest = (garage) => {
+    setSelected(garage);
+    setCantidad('1');
+    setDescripcion('');
+  };
 
-  const ocupacionMedia =        
-    garages.length > 0
-      ? Math.round(
-          garages.reduce((total, garage) => {
-            const capacidad = Number(garage.capacidad || 0);
-            if (capacidad <= 0) return total;
-            return total + (obtenerOcupacion(garage) / capacidad) * 100;
-          }, 0) / garages.length
-        )
-      : 0;
-           // Calcula la ocupación media de los garages, sumando el porcentaje de ocupación de cada garage y dividiéndolo por el número total de garages. Si no hay garages, devuelve 0.
-  return (
-    <div className="gestion-garages">
-      <Header />
+  const submit = async () => {
+    if (!cantidadValida || submitting) return;
+    try {
+      setSubmitting(true);
+      const payload = buildSolicitudPayload({ id_garage: selected.id, cantidad_cocheras: cantidad, descripcion });
+      if (payload.cantidad_cocheras > Number(selected.cocheras_disponibles)) throw new Error('La cantidad supera las cocheras disponibles.');
+      const confirm = await Swal.fire({ title: 'Enviar solicitud', text: `Solicitar ${payload.cantidad_cocheras} cocheras en ${selected.nombre}?`, icon: 'question', showCancelButton: true, confirmButtonText: 'Enviar', cancelButtonText: 'Cancelar' });
+      if (!confirm.isConfirmed) return;
+      const response = await SolicitudesCreate(payload);
+      if (!response.respuesta) {
+        const detail = messageOf(response);
+        throw new Error(response.status ? `${detail} (código ${response.status})` : `${detail} Verificá que la API esté iniciada.`);
+      }
+      setSelected(null); setCantidad(''); setDescripcion('');
+      await loadRequests();
+      const nearby = await GaragesGetCercanos(Number(sedeId), radio, { force: true });
+      if (nearby.respuesta) setCercanos(normalizeList(nearby.datos));
+      await Swal.fire('Solicitud enviada', 'El dueño del garage podrá aceptarla o rechazarla.', 'success');
+    } catch (e) { await Swal.fire({ title: 'No se pudo enviar la solicitud', text: e.message, icon: 'error', confirmButtonText: 'Revisar datos' }); }
+    finally { setSubmitting(false); }
+  };
 
-      <main className="gestion-garages-main">
-        <section className="gestion-garages-top">
-          <button className="boton-back" onClick={() => navigate("/admin_dashboard")}>
-            <ArrowLeft size={20} />
-          </button>
+  const editContract = async (trato) => {
+    const result = await Swal.fire({ title: 'Cantidad de cocheras', input: 'number', inputValue: trato.cantidad_cocheras, inputAttributes: { min: 1, step: 1 }, showCancelButton: true });
+    if (!result.isConfirmed) return;
+    try {
+      const response = await TratosUpdate(trato.id, { cantidad_cocheras: parsePositiveInteger(result.value, 'Cantidad') });
+      if (!response.respuesta) throw new Error(messageOf(response));
+      await loadContracts();
+    } catch (e) { await Swal.fire('Error', e.message, 'error'); }
+  };
+  const cancelContract = async (trato) => {
+    const confirm = await Swal.fire({ title: '¿Cancelar trato?', icon: 'warning', showCancelButton: true, confirmButtonText: 'Sí, cancelar' });
+    if (!confirm.isConfirmed) return;
+    const response = await TratosDelete(trato.id);
+    if (!response.respuesta) return Swal.fire('Error', messageOf(response), 'error');
+    await loadContracts();
+  };
 
-          <div>
-            <p>CONTROL DE GARAGES</p>
-            <h1>Configuracion de Garages</h1>
-          </div>
-        </section>
-
-        {loading ? (
-          <GarageActionSkeleton />
-        ) : (
-          <section className="garages-actions">
-            <BotonGenerico
-              className="btn-nueva-zona"
-              onClick={() => navigate("/agregar_zona")}
-            >
-              <CirclePlus size={20} />
-              <span>Nuevo Garage</span>
-            </BotonGenerico>
-          </section>
-        )}
-
-        {loading ? (
-          <GarageStatsSkeleton />
-        ) : (
-          <section className="stats-container">
-            <div className="stats-card stats-card--total">
-              <div className="stats-card-bg-icon">
-                <MapPinned size={100} />
-              </div>
-              <div className="stats-card-content">
-                <div className="stats-card-header">
-                    <span className="stats-card-badge">Total</span>
-                    <span className="stats-card-icon">
-                    <MapPinned size={18} />
-                  </span>
-                </div>
-                <div className="stats-card-value">
-                  <h2>{garages.length}</h2>
-                </div>
-                <p className="stats-card-footer">
-                    <span className="stats-card-dot" />
-                  <span>Registradas en la base de datos</span>
-                </p>
-              </div>
-            </div>
-
-            <div className="stats-card stats-card--ocupacion">
-              <div className="stats-card-bg-icon">
-                <BarChart3 size={100} />
-              </div>
-              <div className="stats-card-content">
-                <div className="stats-card-header">
-                    <span className="stats-card-badge">Ocupación</span>
-                    <span className="stats-card-icon">
-                    <BarChart3 size={18} />
-                  </span>
-                </div>
-                <div className="stats-card-value">
-                  <h2>{`${ocupacionMedia}%`}</h2>
-                </div>
-                <p className="stats-card-footer">
-                    <span className="stats-card-dot" />
-                  <span>Calculada sobre la capacidad total</span>
-                </p>
-              </div>
-            </div>
-          </section>
-        )}
-
-        <section className="gestion-garages-container">
-          <div className="garages-section-heading">
-            <h2 className="titulo-garages">Gestion de Garages</h2>
-            <p className="subtitulo-garages">
-              Administra los garages disponibles, revisa su estado y actualiza su
-              capacidad en tiempo real.
-            </p>
-          </div>
-
-          {loading && <GarageSkeletonGrid />}
-
-          {error && (
-            <p className="garages-feedback garages-feedback-error">{error}</p>
-          )}
-
-          {!loading && !error && garages.length === 0 && (
-            <p className="garages-feedback">Todavia no hay garages cargados.</p>
-          )}
-
-          {!loading && !error && garages.length > 0 && (
-            <div className="contenedor-tarjetas">
-              {garages.map((garage, index) => (
-                <TarjetaGarage
-                  key={obtenerIdGarage(garage, index)}
-                  titulo={garage.nombre || "Garage sin nombre"}
-                  plazas={Number(garage.capacidad || 0)}
-                  estado={obtenerEstadoGarage(garage.estado)}
-                  capacidad={obtenerCapacidadPorcentaje(garage)}
-                  dias={garage.dias}
-                  ultimoReporte={garage.piso ? `Nivel ${garage.piso}` : "Sin nivel"}
-                  imagen={imagenesGarage[index % imagenesGarage.length]}
-                  onClick={() => navigate("/editar_zona", { state: { garage } })}
-                />
-              ))}
-            </div>
-          )}
-        </section>
-      </main>
-
-      <FooterAdmin />
-    </div>
-  );
+  return <div className="gestion-garages"><Header /><main className="gestion-garages-main">
+    <section className="gestion-garages-top"><button className="boton-back" onClick={() => navigate('/admin_dashboard')}><ArrowLeft size={20} /></button><div><p>GARAGES Y TRATOS</p><h1>Gestión de garages</h1></div></section>
+    <div className="garage-tabs" role="tablist"><button className={tab === 'contratados' ? 'active' : ''} onClick={() => setTab('contratados')}>Mis garages contratados</button><button className={tab === 'buscar' ? 'active' : ''} onClick={() => setTab('buscar')}>Buscar garages</button></div>
+    <section className="garage-toolbar">
+      <select aria-label="Sede" value={sedeId} onChange={(e) => setSedeId(e.target.value)} disabled={Boolean(usuario?.id_sede)}>
+        {!usuario?.id_sede && tab === 'contratados' && <option value="">Todas las sedes</option>}
+        {!sedeId && tab === 'buscar' && <option value="">Seleccioná una sede</option>}
+        {sedes.map((s) => <option key={s.id} value={s.id}>{s.nombre || s.ubicacion}</option>)}
+      </select>
+      <label className="garage-search"><Search size={18}/><input aria-label="Buscar" placeholder="Nombre o dirección" value={search} onChange={(e) => setSearch(e.target.value)} /></label>
+      {tab === 'buscar' && <><select aria-label="Distancia" value={radio} onChange={(e) => setRadio(Number(e.target.value))}><option value={5}>5 km</option><option value={15}>15 km</option><option value={50}>50 km</option><option value={100}>100 km</option></select><label><input type="checkbox" checked={availableOnly} onChange={(e) => setAvailableOnly(e.target.checked)}/> Con disponibilidad</label><label><input type="checkbox" checked={activeOnly} onChange={(e) => setActiveOnly(e.target.checked)}/> Activos/abiertos</label></>}
+    </section>
+    {loading && <p className="garages-feedback">Cargando garages…</p>}{error && <p className="garages-feedback garages-feedback-error">{error}</p>}
+    {!loading && !error && tab === 'contratados' && <section className="trato-grid">{contracts.length === 0 ? <p className="garages-feedback">No hay garages contratados para esta selección.</p> : contracts.map((t) => <article className="trato-card" key={t.id}><span className="trato-sede">{t.sede_nombre || `Sede ${t.id_sede || 'legacy'}`}</span><h2>{t.garage_nombre}</h2><p>{t.garage_ubicacion}</p><p>{t.hora_apertura || '—'} a {t.hora_cierre || '—'} · {normalizeDays(t.dias).join(', ') || 'Días no informados'}</p><strong>{t.cantidad_cocheras} cocheras</strong><p>Desde {t.created_at ? new Date(t.created_at).toLocaleDateString('es-AR') : 'fecha legacy'}</p><p>Auto {money(t.precio_auto)} · Pickup {money(t.precio_pickup)}</p><div className="trato-actions"><button onClick={() => editContract(t)}>Cambiar cantidad</button><button className="danger" onClick={() => cancelContract(t)}>Cancelar trato</button></div></article>)}</section>}
+    {!loading && !error && tab === 'buscar' && !sedeId && <p className="garages-feedback">Seleccioná una sede para buscar garages cercanos.</p>}
+    {!loading && !error && tab === 'buscar' && sedeId && <section className="trato-grid">{results.length === 0 ? <p className="garages-feedback">No se encontraron garages con esos filtros.</p> : results.map((g) => { const pending = pendingGarageIds.has(Number(g.id)); return <article className="trato-card" key={g.id}><span className="trato-sede">{g.distanciaTexto || `${Number(g.distance).toFixed(1)} km`} · {g.tiempoConduccion || 'tiempo estimado'}</span><h2>{g.nombre}</h2><p>{g.ubicacion}</p><p>{g.hora_apertura || '—'} a {g.hora_cierre || '—'} · {normalizeDays(g.dias).join(', ') || 'Días no informados'}</p><strong>{g.cocheras_disponibles} de {g.capacidad} disponibles</strong><p>Auto {money(g.precio_auto)} · Moto {money(g.precio_moto)} · Pickup {money(g.precio_pickup)}</p><button disabled={g.ya_contratado || pending || Number(g.cocheras_disponibles) < 1} onClick={() => openRequest(g)}>{g.ya_contratado ? 'Ya contratado' : pending ? 'Solicitud pendiente' : 'Solicitar cocheras'}</button></article>; })}</section>}
+    {selected && <div className="trato-modal" role="dialog" aria-modal="true"><div><h2>Solicitar cocheras en {selected.nombre}</h2><p>Sede de referencia: {sedes.find((s) => Number(s.id) === Number(sedeId))?.nombre}</p><p>Disponibles: <strong>{selected.cocheras_disponibles}</strong></p><p>Auto {money(selected.precio_auto)} · Moto {money(selected.precio_moto)} · Pickup {money(selected.precio_pickup)}</p><label>Cantidad de cocheras <input type="number" min="1" max={selected.cocheras_disponibles} step="1" value={cantidad} onChange={(e) => setCantidad(e.target.value)}/>{!cantidadValida && <small className="trato-field-error">Ingresá un número entero entre 1 y {selected.cocheras_disponibles}.</small>}</label><label>Descripción opcional <textarea maxLength="1000" value={descripcion} onChange={(e) => setDescripcion(e.target.value)} /></label><div className="trato-actions"><button disabled={submitting} onClick={() => setSelected(null)}>Volver</button><button disabled={!cantidadValida || submitting} onClick={submit}>{submitting ? 'Enviando…' : 'Revisar y enviar'}</button></div></div></div>}
+  </main><FooterAdmin /></div>;
 }
-
-export default GestionGarages;

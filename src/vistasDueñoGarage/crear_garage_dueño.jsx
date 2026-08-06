@@ -1,13 +1,11 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, CirclePlus } from "lucide-react";
-import { useAuth } from "../contexts/useAuth";
 import HeaderDueñoGarage from "../componentesDueñoGarage/header_dueño_garage";
 import FooterDueñoGarage from "../componentesDueñoGarage/footer_dueño_garage";
 import FormularioZona from "../componentesAdmin/formulario_zona";
 import FormularioCapacidad from "../componentesAdmin/formulario_capacidad";
 import { GaragesCreate } from "../servicies/API_Garage";
-import { SedesGetAll } from "../servicies/API_Sede";
 import useLiveValidation from "../hooks/useLiveValidation";
 import "./duenio_garage.css";
 import FormularioPreciosGarage from "../componentesCompartidos/FormularioPreciosGarage";
@@ -15,7 +13,6 @@ import { buildGaragePricesPayload } from "../helpers/prices";
 
 function CrearGarageDueño() {
   const navigate = useNavigate();
-  const { usuario } = useAuth();
   const [formData, setFormData] = useState({
     nombre: "",
     piso: "",
@@ -24,50 +21,14 @@ function CrearGarageDueño() {
     hora_cierre: "",
     capacidad_reservas: "",
     capacidad_para_no_reservas: "",
-    id_sede: usuario?.id_sede ?? "",
     dias: [],
     precio_pickup: "",
     precio_auto: "",
     precio_moto: "",
   });
   const [coordenadas, setCoordenadas] = useState({ lat: null, lng: null, direccion: "" });
-  const [sedes, setSedes] = useState([]);
-  const [sedesLoading, setSedesLoading] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-
-  useEffect(() => {
-    let montado = true;
-
-    const cargarSedes = async () => {
-      const response = await SedesGetAll();
-      if (!montado) return;
-
-      if (response.respuesta) {
-        const lista = Array.isArray(response.datos)
-          ? response.datos
-          : Array.isArray(response.datos?.datos) ? response.datos.datos : [];
-        const sedesFiltradas = usuario?.id_sede
-          ? lista.filter((sede) => Number(sede.id) === Number(usuario.id_sede))
-          : lista;
-
-        setSedes(sedesFiltradas);
-        if (sedesFiltradas.length > 0) {
-          setFormData((prev) => ({ ...prev, id_sede: prev.id_sede || String(sedesFiltradas[0].id) }));
-        }
-      } else {
-        setError("No se encontraron sedes disponibles para asociar el garage.");
-      }
-
-      setSedesLoading(false);
-    };
-
-    cargarSedes();
-
-    return () => {
-      montado = false;
-    };
-  }, [usuario]);
 
   const getSchema = () => ({
     nombre: [
@@ -127,11 +88,6 @@ function CrearGarageDueño() {
   const handleCrearGarage = async () => {
     setError("");
 
-    if (sedesLoading) {
-      setError("Las sedes todavia se estan cargando.");
-      return;
-    }
-
     if (!isValid) {
       setError("Corrige los campos marcados antes de guardar.");
       return;
@@ -148,7 +104,6 @@ function CrearGarageDueño() {
     }
 
     const garage = {
-      id_sede: Number(formData.id_sede),
       nombre: formData.nombre.trim(),
       piso: String(formData.piso).trim(),
       ubicacion: formData.ubicacion.trim(),
@@ -203,7 +158,7 @@ function CrearGarageDueño() {
           <FormularioZona
             formData={formData}
             onChange={handleChange}
-            sedes={sedes}
+            hideSede
             fieldsValidation={fieldsValidation}
             onCoordenadasChange={setCoordenadas}
           />
@@ -214,7 +169,7 @@ function CrearGarageDueño() {
         {error && <p className="duenio-feedback error">{error}</p>}
 
         <div className="duenio-form-actions">
-          <button onClick={handleCrearGarage} disabled={loading || sedesLoading || sedes.length === 0}>
+          <button onClick={handleCrearGarage} disabled={loading}>
             <CirclePlus size={20} />
             {loading ? "Creando..." : "Crear garage"}
           </button>

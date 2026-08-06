@@ -47,11 +47,12 @@ export default function PerfilAdmin() {
     const superadminBackup = obtenerSuperadminBackup();
 
     if (superadminBackup) {
+      const response = await apiClient.post('/api/usuario/stop-impersonate');
       eliminarSuperadminBackup();
       eliminarUsuarioImpersonado();
       clearCache();
       setRoleTransition(true);
-      setUsuario(superadminBackup);
+      setUsuario(response.data?.usuario || superadminBackup);
       navigate('/superadmin_dashboard', { replace: true });
       return;
     }

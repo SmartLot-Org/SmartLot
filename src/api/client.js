@@ -1,6 +1,5 @@
 import axios from 'axios';
 import Swal from 'sweetalert2';
-import { Z_INDEX } from '../helpers/zIndex';
 import { mensajeToast } from '../helpers/erroresMensajes';
 import { navigateTo } from './navigation';
 import { clearCache, invalidateByPrefix } from '../cache/cacheStore';
@@ -31,7 +30,6 @@ function showToast(message, icon = 'error') {
     showConfirmButton: false,
     timer: 4000,
     timerProgressBar: true,
-    zIndex: Z_INDEX.SWAL_TOAST,
   });
 }
 

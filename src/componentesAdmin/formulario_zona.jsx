@@ -11,7 +11,8 @@ function FormularioZona({
     onChange,
     sedes = [],
     fieldsValidation = {},
-    onCoordenadasChange
+    onCoordenadasChange,
+    hideSede = false
 }) {
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_FRONTEND_KEY,
@@ -83,7 +84,7 @@ function FormularioZona({
                     </div>
                 </div>
 
-                <div className= {`inputSede input-group menu-dropdown-item ${isOpenSede ? 'dropdown-open' : ''} ${formData.id_sede ? 'has-selected-value' : ''}`}>
+                {!hideSede && <div className= {`inputSede input-group menu-dropdown-item ${isOpenSede ? 'dropdown-open' : ''} ${formData.id_sede ? 'has-selected-value' : ''}`}>
                     <div
                         className="dropdown-trigger-clean"
                         onClick={() => setIsOpenSede(!isOpenSede)}
@@ -117,7 +118,7 @@ function FormularioZona({
                         ))}
                     </ul>
                     <label>Sede</label>
-                </div>
+                </div>}
 
                </section>
               

@@ -268,6 +268,17 @@ const UsuariosImpersonate = async (id) => {
     }
 };
 
+const UsuariosStopImpersonate = async () => {
+    try {
+        const response = await apiClient.post('/api/usuario/stop-impersonate');
+        clearCache();
+        return { respuesta: true, datos: response.data };
+    } catch (error) {
+        logApiError(error);
+        return { respuesta: false, datos: error.response?.data || { message: error.message } };
+    }
+};
+
 export {
     UsuariosGetAll,
     UsuariosGetAuditoria,
@@ -278,5 +289,6 @@ export {
     UsuariosDelete,
     UsuariosPatchEstado,
     UsuariosLogin,
-    UsuariosImpersonate
+    UsuariosImpersonate,
+    UsuariosStopImpersonate
 };

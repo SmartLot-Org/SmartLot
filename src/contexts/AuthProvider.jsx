@@ -20,13 +20,12 @@ export function AuthProvider({ children }) {
       .then((res) => {
         if (cancelado) return;
         const impersonado = obtenerUsuarioImpersonado();
-        if (impersonado && haySuperadminBackup()) {
+        if (impersonado && haySuperadminBackup() && Number(impersonado.id) === Number(res.data.usuario?.id)) {
           setUsuario(impersonado);
         } else {
           setUsuario(res.data.usuario);
-          if (!haySuperadminBackup()) {
-            eliminarUsuarioImpersonado();
-          }
+          eliminarUsuarioImpersonado();
+          if (impersonado && haySuperadminBackup()) eliminarSuperadminBackup();
         }
       })
       .catch(() => {
