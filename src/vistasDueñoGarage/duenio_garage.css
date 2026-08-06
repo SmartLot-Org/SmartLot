@@ -1,93 +1,54 @@
 .duenio-garage-page {
-  --duenio-navy: #0c1e3f;
-  --duenio-blue: #2563eb;
-  --duenio-blue-hot: #156fe5;
-  --duenio-ink: #0f172a;
+  --duenio-ink: #1e293b;
   --duenio-muted: #64748b;
   --duenio-line: #e2e8f0;
+  --duenio-blue: #2563eb;
+  --duenio-bg: #f5f7fb;
   min-height: 100vh;
-  padding-bottom: 128px;
+  padding-bottom: 140px;
   background:
-    radial-gradient(circle at 18% 8%, rgba(37, 99, 235, 0.18), transparent 31rem),
-    radial-gradient(circle at 86% 2%, rgba(34, 197, 94, 0.08), transparent 22rem),
-    linear-gradient(180deg, #f8fbff 0%, #eef4ff 46%, #f5f7fb 100%);
+    radial-gradient(circle at 18% 8%, rgba(37, 99, 235, 0.08), transparent 28rem),
+    radial-gradient(circle at 86% 2%, rgba(108, 147, 214, 0.1), transparent 22rem),
+    #f5f7fb;
   color: var(--duenio-ink);
   text-align: left;
+  box-sizing: border-box;
 }
 
 .duenio-garage-shell {
   width: min(1180px, calc(100% - 8%));
   margin: 0 auto;
+  padding-top: 1.5rem;
+  box-sizing: border-box;
 }
 
+/* HERO — reemplazado por estilo claro estilo admin_dashboard */
 .duenio-hero {
   position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  gap: 2rem;
+  gap: 1.5rem;
   align-items: end;
-  padding: clamp(1.2rem, 4vw, 2.4rem);
-  overflow: hidden;
-  border: 1px solid rgba(37, 99, 235, 0.12);
-  border-radius: 34px;
-  background:
-    linear-gradient(135deg, rgba(12, 30, 63, 0.96), rgba(12, 30, 63, 0.82)),
-    var(--duenio-navy);
-  box-shadow: 0 28px 80px rgba(12, 30, 63, 0.22);
+  padding: clamp(1rem, 3vw, 1.75rem) 0 1.5rem;
   isolation: isolate;
 }
 
-.duenio-hero::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  opacity: 0.5;
-  background:
-    linear-gradient(120deg, transparent 0 42%, rgba(37, 99, 235, 0.32) 42% 43%, transparent 43%),
-    repeating-linear-gradient(90deg, rgba(219, 234, 254, 0.09) 0 1px, transparent 1px 58px);
-}
-
-.duenio-hero::after {
-  content: "";
-  position: absolute;
-  right: -70px;
-  top: -90px;
-  width: 300px;
-  height: 300px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(96, 165, 250, 0.42), transparent 68%);
-  z-index: -1;
-}
-
-.duenio-kicker,
-.duenio-section-head span {
-  color: #60a5fa;
-  font-family: var(--mono);
-  font-size: 0.74rem;
-  font-weight: 900;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-}
-
-.duenio-hero-copy h1,
-.duenio-section-head h1,
-.duenio-section-head h2 {
-  margin: 0.55rem 0 0;
-  color: #ffffff;
+.duenio-hero-copy h1 {
+  margin: 0.4rem 0 0;
+  color: #1e293b;
   font-family: var(--heading);
-  font-size: clamp(2.4rem, 6vw, 5.2rem);
-  line-height: 0.92;
-  letter-spacing: -0.07em;
-  max-width: 850px;
+  font-size: clamp(1.75rem, 4vw, 2.75rem);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  max-width: 720px;
 }
 
-.duenio-hero-copy p,
-.duenio-section-head p {
-  max-width: 690px;
-  margin-top: 1.05rem;
-  color: #cbd5e1;
-  font-size: clamp(1rem, 1.6vw, 1.18rem);
+.duenio-hero-copy p {
+  max-width: 620px;
+  margin-top: 0.85rem;
+  color: #64748b;
+  font-size: clamp(0.95rem, 1.5vw, 1.05rem);
   line-height: 1.55;
 }
 
@@ -100,49 +61,56 @@
 
 .duenio-hero-actions button,
 .duenio-form-actions button,
-.duenio-empty-state button,
-.duenio-back-button {
+.duenio-empty-state button {
   min-height: 48px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.55rem;
   border: 0;
-  border-radius: 16px;
-  padding: 0 1rem;
+  border-radius: 14px;
+  padding: 0 1.1rem;
   cursor: pointer;
-  font-weight: 900;
+  font-weight: 800;
+  font-size: 0.95rem;
   transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 
 .duenio-hero-actions button,
 .duenio-form-actions button,
 .duenio-empty-state button {
-  background: var(--duenio-blue);
+  background: #2563eb;
   color: #ffffff;
-  box-shadow: 0 16px 30px rgba(37, 99, 235, 0.25);
+  box-shadow: 0 8px 18px -6px rgba(37, 99, 235, 0.35);
 }
 
 .duenio-hero-actions button:hover,
 .duenio-form-actions button:hover:not(:disabled),
-.duenio-empty-state button:hover,
-.duenio-back-button:hover {
+.duenio-empty-state button:hover {
   transform: translateY(-2px);
+  box-shadow: 0 12px 22px -6px rgba(37, 99, 235, 0.45);
 }
 
 .duenio-hero-actions .secondary,
 .duenio-form-actions .secondary {
-  background: rgba(255, 255, 255, 0.1);
-  color: #dbeafe;
-  border: 1px solid rgba(219, 234, 254, 0.16);
-  box-shadow: none;
+  background: #ffffff;
+  color: #2563eb;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
 }
 
+.duenio-hero-actions .secondary:hover,
+.duenio-form-actions .secondary:hover {
+  background: #f0f5ff;
+  border-color: rgba(37, 99, 235, 0.2);
+}
+
+/* STATS GRID */
 .duenio-stats-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 1rem;
-  margin: 1rem 0 2.6rem;
+  margin: 1rem 0 2rem;
 }
 
 .duenio-stats-grid article {
@@ -153,11 +121,11 @@
   flex-direction: column;
   justify-content: space-between;
   overflow: hidden;
-  border: 1px solid rgba(226, 232, 240, 0.86);
-  border-radius: 26px;
-  background: rgba(255, 255, 255, 0.78);
-  box-shadow: 0 18px 42px rgba(15, 23, 42, 0.07);
-  backdrop-filter: blur(14px);
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.03),
+    0 12px 24px -10px rgba(15, 23, 42, 0.05);
 }
 
 .duenio-stats-grid article::after {
@@ -167,29 +135,31 @@
   width: 130px;
   height: 130px;
   border-radius: 50%;
-  background: rgba(37, 99, 235, 0.1);
+  background: rgba(37, 99, 235, 0.07);
 }
 
 .duenio-stats-grid svg {
-  color: var(--duenio-blue);
+  color: #2563eb;
 }
 
 .duenio-stats-grid span {
-  color: var(--duenio-muted);
-  font-size: 0.82rem;
-  font-weight: 900;
+  color: #64748b;
+  font-size: 0.78rem;
+  font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
 .duenio-stats-grid strong {
-  color: var(--duenio-ink);
+  color: #1e293b;
   font-family: var(--heading);
-  font-size: 2.35rem;
+  font-size: 2.1rem;
+  font-weight: 800;
   line-height: 1;
-  letter-spacing: -0.06em;
+  letter-spacing: -0.04em;
 }
 
+/* SECTION HEAD */
 .duenio-section-head {
   margin: 0 0 1.25rem;
   text-align: center;
@@ -199,16 +169,39 @@
   text-align: left;
 }
 
+.duenio-kicker,
+.duenio-section-head span {
+  color: #2563eb;
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
 .duenio-section-head h1,
 .duenio-section-head h2 {
-  color: var(--duenio-ink);
-  font-size: clamp(2rem, 5vw, 4rem);
+  margin: 0.35rem 0 0;
+  color: #1e293b;
+  font-family: var(--heading);
+  font-size: clamp(1.7rem, 4vw, 2.6rem);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
 }
 
 .duenio-section-head p {
-  color: var(--duenio-muted);
+  color: #64748b;
+  font-size: 1rem;
+  margin-top: 0.65rem;
+  max-width: 620px;
 }
 
+.duenio-section-head.left p {
+  margin-inline: 0;
+}
+
+/* GRID DE GARAGES */
 .duenio-garages-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
@@ -218,55 +211,98 @@
 .duenio-card-skeleton,
 .duenio-request-skeleton {
   min-height: 340px;
-  border-radius: 30px;
+  border-radius: 22px;
   background: linear-gradient(90deg, #e2e8f0, #f8fafc, #e2e8f0);
   background-size: 220% 100%;
   animation: duenio-shimmer 1.3s infinite linear;
 }
 
+/* FEEDBACK */
 .duenio-feedback {
   margin: 1rem 0;
   padding: 0.9rem 1rem;
-  border-radius: 18px;
+  border-radius: 14px;
   font-weight: 800;
+  font-size: 0.9rem;
 }
 
 .duenio-feedback.error {
-  border: 1px solid rgba(239, 68, 68, 0.24);
+  border: 1px solid rgba(239, 68, 68, 0.22);
   background: #fef2f2;
   color: #b91c1c;
 }
 
+.duenio-feedback.success {
+  border: 1px solid rgba(34, 197, 94, 0.22);
+  background: #f0fdf4;
+  color: #166534;
+}
+
+/* EMPTY STATE */
 .duenio-empty-state {
   display: grid;
   justify-items: center;
   gap: 0.75rem;
   padding: 2.2rem;
-  border: 1px dashed rgba(37, 99, 235, 0.36);
-  border-radius: 28px;
-  background: rgba(255, 255, 255, 0.72);
+  border: 1px dashed rgba(37, 99, 235, 0.3);
+  border-radius: 22px;
+  background: #ffffff;
   text-align: center;
 }
 
 .duenio-empty-state h3 {
   margin: 0;
-  color: var(--duenio-ink);
-  font-size: 1.4rem;
+  color: #1e293b;
+  font-family: var(--heading);
+  font-size: 1.35rem;
+  font-weight: 800;
 }
 
 .duenio-empty-state p {
   max-width: 560px;
-  color: var(--duenio-muted);
+  color: #64748b;
 }
 
+/* BOTÓN VOLVER — estilo boton-back admin (flecha sola) */
 .duenio-back-button {
-  margin-bottom: 1rem;
-  border: 1px solid rgba(37, 99, 235, 0.14);
+  width: 46px;
+  height: 46px;
+  flex: 0 0 46px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  border: 0;
+  border-radius: 14px;
   background: #ffffff;
-  color: var(--duenio-blue);
-  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.07);
+  color: #191c1e;
+  cursor: pointer;
+  padding: 0;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, color 0.2s ease,
+    background 0.2s ease;
+  margin-bottom: 1.25rem;
 }
 
+.duenio-back-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
+  color: #2563eb;
+}
+
+.duenio-back-button:active {
+  transform: translateY(0);
+}
+
+.duenio-back-button.has-text {
+  width: auto;
+  padding: 0 1rem;
+  gap: 0.45rem;
+  font-weight: 800;
+  font-size: 0.9rem;
+}
+
+/* FORM SHELL */
 .duenio-form-shell {
   width: min(920px, calc(100% - 8%));
 }
@@ -274,33 +310,46 @@
 .duenio-form-card {
   display: grid;
   gap: 1rem;
-  padding: 1rem;
-  border: 1px solid rgba(226, 232, 240, 0.92);
-  border-radius: 30px;
-  background: rgba(255, 255, 255, 0.84);
-  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.08);
+  padding: 1.25rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 22px;
+  background: #ffffff;
+  box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.03),
+    0 16px 40px -12px rgba(15, 23, 42, 0.06);
+  box-sizing: border-box;
 }
 
 .duenio-form-card .formulario-zona,
 .duenio-form-card .formulario-capacidad {
   box-shadow: none;
-  border-color: rgba(226, 232, 240, 0.9);
+  border-color: #e2e8f0;
 }
-.duenio-feedback.success { border: 1px solid rgba(34,197,94,.25); background: #f0fdf4; color: #166534; }
-.tratos-manager { display: grid; gap: 1rem; }
-.tratos-table-wrap { overflow-x: auto; border-radius: 20px; background: #fff; box-shadow: 0 14px 35px rgba(15,23,42,.08); }
-.tratos-table-wrap table { width: 100%; border-collapse: collapse; }
-.tratos-table-wrap th, .tratos-table-wrap td { padding: .8rem; border-bottom: 1px solid #e2e8f0; text-align: left; white-space: nowrap; }
-.tratos-table-wrap th { color: #475569; font-size: .72rem; text-transform: uppercase; }
-.tratos-table-wrap button { margin-right: .35rem; border: 0; border-radius: 9px; padding: .45rem .65rem; cursor: pointer; }
-.duenio-form-card label { display: grid; gap: .35rem; color: #475569; font-weight: 800; }
-.duenio-form-card input, .duenio-form-card select { min-height: 44px; padding: 0 .8rem; border: 1px solid #cbd5e1; border-radius: 12px; background: #fff; }
 
-.garage-price-fields { border: 1px solid rgba(226,232,240,.9); border-radius: 20px; padding: 1rem; }
-.garage-price-fields legend { padding: 0 .5rem; font-weight: 900; color: var(--duenio-ink, #0f172a); }
-.garage-price-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: .75rem; }
-.garage-price-grid label { display: grid; gap: .4rem; color: #475569; font-size: .82rem; font-weight: 800; }
-.garage-price-grid input { min-height: 44px; padding: 0 .8rem; border: 1px solid #cbd5e1; border-radius: 12px; background: #fff; }
+.duenio-form-card label {
+  display: grid;
+  gap: 0.35rem;
+  color: #475569;
+  font-weight: 800;
+  text-align: left;
+}
+
+.duenio-form-card input,
+.duenio-form-card select {
+  min-height: 44px;
+  padding: 0 0.8rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #1e293b;
+  font: inherit;
+}
+
+.duenio-form-card input:focus,
+.duenio-form-card select:focus {
+  outline: 2px solid rgba(37, 99, 235, 0.4);
+  outline-offset: -1px;
+  border-color: #2563eb;
+}
 
 .duenio-form-actions {
   margin-top: 1rem;
@@ -312,21 +361,111 @@
   transform: none;
 }
 
+/* PRICE FIELDS */
+.garage-price-fields {
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 1rem;
+}
+
+.garage-price-fields legend {
+  padding: 0 0.5rem;
+  font-weight: 900;
+  color: #1e293b;
+}
+
+.garage-price-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+}
+
+.garage-price-grid label {
+  display: grid;
+  gap: 0.4rem;
+  color: #475569;
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-align: left;
+}
+
+.garage-price-grid input {
+  min-height: 44px;
+  padding: 0 0.8rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #1e293b;
+  font: inherit;
+}
+
+/* TRATOS MANAGER */
+.tratos-manager {
+  display: grid;
+  gap: 1rem;
+}
+
+.tratos-table-wrap {
+  overflow-x: auto;
+  border-radius: 18px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 8px 24px -10px rgba(15, 23, 42, 0.08);
+}
+
+.tratos-table-wrap table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tratos-table-wrap th,
+.tratos-table-wrap td {
+  padding: 0.8rem;
+  border-bottom: 1px solid #e2e8f0;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.tratos-table-wrap th {
+  color: #64748b;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 800;
+}
+
+.tratos-table-wrap td {
+  color: #1e293b;
+  font-size: 0.9rem;
+}
+
+.tratos-table-wrap button {
+  margin-right: 0.35rem;
+  border: 0;
+  border-radius: 10px;
+  padding: 0.45rem 0.65rem;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.82rem;
+}
+
+/* REQUESTS SUMMARY */
 .duenio-requests-summary {
   display: grid;
   grid-template-columns: auto auto minmax(0, 1fr);
   gap: 1rem;
   align-items: center;
   margin: 1rem 0;
-  padding: 1rem;
-  border-radius: 24px;
-  background: var(--duenio-navy);
-  color: #ffffff;
-  box-shadow: 0 20px 52px rgba(12, 30, 63, 0.18);
+  padding: 1rem 1.25rem;
+  border-radius: 20px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  color: #1e293b;
+  box-shadow: 0 8px 24px -10px rgba(15, 23, 42, 0.08);
 }
 
 .duenio-requests-summary > svg {
-  color: #60a5fa;
+  color: #2563eb;
 }
 
 .duenio-requests-summary div {
@@ -334,22 +473,24 @@
 }
 
 .duenio-requests-summary span {
-  color: #93c5fd;
-  font-size: 0.75rem;
-  font-weight: 900;
+  color: #64748b;
+  font-size: 0.72rem;
+  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
 }
 
 .duenio-requests-summary strong {
   font-family: var(--heading);
-  font-size: 2rem;
+  font-size: 1.85rem;
   line-height: 1;
+  letter-spacing: -0.03em;
+  color: #1e293b;
 }
 
 .duenio-requests-summary p {
   justify-self: end;
-  color: #cbd5e1;
+  color: #64748b;
   font-size: 0.9rem;
 }
 
@@ -368,6 +509,7 @@
   }
 }
 
+/* RESPONSIVE */
 @media (max-width: 900px) {
   .duenio-hero {
     grid-template-columns: 1fr;
@@ -390,16 +532,12 @@
 
 @media (max-width: 560px) {
   .duenio-garage-page {
-    padding-bottom: 108px;
+    padding-bottom: 110px;
   }
 
   .duenio-garage-shell,
   .duenio-form-shell {
     width: calc(100% - 1.5rem);
-  }
-
-  .duenio-hero {
-    border-radius: 26px;
   }
 
   .duenio-hero-actions,
@@ -413,8 +551,11 @@
   }
 
   .duenio-form-card {
-    padding: 0.7rem;
-    border-radius: 24px;
+    padding: 0.85rem;
+    border-radius: 18px;
   }
-  .garage-price-grid { grid-template-columns: 1fr; }
+
+  .garage-price-grid {
+    grid-template-columns: 1fr;
+  }
 }

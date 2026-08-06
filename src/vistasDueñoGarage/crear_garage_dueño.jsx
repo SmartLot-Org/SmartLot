@@ -184,9 +184,13 @@ function CrearGarageDueño() {
       <HeaderDueñoGarage />
 
       <main className="duenio-garage-shell duenio-form-shell">
-        <button className="duenio-back-button" onClick={() => navigate("/duenio-garage/dashboard")}>
+        <button
+          type="button"
+          className="duenio-back-button"
+          onClick={() => navigate("/duenio-garage/dashboard")}
+          aria-label="Volver al panel del dueño"
+        >
           <ArrowLeft size={20} />
-          Volver
         </button>
 
         <section className="duenio-section-head left">

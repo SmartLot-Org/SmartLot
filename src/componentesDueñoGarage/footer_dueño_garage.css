@@ -1,76 +1,181 @@
 .duenio-footer {
   position: fixed;
+  bottom: 0;
   left: 50%;
-  bottom: 20px;
-  z-index: 45;
-  width: min(560px, calc(100vw - 28px));
-  height: 78px;
-  padding: 8px;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  border: 1px solid rgba(191, 219, 254, 0.18);
-  border-radius: 28px;
-  background: rgba(12, 30, 63, 0.9);
-  box-shadow: 0 24px 70px rgba(2, 6, 23, 0.28);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
   transform: translateX(-50%);
+  width: 90%;
+  max-width: 560px;
+  height: 90px;
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 32px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+  z-index: 999;
+  padding: 8px 10px 14px;
+  margin-bottom: 2%;
+  overflow: hidden;
+  isolation: isolate;
+  transition: width 420ms cubic-bezier(0.22, 1, 0.36, 1),
+    height 420ms cubic-bezier(0.22, 1, 0.36, 1),
+    padding 420ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-radius 420ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 320ms ease;
+}
+
+.duenio-footer::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 1px solid rgba(255, 255, 255, 0.74);
+  pointer-events: none;
 }
 
 .duenio-footer-indicator {
   position: absolute;
   top: 8px;
-  left: 8px;
-  width: calc((100% - 16px) / 3);
-  height: calc(100% - 16px);
-  border-radius: 22px;
-  background: linear-gradient(135deg, #2563eb, #156fe5);
-  box-shadow: 0 14px 28px rgba(37, 99, 235, 0.34);
-  transform: translateX(var(--duenio-footer-offset));
-  transition: transform 0.28s ease;
+  left: 10px;
+  width: calc((100% - 20px) / 3);
+  height: 60px;
+  border-radius: 24px;
+  background: linear-gradient(180deg, rgba(239, 246, 255, 0.96), rgba(219, 234, 254, 0.92));
+  box-shadow: 0 12px 26px rgba(37, 99, 235, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.92);
+  transform: translate3d(var(--duenio-footer-offset), 0, 0);
+  transition: transform 520ms cubic-bezier(0.22, 1, 0.36, 1);
+  z-index: 0;
+  pointer-events: none;
 }
 
 .duenio-footer-item {
   position: relative;
   z-index: 1;
+  flex: 1;
+  min-width: 0;
+  height: 60px;
+  border-radius: 24px;
   border: 0;
-  border-radius: 22px;
   background: transparent;
-  color: #94a3b8;
   display: flex;
   flex-direction: column;
-  align-items: center;
   justify-content: center;
+  align-items: center;
   gap: 0.2rem;
   cursor: pointer;
+  font: inherit;
+  padding: 0;
+  color: #94a3b8;
   font-size: 0.72rem;
-  font-weight: 900;
-  letter-spacing: 0.04em;
+  font-weight: 800;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  transition: color 0.2s ease, transform 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 260ms cubic-bezier(0.22, 1, 0.36, 1),
+    color 220ms ease;
+}
+
+.duenio-footer-item svg {
+  color: #94a3b8;
+  transition: color 260ms ease,
+    transform 360ms cubic-bezier(0.22, 1, 0.36, 1),
+    filter 260ms ease;
+}
+
+.duenio-footer-item span {
+  transition: color 260ms ease;
 }
 
 .duenio-footer-item.is-active {
-  color: #ffffff;
+  color: #2563eb;
+  transform: translateY(-2px);
+}
+
+.duenio-footer-item.is-active svg,
+.duenio-footer-item.is-active span {
+  color: #2563eb;
+}
+
+.duenio-footer-item.is-active svg {
+  transform: translateY(-1px) scale(1.08);
+  filter: drop-shadow(0 6px 10px rgba(37, 99, 235, 0.18));
 }
 
 .duenio-footer-item:hover {
   transform: translateY(-2px);
 }
 
-@media (max-width: 520px) {
+.duenio-footer-item:focus-visible {
+  outline: 2px solid rgba(37, 99, 235, 0.42);
+  outline-offset: -4px;
+}
+
+@media (max-width: 900px) {
   .duenio-footer {
-    bottom: 12px;
-    height: 68px;
-    border-radius: 22px;
+    height: 80px;
+    border-radius: 26px;
   }
 
-  .duenio-footer-indicator,
+  .duenio-footer-indicator {
+    height: 55px;
+    border-radius: 20px;
+  }
+
   .duenio-footer-item {
-    border-radius: 17px;
+    height: 55px;
+  }
+
+  .duenio-footer-item svg {
+    width: 24px;
+    height: 24px;
   }
 
   .duenio-footer-item span {
     font-size: 0.64rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .duenio-footer {
+    width: 95%;
+    height: 72px;
+    bottom: 12px;
+    border-radius: 22px;
+    padding: 8px 6px 14px;
+  }
+
+  .duenio-footer-indicator {
+    left: 6px;
+    width: calc((100% - 12px) / 3);
+    height: 50px;
+    border-radius: 18px;
+  }
+
+  .duenio-footer-item {
+    height: 50px;
+    border-radius: 18px;
+  }
+
+  .duenio-footer-item span {
+    font-size: 0.58rem;
+    letter-spacing: 0.04em;
+  }
+
+  .duenio-footer-item svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .duenio-footer,
+  .duenio-footer-indicator,
+  .duenio-footer-item,
+  .duenio-footer-item svg,
+  .duenio-footer-item span {
+    transition-duration: 0.01ms;
   }
 }

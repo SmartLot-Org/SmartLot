@@ -1,117 +1,82 @@
 .duenio-header {
-  position: fixed;
-  top: 18px;
-  left: 4%;
-  right: 4%;
-  z-index: 40;
-  height: 72px;
+  height: 70px;
+  background: #ffffff;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
-  padding: 0 1rem;
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-radius: 24px;
-  background: rgba(12, 30, 63, 0.82);
-  color: #f8fafc;
-  box-shadow: 0 24px 70px rgba(2, 6, 23, 0.2);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-}
-
-.duenio-header-brand {
-  border: 0;
-  background: transparent;
-  color: inherit;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.85rem;
-  cursor: pointer;
-  font-family: var(--heading);
-  font-size: 0.82rem;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
-.duenio-header-brand img {
-  width: 118px;
-  height: auto;
-  display: block;
-}
-
-.duenio-header-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.duenio-header-role,
-.duenio-header-bell {
-  min-height: 42px;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.55rem;
-  border: 1px solid rgba(219, 234, 254, 0.16);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.08);
-  color: #dbeafe;
-  font-size: 0.84rem;
-  font-weight: 800;
-}
-
-.duenio-header-role {
-  padding: 0 0.9rem;
-}
-
-.duenio-header-bell {
-  position: relative;
-  justify-content: center;
-  width: 42px;
-  padding: 0;
-  cursor: pointer;
-}
-
-.duenio-header-bell span {
-  position: absolute;
-  top: -7px;
-  right: -5px;
-  min-width: 20px;
-  height: 20px;
-  padding: 0 0.25rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 999px;
-  background: #22c55e;
-  color: #061427;
-  font-size: 0.68rem;
-  font-weight: 900;
+  padding: 0 24px;
+  border-bottom: 1px solid #ddd;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  box-sizing: border-box;
 }
 
 .duenio-header-spacer {
-  height: 108px;
+  height: 70px;
+  flex: 0 0 70px;
+}
+
+/* IZQUIERDA */
+.duenio-header-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+/* DERECHA */
+.duenio-header-right {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+/* LOGO */
+.duenio-logo-smartlot {
+  width: 150px;
+  height: 20% !important;
+  background: transparent;
+  border-color: transparent;
+}
+
+.duenio-logo-smartlot img {
+  width: 150px;
+  height: 20% !important;
+  object-fit: contain;
+  margin-left: -19%;
+  background-color: transparent;
+}
+
+/* BOTÓN TRATOS */
+.duenio-header-bell {
+  border: 0;
+  background: transparent;
+  color: #191c1e;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: color 0.18s ease, transform 0.18s ease;
+}
+
+.duenio-header-bell:hover {
+  color: #2563eb;
+  transform: translateY(-1px);
 }
 
 @media (max-width: 720px) {
   .duenio-header {
-    top: 10px;
-    left: 3%;
-    right: 3%;
-    height: 64px;
-    border-radius: 18px;
+    padding: 0 16px;
   }
 
-  .duenio-header-brand span,
-  .duenio-header-role {
-    display: none;
-  }
-
-  .duenio-header-brand img {
-    width: 104px;
-  }
-
-  .duenio-header-spacer {
-    height: 86px;
+  .duenio-logo-smartlot,
+  .duenio-logo-smartlot img {
+    width: 116px;
+    margin-left: 0;
   }
 }

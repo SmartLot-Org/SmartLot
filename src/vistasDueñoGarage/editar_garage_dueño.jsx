@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import HeaderDueñoGarage from '../componentesDueñoGarage/header_dueño_garage';
 import FooterDueñoGarage from '../componentesDueñoGarage/footer_dueño_garage';
 import FormularioPreciosGarage from '../componentesCompartidos/FormularioPreciosGarage';
@@ -49,7 +50,7 @@ export default function EditarGarageDueño() {
   };
 
   return <div className="duenio-garage-page"><HeaderDueñoGarage /><main className="duenio-garage-shell duenio-form-shell">
-    <button className="duenio-back-button" onClick={() => navigate('/duenio-garage/dashboard')}>Volver</button>
+    <button type="button" className="duenio-back-button" onClick={() => navigate('/duenio-garage/dashboard')} aria-label="Volver al panel del dueño"><ArrowLeft size={20} /></button>
     <section className="duenio-section-head left"><span>Garage propio</span><h1>Editar garage</h1><p>Las ocupaciones se administran desde los flujos operativos y no pueden editarse aquí.</p></section>
     {loading && <p>Cargando garage...</p>}{error && <p className="duenio-feedback error">{error}</p>}{success && <p className="duenio-feedback success">{success}</p>}
     {form && <div className="duenio-form-card"><label>Nombre<input value={form.nombre} onChange={(e) => change('nombre', e.target.value)} /></label>
