@@ -4,6 +4,7 @@ import { ArrowUpRight, CirclePlus, ClipboardList, Gauge, Warehouse } from "lucid
 import HeaderDueñoGarage from "../componentesDueñoGarage/header_dueño_garage";
 import FooterDueñoGarage from "../componentesDueñoGarage/footer_dueño_garage";
 import TarjetaGarageDueño from "../componentesDueñoGarage/tarjeta_garage_dueño";
+import { SkeletonGarages, SkeletonValorMetrica } from "../componentesDueñoGarage/skeleton_admin_garage";
 import { GaragesGetAll } from "../servicies/API_Garage";
 import { TratosGetAll } from "../servicies/API_TratoEmpresaGarage";
 import "./duenio_garage.css";
@@ -107,22 +108,22 @@ function DuenioGarageDashboard() {
           <article>
             <Warehouse size={22} />
             <span>Garages propios</span>
-            <strong>{loading ? "..." : garages.length}</strong>
+            <strong>{loading ? <SkeletonValorMetrica /> : garages.length}</strong>
           </article>
           <article>
             <Gauge size={22} />
             <span>Ocupacion media</span>
-            <strong>{loading ? "..." : `${resumen.ocupacionMedia}%`}</strong>
+            <strong>{loading ? <SkeletonValorMetrica /> : `${resumen.ocupacionMedia}%`}</strong>
           </article>
           <article>
             <ClipboardList size={22} />
             <span>Tratos vigentes</span>
-            <strong>{tratos.length}</strong>
+            <strong>{loading ? <SkeletonValorMetrica /> : tratos.length}</strong>
           </article>
           <article>
             <ArrowUpRight size={22} />
             <span>Capacidad total</span>
-            <strong>{loading ? "..." : resumen.capacidadTotal}</strong>
+            <strong>{loading ? <SkeletonValorMetrica /> : resumen.capacidadTotal}</strong>
           </article>
         </section>
 
@@ -133,13 +134,7 @@ function DuenioGarageDashboard() {
 
         {error && <p className="duenio-feedback error">{error}</p>}
 
-        {loading && (
-          <div className="duenio-garages-grid">
-            {Array.from({ length: 3 }).map((_, index) => (
-              <div className="duenio-card-skeleton" key={index} />
-            ))}
-          </div>
-        )}
+        {loading && <SkeletonGarages />}
 
         {!loading && !error && garages.length === 0 && (
           <section className="duenio-empty-state">

@@ -6,6 +6,7 @@ import { TratosGetAll } from "../servicies/API_TratoEmpresaGarage";
 import { SolicitudesAceptar, SolicitudesGetRecibidas, SolicitudesRechazar } from "../servicies/API_SolicitudEmpresaGarage";
 import { formatARS } from "../helpers/prices";
 import { normalizeList } from "../helpers/tratos";
+import { SkeletonTratos } from "../componentesDueñoGarage/skeleton_admin_garage";
 
 const nombreEmpresa = (item) => item.empresa_nombre || `Empresa #${item.id_empresa}`;
 const nombreGarage = (item) => item.garage_nombre || `Garage #${item.id_garage}`;
@@ -73,7 +74,7 @@ export default function GestionTratosGarage() {
     await Swal.fire(accepting ? "Trato aceptado" : "Solicitud rechazada", accepting ? "El acuerdo fue creado correctamente." : "La solicitud fue rechazada.", "success");
   };
 
-  if (loading) return <div className="deal-loading" role="status"><span /><p>Cargando solicitudes y tratos…</p></div>;
+  if (loading) return <SkeletonTratos />;
   if (error) return <div className="deal-state deal-state--error" role="alert"><X size={24}/><div><strong>No pudimos cargar esta sección</strong><p>{error}</p></div><button type="button" onClick={load}>Reintentar</button></div>;
 
   const resumen = [
@@ -99,8 +100,7 @@ export default function GestionTratosGarage() {
       <header className="deal-section-title"><div><span className="deal-section-icon"><Inbox size={19}/></span><div><h3 id="solicitudes-title">Solicitudes de empresas</h3><p>Propuestas que esperan una decisión de tu garage.</p></div></div><span>{pendientes.length} pendientes</span></header>
       {!pendientes.length ? <div className="deal-empty"><Inbox size={28}/><strong>No hay solicitudes pendientes</strong><p>Cuando una empresa solicite cocheras en uno de tus garages, aparecerá acá.</p></div> : <div className="deal-request-grid">{pendientes.map((solicitud) => <article className="deal-request-card" key={solicitud.id}>
         <header className="deal-request-card__top"><span><Building2 size={16}/>{nombreEmpresa(solicitud)}</span><small>Pendiente</small></header>
-        <div className="deal-request-garage"><ParkingCircle size={18}/><div><span>Garage solicitado</span><strong>{nombreGarage(solicitud)}</strong></div></div>
-        <p><strong>Sede:</strong> {nombreSede(solicitud)}{solicitud.sede_ubicacion ? ` · ${solicitud.sede_ubicacion}` : ""}</p>
+        <div className="deal-request-garage"><ParkingCircle size={18}/><div><span>Garage solicitado</span><strong>{nombreGarage(solicitud)}</strong><small>{nombreSede(solicitud)}{solicitud.sede_ubicacion ? ` · ${solicitud.sede_ubicacion}` : ""}</small></div></div>
         <div className="deal-request-amount"><strong>{solicitud.cantidad_cocheras}</strong><span>cocheras solicitadas</span></div>
         <p>{solicitud.descripcion || "La empresa no agregó una descripción."}</p>
         <div className="deal-request-actions"><button type="button" disabled={resolviendo === solicitud.id} onClick={() => resolve(solicitud, "aceptar")}><Check size={17}/>{resolviendo === solicitud.id ? "Procesando…" : "Aceptar trato"}</button><button type="button" disabled={resolviendo === solicitud.id} className="danger" onClick={() => resolve(solicitud, "rechazar")}><X size={17}/>Rechazar</button></div>
