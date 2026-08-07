@@ -18,6 +18,7 @@ import DuenioGarageDashboard from "./vistasDueñoGarage/duenio_garage_dashboard"
 import CrearGarageDueño from "./vistasDueñoGarage/crear_garage_dueño";
 import TratosEmpresaGarage from "./vistasDueñoGarage/tratos_empresa_garage";
 import EditarGarageDueño from "./vistasDueñoGarage/editar_garage_dueño";
+import CuentasPorCobrarGarage from "./vistasDueñoGarage/cuentas_por_cobrar";
 
 // Vistas de Superadmin
 import SuperadminDashboard from "./vistasSuperadmin/superadmin_dashboard";
@@ -200,6 +201,7 @@ function AppRoutes() {
       <Route path="/duenio-garage/tratos" element={<ProtectedRoute allowedRoles={["dueño_garage"]} usuario={usuario}><TratosEmpresaGarage /></ProtectedRoute>} />
       <Route path="/duenio-garage/garage/:id/editar" element={<ProtectedRoute allowedRoles={["dueño_garage"]} usuario={usuario}><EditarGarageDueño /></ProtectedRoute>} />
       <Route path="/duenio-garage/solicitudes" element={<Navigate to="/duenio-garage/tratos" replace />} />
+      <Route path="/duenio-garage/cuentas-por-cobrar" element={<ProtectedRoute allowedRoles={["dueño_garage"]} usuario={usuario}><CuentasPorCobrarGarage /></ProtectedRoute>} />
 
       {/* Rutas protegidas - Superadmin */}
       <Route path="/superadmin_dashboard" element={
