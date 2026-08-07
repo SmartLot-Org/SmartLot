@@ -28,7 +28,6 @@ import { useAuth } from '../contexts/useAuth';
 import { GaragesGetAll } from "../servicies/API_Garage";
 import { UsuariosGetAll } from "../servicies/API_Usuario";
 import { ReservasGetAll } from "../servicies/API_Reserva";
-import { SedesGetAll } from "../servicies/API_Sede";
 import { exportarReportePDF } from "../util/exportar_reporte_pdf";
 import logoSmartLot from "../Imagenes/Logo_SmartLot-removebg-preview.png";
 
@@ -611,11 +610,10 @@ export default function AdminReportesAnalisis() {
       setError("");
 
       try {
-        const [garRes, usuRes, resRes, sedesRes] = await Promise.all([
+        const [garRes, usuRes, resRes] = await Promise.all([
           GaragesGetAll(),
           UsuariosGetAll(),
           ReservasGetAll(),
-          SedesGetAll(),
         ]);
 
         if (!montado) return;
@@ -633,7 +631,6 @@ export default function AdminReportesAnalisis() {
         let reservasFiltradas = resArray;
 
         if (adminIdSede) {
-          garagesFiltrados = garArray.filter((g) => Number(g.id_sede ?? g.idSede) === adminIdSede);
           const userIds = new Set(
             usuArray.filter((u) => Number(u.id_sede ?? u.idSede) === adminIdSede).map((u) => Number(obtenerIdUsuario(u)))
           );
@@ -641,11 +638,6 @@ export default function AdminReportesAnalisis() {
           const garageIds = new Set(garagesFiltrados.map((g) => Number(g.id_garage ?? g.idGarage ?? g.id)));
           reservasFiltradas = resArray.filter((r) => garageIds.has(Number(r.id_garage ?? r.idGarage ?? r.garage_id)));
         } else if (tieneEmpresa) {
-          const sedesArray = obtenerListado(sedesRes.datos);
-          const sedesIdsEmpresa = new Set(
-            sedesArray.filter((s) => Number(s.id_empresa) === empresaAdmin).map((s) => Number(s.id))
-          );
-          garagesFiltrados = garArray.filter((g) => sedesIdsEmpresa.has(Number(g.id_sede ?? g.idSede)));
           const userIds = new Set(
             usuArray.filter((u) => Number(u.id_empresa ?? u.idEmpresa) === empresaAdmin).map((u) => Number(obtenerIdUsuario(u)))
           );

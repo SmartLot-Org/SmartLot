@@ -1,6 +1,5 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../contexts/useAuth";
 import "./agregar_zona.css";
 import Header from "../componentesAdmin/header_admin";
 import { CirclePlus, ArrowLeft } from "lucide-react";
@@ -8,15 +7,12 @@ import FormularioZona from "../componentesAdmin/formulario_zona";
 import FormularioCapacidad from "../componentesAdmin/formulario_capacidad";
 import BotonGenerico from "../componentesAdmin/boton_generico";
 import { GaragesCreate } from "../servicies/API_Garage";
-import { SedesGetAll } from "../servicies/API_Sede";
 import useLiveValidation from "../hooks/useLiveValidation";
 import FormularioPreciosGarage from "../componentesCompartidos/FormularioPreciosGarage";
 import { buildGaragePricesPayload } from "../helpers/prices";
 
 function AgregarZona() {
   const navigate = useNavigate();
-  const { usuario } = useAuth();
-  
   const [formData, setFormData] = useState({
     nombre: "",
     piso: "",
@@ -25,54 +21,11 @@ function AgregarZona() {
     hora_cierre: "",
     capacidad_reservas: "",
     capacidad_para_no_reservas: "",
-    id_sede: usuario?.id_sede ?? "",
     dias: [], precio_pickup: "", precio_auto: "", precio_moto: ""
   });
   const [coordenadas, setCoordenadas] = useState({ lat: null, lng: null, direccion: '' });
-  const [sedes, setSedes] = useState([]);
-  const [sedesLoading, setSedesLoading] = useState(true);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    const cargarSedes = async () => {
-      setSedesLoading(true);
-      const response = await SedesGetAll();
-
-      if (response.respuesta && Array.isArray(response.datos) && response.datos.length > 0) {
-        const sedesFiltradas = usuario?.id_rol === 4
-          ? response.datos
-          : usuario?.id_sede
-            ? response.datos.filter((s) => Number(s.id) === Number(usuario?.id_sede))
-            : response.datos.filter((s) => Number(s.id_empresa) === Number(usuario?.id_empresa));
-        setSedes(sedesFiltradas);
-        if (usuario?.id_rol === 4) {
-          if (sedesFiltradas.length > 0) {
-            setFormData((prev) => ({
-              ...prev,
-              id_sede: prev.id_sede || String(sedesFiltradas[0].id)
-            }));
-          }
-        } else if (usuario?.id_sede) {
-          setFormData((prev) => ({
-            ...prev,
-            id_sede: String(usuario.id_sede)
-          }));
-        } else if (sedesFiltradas.length > 0) {
-          setFormData((prev) => ({
-            ...prev,
-            id_sede: prev.id_sede || String(sedesFiltradas[0].id)
-          }));
-        }
-      } else {
-        setError("❌ No se encontraron sedes. Crea una sede antes de agregar un garage.");
-      }
-
-      setSedesLoading(false);
-    };
-
-    cargarSedes();
-  }, [usuario]);
 
   const getSchema = () => ({
     nombre: [
@@ -142,19 +95,8 @@ function AgregarZona() {
   const handleCrearZona = async () => {
     setError("");
 
-    if (sedesLoading) {
-      setError("❌ Cargando sedes, espera un momento para continuar.");
-      return;
-    }
-
     if (!isValid) {
       setError("❌ Corrige los errores antes de guardar.");
-      return;
-    }
-
-    const sedeId = Number(formData.id_sede);
-    if (isNaN(sedeId) || sedeId <= 0 || !sedes.some((sede) => Number(sede.id) === sedeId)) {
-      setError("❌ La sede seleccionada no es válida.");
       return;
     }
 
@@ -169,7 +111,6 @@ function AgregarZona() {
     setLoading(true);
 
     const garage = {
-      id_sede: sedeId,
       nombre: formData.nombre.trim(),
       piso: String(formData.piso).trim(),
       ubicacion: formData.ubicacion.trim(),
@@ -219,7 +160,7 @@ function AgregarZona() {
           <FormularioZona
             formData={formData}
             onChange={handleChange}
-            sedes={sedes}
+            hideSede
             fieldsValidation={fieldsValidation}
             onCoordenadasChange={setCoordenadas}
           />
@@ -237,7 +178,7 @@ function AgregarZona() {
           <BotonGenerico
             className="btn-guardar-grande"
             onClick={handleCrearZona}
-            disabled={loading || sedesLoading || sedes.length === 0}
+            disabled={loading}
           >
             <CirclePlus size={22} />
             <span>{loading ? "Creando..." : "Crear Garage"}</span>

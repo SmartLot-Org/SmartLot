@@ -25,6 +25,7 @@ import { UsuariosGetAll } from "../servicies/API_Usuario";
 import { VehiculosGetAll } from "../servicies/API_Vehiculo";
 import { ModelosGetAll } from "../servicies/API_Modelo";
 import { MarcasGetAll } from "../servicies/API_Marca";
+import { TratosGetAll } from "../servicies/API_TratoEmpresaGarage";
 
 gsap.registerPlugin(useGSAP);
 
@@ -179,6 +180,7 @@ export default function SuperadminReservas() {
   const [vehiculos, setVehiculos] = useState([]);
   const [modelos, setModelos] = useState([]);
   const [marcas, setMarcas] = useState([]);
+  const [tratos, setTratos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refrescando, setRefrescando] = useState(false);
   const [error, setError] = useState("");
@@ -199,7 +201,7 @@ export default function SuperadminReservas() {
 
     const cargarDatos = async () => {
       try {
-        const [reservasRes, garagesRes, sedesRes, empresasRes, usuariosRes, vehiculosRes, modelosRes, marcasRes] =
+        const [reservasRes, garagesRes, sedesRes, empresasRes, usuariosRes, vehiculosRes, modelosRes, marcasRes, tratosRes] =
           await Promise.all([
             ReservasGetAll({ force: recarga > 0 }),
             GaragesGetAll(),
@@ -209,6 +211,7 @@ export default function SuperadminReservas() {
             VehiculosGetAll(),
             ModelosGetAll(),
             MarcasGetAll(),
+            TratosGetAll(),
           ]);
 
         if (!montado) return;
@@ -225,6 +228,7 @@ export default function SuperadminReservas() {
         setVehiculos(vehiculosRes.respuesta ? obtenerListado(vehiculosRes.datos) : []);
         setModelos(modelosRes.respuesta ? obtenerListado(modelosRes.datos) : []);
         setMarcas(marcasRes.respuesta ? obtenerListado(marcasRes.datos) : []);
+        setTratos(tratosRes.respuesta ? obtenerListado(tratosRes.datos) : []);
       } catch (err) {
         console.error("Error al cargar las reservas del sistema:", err);
         if (montado) setError("Ocurrio un error al cargar las reservas.");
@@ -267,10 +271,6 @@ export default function SuperadminReservas() {
 
       const idGarage = Number(obtenerCampo(reserva, ["id_garage", "idGarage", "garage_id", "garageId"]));
       const garage = garagesPorId.get(idGarage);
-      const idSede = Number(garage?.id_sede ?? garage?.idSede);
-      const sede = sedesPorId.get(idSede);
-      const idEmpresa = Number(sede?.id_empresa ?? sede?.idEmpresa);
-      const empresa = empresasPorId.get(idEmpresa);
 
       const idVehiculo = Number(obtenerCampo(reserva, ["id_vehiculo", "idVehiculo", "vehiculo_id", "vehiculoId"]));
       const vehiculo = vehiculosPorId.get(idVehiculo);
@@ -284,6 +284,10 @@ export default function SuperadminReservas() {
         vehiculo?.idUsuario
       );
       const usuario = usuariosPorId.get(idUsuario);
+      const idSede = Number(usuario?.id_sede ?? usuario?.idSede);
+      const sede = sedesPorId.get(idSede);
+      const idEmpresa = Number(sede?.id_empresa ?? sede?.idEmpresa ?? usuario?.id_empresa);
+      const empresa = empresasPorId.get(idEmpresa);
       const nombreUsuario = usuario
         ? `${usuario.nombre || ""} ${usuario.apellido || ""}`.trim() || usuario.email
         : `Usuario #${Number.isFinite(idUsuario) ? idUsuario : "-"}`;
@@ -322,15 +326,13 @@ export default function SuperadminReservas() {
   );
 
   const garagesDisponibles = useMemo(() => {
-    let lista = garages;
-    if (filtroSede) {
-      lista = lista.filter((g) => Number(g.id_sede ?? g.idSede) === Number(filtroSede));
-    } else if (filtroEmpresa) {
-      const idsSedes = new Set(sedesDisponibles.map((s) => Number(s.id ?? s.id_sede)));
-      lista = lista.filter((g) => idsSedes.has(Number(g.id_sede ?? g.idSede)));
-    }
-    return lista;
-  }, [garages, filtroSede, filtroEmpresa, sedesDisponibles]);
+    const garageIds = new Set(tratos
+      .filter((trato) => !filtroSede || Number(trato.id_sede) === Number(filtroSede))
+      .filter((trato) => !filtroEmpresa || Number(trato.id_empresa) === Number(filtroEmpresa))
+      .map((trato) => Number(trato.id_garage)));
+    if (!filtroSede && !filtroEmpresa) return garages;
+    return garages.filter((garage) => garageIds.has(Number(garage.id_garage ?? garage.id)));
+  }, [garages, tratos, filtroSede, filtroEmpresa]);
 
   const reservasFiltradas = useMemo(() => {
     const query = busqueda.trim().toLowerCase();

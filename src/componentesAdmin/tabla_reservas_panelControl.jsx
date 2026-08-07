@@ -4,7 +4,6 @@ import { Search, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, ClipboardLis
 import { ReservasGetAll } from '../servicies/API_Reserva';
 import { UsuariosGetAll } from '../servicies/API_Usuario';
 import { GaragesGetAll } from '../servicies/API_Garage';
-import { SedesGetAll } from '../servicies/API_Sede';
 import "./tabla_reservas_panelControl.css";
 
 const AVATAR_COLORS = ["blue", "orange", "green", "purple", "pink", "teal"];
@@ -137,11 +136,10 @@ export default function TablaReservasPanleControl() {
       setError("");
 
       try {
-        const [resRes, usuRes, garRes, sedesRes] = await Promise.all([
+        const [resRes, usuRes, garRes] = await Promise.all([
           ReservasGetAll(),
           UsuariosGetAll(),
           GaragesGetAll(),
-          SedesGetAll(),
         ]);
 
         if (!montado) return;
@@ -156,24 +154,8 @@ export default function TablaReservasPanleControl() {
 
         const garArray = obtenerListado(garRes.datos);
 
-        const adminIdSede = Number(usuario?.id_sede);
-        const empresaAdmin = Number(usuario?.id_empresa);
-        const tieneEmpresa = !isNaN(empresaAdmin) && empresaAdmin > 0;
-
-        let garagesFiltrados = garArray;
-        if (adminIdSede) {
-          garagesFiltrados = garArray.filter((g) => Number(g.id_sede ?? g.idSede) === adminIdSede);
-        } else if (tieneEmpresa) {
-          const sedesArray = obtenerListado(sedesRes.datos);
-          const sedesIdsEmpresa = new Set(
-            sedesArray
-              .filter((s) => Number(s.id_empresa) === empresaAdmin)
-              .map((s) => Number(s.id))
-          );
-          garagesFiltrados = garArray.filter((g) =>
-            sedesIdsEmpresa.has(Number(g.id_sede ?? g.idSede))
-          );
-        }
+        // GaragesGetAll ya llega acotado por los tratos de la sede o empresa autenticada.
+        const garagesFiltrados = garArray;
 
         const gMap = {};
         garagesFiltrados.forEach((g) => {

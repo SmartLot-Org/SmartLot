@@ -14,7 +14,6 @@ import {
 } from "lucide-react";
 import { GaragesGetAll, GaragesGetById } from "../servicies/API_Garage";
 import { ReservasCheckIn, ReservasCheckOut, ReservasGetControlAcceso } from "../servicies/API_Reserva";
-import { SedesGetAll } from "../servicies/API_Sede";
 import ModalPortal from "../componentesCompartidos/ModalPortal";
 import HeaderAdmin from "../componentesAdmin/header_admin";
 import FooterAdmin from "../componentesAdmin/footer_admin";
@@ -472,31 +471,11 @@ export default function GaragistaDashboard() {
     const cargarGaragesDelAdmin = async () => {
       setCargandoGaragesAdmin(true);
       try {
-        const [garagesResp, sedesResp] = await Promise.all([
-          GaragesGetAll(),
-          SedesGetAll(),
-        ]);
+        const garagesResp = await GaragesGetAll();
         if (cancelado) return;
 
-        const todosLosGarages = obtenerListado(garagesResp.datos);
-        const idSedeAdmin = Number(usuario?.id_sede);
-        const idEmpresaAdmin = Number(usuario?.id_empresa);
-        let garagesPermitidos = todosLosGarages;
-
-        if (idSedeAdmin > 0) {
-          garagesPermitidos = todosLosGarages.filter(
-            (garage) => Number(garage.id_sede ?? garage.idSede) === idSedeAdmin
-          );
-        } else if (idEmpresaAdmin > 0) {
-          const idsSedes = new Set(
-            obtenerListado(sedesResp.datos)
-              .filter((sede) => Number(sede.id_empresa ?? sede.idEmpresa) === idEmpresaAdmin)
-              .map((sede) => Number(sede.id_sede ?? sede.id))
-          );
-          garagesPermitidos = todosLosGarages.filter((garage) =>
-            idsSedes.has(Number(garage.id_sede ?? garage.idSede))
-          );
-        }
+        // El backend limita el listado por usuario_garage o por tratos de la sede/empresa.
+        const garagesPermitidos = obtenerListado(garagesResp.datos);
 
         setGaragesDisponibles(garagesPermitidos);
         setGarageSeleccionadoId((actual) => {

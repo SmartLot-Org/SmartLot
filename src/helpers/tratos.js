@@ -14,6 +14,7 @@ export function buildTratoPayload(values, { partial = false } = {}) {
 
 export function buildSolicitudPayload(values) {
   const payload = {
+    id_sede: parsePositiveInteger(values.id_sede, 'Sede'),
     id_garage: parsePositiveInteger(values.id_garage, 'Garage'),
     cantidad_cocheras: parsePositiveInteger(values.cantidad_cocheras, 'Cantidad de cocheras'),
   };

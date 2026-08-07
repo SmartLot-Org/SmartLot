@@ -62,14 +62,6 @@ const obtenerIdSedeUsuario = (item) =>
   item?.datos?.id_sede ??
   item?.datos?.idSede;
 
-const obtenerIdSedeGarage = (garage) =>
-  garage?.id_sede ??
-  garage?.idSede ??
-  garage?.sede_id ??
-  garage?.sedeId ??
-  garage?.sede?.id ??
-  garage?.sede?.id_sede;
-
 const obtenerIdGarage = (garage) =>
   garage?.id_garage ??
   garage?.idGarage ??
@@ -170,8 +162,9 @@ const NuevaReserva = () => {
 
         const garages = garagesResultado.respuesta ? obtenerListado(garagesResultado.datos) : [];
         const idSedeUsuario = obtenerNumeroValido(obtenerIdSedeUsuario(perfilUsuario), obtenerIdSedeUsuario(usuario));
+        // La API ya limita los garages mediante los tratos de la sede del usuario.
         const garagesDeSede = idSedeUsuario
-          ? garages.filter((garage) => Number(obtenerIdSedeGarage(garage)) === idSedeUsuario && esGarageActivo(garage))
+          ? garages.filter(esGarageActivo)
           : [];
 
         setGarages(garagesDeSede);

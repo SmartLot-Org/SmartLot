@@ -27,7 +27,6 @@ import {
 } from "../servicies/API_Conflicto";
 import { UsuariosGetAll } from "../servicies/API_Usuario";
 import { GaragesGetAll } from "../servicies/API_Garage";
-import { SedesGetAll } from "../servicies/API_Sede";
 import { useAuth } from '../contexts/useAuth';
 
 const MAX_PALABRAS = 300;
@@ -234,12 +233,11 @@ export default function AdminPanelControl() {
       setErrorConflictos("");
 
       try {
-        const [conflictosResponse, papeleraResponse, usuariosResponse, garagesResponse, sedesResponse] = await Promise.all([
+        const [conflictosResponse, papeleraResponse, usuariosResponse, garagesResponse] = await Promise.all([
           ConflictosGetAll({ superAdmin: false, ...conflictScope }),
           ConflictosGetPapelera({ superAdmin: false, ...conflictScope }),
           UsuariosGetAll(),
           GaragesGetAll(),
-          SedesGetAll(),
         ]);
 
         if (!montado) return;
@@ -287,22 +285,8 @@ export default function AdminPanelControl() {
 
         const garArray = obtenerListado(garagesResponse.datos);
 
-        let garagesFiltrados = garArray;
-        if (adminIdSede) {
-          garagesFiltrados = garArray.filter((g) => Number(g.id_sede ?? g.idSede) === adminIdSede);
-        } else if (tieneEmpresa) {
-          const sedesArray = obtenerListado(sedesResponse.datos);
-          const sedesIdsEmpresa = new Set(
-            sedesArray
-              .filter((s) => Number(s.id_empresa) === empresaAdmin)
-              .map((s) => Number(s.id))
-          );
-          garagesFiltrados = garArray.filter((g) =>
-            sedesIdsEmpresa.has(Number(g.id_sede ?? g.idSede))
-          );
-        }
-
-        setGaragesList(garagesFiltrados);
+        // El listado de garages ya está aislado por los tratos del tenant en la API.
+        setGaragesList(garArray);
       } catch (error) {
         console.error("Error al cargar datos:", error);
         if (montado) setErrorConflictos("Ocurrio un error al cargar los datos.");

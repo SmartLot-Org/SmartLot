@@ -11,8 +11,7 @@ function TarjetaGarage({
   imagen,
   ultimoReporte,
   onClick,
-  empresaNombre,
-  sedeNombre,
+  relaciones = [],
 }) {
   const estaAbierto = estado?.toLowerCase() === "abierto";
 
@@ -57,12 +56,16 @@ function TarjetaGarage({
             {ultimoReporte}
           </span>
 
-          {empresaNombre && sedeNombre && (
+          {relaciones.length > 0 ? (
             <span className="garage-badges">
-              <span className="badge-empresa">{empresaNombre}</span>
-              <span className="badge-sede">{sedeNombre}</span>
+              {relaciones.map((relacion) => (
+                <span key={`${relacion.idEmpresa}:${relacion.idSede}`}>
+                  <span className="badge-empresa">{relacion.empresaNombre}</span>
+                  <span className="badge-sede">{relacion.sedeNombre}</span>
+                </span>
+              ))}
             </span>
-          )}
+          ) : <span className="garage-badges">Sin tratos</span>}
         </div>
 
         {Array.isArray(dias) && dias.length > 0 && (

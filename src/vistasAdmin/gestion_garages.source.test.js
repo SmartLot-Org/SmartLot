@@ -11,6 +11,14 @@ test('cambiar sede dispara nuevamente la consulta de cercanos', () => {
   assert.match(source, /\[tab, sedeId, radio\]/);
   assert.match(source, /GaragesGetCercanos\(Number\(sedeId\)/);
 });
+test('solicitudes incluyen sede y pendientes se distinguen por sede y garage', () => {
+  assert.match(source, /buildSolicitudPayload\(\{ id_sede: sedeId, id_garage:/);
+  assert.match(source, /`\$\{Number\(s\.id_sede\)\}:\$\{Number\(s\.id_garage\)\}`/);
+  assert.match(source, /if \(!sedeId\) return/);
+});
+test('tratos contratados se filtran por id_sede', () => {
+  assert.match(source, /Number\(t\.id_sede\) === Number\(sedeId\)/);
+});
 test('la ruta anterior redirige a la gestión unificada', () => {
   assert.match(app, /path="\/admin\/tratos-garages"[\s\S]*Navigate to="\/gestion_garages" replace/);
 });

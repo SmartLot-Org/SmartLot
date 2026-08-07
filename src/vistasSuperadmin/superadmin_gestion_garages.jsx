@@ -10,8 +10,8 @@ import HeaderSuperadmin from "../componentesSuperadmin/header_superadmin";
 import FooterSuperadmin from "../componentesSuperadmin/footer_superadmin";
 import TarjetaGarage from "../componentesAdmin/tarjeta_garages";
 import { GaragesGetAll } from "../servicies/API_Garage";
-import { SedesGetAll } from "../servicies/API_Sede";
 import { EmpresasGetAll } from "../servicies/API_Empresa";
+import { TratosGetAll } from "../servicies/API_TratoEmpresaGarage";
 import fotoGarage1 from "../Imagenes/Garage1.jpg";
 import fotoGarage2 from "../Imagenes/Garage2.jpg";
 import fotoGarage3 from "../Imagenes/Garage3.jpg";
@@ -114,8 +114,8 @@ function SuperadminGestionGarages() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [garages, setGarages] = useState([]);
-  const [sedes, setSedes] = useState([]);
   const [empresas, setEmpresas] = useState([]);
+  const [tratos, setTratos] = useState([]);
   const [empresaFilter, setEmpresaFilter] = useState("");
 
   useEffect(() => {
@@ -124,10 +124,10 @@ function SuperadminGestionGarages() {
     const loadData = async () => {
       setLoading(true);
 
-      const [garagesRes, sedesRes, empresasRes] = await Promise.all([
+      const [garagesRes, empresasRes, tratosRes] = await Promise.all([
         GaragesGetAll(),
-        SedesGetAll(),
         EmpresasGetAll(),
+        TratosGetAll(),
       ]);
 
       if (!mounted) return;
@@ -135,11 +135,11 @@ function SuperadminGestionGarages() {
       if (garagesRes.respuesta) {
         setGarages(obtenerListado(garagesRes.datos));
       }
-      if (sedesRes.respuesta) {
-        setSedes(obtenerListado(sedesRes.datos));
-      }
       if (empresasRes.respuesta) {
         setEmpresas(obtenerListado(empresasRes.datos));
+      }
+      if (tratosRes.respuesta) {
+        setTratos(obtenerListado(tratosRes.datos));
       }
 
       setLoading(false);
@@ -149,39 +149,32 @@ function SuperadminGestionGarages() {
     return () => { mounted = false; };
   }, []);
 
-  const sedeMap = {};
-  sedes.forEach((s) => {
-    const id = s.id ?? s.id_sede ?? s.idSede;
-    if (id != null) {
-      sedeMap[Number(id)] = {
-        nombre: s.nombre || s.name || "Sede sin nombre",
-        idEmpresa: Number(s.id_empresa ?? s.idEmpresa),
-      };
-    }
-  });
-
-  const empresaMap = {};
-  empresas.forEach((e) => {
-    const id = e.id ?? e.id_empresa ?? e.idEmpresa;
-    if (id != null) {
-      empresaMap[Number(id)] = e.nombre || e.name || "Empresa sin nombre";
-    }
+  const relacionesPorGarage = new Map();
+  tratos.forEach((trato) => {
+    const idGarage = Number(trato.id_garage);
+    if (!Number.isFinite(idGarage)) return;
+    const relaciones = relacionesPorGarage.get(idGarage) || [];
+    const relacion = {
+      idEmpresa: Number(trato.id_empresa),
+      empresaNombre: trato.empresa_nombre || `Empresa #${trato.id_empresa}`,
+      idSede: Number(trato.id_sede),
+      sedeNombre: trato.sede_nombre || `Sede #${trato.id_sede}`,
+    };
+    if (!relaciones.some((item) => item.idSede === relacion.idSede)) relaciones.push(relacion);
+    relacionesPorGarage.set(idGarage, relaciones);
   });
 
   const garagesConInfo = garages.map((g) => {
-    const idSede = Number(g.id_sede ?? g.idSede);
-    const sedeInfo = sedeMap[idSede] || {};
-    const idEmpresa = sedeInfo.idEmpresa;
+    const relaciones = relacionesPorGarage.get(Number(obtenerIdGarage(g))) || [];
     return {
       ...g,
-      _sedeNombre: sedeInfo.nombre || "Sede desconocida",
-      _empresaNombre: idEmpresa ? (empresaMap[idEmpresa] || "Empresa desconocida") : "Empresa desconocida",
-      _idEmpresa: idEmpresa,
+      _relaciones: relaciones,
+      _idEmpresas: [...new Set(relaciones.map((item) => item.idEmpresa))],
     };
   });
 
   const garagesFiltrados = empresaFilter
-    ? garagesConInfo.filter((g) => g._idEmpresa === Number(empresaFilter))
+    ? garagesConInfo.filter((g) => g._idEmpresas.includes(Number(empresaFilter)))
     : garagesConInfo;
 
   const ocupacionMedia =
@@ -329,8 +322,7 @@ function SuperadminGestionGarages() {
                       dias={garage.dias}
                       ultimoReporte={garage.piso ? `Nivel ${garage.piso}` : "Sin nivel"}
                       imagen={imagenesGarage[index % imagenesGarage.length]}
-                      empresaNombre={garage._empresaNombre}
-                      sedeNombre={garage._sedeNombre}
+                      relaciones={garage._relaciones}
                       onClick={() => navigate("/editar_zona", { state: { garage } })}
                     />
                   ))}

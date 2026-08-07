@@ -6,6 +6,7 @@ import useLiveValidation from "../hooks/useLiveValidation";
 import FieldValidation from "../components/FieldValidation";
 import { GaragesGetDistanciaSede } from "../servicies/API_Garage";
 import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
+import { useAuth } from "../contexts/useAuth";
 
 const obtenerIdVehiculo = (vehiculo) => vehiculo?.id ?? vehiculo?.id_vehiculo ?? vehiculo?._id;
 const obtenerIdGarage = (garage) => garage?.id_garage ?? garage?.idGarage ?? garage?.id ?? garage?._id;
@@ -32,6 +33,7 @@ const obtenerFechaLocalHoy = () => {
 };
 
 export default function FormularioReserva({ onSubmit, loading, vehiculos = [], garages = [], initialData }) {
+  const { usuario } = useAuth();
   const preferences = (() => {
     try {
       return JSON.parse(localStorage.getItem("smartlot_empleado_config")) || {};
@@ -132,7 +134,7 @@ export default function FormularioReserva({ onSubmit, loading, vehiculos = [], g
       setDistanciaError("");
       setDistanciaInfo(null);
 
-      const result = await GaragesGetDistanciaSede(Number(formData.idGarage));
+      const result = await GaragesGetDistanciaSede(Number(formData.idGarage), Number(usuario?.id_sede));
       if (cancel) return;
 
       setLoadingDistancia(false);
@@ -157,7 +159,7 @@ export default function FormularioReserva({ onSubmit, loading, vehiculos = [], g
     fetchDistancia();
 
     return () => { cancel = true; };
-  }, [formData.idGarage]);
+  }, [formData.idGarage, usuario?.id_sede]);
 
   const handleFormSubmit = (e) => {
     e.preventDefault();

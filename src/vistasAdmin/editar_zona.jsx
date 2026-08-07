@@ -344,16 +344,10 @@ function EditarZona() {
       return;
     }
 
-    if (!garageData?.id_sede) {
-      setError('❌ No se encontró la sede asociada al garage.');
-      return;
-    }
-
     setLoading(true);
 
     try {
       const payload = {
-         id_sede: garageData.id_sede,
          nombre: nombreGarage.trim(),
          piso: String(piso ?? '').trim(),
          ubicacion: ubicacion.trim(),

@@ -9,6 +9,7 @@ import { UsuariosCreate, UsuariosGetAll } from "../servicies/API_Usuario";
 import { EmpresasGetAll } from "../servicies/API_Empresa";
 import { SedesGetAll } from "../servicies/API_Sede";
 import { GaragesGetAll } from "../servicies/API_Garage";
+import { TratosGetAll } from "../servicies/API_TratoEmpresaGarage";
 import useLiveValidation from "../hooks/useLiveValidation";
 import FieldValidation from "../components/FieldValidation";
 import { showToast } from "../helpers/toast";
@@ -76,6 +77,7 @@ function AgregarUsuario() {
   const [empresas, setEmpresas] = useState([]);
   const [sedes, setSedes] = useState([]);
   const [garages, setGarages] = useState([]);
+  const [tratos, setTratos] = useState([]);
   const [sedesFiltradas, setSedesFiltradas] = useState([]);
   const [garagesFiltrados, setGaragesFiltrados] = useState([]);
   const [error, setError] = useState("");
@@ -91,16 +93,22 @@ function AgregarUsuario() {
     const fetchData = async () => {
       setLoadingCatalogos(true);
       try {
-        const [empRes, sedRes, garRes, rolesRes] = await Promise.all([
+        const [empRes, sedRes, garRes, tratosRes, rolesRes] = await Promise.all([
           EmpresasGetAll(),
           SedesGetAll(),
           GaragesGetAll(),
+          TratosGetAll(),
           RolesGetAll(),
         ]);
         if (!mounted) return;
         if (empRes.respuesta) setEmpresas(obtenerListado(empRes.datos));
         if (sedRes.respuesta) setSedes(obtenerListado(sedRes.datos));
-        if (garRes.respuesta) setGarages(obtenerListado(garRes.datos));
+        if (garRes.respuesta) {
+          const garageList = obtenerListado(garRes.datos);
+          setGarages(garageList);
+          setGaragesFiltrados(garageList);
+        }
+        if (tratosRes.respuesta) setTratos(obtenerListado(tratosRes.datos));
         if (rolesRes.respuesta) {
           const roles = obtenerListado(rolesRes.datos);
           const owner = roles.find((role) => normalizeRoleName(role.tipo_rol) === 'due\u00f1o_garage');
@@ -129,16 +137,14 @@ function AgregarUsuario() {
   }, [formData.id_empresa]);
 
   useEffect(() => {
-    if (formData.id_sede) {
-      setGaragesFiltrados(
-        garages.filter((g) => Number(g.id_sede) === Number(formData.id_sede))
-      );
-      setFormData((prev) => ({ ...prev, id_garage: "" }));
-    } else {
-      setGaragesFiltrados([]);
-      setFormData((prev) => ({ ...prev, id_garage: "" }));
-    }
-  }, [formData.id_sede]);
+    const idsContratados = new Set(
+      tratos
+        .filter((trato) => Number(trato.id_sede) === Number(formData.id_sede))
+        .map((trato) => Number(trato.id_garage))
+    );
+    setGaragesFiltrados(garages.filter((garage) => idsContratados.has(Number(garage.id_garage ?? garage.id))));
+    setFormData((prev) => ({ ...prev, id_garage: "" }));
+  }, [formData.id_sede, garages, tratos]);
 
   const handleChange = (field, value) => {
     handleChangeWithTouch(field, value, setFormData);

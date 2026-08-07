@@ -85,21 +85,22 @@ export default function GestionGarages() {
     `${t.garage_nombre || ''} ${t.garage_ubicacion || ''}`.toLowerCase().includes(search.toLowerCase())
   ), [tratos, sedeId, search]);
   const results = useMemo(() => filterGarages(cercanos, { search, maxDistance: radio, availableOnly, activeOnly }), [cercanos, search, radio, availableOnly, activeOnly]);
-  const pendingGarageIds = useMemo(() => new Set(solicitudes.filter((s) => s.estado === 'pendiente').map((s) => Number(s.id_garage))), [solicitudes]);
+  const pendingGarageKeys = useMemo(() => new Set(solicitudes.filter((s) => s.estado === 'pendiente').map((s) => `${Number(s.id_sede)}:${Number(s.id_garage)}`)), [solicitudes]);
   const cantidadNumero = Number(cantidad);
   const cantidadValida = Number.isInteger(cantidadNumero) && cantidadNumero > 0 && cantidadNumero <= Number(selected?.cocheras_disponibles || 0);
 
   const openRequest = (garage) => {
+    if (!sedeId) return;
     setSelected(garage);
     setCantidad('1');
     setDescripcion('');
   };
 
   const submit = async () => {
-    if (!cantidadValida || submitting) return;
+    if (!sedeId || !cantidadValida || submitting) return;
     try {
       setSubmitting(true);
-      const payload = buildSolicitudPayload({ id_garage: selected.id, cantidad_cocheras: cantidad, descripcion });
+      const payload = buildSolicitudPayload({ id_sede: sedeId, id_garage: selected.id, cantidad_cocheras: cantidad, descripcion });
       if (payload.cantidad_cocheras > Number(selected.cocheras_disponibles)) throw new Error('La cantidad supera las cocheras disponibles.');
       const confirm = await Swal.fire({ title: 'Enviar solicitud', text: `Solicitar ${payload.cantidad_cocheras} cocheras en ${selected.nombre}?`, icon: 'question', showCancelButton: true, confirmButtonText: 'Enviar', cancelButtonText: 'Cancelar' });
       if (!confirm.isConfirmed) return;
@@ -149,7 +150,7 @@ export default function GestionGarages() {
     {loading && <p className="garages-feedback">Cargando garages…</p>}{error && <p className="garages-feedback garages-feedback-error">{error}</p>}
     {!loading && !error && tab === 'contratados' && <section className="trato-grid">{contracts.length === 0 ? <p className="garages-feedback">No hay garages contratados para esta selección.</p> : contracts.map((t) => <article className="trato-card" key={t.id}><span className="trato-sede">{t.sede_nombre || `Sede ${t.id_sede || 'legacy'}`}</span><h2>{t.garage_nombre}</h2><p>{t.garage_ubicacion}</p><p>{t.hora_apertura || '—'} a {t.hora_cierre || '—'} · {normalizeDays(t.dias).join(', ') || 'Días no informados'}</p><strong>{t.cantidad_cocheras} cocheras</strong><p>Desde {t.created_at ? new Date(t.created_at).toLocaleDateString('es-AR') : 'fecha legacy'}</p><p>Auto {money(t.precio_auto)} · Pickup {money(t.precio_pickup)}</p><div className="trato-actions"><button onClick={() => editContract(t)}>Cambiar cantidad</button><button className="danger" onClick={() => cancelContract(t)}>Cancelar trato</button></div></article>)}</section>}
     {!loading && !error && tab === 'buscar' && !sedeId && <p className="garages-feedback">Seleccioná una sede para buscar garages cercanos.</p>}
-    {!loading && !error && tab === 'buscar' && sedeId && <section className="trato-grid">{results.length === 0 ? <p className="garages-feedback">No se encontraron garages con esos filtros.</p> : results.map((g) => { const pending = pendingGarageIds.has(Number(g.id)); return <article className="trato-card" key={g.id}><span className="trato-sede">{g.distanciaTexto || `${Number(g.distance).toFixed(1)} km`} · {g.tiempoConduccion || 'tiempo estimado'}</span><h2>{g.nombre}</h2><p>{g.ubicacion}</p><p>{g.hora_apertura || '—'} a {g.hora_cierre || '—'} · {normalizeDays(g.dias).join(', ') || 'Días no informados'}</p><strong>{g.cocheras_disponibles} de {g.capacidad} disponibles</strong><p>Auto {money(g.precio_auto)} · Moto {money(g.precio_moto)} · Pickup {money(g.precio_pickup)}</p><button disabled={g.ya_contratado || pending || Number(g.cocheras_disponibles) < 1} onClick={() => openRequest(g)}>{g.ya_contratado ? 'Ya contratado' : pending ? 'Solicitud pendiente' : 'Solicitar cocheras'}</button></article>; })}</section>}
+    {!loading && !error && tab === 'buscar' && sedeId && <section className="trato-grid">{results.length === 0 ? <p className="garages-feedback">No se encontraron garages con esos filtros.</p> : results.map((g) => { const pending = pendingGarageKeys.has(`${Number(sedeId)}:${Number(g.id)}`); return <article className="trato-card" key={g.id}><span className="trato-sede">{g.distanciaTexto || `${Number(g.distance).toFixed(1)} km`} · {g.tiempoConduccion || 'tiempo estimado'}</span><h2>{g.nombre}</h2><p>{g.ubicacion}</p><p>{g.hora_apertura || '—'} a {g.hora_cierre || '—'} · {normalizeDays(g.dias).join(', ') || 'Días no informados'}</p><strong>{g.cocheras_disponibles} de {g.capacidad} disponibles</strong><p>Auto {money(g.precio_auto)} · Moto {money(g.precio_moto)} · Pickup {money(g.precio_pickup)}</p><button disabled={g.ya_contratado || pending || Number(g.cocheras_disponibles) < 1} onClick={() => openRequest(g)}>{g.ya_contratado ? 'Ya contratado' : pending ? 'Solicitud pendiente' : 'Solicitar cocheras'}</button></article>; })}</section>}
     {selected && <div className="trato-modal" role="dialog" aria-modal="true"><div><h2>Solicitar cocheras en {selected.nombre}</h2><p>Sede de referencia: {sedes.find((s) => Number(s.id) === Number(sedeId))?.nombre}</p><p>Disponibles: <strong>{selected.cocheras_disponibles}</strong></p><p>Auto {money(selected.precio_auto)} · Moto {money(selected.precio_moto)} · Pickup {money(selected.precio_pickup)}</p><label>Cantidad de cocheras <input type="number" min="1" max={selected.cocheras_disponibles} step="1" value={cantidad} onChange={(e) => setCantidad(e.target.value)}/>{!cantidadValida && <small className="trato-field-error">Ingresá un número entero entre 1 y {selected.cocheras_disponibles}.</small>}</label><label>Descripción opcional <textarea maxLength="1000" value={descripcion} onChange={(e) => setDescripcion(e.target.value)} /></label><div className="trato-actions"><button disabled={submitting} onClick={() => setSelected(null)}>Volver</button><button disabled={!cantidadValida || submitting} onClick={submit}>{submitting ? 'Enviando…' : 'Revisar y enviar'}</button></div></div></div>}
   </main><FooterAdmin /></div>;
 }

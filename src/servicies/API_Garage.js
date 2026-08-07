@@ -236,11 +236,11 @@ const GaragesDelete = async (id) => {
 
 
 
-const GaragesGetDistanciaSede = async (id) => {
+const GaragesGetDistanciaSede = async (idGarage, idSede) => {
     let returnObject = { respuesta: false, datos: null };
-    let url = '/api/garage/' + id + '/distancia-sede';
+    let url = '/api/garage/' + idGarage + '/distancia-sede';
     try {
-        const response = await apiClient.get(url, { _skipToast: true });
+        const response = await apiClient.get(url, { params: { sede_id: idSede }, _skipToast: true });
         returnObject.respuesta = true;
         returnObject.datos = response.data;
         if (import.meta.env.DEV) {
@@ -252,7 +252,7 @@ const GaragesGetDistanciaSede = async (id) => {
         return returnObject;
     } catch (error) {
         if (import.meta.env.DEV) {
-            console.group("GaragesGetDistanciaSede error (id: " + id + ")");
+            console.group("GaragesGetDistanciaSede error (id: " + idGarage + ")");
             console.log("Status:", error.response?.status);
             console.log("Data:", error.response?.data);
             console.groupEnd();

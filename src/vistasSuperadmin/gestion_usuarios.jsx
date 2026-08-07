@@ -42,6 +42,7 @@ import { EmpresasGetAll } from "../servicies/API_Empresa";
 import { SedesGetAll } from "../servicies/API_Sede";
 import { GaragesGetAll } from "../servicies/API_Garage";
 import { getUserHomeRoute } from '../helpers/roles';
+import { getUsuarioGarageIds, mergeUsuariosById } from '../helpers/usuarios';
 
 gsap.registerPlugin(useGSAP);
 
@@ -107,7 +108,10 @@ const crearEventosAuditoriaUsuario = (items) =>
     .sort((a, b) => new Date(b.fecha || 0) - new Date(a.fecha || 0));
 
 const obtenerOpcionesUnicas = (items, selector) =>
-  Array.from(new Set(items.map(selector).filter(Boolean))).sort((a, b) =>
+  Array.from(new Set(items.flatMap((item) => {
+    const value = selector(item);
+    return Array.isArray(value) ? value : [value];
+  }).filter(Boolean))).sort((a, b) =>
     a.localeCompare(b, "es", { sensitivity: "base" })
   );
 
@@ -146,14 +150,15 @@ const normalizarUsuario = (usuario, empresaMap, sedeMap, garageMap) => {
   const id = usuario.id ?? usuario.id_usuario ?? usuario._id;
   const nombreEmpresa = empresaMap[Number(usuario.id_empresa)] || null;
   const nombreSede = sedeMap[Number(usuario.id_sede)] || null;
-  const idGarage = usuario.id_garage;
-  const nombreGarage = idGarage ? garageMap[Number(idGarage)] || null : null;
+  const idGarages = getUsuarioGarageIds(usuario);
+  const nombresGarages = idGarages.map((idGarage) => garageMap[idGarage]).filter(Boolean);
 
   return {
     id,
     id_empresa: !isNaN(Number(usuario.id_empresa)) ? Number(usuario.id_empresa) : null,
     id_sede: usuario.id_sede ?? null,
-    id_garage: idGarage ? Number(idGarage) : null,
+    id_garage: idGarages[0] ?? null,
+    id_garages: idGarages,
     nombre: `${usuario.nombre || ""} ${usuario.apellido || ""}`.trim() || "Usuario sin nombre",
     email: usuario.email || "Sin email",
     telefono: usuario.telefono || "",
@@ -161,7 +166,8 @@ const normalizarUsuario = (usuario, empresaMap, sedeMap, garageMap) => {
     role: ROLE_LABELS[Number(usuario.id_rol)] || "Desconocido",
     empresa: nombreEmpresa,
     sede: nombreSede,
-    garage: nombreGarage,
+    garage: nombresGarages[0] ?? null,
+    garages: nombresGarages,
     activo: usuario.activo !== false,
   };
 };
@@ -259,7 +265,7 @@ const GestionUsuarios = () => {
         setEmpresaMap(eMap);
         setSedeMap(sMap);
         setGarageMap(gMap);
-        setUsuarios(usuariosRaw.map((u) => normalizarUsuario(u, eMap, sMap, gMap)));
+        setUsuarios(mergeUsuariosById(usuariosRaw).map((u) => normalizarUsuario(u, eMap, sMap, gMap)));
         if (auditRes.respuesta) {
           setAuditoria(crearEventosAuditoriaUsuario(obtenerListado(auditRes.datos)));
         }
@@ -311,7 +317,7 @@ const GestionUsuarios = () => {
         if (u.activo === false) return false;
         if (selectedRol && u.id_rol !== Number(selectedRol)) return false;
         if (selectedSede && u.sede !== selectedSede) return false;
-        if (selectedGarage && u.garage !== selectedGarage) return false;
+        if (selectedGarage && !u.garages.includes(selectedGarage)) return false;
         return true;
       }),
       (u) => u.empresa
@@ -324,7 +330,7 @@ const GestionUsuarios = () => {
         if (u.activo === false) return false;
         if (selectedRol && u.id_rol !== Number(selectedRol)) return false;
         if (selectedEmpresa && u.empresa !== selectedEmpresa) return false;
-        if (selectedGarage && u.garage !== selectedGarage) return false;
+        if (selectedGarage && !u.garages.includes(selectedGarage)) return false;
         return true;
       }),
       (u) => u.sede
@@ -338,9 +344,9 @@ const GestionUsuarios = () => {
         if (selectedRol && u.id_rol !== Number(selectedRol)) return false;
         if (selectedEmpresa && u.empresa !== selectedEmpresa) return false;
         if (selectedSede && u.sede !== selectedSede) return false;
-        return Boolean(u.garage);
+        return u.garages.length > 0;
       }),
-      (u) => u.garage
+      (u) => u.garages
     );
   }, [usuarios, selectedRol, selectedEmpresa, selectedSede]);
 
@@ -377,7 +383,7 @@ const GestionUsuarios = () => {
       const coincideRol = !selectedRol || u.id_rol === Number(selectedRol);
       const coincideEmpresa = !selectedEmpresa || u.empresa === selectedEmpresa;
       const coincideSede = !selectedSede || u.sede === selectedSede;
-      const coincideGarage = !selectedGarage || u.garage === selectedGarage;
+      const coincideGarage = !selectedGarage || u.garages.includes(selectedGarage);
 
       return coincideBusqueda && coincideRol && coincideEmpresa && coincideSede && coincideGarage;
     }).sort((a, b) => {
@@ -845,16 +851,10 @@ const GestionUsuarios = () => {
                             {u.sede}
                           </span>
                         )}
-                        {u.garage && u.id_rol !== 3 && (
-                          <span className="usuario-meta">
+                        {u.garages.length > 0 && (
+                          <span className={`usuario-meta ${u.id_rol === 3 ? 'usuario-meta-garage' : ''}`}>
                             <Car size={13} />
-                            {u.garage}
-                          </span>
-                        )}
-                        {u.id_rol === 3 && u.garage && (
-                          <span className="usuario-meta usuario-meta-garage">
-                            <Car size={13} />
-                            {u.garage}
+                            {u.garages.join(', ')}
                           </span>
                         )}
                         {u.id_rol === 1 && !u.sede && (

@@ -66,14 +66,6 @@ const obtenerIdSedeUsuario = (item) =>
   item?.datos?.id_sede ??
   item?.datos?.idSede;
 
-const obtenerIdSedeGarage = (garage) =>
-  garage?.id_sede ??
-  garage?.idSede ??
-  garage?.sede_id ??
-  garage?.sedeId ??
-  garage?.sede?.id ??
-  garage?.sede?.id_sede;
-
 const esGarageActivo = (garage) => {
   const estado = garage?.estado ?? garage?.activo ?? garage?.status;
 
@@ -413,8 +405,9 @@ function EmpleadoDashboard() {
 
         const garages = garagesResponse.respuesta ? obtenerListado(garagesResponse.datos) : [];
         const idSedeEmpleado = Number(obtenerIdSedeUsuario(perfilEmpleado));
+        // GaragesGetAll ya aplica el alcance por tratos para la sede autenticada.
         const garagesDeSede = Number.isFinite(idSedeEmpleado)
-          ? garages.filter((garage) => Number(obtenerIdSedeGarage(garage)) === idSedeEmpleado && esGarageActivo(garage))
+          ? garages.filter(esGarageActivo)
           : [];
         const idGarageEmpleado = Number(obtenerIdGarageAsignado(perfilEmpleado));
         const garageGuardadoId = Number(localStorage.getItem(GARAGE_DASHBOARD_STORAGE_KEY));
