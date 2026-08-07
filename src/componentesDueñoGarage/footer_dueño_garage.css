@@ -46,7 +46,10 @@
   box-shadow: 0 12px 26px rgba(37, 99, 235, 0.16),
     inset 0 1px 0 rgba(255, 255, 255, 0.92);
   transform: translate3d(var(--duenio-footer-offset), 0, 0);
-  transition: transform 520ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform 520ms cubic-bezier(0.22, 1, 0.36, 1),
+    width 260ms ease,
+    height 260ms ease,
+    border-radius 260ms ease;
   z-index: 0;
   pointer-events: none;
 }
@@ -87,7 +90,9 @@
   font-weight: 700;
   letter-spacing: 1px;
   text-align: center;
-  transition: color 260ms ease;
+  transition: color 260ms ease,
+    transform 320ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 260ms ease;
 }
 
 .duenio-footer-item.is-active {
@@ -170,6 +175,10 @@
     height: 20px;
     margin-bottom: 4px;
   }
+}
+
+.duenio-footer-item.is-active span {
+  transform: translateY(1px);
 }
 
 @media (max-width: 400px) {
