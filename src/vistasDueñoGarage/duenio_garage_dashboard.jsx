@@ -84,7 +84,7 @@ function DuenioGarageDashboard() {
       <main className="duenio-garage-shell">
         <section className="duenio-hero">
           <div className="duenio-hero-copy">
-            <span className="duenio-kicker">SMARTLOT OWNER</span>
+            <span className="duenio-kicker">Dueño de garage</span>
             <h1>Controla tus garages como activos operativos.</h1>
             <p>
               Visualiza tus propiedades, disponibilidad y tratos con empresas desde una consola separada del flujo admin.

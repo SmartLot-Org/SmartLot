@@ -1,15 +1,18 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, CirclePlus } from "lucide-react";
+import Swal from "sweetalert2";
 import HeaderDueñoGarage from "../componentesDueñoGarage/header_dueño_garage";
 import FooterDueñoGarage from "../componentesDueñoGarage/footer_dueño_garage";
 import FormularioZona from "../componentesAdmin/formulario_zona";
 import FormularioCapacidad from "../componentesAdmin/formulario_capacidad";
+import BotonGenerico from "../componentesAdmin/boton_generico";
 import { GaragesCreate } from "../servicies/API_Garage";
 import useLiveValidation from "../hooks/useLiveValidation";
-import "./duenio_garage.css";
+import "../vistasAdmin/agregar_zona.css";
 import FormularioPreciosGarage from "../componentesCompartidos/FormularioPreciosGarage";
 import { buildGaragePricesPayload } from "../helpers/prices";
+import { Z_INDEX } from "../helpers/zIndex";
 
 function CrearGarageDueño() {
   const navigate = useNavigate();
@@ -29,6 +32,53 @@ function CrearGarageDueño() {
   const [coordenadas, setCoordenadas] = useState({ lat: null, lng: null, direccion: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [initialForm] = useState(() => ({ ...formData, dias: [...formData.dias] }));
+
+  const isDirty = useMemo(() => {
+    const ini = initialForm;
+    if (!ini) return false;
+    const keys = Object.keys(formData);
+    for (const key of keys) {
+      const a = formData[key];
+      const b = ini[key];
+      if (Array.isArray(a) || Array.isArray(b)) {
+        if (JSON.stringify(a ?? []) !== JSON.stringify(b ?? [])) return true;
+        continue;
+      }
+      if (String(a ?? "") !== String(b ?? "")) return true;
+    }
+    return false;
+  }, [formData, initialForm]);
+
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      if (isDirty) {
+        e.preventDefault();
+        e.returnValue = "Tienes datos sin guardar. ¿Seguro que deseas salir?";
+      }
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [isDirty]);
+
+  const volverADashboard = async () => {
+    if (isDirty) {
+      const result = await Swal.fire({
+        title: "Datos sin guardar",
+        text: "Has comenzado a cargar el garage. Si sales ahora, perderás los datos ingresados.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#EF4444",
+        cancelButtonColor: "#64748B",
+        confirmButtonText: "Salir sin guardar",
+        cancelButtonText: "Permanecer aquí",
+        reverseButtons: true,
+        zIndex: Z_INDEX.SWAL_DIALOG,
+      });
+      if (!result.isConfirmed) return;
+    }
+    navigate("/duenio-garage/dashboard");
+  };
 
   const getSchema = () => ({
     nombre: [
@@ -126,6 +176,16 @@ function CrearGarageDueño() {
     setLoading(false);
 
     if (response.respuesta) {
+      Swal.fire({
+        toast: true,
+        position: "top-end",
+        icon: "success",
+        title: "Garage creado correctamente",
+        showConfirmButton: false,
+        timer: 1500,
+        timerProgressBar: true,
+        zIndex: Z_INDEX.SWAL_TOAST,
+      });
       navigate("/duenio-garage/dashboard", { replace: true });
       return;
     }
@@ -134,27 +194,24 @@ function CrearGarageDueño() {
     setError(`No se pudo crear el garage: ${typeof mensaje === "string" ? mensaje : JSON.stringify(mensaje)}`);
   };
 
-  return (
-    <div className="duenio-garage-page">
+return (
+    <div className="agregar-zona">
       <HeaderDueñoGarage />
 
-      <main className="duenio-garage-shell duenio-form-shell">
-        <button
-          type="button"
-          className="duenio-back-button"
-          onClick={() => navigate("/duenio-garage/dashboard")}
-          aria-label="Volver al panel del dueño"
-        >
-          <ArrowLeft size={20} />
-        </button>
+      <div className="contenido-agregar-zona">
+        <div className="top-garage">
+          <button className="boton-back" onClick={volverADashboard} aria-label="Volver al panel del dueño">
+            <ArrowLeft size={24} />
+          </button>
 
-        <section className="duenio-section-head left">
-          <span>Alta de activo</span>
-          <h1>Crear nuevo garage</h1>
-          <p>Esta funcion ahora pertenece al rol dueño de garage. El garage queda asociado a tu usuario como propietario.</p>
-        </section>
+          <div className="info-top">
+            <p>ALTA DE ACTIVO</p>
+            <h1>Crear nuevo garage</h1>
+            <span>Esta funcion ahora pertenece al rol dueño de garage. El garage queda asociado a tu usuario como propietario.</span>
+          </div>
+        </div>
 
-        <div className="duenio-form-card">
+        <div className="form-garage">
           <FormularioZona
             formData={formData}
             onChange={handleChange}
@@ -162,22 +219,31 @@ function CrearGarageDueño() {
             fieldsValidation={fieldsValidation}
             onCoordenadasChange={setCoordenadas}
           />
+
           <FormularioCapacidad formData={formData} onChange={handleChange} />
           <FormularioPreciosGarage values={formData} onChange={handleChange} disabled={loading} />
         </div>
 
-        {error && <p className="duenio-feedback error">{error}</p>}
+        {error && <p className="form-error" style={{ color: '#d32f2f', padding: '12px', marginBottom: '16px', backgroundColor: '#ffebee', borderRadius: '4px', fontWeight: 'bold' }}>{error}</p>}
 
-        <div className="duenio-form-actions">
-          <button onClick={handleCrearGarage} disabled={loading}>
-            <CirclePlus size={20} />
-            {loading ? "Creando..." : "Crear garage"}
-          </button>
-          <button className="secondary" onClick={() => navigate("/duenio-garage/dashboard")}>
-            Cancelar
-          </button>
+        <div className="acciones-garage">
+          <BotonGenerico
+            className="btn-guardar-grande"
+            onClick={handleCrearGarage}
+            disabled={loading}
+          >
+            <CirclePlus size={22} />
+            <span>{loading ? "Creando..." : "Crear Garage"}</span>
+          </BotonGenerico>
+
+          <BotonGenerico
+            className="btn-cancelar-grande"
+            onClick={volverADashboard}
+          >
+            <span>Cancelar</span>
+          </BotonGenerico>
         </div>
-      </main>
+      </div>
 
       <FooterDueñoGarage />
     </div>
