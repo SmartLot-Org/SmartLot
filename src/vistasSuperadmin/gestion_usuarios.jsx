@@ -195,6 +195,7 @@ const GestionUsuarios = () => {
   const [selectedSede, setSelectedSede] = useState("");
   const [selectedGarage, setSelectedGarage] = useState("");
   const [showArchived, setShowArchived] = useState(false);
+  const [garagesModalUsuario, setGaragesModalUsuario] = useState(null);
   const [showFilters, setShowFilters] = useState(false); // Estado para abrir/cerrar filtros
   const { usuario, setUsuario, setRoleTransition } = useAuth();
 
@@ -851,12 +852,15 @@ const GestionUsuarios = () => {
                             {u.sede}
                           </span>
                         )}
-                        {u.garages.length > 0 && (
-                          <span className={`usuario-meta ${u.id_rol === 3 ? 'usuario-meta-garage' : ''}`}>
+                        {u.garages.length > 0 && <div className="usuario-garages-summary">
+                          <span className={`usuario-meta ${u.id_rol === 3 ? 'usuario-meta-garage' : ''}`} title={u.garages[0]}>
                             <Car size={13} />
-                            {u.garages.join(', ')}
+                            <span>{u.garages[0]}</span>
                           </span>
-                        )}
+                          {u.id_rol === 5 && u.garages.length > 1 ? <button type="button" className="usuario-garages-more" onClick={() => setGaragesModalUsuario(u)} aria-label={`Ver los ${u.garages.length} garages de ${u.nombre}`}>
+                            Ver más <strong>+{u.garages.length - 1}</strong>
+                          </button> : null}
+                        </div>}
                         {u.id_rol === 1 && !u.sede && (
                           <span className="usuario-meta usuario-meta-admin">
                             <Building2 size={13} />
@@ -922,6 +926,13 @@ const GestionUsuarios = () => {
           </div>
         )}
       </main>
+
+      {garagesModalUsuario && <ModalPortal onClose={() => setGaragesModalUsuario(null)} overlayClassName="garages-owner-overlay">
+        <section className="garages-owner-modal" role="dialog" aria-modal="true" aria-labelledby="garages-owner-title" onClick={(event) => event.stopPropagation()}>
+          <header><div className="garages-owner-modal__icon"><Car size={21}/></div><div><span>Dueño de garage</span><h2 id="garages-owner-title">Garages de {garagesModalUsuario.nombre}</h2><p>{garagesModalUsuario.garages.length} garages asociados</p></div><button type="button" onClick={() => setGaragesModalUsuario(null)} aria-label="Cerrar listado de garages"><X size={20}/></button></header>
+          <ul>{garagesModalUsuario.garages.map((garage, index) => <li key={`${garage}-${index}`}><span>{index + 1}</span><div><strong>{garage}</strong><small>Garage administrado</small></div></li>)}</ul>
+        </section>
+      </ModalPortal>}
 
       {/* MODAL ARCHIVADOS (Se mantiene intacto) */}
       {showArchived && (
