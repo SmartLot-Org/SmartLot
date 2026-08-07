@@ -6,6 +6,7 @@ import { TratosGetAll } from "../servicies/API_TratoEmpresaGarage";
 import { SolicitudesAceptar, SolicitudesGetRecibidas, SolicitudesRechazar } from "../servicies/API_SolicitudEmpresaGarage";
 import { formatARS } from "../helpers/prices";
 import { normalizeList } from "../helpers/tratos";
+import { notifySolicitudesChanged } from "../hooks/useSolicitudesPendientesCount";
 
 const nombreEmpresa = (item) => item.empresa_nombre || `Empresa #${item.id_empresa}`;
 const nombreGarage = (item) => item.garage_nombre || `Garage #${item.id_garage}`;
@@ -70,6 +71,7 @@ export default function GestionTratosGarage() {
       return;
     }
     await load();
+    notifySolicitudesChanged();
     await Swal.fire(accepting ? "Trato aceptado" : "Solicitud rechazada", accepting ? "El acuerdo fue creado correctamente." : "La solicitud fue rechazada.", "success");
   };
 

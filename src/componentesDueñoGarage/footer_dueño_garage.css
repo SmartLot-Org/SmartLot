@@ -73,15 +73,51 @@
     color 220ms ease;
 }
 
+.duenio-footer-item__icon {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 6px;
+}
+
 .duenio-footer-item svg {
   color: #94a3b8;
-  margin-bottom: 6px;
   transition: color 260ms ease,
     transform 360ms cubic-bezier(0.22, 1, 0.36, 1),
     filter 260ms ease;
 }
 
-.duenio-footer-item span {
+.duenio-footer-badge {
+  position: absolute;
+  top: -6px;
+  right: -9px;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: #dc2626;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 17px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.35);
+  animation: duenioBadgePop 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes duenioBadgePop {
+  from {
+    transform: scale(0);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.duenio-footer-item__label {
   color: #94a3b8;
   font-size: 14px;
   font-weight: 700;
@@ -96,7 +132,7 @@
 }
 
 .duenio-footer-item.is-active svg,
-.duenio-footer-item.is-active span {
+.duenio-footer-item.is-active .duenio-footer-item__label {
   color: #2563eb;
 }
 
@@ -134,7 +170,7 @@
     height: 24px;
   }
 
-  .duenio-footer-item span {
+  .duenio-footer-item__label {
     font-size: 12px;
   }
 }
@@ -160,7 +196,7 @@
     border-radius: 18px;
   }
 
-  .duenio-footer-item span {
+  .duenio-footer-item__label {
     font-size: 10px;
     letter-spacing: 0.5px;
   }
@@ -168,6 +204,9 @@
   .duenio-footer-item svg {
     width: 20px;
     height: 20px;
+  }
+
+  .duenio-footer-item__icon {
     margin-bottom: 4px;
   }
 }
@@ -175,7 +214,7 @@
 @media (max-width: 400px) {
   .duenio-footer { height: 68px; }
   .duenio-footer-indicator { height: 48px; }
-  .duenio-footer-item span { font-size: 9px; }
+  .duenio-footer-item__label { font-size: 9px; }
   .duenio-footer-item svg { width: 18px; height: 18px; }
 }
 
@@ -183,7 +222,8 @@
 .duenio-footer.footer-compacto .duenio-footer-indicator { top:6px;height:48px;border-radius:18px }
 .duenio-footer.footer-compacto .duenio-footer-item { height:48px }
 .duenio-footer.footer-compacto .duenio-footer-item svg { width:22px;height:22px;margin-bottom:0 }
-.duenio-footer.footer-compacto .duenio-footer-item span { max-height:0;opacity:0;overflow:hidden;transform:translateY(5px) }
+.duenio-footer.footer-compacto .duenio-footer-item__icon { margin-bottom:0 }
+.duenio-footer.footer-compacto .duenio-footer-item__label { max-height:0;opacity:0;overflow:hidden;transform:translateY(5px) }
 @media(max-width:600px){.duenio-footer.footer-compacto{width:82%;height:56px;padding:4px 6px;border-radius:20px}.duenio-footer.footer-compacto .duenio-footer-indicator{top:4px;height:48px;border-radius:16px}}
 
 @media (prefers-reduced-motion: reduce) {
@@ -191,7 +231,7 @@
   .duenio-footer-indicator,
   .duenio-footer-item,
   .duenio-footer-item svg,
-  .duenio-footer-item span {
+  .duenio-footer-item__label {
     transition-duration: 0.01ms;
   }
 }

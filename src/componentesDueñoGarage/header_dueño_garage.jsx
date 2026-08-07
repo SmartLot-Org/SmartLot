@@ -1,11 +1,13 @@
 import { Handshake } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import UserDropdown from "../components/UserDropdown";
+import { useSolicitudesPendientesCount } from "../hooks/useSolicitudesPendientesCount";
 import logo from "../Imagenes/Logo_SmartLot-removebg-preview.png";
 import "./header_dueño_garage.css";
 
 function HeaderDueñoGarage() {
   const navigate = useNavigate();
+  const { count, loading } = useSolicitudesPendientesCount();
 
   return (
     <>
@@ -25,10 +27,13 @@ function HeaderDueñoGarage() {
           <button
             type="button"
             className="duenio-header-bell"
-            aria-label="Ver tratos"
+            aria-label={count > 0 ? `Ver tratos, ${count} solicitudes pendientes` : "Ver tratos"}
             onClick={() => navigate("/duenio-garage/tratos")}
           >
             <Handshake size={26} />
+            {!loading && count > 0 && (
+              <span className="duenio-notification-badge">{count > 99 ? "99+" : count}</span>
+            )}
           </button>
           <UserDropdown />
         </div>

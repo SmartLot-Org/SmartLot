@@ -2,6 +2,7 @@ import { Building2, CirclePlus, ClipboardList, HandCoins } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useFooterCompacto } from "../hooks/useFooterCompacto";
+import { useSolicitudesPendientesCount } from "../hooks/useSolicitudesPendientesCount";
 import "./footer_dueño_garage.css";
 
 const ITEMS = [
@@ -15,6 +16,7 @@ function FooterDueñoGarage() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const compacto = useFooterCompacto();
+  const { count, loading } = useSolicitudesPendientesCount();
   const activeIndex = Math.max(ITEMS.findIndex((item) => item.path === pathname), 0);
   const [visualIndex, setVisualIndex] = useState(activeIndex);
 
@@ -30,17 +32,25 @@ function FooterDueñoGarage() {
       aria-label="Navegacion del dueño de garage"
     >
       <span className="duenio-footer-indicator" aria-hidden="true" />
-      {ITEMS.map((item) => (
-        <button
-          key={item.path}
-          className={`duenio-footer-item${pathname === item.path ? " is-active" : ""}`}
-          onClick={() => navigate(item.path)}
-          aria-current={pathname === item.path ? "page" : undefined}
-        >
-          {item.icon}
-          <span>{item.label}</span>
-        </button>
-      ))}
+      {ITEMS.map((item) => {
+        const isTratos = item.path === "/duenio-garage/tratos";
+        return (
+          <button
+            key={item.path}
+            className={`duenio-footer-item${pathname === item.path ? " is-active" : ""}`}
+            onClick={() => navigate(item.path)}
+            aria-current={pathname === item.path ? "page" : undefined}
+          >
+            <span className="duenio-footer-item__icon">
+              {item.icon}
+              {isTratos && !loading && count > 0 && (
+                <span className="duenio-footer-badge">{count > 99 ? "99+" : count}</span>
+              )}
+            </span>
+            <span className="duenio-footer-item__label">{item.label}</span>
+          </button>
+        );
+      })}
     </footer>
   );
 }

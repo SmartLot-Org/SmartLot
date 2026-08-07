@@ -234,6 +234,83 @@ const GaragesDelete = async (id) => {
     }
 };
 
+const GaragesGetPapelera = async ({ force = false } = {}) => {
+
+    let returnObject = { respuesta: false, datos: [] };
+
+    let url = '/api/garage/papelera';
+
+    try {
+
+        return await getFromCache(
+            'garages:papelera',
+            async () => {
+                const response = await apiClient.get(url);
+
+                returnObject.respuesta = true;
+                returnObject.datos = response.data;
+
+                return returnObject;
+            },
+            { ttlMs: GARAGES_TTL_MS, force }
+        );
+
+    } catch (error) {
+
+        logApiError(error);
+        returnObject.datos = error.response?.data || { message: error.message };
+        returnObject.status = error.response?.status || 0;
+        return returnObject;
+    }
+};
+
+const GaragesMoveToPapelera = async (id) => {
+
+    let returnObject = { respuesta: false };
+
+    let url = '/api/garage/' + id;
+
+    try {
+
+        await apiClient.delete(url);
+
+        returnObject.respuesta = true;
+        invalidateGaragesDependencies();
+
+        return returnObject;
+
+    } catch (error) {
+
+        logApiError(error);
+        returnObject.datos = error.response?.data || { message: error.message };
+        return returnObject;
+    }
+};
+
+const GaragesRestore = async (id) => {
+
+    let returnObject = { respuesta: false, datos: null };
+
+    let url = '/api/garage/' + id + '/restaurar';
+
+    try {
+
+        const response = await apiClient.patch(url);
+
+        returnObject.respuesta = true;
+        returnObject.datos = response.data;
+        invalidateGaragesDependencies();
+
+        return returnObject;
+
+    } catch (error) {
+
+        logApiError(error);
+        returnObject.datos = error.response?.data || { message: error.message };
+        return returnObject;
+    }
+};
+
 
 
 const GaragesGetDistanciaSede = async (idGarage, idSede) => {
@@ -271,5 +348,8 @@ export {
     GaragesGetDistanciaSede,
     GaragesCreate,
     GaragesUpdate,
-    GaragesDelete
+    GaragesDelete,
+    GaragesGetPapelera,
+    GaragesMoveToPapelera,
+    GaragesRestore
 };

@@ -69,6 +69,134 @@
   color: #b91c1c;
 }
 
+.duenio-garage-state.is-draft {
+  background: rgba(100, 116, 139, 0.12);
+  color: #475569;
+}
+
+.duenio-garage-card-top-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.duenio-card-menu {
+  position: relative;
+  display: inline-flex;
+}
+
+.duenio-card-menu-toggle {
+  width: 42px;
+  height: 42px;
+}
+
+.duenio-card-menu-list {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 41;
+  min-width: 200px;
+  padding: 0.4rem;
+  display: grid;
+  gap: 0.2rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 14px 34px -10px rgba(15, 23, 42, 0.22);
+  animation: duenio-menu-fade 0.16s ease both;
+}
+
+.duenio-card-menu-list button {
+  width: 100%;
+  height: auto;
+  justify-content: flex-start;
+  gap: 0.55rem;
+  padding: 0.6rem 0.7rem;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: #1e293b;
+  font-size: 0.85rem;
+  font-weight: 700;
+  box-shadow: none;
+  text-align: left;
+}
+
+.duenio-card-menu-list button:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+  transform: none;
+}
+
+.duenio-card-menu-list button.danger:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: #b91c1c;
+}
+
+.duenio-restore-btn {
+  width: 42px;
+  height: 42px;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  background: #ffffff;
+  color: #2563eb;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.05);
+}
+
+.duenio-restore-btn:hover {
+  background: #0f172a;
+  color: #ffffff;
+  border-color: #0f172a;
+  transform: rotate(-8deg) scale(1.05);
+}
+
+.duenio-garage-card.is-draft {
+  opacity: 0.78;
+  border-style: dashed;
+  border-color: #cbd5e1;
+  background: #f8fafc;
+}
+
+.duenio-garage-card.is-draft::before {
+  background: radial-gradient(circle, rgba(100, 116, 139, 0.1), transparent 68%);
+}
+
+.duenio-card-restore-cta {
+  width: 100%;
+  gap: 0.5rem;
+  border: 1px solid #2563eb;
+  border-radius: 14px;
+  background: #eff6ff;
+  color: #2563eb;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.7rem;
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+
+.duenio-card-restore-cta:hover {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+@keyframes duenio-menu-fade {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .duenio-garage-card-top button {
   width: 42px;
   height: 42px;
