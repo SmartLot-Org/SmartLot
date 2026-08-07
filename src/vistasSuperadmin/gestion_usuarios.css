@@ -446,6 +446,18 @@
   color: #8B5CF6;
 }
 
+.usuario-garages-summary { display:flex;align-items:center;gap:6px;min-width:0;max-width:100% }
+.usuario-garages-summary .usuario-meta { min-width:0;max-width:190px }
+.usuario-garages-summary .usuario-meta>span { overflow:hidden;text-overflow:ellipsis;white-space:nowrap }
+.usuario-garages-more { min-height:27px;display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border:1px solid #cbd5e1;border-radius:7px;background:#fff;color:#475569;font:inherit;font-size:11px;font-weight:750;white-space:nowrap;cursor:pointer;transition:border-color .18s,background .18s,color .18s }
+.usuario-garages-more strong { display:inline-grid;place-items:center;min-width:20px;height:20px;padding:0 4px;border-radius:5px;background:#eff6ff;color:#2563eb;font-size:10px;box-sizing:border-box }
+.usuario-garages-more:hover { border-color:#bfdbfe;background:#f8fbff;color:#1d4ed8 }.usuario-garages-more:focus-visible { outline:3px solid rgba(37,99,235,.22);outline-offset:2px }
+
+.garages-owner-modal { width:min(100%,460px);max-height:min(620px,calc(100vh - 40px));overflow:hidden;border:1px solid #e2e8f0;border-radius:20px;background:#fff;box-shadow:0 24px 70px rgba(15,23,42,.22) }
+.garages-owner-modal>header { display:grid;grid-template-columns:44px 1fr auto;align-items:start;gap:12px;padding:20px;border-bottom:1px solid #e2e8f0;background:#f8fafc }.garages-owner-modal__icon { width:44px;height:44px;display:grid;place-items:center;border-radius:12px;background:#dbeafe;color:#2563eb }.garages-owner-modal header>div:nth-child(2)>span { color:#2563eb;font-size:10px;font-weight:850;letter-spacing:.08em;text-transform:uppercase }.garages-owner-modal h2 { margin:2px 0 0;color:#0f172a;font-size:19px;line-height:1.2 }.garages-owner-modal header p { margin:4px 0 0;color:#64748b;font-size:12px }.garages-owner-modal header>button { width:36px;height:36px;display:grid;place-items:center;border:1px solid #e2e8f0;border-radius:9px;background:#fff;color:#64748b;cursor:pointer }.garages-owner-modal header>button:hover { color:#1e293b;background:#f1f5f9 }
+.garages-owner-modal ul { display:grid;gap:8px;max-height:430px;overflow-y:auto;margin:0;padding:14px;list-style:none }.garages-owner-modal li { display:flex;align-items:center;gap:11px;padding:11px;border:1px solid #e2e8f0;border-radius:11px;background:#fff }.garages-owner-modal li>span { flex:0 0 28px;width:28px;height:28px;display:grid;place-items:center;border-radius:8px;background:#eff6ff;color:#2563eb;font-size:11px;font-weight:850 }.garages-owner-modal li>div { display:grid;gap:2px;min-width:0 }.garages-owner-modal li strong { overflow:hidden;color:#1e293b;font-size:13px;text-overflow:ellipsis;white-space:nowrap }.garages-owner-modal li small { color:#94a3b8;font-size:10px }
+@media(max-width:520px){.garages-owner-overlay{align-items:flex-end!important;padding:0!important}.garages-owner-modal{max-height:80vh;border-radius:20px 20px 0 0}.usuario-garages-summary .usuario-meta{max-width:150px}}
+
 .usuario-meta-admin {
   background: rgba(59, 130, 246, 0.1);
   color: #3B82F6;

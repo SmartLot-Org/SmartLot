@@ -105,7 +105,7 @@
 /* STATS GRID */
 .duenio-stats-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
   gap: 1rem;
   margin: 1rem 0 2rem;
 }
@@ -737,3 +737,4 @@
   .deal-role-chip{width:auto;border-radius:10px}.deal-toolbar{align-items:flex-start;flex-direction:column}.deal-toolbar::before{width:54px;height:4px}.deal-toolbar button{width:100%;justify-content:center}
   .deal-summary{grid-template-columns:1fr}.deal-summary article{min-height:80px}.deal-panel{padding:.85rem}.deal-section-title{align-items:flex-start}.deal-section-title>span{white-space:nowrap}.deal-request-grid{grid-template-columns:1fr}.deal-request-actions{display:grid;grid-template-columns:1fr}.deal-active-cards{grid-template-columns:1fr}
 }
+.deal-request-garage small { color:#64748b;font-size:.72rem;line-height:1.35 }
