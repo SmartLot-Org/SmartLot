@@ -49,3 +49,13 @@ export const filterGarages = (garages, { search = '', maxDistance = Infinity, av
       (!activeOnly || garage.estado !== false);
   });
 };
+
+export const getMapPosition = (entity) => {
+  const rawLat = entity?.latitud ?? entity?.latitude ?? entity?.lat;
+  const rawLng = entity?.longitud ?? entity?.longitude ?? entity?.lng;
+  if (rawLat === undefined || rawLat === null || rawLat === '' || rawLng === undefined || rawLng === null || rawLng === '') return null;
+  const lat = Number(rawLat);
+  const lng = Number(rawLng);
+  if (!Number.isFinite(lat) || !Number.isFinite(lng) || Math.abs(lat) > 90 || Math.abs(lng) > 180) return null;
+  return { lat, lng };
+};

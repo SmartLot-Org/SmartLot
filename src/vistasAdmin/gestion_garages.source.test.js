@@ -22,3 +22,13 @@ test('tratos contratados se filtran por id_sede', () => {
 test('la ruta anterior redirige a la gestión unificada', () => {
   assert.match(app, /path="\/admin\/tratos-garages"[\s\S]*Navigate to="\/gestion_garages" replace/);
 });
+test('buscar garages integra mapa y listado con selección sincronizada', () => {
+  assert.match(source, /lazy\(\(\) => import\('\.\.\/componentesAdmin\/MapaGaragesCercanos'\)\)/);
+  assert.match(source, /<MapaGaragesCercanos[\s\S]*garages=\{results\}/);
+  assert.match(source, /selectGarageOnMap/);
+  assert.match(source, /garage-results-list/);
+});
+test('el flujo de solicitud muestra alertas sobre el modal y libera el estado de envío', () => {
+  assert.match(source, /container: 'garage-swal-container'/);
+  assert.match(source, /setSubmitting\(false\);[\s\S]*title: 'Solicitud enviada'/);
+});
