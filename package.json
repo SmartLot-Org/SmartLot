@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
+    "@mercadopago/sdk-react": "^1.0.7",
     "@react-google-maps/api": "^2.20.8",
     "axios": "^1.16.1",
     "dotenv": "^17.4.2",

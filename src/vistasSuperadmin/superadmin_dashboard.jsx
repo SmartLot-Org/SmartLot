@@ -8,6 +8,7 @@ import {
   MessageSquareWarning,
   CalendarDays,
   Database,
+  CreditCard,
 } from "lucide-react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
@@ -204,6 +205,14 @@ function SuperadminDashboard() {
                   titulo="Conflictos"
                   descripcion="Ver conflictos enviados por administradores"
                   onClick={() => navigate("/superadmin/conflictos")}
+                />
+              </div>
+              <div className="superadmin-stagger-card">
+                <SuperadminDashboardBoton
+                  icono={<CreditCard />}
+                  titulo="Testing Pagos MP"
+                  descripcion="Crear preferencias, pagar, verificar estados, webhooks y reembolsos"
+                  onClick={() => navigate("/superadmin/pagos-test")}
                 />
               </div>
             </div>
