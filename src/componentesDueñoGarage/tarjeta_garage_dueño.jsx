@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Archive, ArrowUpRight, Clock3, MapPin, MoreVertical, ParkingCircle, Pencil, RotateCcw, ShieldCheck } from "lucide-react";
+import { ArrowUpRight, Clock3, MapPin, MoreVertical, ParkingCircle, Pencil, RotateCcw, ShieldCheck, Trash2 } from "lucide-react";
 import { getDiaDisplay } from "../helpers/diasSemana";
 import "./tarjeta_garage_dueño.css";
 import { formatARS } from "../helpers/prices";
@@ -42,18 +42,11 @@ function TarjetaGarageDueño({ garage, porcentajeOcupacion = 0, onClick, onBorra
             </button>
           )}
           {!esBorrador && (
-            <div className="duenio-card-menu" ref={menuRef}>
-              <button onClick={() => setMenuAbierto((prev) => !prev)} aria-label="Acciones del garage" className="duenio-card-menu-toggle">
-                <MoreVertical size={18} />
-              </button>
-              {menuAbierto && (
-                <div className="duenio-card-menu-list">
-                  <button onClick={() => { cerrarMenu(); onClick(); }}><Pencil size={16}/> Editar</button>
-                  <button className="danger" onClick={() => { cerrarMenu(); onBorrador?.(); }}><Archive size={16}/> Mover a borrador</button>
-                </div>
-              )}
-            </div>
+            <button className="duenio-card-trash-btn" onClick={onBorrador} aria-label={`Mover ${nombre} a borrador`}>
+              <Trash2 size={18} />
+            </button>
           )}
+         
           {esBorrador && (
             <button onClick={onRestaurar} aria-label={`Restaurar ${nombre}`} className="duenio-restore-btn">
               <RotateCcw size={18} />

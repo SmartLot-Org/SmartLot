@@ -133,6 +133,17 @@
   color: #b91c1c;
 }
 
+.duenio-garage-card-top .duenio-card-trash-btn {
+  border-color: #fecaca;
+  color: #b91c1c;
+}
+
+.duenio-garage-card-top .duenio-card-trash-btn:hover {
+  background: #dc2626;
+  color: #ffffff;
+  border-color: #dc2626;
+}
+
 .duenio-restore-btn {
   width: 42px;
   height: 42px;
