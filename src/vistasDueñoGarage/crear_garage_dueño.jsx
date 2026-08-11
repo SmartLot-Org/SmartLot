@@ -10,6 +10,7 @@ import BotonGenerico from "../componentesAdmin/boton_generico";
 import { GaragesCreate } from "../servicies/API_Garage";
 import useLiveValidation from "../hooks/useLiveValidation";
 import "../vistasAdmin/agregar_zona.css";
+import "./duenio_garage.css";
 import FormularioPreciosGarage from "../componentesCompartidos/FormularioPreciosGarage";
 import { buildGaragePricesPayload } from "../helpers/prices";
 import { Z_INDEX } from "../helpers/zIndex";
@@ -195,55 +196,57 @@ function CrearGarageDueño() {
   };
 
 return (
-    <div className="agregar-zona">
+    <div className="duenio-garage-page agregar-zona">
       <HeaderDueñoGarage />
 
-      <div className="contenido-agregar-zona">
-        <div className="top-garage">
-          <button className="boton-back" onClick={volverADashboard} aria-label="Volver al panel del dueño">
-            <ArrowLeft size={24} />
-          </button>
+      <main className="duenio-garage-main">
+        <div className="contenido-agregar-zona">
+          <div className="top-garage">
+            <button className="boton-back" onClick={volverADashboard} aria-label="Volver al panel del dueño">
+              <ArrowLeft size={24} />
+            </button>
 
-          <div className="info-top">
-            <p>ALTA DE ACTIVO</p>
-            <h1>Crear nuevo garage</h1>
-            <span>Esta funcion ahora pertenece al rol dueño de garage. El garage queda asociado a tu usuario como propietario.</span>
+            <div className="info-top">
+              <p>ALTA DE ACTIVO</p>
+              <h1>Crear nuevo garage</h1>
+              <span>Esta funcion ahora pertenece al rol dueño de garage. El garage queda asociado a tu usuario como propietario.</span>
+            </div>
+          </div>
+
+          <div className="form-garage">
+            <FormularioZona
+              formData={formData}
+              onChange={handleChange}
+              hideSede
+              fieldsValidation={fieldsValidation}
+              onCoordenadasChange={setCoordenadas}
+            />
+
+            <FormularioCapacidad formData={formData} onChange={handleChange} />
+            <FormularioPreciosGarage values={formData} onChange={handleChange} disabled={loading} />
+          </div>
+
+          {error && <p className="form-error" style={{ color: '#d32f2f', padding: '12px', marginBottom: '16px', backgroundColor: '#ffebee', borderRadius: '4px', fontWeight: 'bold' }}>{error}</p>}
+
+          <div className="acciones-garage">
+            <BotonGenerico
+              className="btn-guardar-grande"
+              onClick={handleCrearGarage}
+              disabled={loading}
+            >
+              <CirclePlus size={22} />
+              <span>{loading ? "Creando..." : "Crear Garage"}</span>
+            </BotonGenerico>
+
+            <BotonGenerico
+              className="btn-cancelar-grande"
+              onClick={volverADashboard}
+            >
+              <span>Cancelar</span>
+            </BotonGenerico>
           </div>
         </div>
-
-        <div className="form-garage">
-          <FormularioZona
-            formData={formData}
-            onChange={handleChange}
-            hideSede
-            fieldsValidation={fieldsValidation}
-            onCoordenadasChange={setCoordenadas}
-          />
-
-          <FormularioCapacidad formData={formData} onChange={handleChange} />
-          <FormularioPreciosGarage values={formData} onChange={handleChange} disabled={loading} />
-        </div>
-
-        {error && <p className="form-error" style={{ color: '#d32f2f', padding: '12px', marginBottom: '16px', backgroundColor: '#ffebee', borderRadius: '4px', fontWeight: 'bold' }}>{error}</p>}
-
-        <div className="acciones-garage">
-          <BotonGenerico
-            className="btn-guardar-grande"
-            onClick={handleCrearGarage}
-            disabled={loading}
-          >
-            <CirclePlus size={22} />
-            <span>{loading ? "Creando..." : "Crear Garage"}</span>
-          </BotonGenerico>
-
-          <BotonGenerico
-            className="btn-cancelar-grande"
-            onClick={volverADashboard}
-          >
-            <span>Cancelar</span>
-          </BotonGenerico>
-        </div>
-      </div>
+      </main>
 
       <FooterDueñoGarage />
     </div>

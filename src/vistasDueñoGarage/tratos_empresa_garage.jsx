@@ -9,8 +9,8 @@ import './duenio_garage.css';
 
 export default function TratosEmpresaGarage() {
   const navigate = useNavigate(); const { usuario } = useAuth();
-  const { count, loading } = useSolicitudesPendientesCount();
-  return <div className="duenio-garage-page"><HeaderDueñoGarage /><main className="duenio-garage-shell">
+  useSolicitudesPendientesCount();
+  return <div className="duenio-garage-page"><HeaderDueñoGarage /><main className="duenio-garage-main">
     <button type="button" className="duenio-back-button" onClick={() => navigate('/duenio-garage/dashboard')} aria-label="Volver al panel del dueño"><ArrowLeft size={20} /></button>
     <section className="duenio-section-head left deal-page-heading"><span>Administrador de garage</span><div className="deal-role-chip"><Building2 size={15}/> Empresas → solicitan cocheras → tus garages</div><h1>Tratos con empresas </h1><p>Revisá las propuestas que las empresas envían a tus garages y administrá los acuerdos comerciales vigentes.</p></section>
     <GestionTratosGarage usuario={usuario} mode="owner" />

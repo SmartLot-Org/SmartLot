@@ -125,7 +125,7 @@ export default function EditarGarageDueño() {
     } catch (err) { setError(err.message); } finally { setSaving(false); }
   };
 
-  return <div className="duenio-garage-page"><HeaderDueñoGarage /><main className="duenio-garage-shell duenio-form-shell">
+  return <div className="duenio-garage-page"><HeaderDueñoGarage /><main className="duenio-garage-main"><div className="duenio-form-wrap">
     <button type="button" className="duenio-back-button" onClick={volverADashboard} aria-label="Volver al panel del dueño"><ArrowLeft size={20} /></button>
     <section className="duenio-section-head left"><span>Garage propio</span><h1>Editar garage</h1><p>Las ocupaciones se administran desde los flujos operativos y no pueden editarse aquí.</p></section>
     {loading && <SkeletonFormularioGarage />}{error && <p className="duenio-feedback error">{error}</p>}
@@ -136,5 +136,5 @@ export default function EditarGarageDueño() {
       <FormularioPreciosGarage values={form} onChange={change} disabled={saving} />
     </div>}
     {form && <div className="duenio-form-actions"><button onClick={save} disabled={saving}>{saving ? 'Guardando...' : 'Guardar cambios'}</button><button className="secondary" onClick={volverADashboard} disabled={saving}>Cancelar</button></div>}
-  </main><FooterDueñoGarage /></div>;
+  </div></main><FooterDueñoGarage /></div>;
 }

@@ -4,18 +4,20 @@
   --duenio-line: #e2e8f0;
   --duenio-blue: #2563eb;
   --duenio-bg: #f5f7fb;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
   min-height: 100vh;
-  padding-bottom: 140px;
   background: #f5f7fb;
   color: var(--duenio-ink);
   text-align: left;
   box-sizing: border-box;
 }
 
-.duenio-garage-shell {
-  width: min(1180px, calc(100% - 8%));
-  margin: 0 auto;
-  padding-top: 1.5rem;
+.duenio-garage-main {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 1.5rem clamp(1.5rem, 4vw, 3rem) calc(90px + 2rem);
   box-sizing: border-box;
 }
 
@@ -345,9 +347,21 @@
   font-size: 0.9rem;
 }
 
-/* FORM SHELL */
-.duenio-form-shell {
-  width: min(920px, calc(100% - 8%));
+/* FORM SHELL — contenedor centrado de 800px SOLO para el formulario */
+.duenio-form-wrap {
+  width: 100%;
+  max-width: 800px;
+  margin-inline: auto;
+}
+
+/* Crear garage — migrado a duenio-garage-page/main (usa agregar_zona.css) */
+.duenio-garage-page.agregar-zona {
+  padding-bottom: 0;
+}
+
+.duenio-garage-page .contenido-agregar-zona {
+  padding-top: 0.5rem;
+  padding-inline: 0;
 }
 
 .duenio-form-card {
@@ -641,13 +655,8 @@
 }
 
 @media (max-width: 560px) {
-  .duenio-garage-page {
-    padding-bottom: 110px;
-  }
-
-  .duenio-garage-shell,
-  .duenio-form-shell {
-    width: calc(100% - 1.5rem);
+  .duenio-garage-main {
+    padding: 1.5rem 1.5rem calc(72px + 1.5rem);
   }
 
   .duenio-hero-actions,

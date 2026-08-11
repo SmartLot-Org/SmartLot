@@ -121,7 +121,7 @@ export default function CuentasPorCobrarGarage() {
 
   return <div className="duenio-garage-page cxc-page">
     <HeaderDueñoGarage />
-    <main className="duenio-garage-shell cxc-main">
+    <main className="duenio-garage-main cxc-main">
       <header className="cxc-page-header">
         <div className="cxc-heading-copy"><span className="cxc-eyebrow">Administrador del garage</span><div className="cxc-garage-chip"><Building2 size={16} /> Garage actual: <strong>{GARAGE_ACTUAL}</strong></div><h1>Empresas que le deben a tu garage</h1><p>Revisá cuánto dinero debe pagarle cada empresa a {GARAGE_ACTUAL} por las reservas utilizadas.</p></div>
         <label className="cxc-period"><span>Período</span><select value={periodo} onChange={(event) => setPeriodo(event.target.value)}>{PERIODOS_CUENTAS_POR_COBRAR.map((item) => <option key={item.id} value={item.id}>{item.nombre}</option>)}</select></label>

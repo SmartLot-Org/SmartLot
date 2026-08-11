@@ -192,7 +192,7 @@ function DuenioGarageDashboard() {
     <div className="duenio-garage-page">
       <HeaderDueñoGarage />
 
-      <main className="duenio-garage-shell">
+      <main className="duenio-garage-main">
         <section className="duenio-hero">
           <div className="duenio-hero-copy">
             <span className="duenio-kicker">Dueño de garage</span>
