@@ -26,7 +26,7 @@ export function buildSolicitudPayload(values) {
 
 export const normalizeList = (value) => {
   if (Array.isArray(value)) return value;
-  for (const key of ['datos', 'data', 'garages', 'value']) if (Array.isArray(value?.[key])) return value[key];
+  for (const key of ['datos', 'data', 'garages', 'value', 'notificaciones']) if (Array.isArray(value?.[key])) return value[key];
   return [];
 };
 

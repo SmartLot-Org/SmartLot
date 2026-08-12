@@ -113,6 +113,10 @@ function invalidateCacheForMutation(config = {}) {
     invalidateByPrefix('empresas:');
   }
 
+  if (url.includes('/api/notificacion')) {
+    invalidateByPrefix('notificaciones:');
+  }
+
   if (url.includes('/api/reserva')) {
     invalidateByPrefix('reservas:');
     invalidateByPrefix('garages:');
