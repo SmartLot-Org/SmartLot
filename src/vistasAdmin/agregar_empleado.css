@@ -2,7 +2,9 @@
     background-color: #F7F9FB;
 }
 
-p {
+/* Scoped to this page: a bare `p` selector here was leaking app-wide and
+   overriding every paragraph on the landing page (and anywhere else). */
+.agregar-empleado-page p {
     font-size: 88%;
 }
 .textoAgregarEmpleado{

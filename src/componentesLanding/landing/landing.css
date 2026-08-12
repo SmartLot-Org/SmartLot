@@ -1,29 +1,46 @@
-.landing-page h1,
-.landing-page h2 {
-  font-family: var(--font-display);
-  font-weight: 900;
-  color: var(--color-brand-warm);
-}
+/* Scoped inside @layer base so Tailwind utilities (in @layer utilities)
+   can override these defaults. Left unlayered, these rules would beat
+   every text-* / color utility on the landing page regardless of
+   specificity (unlayered CSS wins over all layers). */
+@layer base {
+  .landing-page h1,
+  .landing-page h2 {
+    font-family: var(--font-display);
+    font-weight: 900;
+    color: var(--color-brand-warm);
+  }
 
-.landing-page h1 {
-  font-size: clamp(1.75rem, 6vw, 5rem);
-  line-height: 0.95;
-  letter-spacing: -0.03em;
-  margin: 0;
-}
+  .landing-page h1 {
+    font-size: clamp(1.75rem, 6vw, 5rem);
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    margin: 0;
+  }
 
-.landing-page h2 {
-  font-size: clamp(1.35rem, 4.5vw, 3.75rem);
-  line-height: 1.05;
-  letter-spacing: -0.025em;
-  margin: 0;
-}
+  .landing-page h2 {
+    font-size: clamp(1.35rem, 4.5vw, 3.75rem);
+    line-height: 1.05;
+    letter-spacing: -0.025em;
+    margin: 0;
+  }
 
-.landing-page p {
-  font-size: clamp(0.875rem, 1.5vw, 1.05rem);
-  color: var(--color-brand-muted);
-  line-height: 1.6;
-  margin: 0;
+  /* h3 was previously unstyled and fell back to the UA default (browser
+     serif-ish, default weight) — that broke the display-font hierarchy
+     anywhere an h3 appeared in a landing page (e.g. RoleJourney role names).
+     Scoped to .landing-page so it never leaks into the admin/auth views,
+     which already define their own h3 sizing. */
+  .landing-page h3 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+
+  .landing-page p {
+    font-size: clamp(0.875rem, 1.5vw, 1.05rem);
+    color: var(--color-brand-muted);
+    line-height: 1.6;
+    margin: 0;
+  }
 }
 
 .logo-watermark {

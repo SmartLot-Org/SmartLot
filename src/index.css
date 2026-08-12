@@ -8,7 +8,8 @@
 @theme {
   /* ── Brand Colors (aligned with design.md) ── */
   --color-brand-deep:    #0C1E3F;
-  --color-brand-navy:    #0C1E3F;
+  /* --color-brand-navy is an alias of --color-brand-deep (same #0C1E3F).
+     Kept for backward compatibility with existing Tailwind utilities. */
   --color-brand-blue:    #2563EB;
   --color-brand-sky:     #6C93D6;
   --color-brand-bg:      #F5F7FB;
@@ -139,6 +140,17 @@ body[style*="padding-right"] {
   border: 1px solid rgba(12, 30, 63, 0.08);
 }
 
+/* Dark glassmorphism — paired with .glass-card; used by the dark pinned
+   sections (RoleJourney reduced-motion variant, RoleJourney panels, etc.)
+   so the dark-theme visuals stay consistent between animated and
+   reduced-motion paths without repeating the same utility soup inline. */
+.glass-dark {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(16px) saturate(1.4);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
 /* CSP-compliant font utilities (replaces inline style={{ fontFamily }} ) */
 .font-display {
   font-family: var(--font-display);
@@ -156,50 +168,56 @@ body[style*="padding-right"] {
 /* ═══════════════════════════════════════════════════════════════════
    Typography overrides — scoped so they don't conflict with
    Tailwind utilities (using lower specificity via :where)
+   IMPORTANT: kept inside @layer base. Tailwind v4 emits its utilities
+   in @layer utilities, and unlayered CSS beats ALL layered styles
+   regardless of specificity — leaving these unlayered stomped every
+   text-* utility in the whole app (h1/h2/p in admin, login, landing…).
    ═══════════════════════════════════════════════════════════════════ */
-:where(h1, h2) {
-  font-family: var(--heading);
-  font-weight: 500;
-  color: var(--text-h);
-}
-
-:where(h1) {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
+@layer base {
+  :where(h1, h2) {
+    font-family: var(--heading);
+    font-weight: 500;
+    color: var(--text-h);
   }
-}
 
-:where(h2) {
-  font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
+  :where(h1) {
+    font-size: 56px;
+    letter-spacing: -1.68px;
+    margin: 32px 0;
+    @media (max-width: 1024px) {
+      font-size: 36px;
+      margin: 20px 0;
+    }
   }
-}
 
-:where(p) {
-  margin: 0;
-}
+  :where(h2) {
+    font-size: 24px;
+    line-height: 118%;
+    letter-spacing: -0.24px;
+    margin: 0 0 8px;
+    @media (max-width: 1024px) {
+      font-size: 20px;
+    }
+  }
 
-:where(code),
-:where(.counter) {
-  font-family: var(--mono);
-  display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
-}
+  :where(p) {
+    margin: 0;
+  }
 
-:where(code) {
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
-  background: var(--code-bg);
+  :where(code),
+  :where(.counter) {
+    font-family: var(--mono);
+    display: inline-flex;
+    border-radius: 4px;
+    color: var(--text-h);
+  }
+
+  :where(code) {
+    font-size: 15px;
+    line-height: 135%;
+    padding: 4px 8px;
+    background: var(--code-bg);
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════════════

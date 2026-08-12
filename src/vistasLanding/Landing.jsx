@@ -11,8 +11,6 @@ import LogoWatermark from '../componentesLanding/landing/LogoWatermark';
 
 const BentoGrid = lazy(() => import('../componentesLanding/landing/BentoGrid'));
 const PinnedScrollSections = lazy(() => import('../componentesLanding/landing/PinnedScrollSections'));
-const AccessControlDemo = lazy(() => import('../componentesLanding/landing/AccessControlDemo'));
-const Demo = lazy(() => import('../componentesLanding/landing/Demo'));
 const Contact = lazy(() => import('../componentesLanding/landing/Contact'));
 
 function SkeletonFallback() {
@@ -48,7 +46,7 @@ export default function LandingPage() {
     return () => document.body.classList.remove('no-scroll');
   }, [isIntroComplete, prefersReducedMotion]);
 
-  // BentoGrid/PinnedScrollSections/AccessControlDemo/Demo/Contact each sit
+  // BentoGrid/PinnedScrollSections/Contact each sit
   // behind their own React.lazy() boundary and can swap in their real (taller)
   // content at unpredictable times as chunks finish loading. GSAP ScrollTrigger
   // caches each trigger's start/end at creation time, so a trigger measured
@@ -83,8 +81,6 @@ export default function LandingPage() {
             <StatsTicker />
             <Suspense fallback={<SkeletonFallback />}><BentoGrid /></Suspense>
             <Suspense fallback={<SkeletonFallback />}><PinnedScrollSections /></Suspense>
-            <Suspense fallback={<SkeletonFallback />}><AccessControlDemo /></Suspense>
-            <Suspense fallback={<SkeletonFallback />}><Demo /></Suspense>
           </main>
           <Suspense fallback={<SkeletonFallback />}><Contact /></Suspense>
           <LogoWatermark heroRef={heroRef} />
@@ -109,8 +105,6 @@ export default function LandingPage() {
           <StatsTicker />
           <Suspense fallback={<SkeletonFallback />}><BentoGrid /></Suspense>
           <Suspense fallback={<SkeletonFallback />}><PinnedScrollSections /></Suspense>
-          <Suspense fallback={<SkeletonFallback />}><AccessControlDemo /></Suspense>
-          <Suspense fallback={<SkeletonFallback />}><Demo /></Suspense>
         </main>
         <Suspense fallback={<SkeletonFallback />}><Contact /></Suspense>
         <LogoWatermark heroRef={heroRef} />
