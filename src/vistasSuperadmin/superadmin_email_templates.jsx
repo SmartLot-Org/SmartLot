@@ -70,10 +70,14 @@ const construirPreviewHtml = ({ asunto, header_html, cuerpo_html, footer_html },
 };
 
 const SECCIONES = [
-  { clave: "header_html", etiqueta: "Header (encabezado de marca)" },
   { clave: "cuerpo_html", etiqueta: "Cuerpo" },
-  { clave: "footer_html", etiqueta: "Footer (pie de marca)" },
 ];
+
+const GLOBAL_BODY_EJEMPLO = `
+<div style="padding:32px;color:#0f1a2e;font-family:Arial,sans-serif;">
+  <h2 style="margin:0 0 12px;">Ejemplo de cuerpo</h2>
+  <p>Este bloque se mantiene igual en todos los correos. Reemplazá las variables según la plantilla.</p>
+</div>`;
 
 export default function SuperadminEmailTemplates() {
   const navigate = useNavigate();
@@ -89,6 +93,9 @@ export default function SuperadminEmailTemplates() {
   const [enviando, setEnviando] = useState(false);
   const [mensaje, setMensaje] = useState(null);
   const [errorCarga, setErrorCarga] = useState("");
+  const [seccion, setSeccion] = useState("plantillas");
+  const [globalHeader, setGlobalHeader] = useState("");
+  const [globalFooter, setGlobalFooter] = useState("");
 
   const cargarPlantilla = async (codigo, mounted = true) => {
     const res = await EmailTemplateGet(codigo);
@@ -111,6 +118,7 @@ export default function SuperadminEmailTemplates() {
     setVariables(Array.isArray(datos.variables) ? datos.variables.map((v) => ({ ...v })) : []);
     setOverrides({});
     setMensaje(null);
+    return datos;
   };
 
   useEffect(() => {
@@ -128,7 +136,11 @@ export default function SuperadminEmailTemplates() {
       const lista = Array.isArray(res.datos) ? res.datos : [];
       setPlantillas(lista);
       if (lista.length > 0) {
-        await cargarPlantilla(lista[0].codigo, mounted);
+        const primera = await cargarPlantilla(lista[0].codigo, mounted);
+        if (primera) {
+          setGlobalHeader(primera.header_html || "");
+          setGlobalFooter(primera.footer_html || "");
+        }
       }
       setCargando(false);
     };
@@ -141,6 +153,14 @@ export default function SuperadminEmailTemplates() {
     if (codigo === plantilla?.codigo) return;
     setErrorCarga("");
     await cargarPlantilla(codigo);
+  };
+
+  const irAlGlobal = () => {
+    if (plantilla) {
+      setGlobalHeader(plantilla.header_html);
+      setGlobalFooter(plantilla.footer_html);
+    }
+    setSeccion("global");
   };
 
   const actualizarCampo = (clave, valor) => {
@@ -168,11 +188,21 @@ export default function SuperadminEmailTemplates() {
     [plantilla, mapaPreview]
   );
 
+  const previewGlobalHtml = useMemo(
+    () =>
+      construirPreviewHtml(
+        { asunto: "Vista previa del header y footer", header_html: globalHeader, cuerpo_html: GLOBAL_BODY_EJEMPLO, footer_html: globalFooter },
+        mapaPreview
+      ),
+    [globalHeader, globalFooter, mapaPreview]
+  );
+
   const variablesFaltantes = placeholders.filter((p) => !Object.prototype.hasOwnProperty.call(mapaPreview, p));
 
-  const abrirPreviewNuevaPestana = () => {
-    if (!previewHtml) return;
-    const blob = new Blob([previewHtml], { type: "text/html;charset=utf-8" });
+  const abrirPreviewNuevaPestana = (html) => {
+    const contenido = html || previewHtml;
+    if (!contenido) return;
+    const blob = new Blob([contenido], { type: "text/html;charset=utf-8" });
     window.open(URL.createObjectURL(blob), "_blank");
   };
 
@@ -207,6 +237,44 @@ export default function SuperadminEmailTemplates() {
       setMensaje({ tipo: "ok", texto: `Plantilla "${plantilla.codigo}" guardada correctamente.` });
     } else {
       setMensaje({ tipo: "error", texto: res.datos?.message || "No se pudo guardar la plantilla." });
+    }
+  };
+
+  const guardarGlobal = async () => {
+    if (plantillas.length === 0) return;
+    setGuardando(true);
+    setMensaje(null);
+    let ok = 0;
+    let errores = 0;
+    for (const t of plantillas) {
+      const completo = await EmailTemplateGet(t.codigo);
+      if (!completo.respuesta) {
+        errores += 1;
+        continue;
+      }
+      const d = completo.datos;
+      const res = await EmailTemplateUpdate(t.codigo, {
+        nombre: d.nombre || "",
+        descripcion: d.descripcion || "",
+        asunto: d.asunto || "",
+        header_html: globalHeader,
+        cuerpo_html: d.cuerpo_html || "",
+        footer_html: globalFooter,
+        variables: Array.isArray(d.variables) ? d.variables : [],
+        activa: d.activa ?? true,
+      });
+      if (res.respuesta) {
+        ok += 1;
+      } else {
+        errores += 1;
+      }
+    }
+    setGuardando(false);
+    setPlantilla((prev) => (prev ? { ...prev, header_html: globalHeader, footer_html: globalFooter } : prev));
+    if (errores === 0) {
+      setMensaje({ tipo: "ok", texto: `Header y footer actualizados en ${ok} plantilla${ok === 1 ? "" : "s"}.` });
+    } else {
+      setMensaje({ tipo: "error", texto: `Se actualizaron ${ok} plantilla${ok === 1 ? "" : "s"} y fallaron ${errores}.` });
     }
   };
 
@@ -255,14 +323,47 @@ export default function SuperadminEmailTemplates() {
               <p>Editá los correos del sistema, mirá el preview en vivo y enviá pruebas.</p>
             </div>
           </div>
-          <button type="button" className="tpl-action tpl-action--save" onClick={guardar} disabled={guardando || !plantilla}>
+          <button
+            type="button"
+            className="tpl-action tpl-action--save"
+            onClick={seccion === "global" ? guardarGlobal : guardar}
+            disabled={guardando || (seccion === "global" ? plantillas.length === 0 : !plantilla)}
+          >
             {guardando ? <Loader2 size={17} className="tpl-spin" /> : <Save size={17} />}
-            {guardando ? "Guardando..." : "Guardar cambios"}
+            {guardando
+              ? "Guardando..."
+              : seccion === "global"
+                ? "Guardar en todas las plantillas"
+                : "Guardar cambios"}
           </button>
         </header>
 
         {errorCarga ? (
           <p className="tpl-message tpl-message--error" role="alert">{errorCarga}</p>
+        ) : null}
+
+        <nav className="tpl-sections" aria-label="Secciones">
+          <button
+            type="button"
+            className={`tpl-sections-btn ${seccion === "plantillas" ? "tpl-sections-btn--active" : ""}`}
+            onClick={() => setSeccion("plantillas")}
+          >
+            Plantillas
+          </button>
+          <button
+            type="button"
+            className={`tpl-sections-btn ${seccion === "global" ? "tpl-sections-btn--active" : ""}`}
+            onClick={irAlGlobal}
+          >
+            Header y Footer (global)
+          </button>
+        </nav>
+
+        {mensaje ? (
+          <p className={`tpl-message tpl-message--${mensaje.tipo}`} role="status" aria-live="polite">
+            {mensaje.tipo === "ok" ? <CheckCircle2 size={16} /> : null}
+            {mensaje.texto}
+          </p>
         ) : null}
 
         {cargando ? (
@@ -272,6 +373,59 @@ export default function SuperadminEmailTemplates() {
             <Mail size={30} />
             <h3>No hay plantillas disponibles</h3>
             <p>El sistema todavía no tiene plantillas de email configuradas.</p>
+          </div>
+        ) : seccion === "global" ? (
+          <div className="tpl-grid">
+            <section className="tpl-editor" aria-labelledby="tpl-global-title">
+              <div className="tpl-section-heading">
+                <div>
+                  <h2 id="tpl-global-title">Header y Footer globales</h2>
+                  <p>Se usan en todos los correos del sistema. Guardá para aplicarlos a todas las plantillas.</p>
+                </div>
+              </div>
+
+              <div className="tpl-field">
+                <label htmlFor="tpl-global-header">Header (encabezado de marca)</label>
+                <textarea
+                  id="tpl-global-header"
+                  value={globalHeader}
+                  onChange={(e) => setGlobalHeader(e.target.value)}
+                  rows={6}
+                  spellCheck="false"
+                />
+              </div>
+
+              <div className="tpl-field">
+                <label htmlFor="tpl-global-footer">Footer (pie de marca)</label>
+                <textarea
+                  id="tpl-global-footer"
+                  value={globalFooter}
+                  onChange={(e) => setGlobalFooter(e.target.value)}
+                  rows={6}
+                  spellCheck="false"
+                />
+              </div>
+            </section>
+
+            <section className="tpl-preview" aria-labelledby="tpl-global-preview-title">
+              <div className="tpl-section-heading">
+                <div>
+                  <h2 id="tpl-global-preview-title">Preview en vivo</h2>
+                  <p>Header y footer tal como se verán en cualquier correo.</p>
+                </div>
+                <button
+                  type="button"
+                  className="tpl-preview-open"
+                  onClick={() => abrirPreviewNuevaPestana(previewGlobalHtml)}
+                  title="Abrir preview en pestaña nueva"
+                >
+                  <ExternalLink size={16} />
+                </button>
+              </div>
+              <div className="tpl-iframe-wrap">
+                <iframe title="Preview del header y footer" srcDoc={previewGlobalHtml} sandbox="" />
+              </div>
+            </section>
           </div>
         ) : (
           <>
@@ -288,13 +442,6 @@ export default function SuperadminEmailTemplates() {
                 </button>
               ))}
             </nav>
-
-            {mensaje ? (
-              <p className={`tpl-message tpl-message--${mensaje.tipo}`} role="status" aria-live="polite">
-                {mensaje.tipo === "ok" ? <CheckCircle2 size={16} /> : null}
-                {mensaje.texto}
-              </p>
-            ) : null}
 
             {plantilla ? (
               <div className="tpl-grid">
@@ -313,6 +460,11 @@ export default function SuperadminEmailTemplates() {
                       <span>Activa</span>
                     </label>
                   </div>
+
+                  <p className="tpl-global-hint">
+                    El <strong>header</strong> y el <strong>footer</strong> son globales: se editan en la sección
+                    “Header y Footer (global)” y aplican a todos los correos.
+                  </p>
 
                   <div className="tpl-field tpl-field--half">
                     <label htmlFor="tpl-nombre">Nombre</label>
