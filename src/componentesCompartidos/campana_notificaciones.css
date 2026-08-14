@@ -340,6 +340,52 @@
   color: #2563eb;
 }
 
+@media (max-width: 640px) {
+  .cn-panel {
+    position: fixed;
+    top: 78px;
+    left: 12px;
+    right: 12px;
+    width: auto;
+    max-width: none;
+    max-height: calc(100vh - 96px);
+    border-radius: 14px;
+  }
+
+  .cn-panel-head {
+    flex-wrap: wrap;
+    padding: 12px 14px;
+  }
+
+  .cn-panel-head button {
+    font-size: 11px;
+    padding: 7px 10px;
+  }
+
+  .cn-panel-pendientes {
+    flex-wrap: wrap;
+    padding: 10px 14px;
+  }
+
+  .cn-item {
+    padding: 12px 10px;
+  }
+
+  .cn-item-eliminar {
+    width: 34px;
+    height: 34px;
+    opacity: 1;
+  }
+
+  .cn-panel-foot {
+    padding: 8px 12px;
+  }
+
+  .cn-panel-foot button {
+    padding: 12px 10px;
+  }
+}
+
 @media (max-width: 420px) {
   .cn-campana-badge {
     min-width: 17px;

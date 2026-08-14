@@ -164,12 +164,7 @@ export default function CampanaNotificaciones({ rutaTratos }) {
             )}
           </div>
 
-          <footer className="cn-panel-foot">
-            <button type="button" onClick={() => irATratos(null)}>
-              Ir a tratos
-              <ArrowRight size={15} />
-            </button>
-          </footer>
+         
         </div>
       )}
     </div>
