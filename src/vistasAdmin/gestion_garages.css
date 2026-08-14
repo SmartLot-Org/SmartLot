@@ -15,8 +15,7 @@
 }
 
 .gestion-garages-main {
-  width: min(1400px, 100%);
-  margin: 0 auto;
+  width: 100%;
   padding-top: 34px;
 }
 

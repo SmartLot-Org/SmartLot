@@ -72,8 +72,8 @@ export default function CampanaNotificaciones({ rutaTratos }) {
     navigate(rutaTratos);
   }, [navigate, rutaTratos, marcarLeida]);
 
-  const totalNotificaciones = noLeidas + notificaciones.length;
-  const totalBadge = totalNotificaciones > 0 ? (totalNotificaciones > 99 ? "99+" : totalNotificaciones) : null;
+  const conteoTotal = noLeidas + solicitudesPendientes;
+  const totalBadge = conteoTotal > 0 ? (conteoTotal > 99 ? "99+" : conteoTotal) : null;
 
   return (
     <div className="cn-campana" ref={containerRef}>
@@ -81,7 +81,7 @@ export default function CampanaNotificaciones({ rutaTratos }) {
         ref={triggerRef}
         type="button"
         className="cn-campana-boton"
-        aria-label={totalNotificaciones > 0 ? `Ver notificaciones, ${totalNotificaciones} sin leer` : "Ver notificaciones"}
+        aria-label={conteoTotal > 0 ? `Ver notificaciones, ${conteoTotal} sin leer` : "Ver notificaciones"}
         aria-haspopup="true"
         aria-expanded={isOpen}
         onClick={() => setIsOpen((prev) => !prev)}

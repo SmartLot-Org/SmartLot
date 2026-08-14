@@ -9,8 +9,9 @@
   flex: 1;
   display: flex;
   justify-content: center;
-  padding: 2.5rem 1.5rem;
+  padding: 1.5rem 1.5rem;
   box-sizing: border-box;
+  
 }
 
 .admin-profile-inner-content {
@@ -18,7 +19,7 @@
   max-width: 1000px;
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 0rem;
 }
 
 .top-navigation-bar-admin {
@@ -235,5 +236,8 @@
 @media (max-width: 768px) {
   .admin-scope-root .admin-bento-grid-wrapper {
     grid-template-columns: 1fr !important;
+  }
+  .admin-profile-main-container{
+    margin-bottom: 20%;
   }
 }

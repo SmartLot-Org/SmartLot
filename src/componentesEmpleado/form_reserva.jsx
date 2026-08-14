@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { Calendar, Car, Clock, Loader, MapPin, Plus, Warehouse } from "lucide-react";
+import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
+import { Calendar, Car, Clock, Loader, MapPin, Plus, Warehouse, WalletCards } from "lucide-react";
 import "./form_reserva.css";
 import { getDiaDesdeFecha, getDiaDisplay } from "../helpers/diasSemana";
 import useLiveValidation from "../hooks/useLiveValidation";
@@ -32,7 +32,15 @@ const obtenerFechaLocalHoy = () => {
   return `${year}-${month}-${day}`;
 };
 
-export default function FormularioReserva({ onSubmit, loading, vehiculos = [], garages = [], initialData }) {
+const FormularioReserva = forwardRef(function FormularioReserva({
+  onSubmit,
+  onSelectionChange,
+  loading,
+  vehiculos = [],
+  garages = [],
+  initialData,
+  obtenerDisponibilidad,
+}, ref) {
   const { usuario } = useAuth();
   const preferences = (() => {
     try {
@@ -85,6 +93,27 @@ export default function FormularioReserva({ onSubmit, loading, vehiculos = [], g
   });
 
   const { isValid, touched, touch } = useLiveValidation(formData, getSchema());
+  const datosCompletos = isValid && vehiculos.length > 0 && garages.length > 0;
+  const garageElegido = formData.idGarage !== "";
+  const garageSeleccionadoObj = garages.find(
+    (garage) => String(obtenerIdGarage(garage)) === String(formData.idGarage)
+  );
+  const disponibilidadPreview = garageElegido
+    ? obtenerDisponibilidad?.(garageSeleccionadoObj)
+    : null;
+  const precioFormateado = disponibilidadPreview
+    ? new Intl.NumberFormat("es-AR", {
+        style: "currency",
+        currency: "ARS",
+        maximumFractionDigits: 0,
+      }).format(disponibilidadPreview.precio)
+    : "";
+  const requierePago = garageElegido
+    && disponibilidadPreview?.hay_cupo_corporativo === false
+    && disponibilidadPreview?.hay_cupo_pago === true;
+  const sinDisponibilidad = garageElegido
+    && disponibilidadPreview?.hay_cupo_corporativo === false
+    && disponibilidadPreview?.hay_cupo_pago === false;
 
   const buildConditions = (fieldName) => {
     const schema = getSchema();
@@ -99,10 +128,6 @@ export default function FormularioReserva({ onSubmit, loading, vehiculos = [], g
     });
   };
 
-  const garageSeleccionadoObj = garages.find(
-    (garage) => String(obtenerIdGarage(garage)) === String(formData.idGarage)
-  );
-  
   const ubicacionGarageActual = garageSeleccionadoObj?.ubicacion || 
                                 garageSeleccionadoObj?.direccion || 
                                 garageSeleccionadoObj?.nombre_zona || 
@@ -111,7 +136,16 @@ export default function FormularioReserva({ onSubmit, loading, vehiculos = [], g
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    onSelectionChange?.();
   };
+
+  useImperativeHandle(ref, () => ({
+    limpiarGarage() {
+      setFormData((prev) => ({ ...prev, idGarage: "" }));
+      setDistanciaInfo(null);
+      setDistanciaError("");
+    },
+  }), []);
 
   useEffect(() => {
     const diaApi = getDiaDesdeFecha(formData.fecha);
@@ -487,6 +521,24 @@ export default function FormularioReserva({ onSubmit, loading, vehiculos = [], g
           )}
         </div>
 
+        {requierePago && (
+          <div className="reserva-pago-preview" role="status">
+            <WalletCards size={20} />
+            <div>
+              <strong>El cupo gratuito de tu empresa se agotó</strong>
+              <span>
+                Hay {disponibilidadPreview.lugares_pagos_disponibles} lugares pagos disponibles por {precioFormateado}.
+              </span>
+            </div>
+          </div>
+        )}
+
+        {sinDisponibilidad && (
+          <p className="reserva-sin-cupo-preview" role="status">
+            Este garage no tiene lugares disponibles para el horario seleccionado.
+          </p>
+        )}
+
         <div className="form-field-group">
           <label className="form-field-label" htmlFor="idVehiculo">Vehiculo</label>
           <div className="form-input-icon-wrapper">
@@ -519,7 +571,7 @@ export default function FormularioReserva({ onSubmit, loading, vehiculos = [], g
           <button
             type="submit"
             className="submit-reservation-button"
-            disabled={loading || vehiculos.length === 0 || garages.length === 0}
+            disabled={loading || !datosCompletos || sinDisponibilidad}
           >
             <Plus size={18} strokeWidth={2.5} />
             <span>
@@ -529,11 +581,17 @@ export default function FormularioReserva({ onSubmit, loading, vehiculos = [], g
                   ? "Sin vehiculos disponibles"
                   : garages.length === 0
                     ? "Sin garages disponibles"
-                    : "Confirmar reserva"}
+                    : sinDisponibilidad
+                      ? "Garage sin disponibilidad"
+                      : requierePago
+                        ? "Pagar lugar"
+                        : "Confirmar reserva"}
             </span>
           </button>
         </div>
       </form>
     </div>
   );
-}
+});
+
+export default FormularioReserva;

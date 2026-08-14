@@ -142,6 +142,51 @@
   padding-left: 2px;
 }
 
+.reserva-pago-preview {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  padding: 14px;
+  border: 1px solid #bfdbfe;
+  border-radius: 14px;
+  background: #eff6ff;
+  color: #1e40af;
+}
+
+.reserva-pago-preview svg {
+  flex: 0 0 auto;
+  margin-top: 1px;
+}
+
+.reserva-pago-preview div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.reserva-pago-preview strong {
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.reserva-pago-preview span {
+  color: #475569;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.reserva-sin-cupo-preview {
+  margin: 0;
+  padding: 13px 14px;
+  border: 1px solid #fecaca;
+  border-radius: 14px;
+  background: #fef2f2;
+  color: #991b1b;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
 /* Botón con el Sombreado Difuminado (Blur Overlap Shadow) */
 .form-submit-container {
   padding-top: 8px;

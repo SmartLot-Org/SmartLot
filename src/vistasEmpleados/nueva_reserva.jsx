@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Swal from "sweetalert2";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Building2, Car, CalendarDays, CheckCircle2, Clock, MapPin, ParkingCircle, WalletCards } from "lucide-react";
 import HeaderEmpleado from "../componentesEmpleado/header_empleado";
 import FormularioReserva from "../componentesEmpleado/form_reserva";
 import { ReservasCreate } from "../servicies/API_Reserva";
@@ -12,6 +12,51 @@ import { useAuth } from "../contexts/useAuth";
 import "./nueva_reserva.css";
 import FooterEmpleado from "../componentesEmpleado/footer_empleado";
 import { mensajeAmigable } from "../helpers/erroresMensajes";
+import ConfirmacionReservaPaga from "../componentesEmpleado/confirmacion_reserva_paga";
+
+// Mock temporal: reemplazar por la respuesta del backend en una etapa posterior.
+const disponibilidadPagaMock = {
+  hay_cupo_corporativo: false,
+  hay_cupo_pago: true,
+  lugares_pagos_disponibles: 4,
+  precio: 8500,
+};
+
+const disponibilidadCorporativaMock = {
+  hay_cupo_corporativo: true,
+  hay_cupo_pago: true,
+  lugares_pagos_disponibles: 4,
+  precio: 8500,
+};
+
+const obtenerDisponibilidadMock = (garage) => {
+  const nombreGarage = obtenerCampo(garage, [
+    "nombre",
+    "name",
+    "descripcion",
+    "ubicacion",
+    "nombre_garage",
+    "garage_nombre",
+    "nombre_zona",
+  ]).toLocaleLowerCase("es-AR");
+
+  return nombreGarage.trim() === "caballito"
+    ? disponibilidadPagaMock
+    : disponibilidadCorporativaMock;
+};
+
+const formatearPrecio = (precio) => new Intl.NumberFormat("es-AR", {
+  style: "currency",
+  currency: "ARS",
+  maximumFractionDigits: 0,
+}).format(precio);
+
+const formatearFecha = (fecha) => {
+  if (!fecha) return "—";
+  const [year, month, day] = fecha.split("-").map(Number);
+  return new Intl.DateTimeFormat("es-AR", { day: "2-digit", month: "long", year: "numeric" })
+    .format(new Date(year, month - 1, day));
+};
 
 const obtenerCampo = (item, claves, fallback = "") => {
   if (!item || typeof item !== "object") return fallback;
@@ -130,6 +175,20 @@ const NuevaReserva = () => {
   const [vehiculos, setVehiculos] = useState([]);
   const [garages, setGarages] = useState([]);
   const [mensaje, setMensaje] = useState({ tipo: "", texto: "" });
+  const [consultandoDisponibilidad, setConsultandoDisponibilidad] = useState(false);
+  const [disponibilidad, setDisponibilidad] = useState(null);
+  const [reservaPendiente, setReservaPendiente] = useState(null);
+  const [modalPagoAbierto, setModalPagoAbierto] = useState(false);
+  const formularioRef = useRef(null);
+  const resultadoRef = useRef(null);
+  const disponibilidadTimerRef = useRef(null);
+
+  useEffect(() => () => window.clearTimeout(disponibilidadTimerRef.current), []);
+
+  useEffect(() => {
+    if (!disponibilidad) return;
+    resultadoRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [disponibilidad]);
 
   useEffect(() => {
     let montado = true;
@@ -190,7 +249,7 @@ const NuevaReserva = () => {
     };
   }, [usuario]);
 
-  const handleReservationSubmit = async (datosFormulario) => {
+  const crearReservaCorporativa = async (datosFormulario) => {
     setLoading(true);
     setMensaje({ tipo: "", texto: "" });
 
@@ -269,6 +328,60 @@ const NuevaReserva = () => {
     }
   };
 
+  const handleReservationSubmit = (datosFormulario) => {
+    window.clearTimeout(disponibilidadTimerRef.current);
+    setConsultandoDisponibilidad(true);
+    setMensaje({ tipo: "", texto: "" });
+    setDisponibilidad(null);
+
+    disponibilidadTimerRef.current = window.setTimeout(() => {
+      setReservaPendiente({
+        ...datosFormulario,
+        ...datosFormulario._metaData,
+        fechaFormateada: formatearFecha(datosFormulario._metaData?.fecha),
+      });
+      const garageSeleccionado = garages.find(
+        (garage) => Number(obtenerIdGarage(garage)) === Number(datosFormulario.idGarage)
+      );
+      setDisponibilidad(obtenerDisponibilidadMock(garageSeleccionado));
+      setConsultandoDisponibilidad(false);
+      disponibilidadTimerRef.current = null;
+    }, 350);
+  };
+
+  const limpiarResultado = () => {
+    window.clearTimeout(disponibilidadTimerRef.current);
+    disponibilidadTimerRef.current = null;
+    setConsultandoDisponibilidad(false);
+    setDisponibilidad(null);
+    setReservaPendiente(null);
+    setModalPagoAbierto(false);
+  };
+
+  const elegirOtroGarage = () => {
+    limpiarResultado();
+    formularioRef.current?.limpiarGarage();
+  };
+
+  const handleContinuarPago = () => {
+    setModalPagoAbierto(false);
+    Swal.fire({
+      icon: "info",
+      title: "Integración con Mercado Pago pendiente",
+      confirmButtonText: "Entendido",
+      confirmButtonColor: "#2563eb",
+    });
+  };
+
+  const detalleReserva = reservaPendiente && (
+    <dl className="disponibilidad-detalle">
+      <div><dt><MapPin size={16} /> Garage</dt><dd>{reservaPendiente.ubicacion}</dd></div>
+      <div><dt><CalendarDays size={16} /> Fecha</dt><dd>{reservaPendiente.fechaFormateada}</dd></div>
+      <div><dt><Clock size={16} /> Horario</dt><dd>{reservaPendiente.horaInicio} a {reservaPendiente.horaFin}</dd></div>
+      <div><dt><Car size={16} /> Vehículo</dt><dd>{reservaPendiente.vehiculo}</dd></div>
+    </dl>
+  );
+
   return (
     <div>
 
@@ -296,22 +409,66 @@ const NuevaReserva = () => {
             </div>
           )}
 
-          <section className="formularioReserva">
+          <section className={`formularioReserva${disponibilidad ? " formularioReserva--oculto" : ""}`}>
             {loadingVehiculos ? (
               <NuevaReservaSkeleton />
             ) : (
               <FormularioReserva
+                ref={formularioRef}
                 onSubmit={handleReservationSubmit}
-                loading={loading}
+                onSelectionChange={limpiarResultado}
+                loading={loading || consultandoDisponibilidad}
                 vehiculos={vehiculos}
                 garages={garages}
                 initialData={copiaReserva}
+                obtenerDisponibilidad={obtenerDisponibilidadMock}
               />
             )}
           </section>
+
+          {disponibilidad && reservaPendiente && (
+            <section ref={resultadoRef} className={`disponibilidad-card disponibilidad-card--${disponibilidad.hay_cupo_corporativo ? "corporativa" : disponibilidad.hay_cupo_pago ? "paga" : "sin-cupo"}`} aria-live="polite">
+              {disponibilidad.hay_cupo_corporativo ? (
+                <>
+                  <div className="disponibilidad-card__icon"><CheckCircle2 size={24} /></div>
+                  <div className="disponibilidad-card__heading"><span>Cupo corporativo disponible</span><h2>Tu empresa cubre esta reserva</h2><p>Podés continuar con el flujo habitual sin ningún cargo.</p></div>
+                  {detalleReserva}
+                  <div className="disponibilidad-total"><span>Total</span><strong>$0</strong></div>
+                  <button className="disponibilidad-button disponibilidad-button--primary" type="button" disabled={loading} onClick={() => crearReservaCorporativa(reservaPendiente)}>{loading ? "Procesando..." : "Crear reserva"}</button>
+                </>
+              ) : disponibilidad.hay_cupo_pago ? (
+                <>
+                  <div className="disponibilidad-card__icon"><WalletCards size={24} /></div>
+                  <div className="disponibilidad-card__heading"><span>Lugar pago disponible</span><h2>El cupo gratuito de tu empresa se agotó</h2><p>Todavía podés reservar este garage utilizando un lugar pago.</p></div>
+                  {detalleReserva}
+                  <div className="disponibilidad-places"><ParkingCircle size={18} /><span><strong>{disponibilidad.lugares_pagos_disponibles}</strong> lugares pagos disponibles</span></div>
+                  <div className="disponibilidad-total"><span>Precio final</span><strong>{formatearPrecio(disponibilidad.precio)}</strong></div>
+                  <div className="disponibilidad-actions">
+                    <button className="disponibilidad-button disponibilidad-button--primary" type="button" onClick={() => setModalPagoAbierto(true)}>Reservar y pagar</button>
+                    <button className="disponibilidad-button disponibilidad-button--secondary" type="button" onClick={elegirOtroGarage}>Elegir otro garage</button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="disponibilidad-card__icon"><Building2 size={24} /></div>
+                  <div className="disponibilidad-card__heading"><span>Sin disponibilidad</span><h2>Este garage no tiene lugares disponibles</h2><p>Probá seleccionando otro garage para la misma fecha y horario.</p></div>
+                  {detalleReserva}
+                  <button className="disponibilidad-button disponibilidad-button--secondary" type="button" onClick={elegirOtroGarage}>Buscar otro garage</button>
+                </>
+              )}
+            </section>
+          )}
         </main>
         <FooterEmpleado />
       </div>
+
+      <ConfirmacionReservaPaga
+        abierto={modalPagoAbierto}
+        reserva={reservaPendiente}
+        precioFormateado={formatearPrecio(disponibilidad?.precio || 0)}
+        onClose={() => setModalPagoAbierto(false)}
+        onContinuar={handleContinuarPago}
+      />
      
     </div>
       );

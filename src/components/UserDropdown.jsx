@@ -10,7 +10,7 @@ import { useAuth } from '../contexts/useAuth';
 import { obtenerSuperadminBackup, eliminarSuperadminBackup, eliminarUsuarioImpersonado } from '../helpers/superadminSession';
 import { clearCache } from '../cache/cacheStore';
 import apiClient from '../api/client';
-import { getUserHomeRoute, getUserRoleLabel } from '../helpers/roles';
+import { getUserProfileRoute, getUserRoleLabel } from '../helpers/roles';
 
 const AVATAR_GRADIENTS = [
   'from-brand-blue to-brand-sky',
@@ -111,7 +111,7 @@ export default function UserDropdown() {
       return;
     }
 
-    navigate(getUserHomeRoute(usuario));
+    navigate(getUserProfileRoute(usuario));
   }, [navigate, usuario]);
 
   const handleLogout = useCallback(async () => {
