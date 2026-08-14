@@ -1,4 +1,4 @@
-import { Building2, CirclePlus, ClipboardList, HandCoins } from "lucide-react";
+import { Building2, CirclePlus, ClipboardList, HandCoins, UserRound } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useFooterCompacto } from "../hooks/useFooterCompacto";
@@ -12,6 +12,7 @@ const ITEMS = [
   { label: "Crear", path: "/duenio-garage/crear-garage", icon: <CirclePlus size={24} /> },
   { label: "Tratos", path: "/duenio-garage/tratos", icon: <ClipboardList size={24} /> },
   { label: "Por cobrar", path: "/duenio-garage/cuentas-por-cobrar", icon: <HandCoins size={24} /> },
+  { label: "Perfil", path: "/duenio-garage/perfil", icon: <UserRound size={24} /> },
 ];
 
 const obtenerIndiceGuardado = (fallback) => {

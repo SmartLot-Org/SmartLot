@@ -3,6 +3,7 @@ export const ROLE_NAMES = Object.freeze({
 });
 export const HISTORICAL_ROLE_IDS = Object.freeze({ [ROLE_NAMES.ADMIN]: 1, [ROLE_NAMES.EMPLEADO]: 2, [ROLE_NAMES.GARAGISTA]: 3, [ROLE_NAMES.SUPERADMIN]: 4, [ROLE_NAMES.DUENO_GARAGE]: 5 });
 export const ROLE_HOME_ROUTES = Object.freeze({ [ROLE_NAMES.ADMIN]: '/admin_dashboard', [ROLE_NAMES.EMPLEADO]: '/empleados_dashboard', [ROLE_NAMES.GARAGISTA]: '/garagista_dashboard', [ROLE_NAMES.SUPERADMIN]: '/superadmin_dashboard', [ROLE_NAMES.DUENO_GARAGE]: '/duenio-garage/dashboard' });
+export const ROLE_PROFILE_ROUTES = Object.freeze({ [ROLE_NAMES.ADMIN]: '/perfil_admin', [ROLE_NAMES.EMPLEADO]: '/perfil_empleado', [ROLE_NAMES.DUENO_GARAGE]: '/duenio-garage/perfil' });
 export const ROLE_LABELS = Object.freeze({ [ROLE_NAMES.ADMIN]: 'Admin', [ROLE_NAMES.EMPLEADO]: 'Empleado', [ROLE_NAMES.GARAGISTA]: 'Garagista', [ROLE_NAMES.SUPERADMIN]: 'Superadmin', [ROLE_NAMES.DUENO_GARAGE]: 'Due\u00f1o de garage' });
 const ROLE_ALIASES = Object.freeze({ smartlot: ROLE_NAMES.SUPERADMIN });
 export const normalizeRoleName = (value) => {
@@ -17,4 +18,5 @@ export function getUserRoleName(usuario) {
 }
 export const userHasRole = (usuario, ...roles) => roles.some((role) => typeof role === 'number' ? Number(usuario?.id_rol) === role : getUserRoleName(usuario) === normalizeRoleName(role));
 export const getUserHomeRoute = (usuario, fallback = '/') => ROLE_HOME_ROUTES[getUserRoleName(usuario)] || fallback;
+export const getUserProfileRoute = (usuario, fallback) => ROLE_PROFILE_ROUTES[getUserRoleName(usuario)] || getUserHomeRoute(usuario, fallback);
 export const getUserRoleLabel = (usuario) => ROLE_LABELS[getUserRoleName(usuario)] || 'Usuario';

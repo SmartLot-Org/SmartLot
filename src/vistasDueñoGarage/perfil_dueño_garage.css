@@ -1,0 +1,289 @@
+/* ===== Perfil Dueño de Garage ===== */
+
+.duenio-perfil-loading {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  color: #64748b;
+  font-weight: 600;
+  background: #f5f7fb;
+}
+
+.duenio-perfil-topbar {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.duenio-perfil-titulos {
+  text-align: left;
+}
+
+.duenio-perfil-kicker {
+  display: block;
+  color: #2563eb;
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.duenio-perfil-titulos h1 {
+  margin: 0.3rem 0 0.5rem;
+  color: #1e293b;
+  font-family: var(--heading);
+  font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+}
+
+.duenio-perfil-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.75rem;
+  border: 1px solid #bfdbfe;
+  border-radius: 999px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.duenio-perfil-statusbar {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+  margin: 1.25rem 0 1.5rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow: 0 8px 24px -10px rgba(15, 23, 42, 0.08);
+}
+
+.duenio-perfil-statusbar > div {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.2rem 0.8rem;
+  border-right: 1px solid #e2e8f0;
+}
+
+.duenio-perfil-statusbar > div:last-child {
+  border-right: 0;
+}
+
+.duenio-perfil-statusbar span {
+  color: #64748b;
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.duenio-perfil-statusbar strong {
+  color: #1e293b;
+  font-family: var(--heading);
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.duenio-perfil-statusbar strong.is-ok {
+  color: #15803d;
+}
+
+.duenio-perfil-form {
+  width: 100%;
+  max-width: 800px;
+  margin-inline: auto;
+  display: grid;
+  gap: 1.25rem;
+  padding-bottom: 2rem;
+}
+
+.duenio-perfil-card {
+  padding: 1.5rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  background: #ffffff;
+  box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.03),
+    0 16px 40px -12px rgba(15, 23, 42, 0.06);
+  box-sizing: border-box;
+}
+
+.duenio-perfil-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.duenio-perfil-card-icon {
+  flex: 0 0 38px;
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 11px;
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.duenio-perfil-card-icon--rose {
+  background: #fff1f2;
+  color: #e11d48;
+}
+
+.duenio-perfil-card-header h3 {
+  margin: 0;
+  color: #1e293b;
+  font-family: var(--heading);
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+
+.duenio-perfil-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem 1.25rem;
+}
+
+.duenio-perfil-grupo--full {
+  grid-column: 1 / -1;
+}
+
+.duenio-perfil-grupo {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.duenio-perfil-grupo label {
+  color: #475569;
+  font-size: 0.85rem;
+  font-weight: 800;
+  text-align: left;
+}
+
+.duenio-perfil-input {
+  min-height: 46px;
+  width: 100%;
+  padding: 0 0.85rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #1e293b;
+  font: inherit;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.duenio-perfil-input:focus {
+  outline: 2px solid rgba(37, 99, 235, 0.4);
+  outline-offset: -1px;
+  border-color: #2563eb;
+}
+
+.duenio-perfil-input.is-readonly {
+  cursor: default;
+  background: #f1f5f9;
+  color: #0f172a;
+  border-color: #e2e8f0;
+}
+
+.duenio-perfil-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.duenio-perfil-actions button {
+  min-height: 46px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border: 0;
+  border-radius: 12px;
+  padding: 0 1.2rem;
+  cursor: pointer;
+  font-weight: 800;
+  font-size: 0.9rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.duenio-perfil-btn-primary {
+  background: #2563eb;
+  color: #ffffff;
+  box-shadow: 0 8px 18px -6px rgba(37, 99, 235, 0.4);
+}
+
+.duenio-perfil-btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px -6px rgba(37, 99, 235, 0.5);
+}
+
+.duenio-perfil-btn-primary:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.duenio-perfil-btn-danger {
+  background: #fff1f2;
+  color: #e11d48;
+  border: 1px solid rgba(225, 29, 72, 0.12) !important;
+}
+
+.duenio-perfil-btn-danger:hover {
+  background: #ffe4e6;
+  color: #be123c;
+}
+
+@media (max-width: 600px) {
+  .duenio-perfil-topbar {
+    align-items: flex-start;
+  }
+
+  .duenio-perfil-statusbar {
+    grid-template-columns: 1fr;
+  }
+
+  .duenio-perfil-statusbar > div {
+    border-right: 0;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 0.55rem 0.2rem;
+  }
+
+  .duenio-perfil-statusbar > div:last-child {
+    border-bottom: 0;
+  }
+
+  .duenio-perfil-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .duenio-perfil-grupo--full {
+    grid-column: auto;
+  }
+
+  .duenio-perfil-card {
+    padding: 1rem;
+    border-radius: 18px;
+  }
+
+  .duenio-perfil-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .duenio-perfil-statusbar,
+  .duenio-perfil-card,
+  .duenio-perfil-actions,
+  .duenio-perfil-titulos {
+    transition-duration: 0.01ms;
+  }
+}
