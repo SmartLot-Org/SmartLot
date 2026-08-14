@@ -9,6 +9,7 @@ import {
   CalendarDays,
   Database,
   CreditCard,
+  Mail,
 } from "lucide-react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
@@ -213,6 +214,14 @@ function SuperadminDashboard() {
                   titulo="Testing Pagos MP"
                   descripcion="Crear preferencias, pagar, verificar estados, webhooks y reembolsos"
                   onClick={() => navigate("/superadmin/pagos-test")}
+                />
+              </div>
+              <div className="superadmin-stagger-card">
+                <SuperadminDashboardBoton
+                  icono={<Mail />}
+                  titulo="Plantillas de Email"
+                  descripcion="Editar los correos del sistema con preview en vivo y envío de pruebas"
+                  onClick={() => navigate("/superadmin/email-templates")}
                 />
               </div>
             </div>
