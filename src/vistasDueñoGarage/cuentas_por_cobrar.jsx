@@ -1,147 +1,51 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { AlertTriangle, Building2, CalendarDays, CheckCircle2, ChevronRight, CircleDollarSign, Download, FileSpreadsheet, FileText, ReceiptText, Search, WalletCards, X } from "lucide-react";
+import { Building2, ChevronRight, CircleDollarSign, Download, FileSpreadsheet, FileText, ReceiptText, Search, Timer, WalletCards, X } from "lucide-react";
 import HeaderDueñoGarage from "../componentesDueñoGarage/header_dueño_garage";
 import FooterDueñoGarage from "../componentesDueñoGarage/footer_dueño_garage";
-import { cuentasPorCobrarGarageMock, ESTADOS_DEUDA, GARAGE_ACTUAL, PERIODOS_CUENTAS_POR_COBRAR } from "../mocks/cuentasPorCobrarGarage";
+import { CuentasCorrientesDuenoGet, CuentasCorrientesGaragesGet } from "../servicies/API_CuentasCorrientes";
 import { exportarDeudasGarageExcel, exportarDeudasGaragePDF } from "../util/exportar_deudas_garage";
 import "./cuentas_por_cobrar.css";
 
-const moneda = new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 0 });
-const fecha = new Intl.DateTimeFormat("es-AR", { day: "2-digit", month: "short", year: "numeric", timeZone: "UTC" });
-const formatearMoneda = (valor) => moneda.format(valor);
-const formatearFecha = (valor) => fecha.format(new Date(`${valor}T00:00:00Z`));
-const claseEstado = (estado) => estado.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replaceAll(" ", "-");
+const moneda = (n) => new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 2 }).format(n ?? 0);
+const fechaHora = (f) => new Intl.DateTimeFormat("es-AR", { dateStyle: "short", timeStyle: "short" }).format(new Date(f));
+const nombrePeriodo = (p) => new Intl.DateTimeFormat("es-AR", { month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(`${p}-01T00:00:00Z`));
+const duracion = (m = 0) => `${Math.floor(m / 60)} h ${m % 60} min`;
 
-function BadgeEstado({ estado }) {
-  return <span className={`cxc-badge cxc-badge--${claseEstado(estado)}`}>{estado}</span>;
-}
-
-function DetalleDeuda({ empresa, onClose }) {
+function DetalleConsumo({ item, onClose }) {
   const cerrarRef = useRef(null);
-  useEffect(() => {
-    if (!empresa) return undefined;
-    const onKeyDown = (event) => event.key === "Escape" && onClose();
-    document.addEventListener("keydown", onKeyDown);
-    document.body.classList.add("cxc-drawer-open");
-    cerrarRef.current?.focus();
-    return () => { document.removeEventListener("keydown", onKeyDown); document.body.classList.remove("cxc-drawer-open"); };
-  }, [empresa, onClose]);
-  if (!empresa) return null;
-
-  return <div className="cxc-overlay" role="presentation" onMouseDown={onClose}>
-    <aside className="cxc-drawer" role="dialog" aria-modal="true" aria-labelledby="cxc-detail-title" onMouseDown={(event) => event.stopPropagation()}>
-      <header className="cxc-drawer__header">
-        <div><span className="cxc-eyebrow">Deuda con {GARAGE_ACTUAL}</span><h2 id="cxc-detail-title">{empresa.nombreEmpresa}</h2><p>{empresa.cuit}</p></div>
-        <button ref={cerrarRef} type="button" className="cxc-icon-button" onClick={onClose} aria-label="Cerrar detalle de deuda"><X size={20} /></button>
-      </header>
-      <section className="cxc-debt-highlight" aria-label="Importe pendiente">
-        <span>La empresa todavía le debe al garage:</span><strong>{formatearMoneda(empresa.deudaActual)}</strong>
-      </section>
-      <dl className="cxc-detail-grid">
-        <div><dt>Garage al que le debe</dt><dd>{GARAGE_ACTUAL}</dd></div>
-        <div><dt>Estado</dt><dd><BadgeEstado estado={empresa.estado} /></dd></div>
-        <div><dt>Total generado por reservas</dt><dd>{formatearMoneda(empresa.totalGenerado)}</dd></div>
-        <div><dt>Pagos recibidos por el garage</dt><dd>{formatearMoneda(empresa.totalPagado)}</dd></div>
-        <div><dt>Reservas utilizadas</dt><dd>{empresa.reservasUtilizadas}</dd></div>
-        <div><dt>Fecha de vencimiento</dt><dd>{formatearFecha(empresa.fechaVencimiento)}</dd></div>
-      </dl>
-      <section className="cxc-movements" aria-labelledby="cxc-movements-title">
-        <h3 id="cxc-movements-title"><ReceiptText size={18} /> Historial de movimientos</h3>
-        {empresa.movimientos.map((movimiento) => <article key={movimiento.id}>
-          <div><strong>{movimiento.concepto}</strong><time dateTime={movimiento.fecha}>{formatearFecha(movimiento.fecha)}</time></div>
-          <span className={movimiento.importe < 0 ? "is-credit" : ""}>{formatearMoneda(movimiento.importe)}</span>
-        </article>)}
-      </section>
-      <p className="cxc-payment-note"><CircleDollarSign size={19} /> La forma de recibir y confirmar el pago todavía no fue definida.</p>
-    </aside>
-  </div>;
+  useEffect(() => { if (!item) return undefined; const key = (e) => e.key === "Escape" && onClose(); document.addEventListener("keydown", key); document.body.classList.add("cxc-drawer-open"); cerrarRef.current?.focus(); return () => { document.removeEventListener("keydown", key); document.body.classList.remove("cxc-drawer-open"); }; }, [item, onClose]);
+  if (!item) return null;
+  return <div className="cxc-overlay" role="presentation" onMouseDown={onClose}><aside className="cxc-drawer" role="dialog" aria-modal="true" aria-labelledby="cxc-detail-title" onMouseDown={(e) => e.stopPropagation()}>
+    <header className="cxc-drawer__header"><div><span className="cxc-eyebrow">Detalle de consumo generado</span><h2 id="cxc-detail-title">{item.empresa}</h2><p>{item.sede} · {item.garage}</p></div><button ref={cerrarRef} type="button" className="cxc-icon-button" onClick={onClose} aria-label="Cerrar detalle"><X size={20} /></button></header>
+    <section className="cxc-debt-highlight" aria-label="Importe generado"><span>Importe generado por reservas utilizadas</span><strong>{moneda(item.importeGenerado)}</strong></section>
+    <dl className="cxc-detail-grid"><div><dt>Período</dt><dd>{nombrePeriodo(item.periodo)}</dd></div><div><dt>Garage</dt><dd>{item.garage}</dd></div><div><dt>Reservas utilizadas</dt><dd>{item.reservasUtilizadas}</dd></div><div><dt>Tiempo utilizado</dt><dd>{duracion(item.minutosTotales)}</dd></div></dl>
+    <section className="cxc-movements" aria-labelledby="cxc-movements-title"><h3 id="cxc-movements-title"><ReceiptText size={18} /> Reservas utilizadas</h3>{item.movimientos.map((m) => <article key={m.idConsumo}><div><strong>Reserva #{m.idReserva} · {m.tipoVehiculo}</strong><time dateTime={m.fechaInicio}>{fechaHora(m.fechaInicio)} — {fechaHora(m.fechaFin)} · {m.minutosUtilizados} min · {moneda(m.tarifaHoraAplicada)}/h</time></div><span>{moneda(m.importeGenerado)}</span></article>)}</section>
+    <p className="cxc-payment-note"><CircleDollarSign size={19} />Cobros, estados y conciliación: pendiente de integración.</p>
+  </aside></div>;
 }
 
-function ExportarDeudasModal({ abierto, cantidad, exportando, onClose, onExportar }) {
-  useEffect(() => {
-    if (!abierto) return undefined;
-    const onKeyDown = (event) => event.key === "Escape" && !exportando && onClose();
-    document.addEventListener("keydown", onKeyDown);
-    return () => document.removeEventListener("keydown", onKeyDown);
-  }, [abierto, exportando, onClose]);
+function ExportarModal({ abierto, cantidad, exportando, onClose, onExportar }) {
   if (!abierto) return null;
-  return <div className="cxc-export-overlay" role="presentation" onMouseDown={() => !exportando && onClose()}>
-    <section className="cxc-export-modal" role="dialog" aria-modal="true" aria-labelledby="cxc-export-title" onMouseDown={(event) => event.stopPropagation()}>
-      <header><div><span className="cxc-eyebrow">Exportar cuentas por cobrar</span><h2 id="cxc-export-title">Elegí el formato</h2></div><button type="button" className="cxc-icon-button" onClick={onClose} disabled={exportando} aria-label="Cerrar exportación"><X size={20} /></button></header>
-      <p>Se exportarán las {cantidad} empresas que coinciden con los filtros actuales.</p>
-      <div className="cxc-export-options">
-        <button type="button" className="cxc-export-option is-pdf" onClick={() => onExportar("pdf")} disabled={exportando}><span className="cxc-export-option__icon"><FileText size={26} /></span><span><strong>Documento PDF</strong><small>Reporte listo para compartir o imprimir</small></span><span className="cxc-export-option__type">.PDF</span></button>
-        <button type="button" className="cxc-export-option is-excel" onClick={() => onExportar("excel")} disabled={exportando}><span className="cxc-export-option__icon"><FileSpreadsheet size={26} /></span><span><strong>Planilla Excel</strong><small>Datos editables, ordenables y filtrables</small></span><span className="cxc-export-option__type">.XLSX</span></button>
-      </div>
-      {exportando ? <p className="cxc-export-loading" role="status"><span /> Preparando el archivo…</p> : null}
-    </section>
-  </div>;
+  return <div className="cxc-export-overlay" role="presentation" onMouseDown={() => !exportando && onClose()}><section className="cxc-export-modal" role="dialog" aria-modal="true" aria-labelledby="cxc-export-title" onMouseDown={(e) => e.stopPropagation()}><header><div><span className="cxc-eyebrow">Exportar consumos</span><h2 id="cxc-export-title">Elegí el formato</h2></div><button type="button" className="cxc-icon-button" onClick={onClose} disabled={exportando}><X size={20} /></button></header><p>Se exportarán los {cantidad} resultados filtrados.</p><div className="cxc-export-options"><button type="button" className="cxc-export-option is-pdf" onClick={() => onExportar("pdf")} disabled={exportando}><span className="cxc-export-option__icon"><FileText size={26} /></span><span><strong>Documento PDF</strong><small>Reporte de consumos generados</small></span><span className="cxc-export-option__type">.PDF</span></button><button type="button" className="cxc-export-option is-excel" onClick={() => onExportar("excel")} disabled={exportando}><span className="cxc-export-option__icon"><FileSpreadsheet size={26} /></span><span><strong>Planilla Excel</strong><small>Datos reales filtrados</small></span><span className="cxc-export-option__type">.XLSX</span></button></div>{exportando && <p className="cxc-export-loading"><span /> Preparando…</p>}</section></div>;
 }
 
 export default function CuentasPorCobrarGarage() {
-  const [busqueda, setBusqueda] = useState("");
-  const [estado, setEstado] = useState("");
-  const [periodo, setPeriodo] = useState("2026-08");
-  const [seleccionada, setSeleccionada] = useState(null);
-  const [exportando, setExportando] = useState(false);
-  const [exportarAbierto, setExportarAbierto] = useState(false);
-  const empresas = useMemo(() => cuentasPorCobrarGarageMock.filter((empresa) => empresa.periodoId === periodo), [periodo]);
-  const filtradas = useMemo(() => {
-    const termino = busqueda.trim().toLocaleLowerCase("es-AR");
-    return empresas.filter((empresa) => (!termino || `${empresa.nombreEmpresa} ${empresa.cuit}`.toLocaleLowerCase("es-AR").includes(termino)) && (!estado || empresa.estado === estado));
-  }, [busqueda, empresas, estado]);
-  const resumen = useMemo(() => empresas.reduce((acc, empresa) => ({
-    pendiente: acc.pendiente + empresa.deudaActual,
-    vencida: acc.vencida + (empresa.estado === "Vencida" ? empresa.deudaActual : 0),
-    recibido: acc.recibido + empresa.totalPagado,
-    deudoras: acc.deudoras + (empresa.deudaActual > 0 ? 1 : 0),
-  }), { pendiente: 0, vencida: 0, recibido: 0, deudoras: 0 }), [empresas]);
-  const vencida = empresas.find((empresa) => empresa.estado === "Vencida");
-  const limpiar = () => { setBusqueda(""); setEstado(""); setPeriodo("2026-08"); };
-  const exportar = async (formato) => {
-    if (!filtradas.length || exportando) return;
-    setExportando(true);
-    try {
-      const periodoNombre = PERIODOS_CUENTAS_POR_COBRAR.find((item) => item.id === periodo)?.nombre ?? periodo;
-      const opciones = { garage: GARAGE_ACTUAL, periodo: periodoNombre };
-      if (formato === "pdf") await exportarDeudasGaragePDF(filtradas, opciones);
-      else await exportarDeudasGarageExcel(filtradas, opciones);
-      setExportarAbierto(false);
-    } finally {
-      setExportando(false);
-    }
-  };
-
-  const metricas = [
-    { label: "Las empresas te deben", valor: formatearMoneda(resumen.pendiente), icono: WalletCards, tono: "blue" },
-    { label: "Deuda vencida", valor: formatearMoneda(resumen.vencida), icono: AlertTriangle, tono: "red" },
-    { label: "Ya recibiste este mes", valor: formatearMoneda(resumen.recibido), icono: CheckCircle2, tono: "green" },
-    { label: "Empresas que todavía deben", valor: `${resumen.deudoras} de ${empresas.length}`, detalle: "empresas asociadas", icono: Building2, tono: "slate" },
-  ];
-
-  return <div className="duenio-garage-page cxc-page">
-    <HeaderDueñoGarage />
-    <main className="duenio-garage-main cxc-main">
-      <header className="cxc-page-header">
-        <div className="cxc-heading-copy"><span className="cxc-eyebrow">Administrador del garage</span><div className="cxc-garage-chip"><Building2 size={16} /> Garage actual: <strong>{GARAGE_ACTUAL}</strong></div><h1>Empresas que le deben a tu garage</h1><p>Revisá cuánto dinero debe pagarle cada empresa a {GARAGE_ACTUAL} por las reservas utilizadas.</p></div>
-        <label className="cxc-period"><span>Período</span><select value={periodo} onChange={(event) => setPeriodo(event.target.value)}>{PERIODOS_CUENTAS_POR_COBRAR.map((item) => <option key={item.id} value={item.id}>{item.nombre}</option>)}</select></label>
-      </header>
-      <section className="cxc-kpis" aria-label="Resumen general de cuentas por cobrar">{metricas.map(({ label, valor, detalle, icono: Icono, tono }) => <article key={label}><div className={`cxc-kpi-icon cxc-kpi-icon--${tono}`}><Icono size={21} /></div><div><span>{label}</span><strong>{valor}</strong>{detalle ? <small>{detalle}</small> : null}</div></article>)}</section>
-      {vencida ? <section className="cxc-alert" aria-label="Alerta de deuda vencida"><AlertTriangle size={21} /><div><strong>{vencida.nombreEmpresa} todavía le debe {formatearMoneda(vencida.deudaActual)} a {GARAGE_ACTUAL} y su cuenta está vencida.</strong><span>La fecha de pago acordada ya pasó.</span></div><button type="button" onClick={() => { setBusqueda(vencida.nombreEmpresa); setEstado("Vencida"); }}>Mostrar empresa</button></section> : null}
-      <section className="cxc-accounts" aria-labelledby="cxc-table-title">
-        <div className="cxc-section-title"><div><span className="cxc-eyebrow">Empresas asociadas → le deben dinero → garage</span><h2 id="cxc-table-title">Deudas de empresas con {GARAGE_ACTUAL}</h2><p>{filtradas.length} de {empresas.length} empresas en el período</p></div><button type="button" className="cxc-export" onClick={() => setExportarAbierto(true)} disabled={!filtradas.length}><Download size={18} /> Exportar deudas</button></div>
-        <div className="cxc-filters">
-          <label className="cxc-search"><span className="sr-only">Buscar por empresa o CUIT</span><Search size={18} /><input value={busqueda} onChange={(event) => setBusqueda(event.target.value)} placeholder="Buscar empresa o CUIT" /></label>
-          <label><span>Estado</span><select value={estado} onChange={(event) => setEstado(event.target.value)}><option value="">Todos los estados</option>{ESTADOS_DEUDA.map((item) => <option key={item}>{item}</option>)}</select></label>
-          <label><span>Período</span><select value={periodo} onChange={(event) => setPeriodo(event.target.value)}>{PERIODOS_CUENTAS_POR_COBRAR.map((item) => <option key={item.id} value={item.id}>{item.nombre}</option>)}</select></label>
-          <button type="button" className="cxc-clear" onClick={limpiar} disabled={!busqueda && !estado && periodo === "2026-08"}><X size={16} /> Limpiar filtros</button>
-        </div>
-        {filtradas.length ? <><div className="cxc-table-wrap"><table><thead><tr><th>Empresa que debe</th><th>CUIT</th><th>Reservas utilizadas</th><th>Total generado</th><th>Ya pagó</th><th className="cxc-debt-column">Le debe al garage</th><th>Vencimiento</th><th>Estado</th><th><span className="sr-only">Acción</span></th></tr></thead><tbody>{filtradas.map((empresa) => <tr key={empresa.id}><td><strong>{empresa.nombreEmpresa}</strong><small>Le debe a {GARAGE_ACTUAL}</small></td><td>{empresa.cuit}</td><td>{empresa.reservasUtilizadas}</td><td>{formatearMoneda(empresa.totalGenerado)}</td><td>{formatearMoneda(empresa.totalPagado)}</td><td className="cxc-debt-column"><strong>{formatearMoneda(empresa.deudaActual)}</strong></td><td>{formatearFecha(empresa.fechaVencimiento)}</td><td><BadgeEstado estado={empresa.estado} /></td><td><button type="button" className="cxc-view" onClick={() => setSeleccionada(empresa)}>Ver deuda <ChevronRight size={16} /></button></td></tr>)}</tbody></table></div>
-        <div className="cxc-mobile-list">{filtradas.map((empresa) => <article key={empresa.id}><header><div><strong>{empresa.nombreEmpresa}</strong><span>{empresa.cuit}</span></div><BadgeEstado estado={empresa.estado} /></header><div className="cxc-mobile-debt"><span>Le debe al garage</span><strong>{formatearMoneda(empresa.deudaActual)}</strong></div><dl><div><dt>Vencimiento</dt><dd><CalendarDays size={15} /> {formatearFecha(empresa.fechaVencimiento)}</dd></div><div><dt>Reservas</dt><dd>{empresa.reservasUtilizadas}</dd></div></dl><button type="button" className="cxc-view" onClick={() => setSeleccionada(empresa)}>Ver deuda <ChevronRight size={16} /></button></article>)}</div></> : <div className="cxc-empty"><Search size={28} /><strong>No hay empresas que coincidan</strong><span>Probá cambiar o limpiar los filtros.</span></div>}
-      </section>
-    </main>
-    <FooterDueñoGarage />
-    <DetalleDeuda empresa={seleccionada} onClose={() => setSeleccionada(null)} />
-    <ExportarDeudasModal abierto={exportarAbierto} cantidad={filtradas.length} exportando={exportando} onClose={() => setExportarAbierto(false)} onExportar={exportar} />
-  </div>;
+  const actual = new Date().toISOString().slice(0, 7);
+  const [busqueda, setBusqueda] = useState(""); const [search, setSearch] = useState(""); const [periodo, setPeriodo] = useState(actual); const [idGarage, setIdGarage] = useState("");
+  const [data, setData] = useState({ items: [], summary: { reservasUtilizadas: 0, minutosTotales: 0, importeGenerado: 0 } }); const [garages, setGarages] = useState([]);
+  const [cargando, setCargando] = useState(true); const [error, setError] = useState(""); const [retry, setRetry] = useState(0); const [seleccionada, setSeleccionada] = useState(null); const [exportando, setExportando] = useState(false); const [exportarAbierto, setExportarAbierto] = useState(false);
+  useEffect(() => { if (busqueda === search) return undefined; const timer = setTimeout(() => { setCargando(true); setError(""); setSearch(busqueda); }, 350); return () => clearTimeout(timer); }, [busqueda, search]);
+  useEffect(() => { const c = new AbortController(); CuentasCorrientesGaragesGet({ signal: c.signal }).then(setGarages).catch((e) => { if (e.code !== "ERR_CANCELED") setError("No se pudieron cargar tus garages."); }); return () => c.abort(); }, []);
+  useEffect(() => { const c = new AbortController(); CuentasCorrientesDuenoGet({ periodo, idGarage, search, signal: c.signal }).then(setData).catch((e) => { if (e.code !== "ERR_CANCELED") setError(e.response?.data?.message || "No se pudieron cargar los consumos."); }).finally(() => { if (!c.signal.aborted) setCargando(false); }); return () => c.abort(); }, [periodo, idGarage, search, retry]);
+  const periodos = useMemo(() => Array.from({ length: 24 }, (_, i) => { const d = new Date(); d.setUTCDate(1); d.setUTCMonth(d.getUTCMonth() - i); return d.toISOString().slice(0, 7); }), []);
+  const cambiar = (setter, value) => { setCargando(true); setError(""); setter(value); }; const limpiar = () => { setCargando(true); setError(""); setBusqueda(""); setIdGarage(""); setPeriodo(actual); };
+  const exportar = async (formato) => { setExportando(true); try { const opts = { garage: idGarage ? garages.find((g) => Number(g.id) === Number(idGarage))?.nombre : "Todos los garages", periodo: nombrePeriodo(periodo) }; if (formato === "pdf") await exportarDeudasGaragePDF(data.items, opts); else await exportarDeudasGarageExcel(data.items, opts); setExportarAbierto(false); } finally { setExportando(false); } };
+  const metricas = [{ label: "Importe generado", valor: moneda(data.summary.importeGenerado), icono: WalletCards, tono: "blue" }, { label: "Reservas utilizadas", valor: String(data.summary.reservasUtilizadas), icono: ReceiptText, tono: "slate" }, { label: "Tiempo utilizado", valor: duracion(data.summary.minutosTotales), icono: Timer, tono: "green" }, { label: "Empresas con consumo", valor: String(new Set(data.items.map((i) => i.idEmpresa)).size), icono: Building2, tono: "slate" }];
+  return <div className="duenio-garage-page cxc-page"><HeaderDueñoGarage /><main className="duenio-garage-main cxc-main"><header className="cxc-page-header"><div className="cxc-heading-copy"><span className="cxc-eyebrow">Administrador del garage</span><h1>Consumos generados</h1><p>Consultá los importes generados por las reservas utilizadas en tus garages.</p></div></header>
+    <section className="cxc-kpis">{metricas.map(({ label, valor, icono: Icono, tono }) => <article key={label}><div className={`cxc-kpi-icon cxc-kpi-icon--${tono}`}><Icono size={21} /></div><div><span>{label}</span><strong>{valor}</strong></div></article>)}</section>
+    <section className="cxc-alert"><CircleDollarSign size={21} /><div><strong>Estos datos son consumos generados.</strong><span>No confirman cobros, vencimientos ni pagos recibidos.</span></div></section>
+    <section className="cxc-accounts"><div className="cxc-section-title"><div><span className="cxc-eyebrow">Empresas, sedes y garages autorizados</span><h2>Consumos por empresa</h2><p>{data.items.length} resultados</p></div><button type="button" className="cxc-export" onClick={() => setExportarAbierto(true)} disabled={!data.items.length || cargando}><Download size={18} /> Exportar consumos</button></div>
+      <div className="cxc-filters"><label className="cxc-search"><Search size={18} /><input value={busqueda} onChange={(e) => setBusqueda(e.target.value)} placeholder="Buscar empresa, sede o garage" /></label><label><span>Garage</span><select value={idGarage} onChange={(e) => cambiar(setIdGarage, e.target.value)}><option value="">Todos mis garages</option>{garages.map((g) => <option key={g.id} value={g.id}>{g.nombre}</option>)}</select></label><label><span>Período</span><select value={periodo} onChange={(e) => cambiar(setPeriodo, e.target.value)}>{periodos.map((p) => <option key={p} value={p}>{nombrePeriodo(p)}</option>)}</select></label><button type="button" className="cxc-clear" onClick={limpiar}><X size={16} /> Limpiar filtros</button></div>
+      {cargando ? <div className="cxc-empty"><strong>Cargando consumos…</strong><span>Consultando información real.</span></div> : error ? <div className="cxc-empty"><strong>No pudimos cargar los consumos</strong><span>{error}</span><button type="button" onClick={() => { setCargando(true); setError(""); setRetry((n) => n + 1); }}>Reintentar</button></div> : data.items.length ? <><div className="cxc-table-wrap"><table><thead><tr><th>Empresa</th><th>Sede</th><th>Garage</th><th>Período</th><th>Reservas</th><th>Tiempo</th><th>Importe generado</th><th>Cobro</th><th></th></tr></thead><tbody>{data.items.map((i) => <tr key={`${i.idEmpresa}-${i.idSede}-${i.idGarage}-${i.periodo}`}><td><strong>{i.empresa}</strong></td><td>{i.sede}</td><td>{i.garage}</td><td>{nombrePeriodo(i.periodo)}</td><td>{i.reservasUtilizadas}</td><td>{duracion(i.minutosTotales)}</td><td className="cxc-debt-column"><strong>{moneda(i.importeGenerado)}</strong></td><td>—</td><td><button className="cxc-view" type="button" onClick={() => setSeleccionada(i)}>Ver detalle <ChevronRight size={16} /></button></td></tr>)}</tbody></table></div><div className="cxc-mobile-list">{data.items.map((i) => <article key={`${i.idEmpresa}-${i.idSede}-${i.idGarage}-${i.periodo}`}><header><div><strong>{i.empresa}</strong><span>{i.sede} · {i.garage}</span></div></header><div className="cxc-mobile-debt"><span>Importe generado</span><strong>{moneda(i.importeGenerado)}</strong></div><dl><div><dt>Reservas</dt><dd>{i.reservasUtilizadas}</dd></div><div><dt>Tiempo</dt><dd>{duracion(i.minutosTotales)}</dd></div></dl><button className="cxc-view" type="button" onClick={() => setSeleccionada(i)}>Ver detalle <ChevronRight size={16} /></button></article>)}</div></> : <div className="cxc-empty"><Search size={28} /><strong>No hay consumos para estos filtros</strong><span>No se encontraron reservas utilizadas en el período.</span></div>}
+    </section></main><FooterDueñoGarage /><DetalleConsumo item={seleccionada} onClose={() => setSeleccionada(null)} /><ExportarModal abierto={exportarAbierto} cantidad={data.items.length} exportando={exportando} onClose={() => setExportarAbierto(false)} onExportar={exportar} /></div>;
 }

@@ -27,7 +27,6 @@ import GestionUsuarios from "./vistasSuperadmin/gestion_usuarios";
 import AgregarUsuario from "./vistasSuperadmin/agregar_usuario";
 import GestionEmpresas from "./vistasSuperadmin/gestion_empresas";
 import AgregarEmpresa from "./vistasSuperadmin/agregar_empresa";
-import GestionSedes from "./vistasSuperadmin/gestion_sedes";
 import AgregarSede from "./vistasSuperadmin/agregar_sede";
 import SuperadminGestionGarages from "./vistasSuperadmin/superadmin_gestion_garages";
 import SuperadminConflictos from "./vistasSuperadmin/superadmin_conflictos";
@@ -229,7 +228,7 @@ function AppRoutes() {
       } />
       <Route path="/superadmin/gestion_sedes" element={
         <ProtectedRoute allowedRoles={[4]} usuario={usuario}>
-          <GestionSedes />
+          <GestionEmpresas />
         </ProtectedRoute>
       } />
       <Route path="/superadmin/agregar_sede" element={

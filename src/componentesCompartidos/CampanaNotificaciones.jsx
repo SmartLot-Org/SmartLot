@@ -2,7 +2,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowRight, Bell, CheckCircle2, Inbox, X, XCircle } from "lucide-react";
 import { useNotificaciones } from "../hooks/useNotificaciones";
-import { useSolicitudesPendientesCount } from "../hooks/useSolicitudesPendientesCount";
 import "./campana_notificaciones.css";
 
 const tiempoRelativo = (valor) => {
@@ -40,7 +39,6 @@ const tipoNotificacion = (tipo) => {
 export default function CampanaNotificaciones({ rutaTratos }) {
   const navigate = useNavigate();
   const { notificaciones, noLeidas, loading, marcarLeida, marcarTodasLeidas, eliminar } = useNotificaciones();
-  const { count: solicitudesPendientes } = useSolicitudesPendientesCount();
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef(null);
   const triggerRef = useRef(null);
@@ -72,8 +70,7 @@ export default function CampanaNotificaciones({ rutaTratos }) {
     navigate(rutaTratos);
   }, [navigate, rutaTratos, marcarLeida]);
 
-  const conteoTotal = noLeidas + solicitudesPendientes;
-  const totalBadge = conteoTotal > 0 ? (conteoTotal > 99 ? "99+" : conteoTotal) : null;
+  const totalBadge = noLeidas > 0 ? (noLeidas > 99 ? "99+" : noLeidas) : null;
 
   return (
     <div className="cn-campana" ref={containerRef}>
@@ -81,7 +78,7 @@ export default function CampanaNotificaciones({ rutaTratos }) {
         ref={triggerRef}
         type="button"
         className="cn-campana-boton"
-        aria-label={conteoTotal > 0 ? `Ver notificaciones, ${conteoTotal} sin leer` : "Ver notificaciones"}
+        aria-label={noLeidas > 0 ? `Ver notificaciones, ${noLeidas} sin leer` : "Ver notificaciones"}
         aria-haspopup="true"
         aria-expanded={isOpen}
         onClick={() => setIsOpen((prev) => !prev)}
@@ -105,21 +102,6 @@ export default function CampanaNotificaciones({ rutaTratos }) {
               </button>
             )}
           </header>
-
-          {solicitudesPendientes > 0 && (
-            <button
-              type="button"
-              className="cn-panel-pendientes"
-              onClick={() => irATratos(null)}
-            >
-              <Inbox size={17} />
-              <span>
-                <strong>{solicitudesPendientes === 1 ? "Tenés 1 solicitud pendiente" : `Tenés ${solicitudesPendientes} solicitudes pendientes`}</strong>
-                <small>Empresas esperando tu decisión</small>
-              </span>
-              <ArrowRight size={16} />
-            </button>
-          )}
 
           <div className="cn-lista">
             {notificaciones.length === 0 ? (

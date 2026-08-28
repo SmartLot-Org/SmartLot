@@ -1,288 +1,132 @@
-import { useEffect, useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Building2, CirclePlus, Pencil, Trash2, X, Check } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { ArrowLeft, Building2, Check, ChevronDown, CirclePlus, MapPin, Pencil, Trash2, X } from "lucide-react";
 import Swal from "sweetalert2";
-import { Z_INDEX } from "../helpers/zIndex";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
-
 import "./gestion_empresas.css";
 import HeaderSuperadmin from "../componentesSuperadmin/header_superadmin";
 import FooterSuperadmin from "../componentesSuperadmin/footer_superadmin";
 import BotonGenerico from "../componentesAdmin/boton_generico";
 import AuditoriaPanel from "../componentesCompartidos/AuditoriaPanel";
-import { EmpresasGetAll, EmpresasGetAuditoria, EmpresasUpdate, EmpresasDelete } from "../servicies/API_Empresa";
+import { Z_INDEX } from "../helpers/zIndex";
+import { EmpresasDelete, EmpresasGetAll, EmpresasGetAuditoria, EmpresasUpdate } from "../servicies/API_Empresa";
+import { SedesDelete, SedesGetAll, SedesUpdate } from "../servicies/API_Sede";
 
 gsap.registerPlugin(useGSAP);
 
-const obtenerListado = (datos) => {
-  if (Array.isArray(datos)) return datos;
-  if (Array.isArray(datos?.datos)) return datos.datos;
-  if (Array.isArray(datos?.data)) return datos.data;
-  return [];
-};
+const obtenerListado = (datos) => Array.isArray(datos) ? datos : Array.isArray(datos?.datos) ? datos.datos : Array.isArray(datos?.data) ? datos.data : [];
+const obtenerActor = (item, tipo) => item?.[`${tipo}ByNombre`]?.trim?.() || item?.[`${tipo}ByEmail`] || "Usuario no disponible";
+const crearAuditoria = (items) => items.flatMap((item) => {
+  const eventos = [];
+  if (item.UpdateAt) eventos.push({ id: `${item.id}-update-${item.UpdateAt}`, accion: "Editada", clase: "update", entidad: item.nombre || `Empresa ${item.id}`, actor: obtenerActor(item, "Update"), fecha: item.UpdateAt });
+  if (item.DeleteAt || item.Borrado === true) eventos.push({ id: `${item.id}-delete-${item.DeleteAt || "deleted"}`, accion: "Borrada", clase: "delete", entidad: item.nombre || `Empresa ${item.id}`, actor: obtenerActor(item, "Delete"), fecha: item.DeleteAt });
+  return eventos;
+}).sort((a, b) => new Date(b.fecha || 0) - new Date(a.fecha || 0));
 
-const SkeletonCard = () => (
-  <div className="empresa-card-skeleton">
-    <div className="skeleton-line skeleton-empresa-icon" />
-    <div className="skeleton-empresa-body">
-      <span className="skeleton-line skeleton-empresa-name" />
-      <span className="skeleton-line skeleton-empresa-desc" />
-    </div>
-  </div>
-);
-
-const obtenerActor = (item, tipo) => {
-  const nombre = item?.[`${tipo}ByNombre`]?.trim?.();
-  const email = item?.[`${tipo}ByEmail`];
-  return nombre || email || "Usuario no disponible";
-};
-
-const crearEventosAuditoriaEmpresa = (items) =>
-  items
-    .flatMap((item) => {
-      const eventos = [];
-      if (item.UpdateAt) {
-        eventos.push({
-          id: `${item.id}-update-${item.UpdateAt}`,
-          accion: "Editada",
-          clase: "update",
-          entidad: item.nombre || `Empresa ${item.id}`,
-          actor: obtenerActor(item, "Update"),
-          fecha: item.UpdateAt,
-        });
-      }
-      if (item.DeleteAt || item.Borrado === true) {
-        eventos.push({
-          id: `${item.id}-delete-${item.DeleteAt || "deleted"}`,
-          accion: "Borrada",
-          clase: "delete",
-          entidad: item.nombre || `Empresa ${item.id}`,
-          actor: obtenerActor(item, "Delete"),
-          fecha: item.DeleteAt,
-        });
-      }
-      return eventos;
-    })
-    .sort((a, b) => new Date(b.fecha || 0) - new Date(a.fecha || 0));
+const SkeletonCard = () => <div className="empresa-card-skeleton"><div className="skeleton-line skeleton-empresa-icon" /><div className="skeleton-empresa-body"><span className="skeleton-line skeleton-empresa-name" /><span className="skeleton-line skeleton-empresa-desc" /></div></div>;
 
 function GestionEmpresas() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [empresas, setEmpresas] = useState([]);
+  const [sedes, setSedes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [auditoria, setAuditoria] = useState([]);
   const [loadingAuditoria, setLoadingAuditoria] = useState(true);
-  const [editingId, setEditingId] = useState(null);
-  const [editNombre, setEditNombre] = useState("");
-  const [editDescripcion, setEditDescripcion] = useState("");
+  const [empresaAbierta, setEmpresaAbierta] = useState(() => Number(location.state?.empresaId) || null);
+  const [editingEmpresaId, setEditingEmpresaId] = useState(null);
+  const [editEmpresa, setEditEmpresa] = useState({ nombre: "", descripcion: "" });
+  const [editingSedeId, setEditingSedeId] = useState(null);
+  const [editSede, setEditSede] = useState({ nombre: "", descripcion: "", ubicacion: "" });
 
   useEffect(() => {
     let mounted = true;
-    const load = async () => {
-      setLoading(true);
-      setLoadingAuditoria(true);
-      const [res, auditRes] = await Promise.all([
-        EmpresasGetAll(),
-        EmpresasGetAuditoria(),
-      ]);
+    Promise.all([EmpresasGetAll(), SedesGetAll(), EmpresasGetAuditoria()]).then(([empresasRes, sedesRes, auditRes]) => {
       if (!mounted) return;
-      if (res.respuesta) {
-        setEmpresas(obtenerListado(res.datos));
-      } else {
-        setError("No se pudieron cargar las empresas.");
-      }
-      if (auditRes.respuesta) {
-        setAuditoria(crearEventosAuditoriaEmpresa(obtenerListado(auditRes.datos)));
-      }
+      if (empresasRes.respuesta) setEmpresas(obtenerListado(empresasRes.datos)); else setError("No se pudieron cargar las empresas.");
+      if (sedesRes.respuesta) setSedes(obtenerListado(sedesRes.datos));
+      if (auditRes.respuesta) setAuditoria(crearAuditoria(obtenerListado(auditRes.datos)));
       setLoading(false);
       setLoadingAuditoria(false);
-    };
-    load();
+    });
     return () => { mounted = false; };
   }, []);
 
+  const sedesPorEmpresa = useMemo(() => {
+    const mapa = new Map();
+    sedes.forEach((sede) => {
+      const id = Number(sede.id_empresa);
+      mapa.set(id, [...(mapa.get(id) || []), sede]);
+    });
+    return mapa;
+  }, [sedes]);
+
+  useGSAP(() => {
+    if (!loading && empresas.length) gsap.fromTo(".empresa-panel", { y: 14, opacity: 0 }, { y: 0, opacity: 1, stagger: 0.05, duration: 0.35, ease: "power2.out" });
+  }, [loading, empresas.length]);
+
   const recargarAuditoria = async () => {
     setLoadingAuditoria(true);
-    const auditRes = await EmpresasGetAuditoria();
-    if (auditRes.respuesta) {
-      setAuditoria(crearEventosAuditoriaEmpresa(obtenerListado(auditRes.datos)));
-    }
+    const res = await EmpresasGetAuditoria();
+    if (res.respuesta) setAuditoria(crearAuditoria(obtenerListado(res.datos)));
     setLoadingAuditoria(false);
   };
 
-  useGSAP(() => {
-    if (!loading && empresas.length > 0) {
-      gsap.fromTo(
-        ".empresa-card",
-        { y: 16, opacity: 0 },
-        { y: 0, opacity: 1, stagger: 0.06, duration: 0.4, ease: "power2.out" }
-      );
-    }
-  }, [loading, empresas]);
-
-  const handleEdit = (emp) => {
-    setEditingId(emp.id);
-    setEditNombre(emp.nombre || "");
-    setEditDescripcion(emp.descripcion || "");
+  const guardarEmpresa = async () => {
+    if (!editEmpresa.nombre.trim()) return Swal.fire("Error", "El nombre es requerido.", "error");
+    const res = await EmpresasUpdate(editingEmpresaId, { nombre: editEmpresa.nombre.trim(), descripcion: editEmpresa.descripcion.trim() });
+    if (!res.respuesta) return Swal.fire("Error", res.datos?.message || "No se pudo actualizar.", "error");
+    setEmpresas((prev) => prev.map((e) => e.id === editingEmpresaId ? { ...e, ...res.datos, nombre: editEmpresa.nombre.trim(), descripcion: editEmpresa.descripcion.trim() } : e));
+    setEditingEmpresaId(null);
+    await recargarAuditoria();
+    Swal.fire({ title: "Actualizada", text: "Empresa actualizada correctamente.", icon: "success", timer: 1200, showConfirmButton: false, zIndex: Z_INDEX.SWAL_DIALOG });
   };
 
-  const handleSaveEdit = async () => {
-    if (!editNombre.trim()) {
-      Swal.fire("Error", "El nombre es requerido.", "error");
-      return;
-    }
-    const res = await EmpresasUpdate(editingId, {
-      nombre: editNombre.trim(),
-      descripcion: editDescripcion.trim(),
-    });
-    if (res.respuesta) {
-      const actualizada = res.datos || {};
-      setEmpresas((prev) =>
-        prev.map((e) => (e.id === editingId ? { ...e, ...actualizada, nombre: editNombre.trim(), descripcion: editDescripcion.trim() } : e))
-      );
-      setEditingId(null);
-      await recargarAuditoria();
-      Swal.fire({ title: "Actualizada", text: "Empresa actualizada correctamente.", icon: "success", timer: 1200, showConfirmButton: false, zIndex: Z_INDEX.SWAL_DIALOG });
-    } else {
-      Swal.fire("Error", res.datos?.message || "No se pudo actualizar.", "error");
-    }
-  };
-
-  const handleDelete = async (id, nombre) => {
-    const result = await Swal.fire({
-      title: "Eliminar empresa?",
-      text: `${nombre} será eliminada del sistema.`,
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#EF4444",
-      cancelButtonColor: "#64748B",
-      confirmButtonText: "Sí, eliminar",
-      cancelButtonText: "Cancelar",
-      reverseButtons: true,
-      zIndex: Z_INDEX.SWAL_DIALOG,
-    });
+  const eliminarEmpresa = async (empresa) => {
+    const result = await Swal.fire({ title: "¿Eliminar empresa?", text: `${empresa.nombre} será eliminada del sistema.`, icon: "warning", showCancelButton: true, confirmButtonColor: "#EF4444", confirmButtonText: "Sí, eliminar", cancelButtonText: "Cancelar", reverseButtons: true, zIndex: Z_INDEX.SWAL_DIALOG });
     if (!result.isConfirmed) return;
-    const res = await EmpresasDelete(id);
-    if (res.respuesta) {
-      setEmpresas((prev) => prev.filter((e) => e.id !== id));
-      await recargarAuditoria();
-      Swal.fire("Eliminada", "Empresa eliminada correctamente.", "success");
-    } else {
-      Swal.fire("Error", "No se pudo eliminar.", "error");
-    }
+    const res = await EmpresasDelete(empresa.id);
+    if (!res.respuesta) return Swal.fire("Error", "No se pudo eliminar.", "error");
+    setEmpresas((prev) => prev.filter((e) => e.id !== empresa.id));
+    await recargarAuditoria();
   };
 
-  return (
-    <div className="gestion-empresas-page">
-      <HeaderSuperadmin />
-      <main className="gestion-empresas-main">
-        <div className="gestion-empresas-top">
-          <button className="boton-back" onClick={() => navigate("/superadmin_dashboard")}>
-            <ArrowLeft size={20} />
-          </button>
-          <div>
-            <p>SUPERADMIN</p>
-            <h1>Gestión de Empresas</h1>
-          </div>
-        </div>
+  const guardarSede = async () => {
+    if (!editSede.nombre.trim()) return Swal.fire("Error", "El nombre es requerido.", "error");
+    const sede = sedes.find((item) => item.id === editingSedeId);
+    const payload = { ...sede, ...editSede, nombre: editSede.nombre.trim(), descripcion: editSede.descripcion.trim(), ubicacion: editSede.ubicacion.trim() };
+    const res = await SedesUpdate(editingSedeId, payload);
+    if (!res.respuesta) return Swal.fire("Error", res.datos?.message || "No se pudo actualizar.", "error");
+    setSedes((prev) => prev.map((item) => item.id === editingSedeId ? payload : item));
+    setEditingSedeId(null);
+    Swal.fire({ title: "Actualizada", text: "Sede actualizada correctamente.", icon: "success", timer: 1200, showConfirmButton: false });
+  };
 
-        {loading ? (
-          <div className="empresas-stats-skeleton">
-            <div className="stats-card-skeleton"><span className="skeleton-line skeleton-stat-label" /><span className="skeleton-line skeleton-stat-valor" /></div>
-          </div>
-        ) : (
-          <div className="empresas-stats">
-            <div className="stats-card-empresa">
-              <div className="stats-header-empresa">
-                <h4>Total empresas</h4>
-                <Building2 size={22} />
-              </div>
-              <h2>{empresas.length}</h2>
-              <p>Registradas en la base de datos</p>
-            </div>
-          </div>
-        )}
+  const eliminarSede = async (sede) => {
+    const result = await Swal.fire({ title: "¿Eliminar sede?", text: `${sede.nombre} será eliminada del sistema.`, icon: "warning", showCancelButton: true, confirmButtonColor: "#EF4444", confirmButtonText: "Sí, eliminar", cancelButtonText: "Cancelar", reverseButtons: true, zIndex: Z_INDEX.SWAL_DIALOG });
+    if (!result.isConfirmed) return;
+    const res = await SedesDelete(sede.id);
+    if (!res.respuesta) return Swal.fire("Error", "No se pudo eliminar.", "error");
+    setSedes((prev) => prev.filter((item) => item.id !== sede.id));
+  };
 
-        <div className="empresas-actions">
-          <BotonGenerico className="btn-nueva-empresa" onClick={() => navigate("/superadmin/agregar_empresa")}>
-            <CirclePlus size={20} />
-            <span>Nueva empresa</span>
-          </BotonGenerico>
-        </div>
-
-        <AuditoriaPanel
-          titulo="Auditoría de empresas"
-          descripcion="Últimas ediciones y borrados registrados."
-          eventos={auditoria}
-          loading={loadingAuditoria}
-          maxItems={8}
-        />
-
-        {loading ? (
-          <div className="empresas-grid">
-            {Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} />)}
-          </div>
-        ) : error ? (
-          <p className="empresas-feedback-error">{error}</p>
-        ) : empresas.length === 0 ? (
-          <p className="empresas-feedback">No hay empresas registradas.</p>
-        ) : (
-          <div className="empresas-grid">
-            {empresas.map((emp) => (
-              <div key={emp.id} className="empresa-card">
-                {editingId === emp.id ? (
-                  <>
-                    <div className="empresa-card-edit">
-                      <input
-                        type="text"
-                        value={editNombre}
-                        onChange={(e) => setEditNombre(e.target.value)}
-                        className="edit-input"
-                        placeholder="Nombre"
-                      />
-                      <textarea
-                        value={editDescripcion}
-                        onChange={(e) => setEditDescripcion(e.target.value)}
-                        className="edit-textarea"
-                        placeholder="Descripción"
-                        rows={2}
-                      />
-                    </div>
-                    <div className="empresa-card-edit-actions">
-                      <button className="edit-btn save" onClick={handleSaveEdit}><Check size={18} /></button>
-                      <button className="edit-btn cancel" onClick={() => setEditingId(null)}><X size={18} /></button>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <div className="empresa-card-header">
-                      <div className="empresa-card-icon">
-                        <Building2 size={22} />
-                      </div>
-                      <div className="empresa-card-info">
-                        <h3>{emp.nombre}</h3>
-                        <p>{emp.descripcion || "Sin descripción"}</p>
-                      </div>
-                    </div>
-                    <div className="empresa-card-actions">
-                      <button className="empresa-action-btn edit" onClick={() => handleEdit(emp)} aria-label="Editar">
-                        <Pencil size={16} />
-                      </button>
-                      <button className="empresa-action-btn delete" onClick={() => handleDelete(emp.id, emp.nombre)} aria-label="Eliminar">
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  </>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-      </main>
-      <FooterSuperadmin />
-    </div>
-  );
+  return <div className="gestion-empresas-page"><HeaderSuperadmin /><main className="gestion-empresas-main">
+    <div className="gestion-empresas-top"><button className="boton-back" onClick={() => navigate("/superadmin_dashboard")} aria-label="Volver"><ArrowLeft size={20} /></button><div><p>SUPERADMIN</p><h1>Empresas y sedes</h1><span className="gestion-subtitulo">Seleccioná una empresa para administrar sus sedes</span></div></div>
+    <section className="empresas-resumen" aria-label="Resumen"><div className="stats-card-empresa"><div className="stats-header-empresa"><h4>Empresas</h4><Building2 size={22} /></div><h2>{loading ? "—" : empresas.length}</h2><p>Registradas</p></div><div className="stats-card-empresa stats-card-sedes"><div className="stats-header-empresa"><h4>Sedes</h4><MapPin size={22} /></div><h2>{loading ? "—" : sedes.length}</h2><p>En todas las empresas</p></div></section>
+    <div className="empresas-actions"><BotonGenerico className="btn-nueva-empresa" onClick={() => navigate("/superadmin/agregar_empresa")}><CirclePlus size={20} /><span>Nueva empresa</span></BotonGenerico></div>
+    <AuditoriaPanel titulo="Auditoría de empresas" descripcion="Últimas ediciones y borrados registrados." eventos={auditoria} loading={loadingAuditoria} maxItems={8} />
+    {loading ? <div className="empresas-grid">{Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} />)}</div> : error ? <p className="empresas-feedback-error">{error}</p> : <div className="empresas-lista">{empresas.map((empresa) => {
+      const abierta = Number(empresaAbierta) === Number(empresa.id);
+      const sedesEmpresa = sedesPorEmpresa.get(Number(empresa.id)) || [];
+      return <article className={`empresa-panel${abierta ? " abierta" : ""}`} key={empresa.id}><div className="empresa-card">
+        {editingEmpresaId === empresa.id ? <><div className="empresa-card-edit"><input value={editEmpresa.nombre} onChange={(e) => setEditEmpresa((p) => ({ ...p, nombre: e.target.value }))} placeholder="Nombre" /><textarea value={editEmpresa.descripcion} onChange={(e) => setEditEmpresa((p) => ({ ...p, descripcion: e.target.value }))} placeholder="Descripción" rows={2} /></div><div className="empresa-card-edit-actions"><button className="edit-btn save" onClick={guardarEmpresa}><Check size={18} /></button><button className="edit-btn cancel" onClick={() => setEditingEmpresaId(null)}><X size={18} /></button></div></> : <><button className="empresa-selector" onClick={() => setEmpresaAbierta(abierta ? null : empresa.id)} aria-expanded={abierta}><span className="empresa-card-icon"><Building2 size={22} /></span><span className="empresa-card-info"><strong>{empresa.nombre}</strong><small>{empresa.descripcion || "Sin descripción"}</small><span className="empresa-sedes-count"><MapPin size={13} /> {sedesEmpresa.length} {sedesEmpresa.length === 1 ? "sede" : "sedes"}</span></span><ChevronDown className="empresa-chevron" size={20} /></button><div className="empresa-card-actions"><button className="empresa-action-btn edit" onClick={() => { setEditingEmpresaId(empresa.id); setEditEmpresa({ nombre: empresa.nombre || "", descripcion: empresa.descripcion || "" }); }} aria-label="Editar empresa"><Pencil size={16} /></button><button className="empresa-action-btn delete" onClick={() => eliminarEmpresa(empresa)} aria-label="Eliminar empresa"><Trash2 size={16} /></button></div></>}
+      </div>{abierta ? <div className="sedes-desplegable"><div className="sedes-desplegable-header"><div><span>SEDES DE LA EMPRESA</span><h3>{empresa.nombre}</h3></div><BotonGenerico className="btn-nueva-sede-inline" onClick={() => navigate("/superadmin/agregar_sede", { state: { empresaId: empresa.id } })}><CirclePlus size={18} /><span>Nueva sede</span></BotonGenerico></div>
+        {sedesEmpresa.length === 0 ? <div className="sedes-vacio"><MapPin size={28} /><p>Esta empresa todavía no tiene sedes.</p></div> : <div className="sedes-inline-grid">{sedesEmpresa.map((sede) => <div className="sede-inline-card" key={sede.id}>{editingSedeId === sede.id ? <><div className="sede-inline-edit"><input value={editSede.nombre} onChange={(e) => setEditSede((p) => ({ ...p, nombre: e.target.value }))} placeholder="Nombre" /><textarea value={editSede.descripcion} onChange={(e) => setEditSede((p) => ({ ...p, descripcion: e.target.value }))} placeholder="Descripción" rows={2} /><input value={editSede.ubicacion} onChange={(e) => setEditSede((p) => ({ ...p, ubicacion: e.target.value }))} placeholder="Ubicación" /></div><div className="sede-inline-actions"><button className="edit-btn save" onClick={guardarSede}><Check size={18} /></button><button className="edit-btn cancel" onClick={() => setEditingSedeId(null)}><X size={18} /></button></div></> : <><span className="sede-inline-icon"><MapPin size={19} /></span><div className="sede-inline-info"><h4>{sede.nombre}</h4><p>{sede.descripcion || "Sin descripción"}</p>{sede.ubicacion ? <small>{sede.ubicacion}</small> : null}</div><div className="sede-inline-actions"><button className="empresa-action-btn edit" onClick={() => { setEditingSedeId(sede.id); setEditSede({ nombre: sede.nombre || "", descripcion: sede.descripcion || "", ubicacion: sede.ubicacion || "" }); }} aria-label="Editar sede"><Pencil size={15} /></button><button className="empresa-action-btn delete" onClick={() => eliminarSede(sede)} aria-label="Eliminar sede"><Trash2 size={15} /></button></div></>}</div>)}</div>}
+      </div> : null}</article>;
+    })}</div>}
+  </main><FooterSuperadmin /></div>;
 }
 
 export default GestionEmpresas;
