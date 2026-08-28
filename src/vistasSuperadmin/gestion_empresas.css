@@ -53,6 +53,40 @@
   margin: 0;
 }
 
+.gestion-subtitulo { color: #64748b; font-size: 13px; }
+.empresas-resumen { display: flex; gap: 14px; margin-bottom: 20px; flex-wrap: wrap; }
+.empresas-resumen .stats-card-empresa { flex: 1; min-width: 190px; }
+.stats-card-sedes .stats-header-empresa svg { color: #10b981; }
+.empresas-lista { display: grid; gap: 14px; }
+.empresa-panel { background: #fff; border: 1px solid transparent; border-radius: 16px; box-shadow: 0 1px 4px rgba(15,23,42,.06); overflow: hidden; }
+.empresa-panel.abierta { border-color: rgba(245,158,11,.35); box-shadow: 0 10px 30px rgba(15,23,42,.08); }
+.empresa-panel .empresa-card { box-shadow: none; border-radius: 0; }
+.empresa-selector { background: none; border: 0; padding: 0; display: flex; align-items: center; gap: 14px; flex: 1; min-width: 0; text-align: left; cursor: pointer; font: inherit; }
+.empresa-card-info { display: flex; flex-direction: column; align-items: flex-start; }
+.empresa-card-info strong { font-size: 16px; color: #0f1a2e; }
+.empresa-card-info small { max-width: min(520px,55vw); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #64748b; }
+.empresa-sedes-count { display: inline-flex; align-items: center; gap: 4px; margin-top: 7px; color: #059669; font-size: 12px; font-weight: 700; }
+.empresa-chevron { margin-left: auto; color: #94a3b8; transition: transform .2s ease; }
+.empresa-panel.abierta .empresa-chevron { transform: rotate(180deg); }
+.sedes-desplegable { padding: 18px 20px 22px; border-top: 1px solid #e2e8f0; background: #f8fafc; }
+.sedes-desplegable-header { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 15px; }
+.sedes-desplegable-header span:first-child { color: #f59e0b; font-size: 10px; font-weight: 800; letter-spacing: 1px; }
+.sedes-desplegable-header h3 { margin: 2px 0 0; color: #0f1a2e; font-size: 18px; }
+.btn-nueva-sede-inline { background: #0f1a2e !important; color: white !important; display: inline-flex !important; align-items: center !important; gap: 7px !important; padding: 9px 14px !important; border-radius: 10px !important; }
+.sedes-inline-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(280px,1fr)); gap: 10px; }
+.sede-inline-card { display: flex; align-items: flex-start; gap: 11px; padding: 14px; min-width: 0; background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; }
+.sede-inline-icon { width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; flex: 0 0 auto; background: rgba(16,185,129,.1); color: #10b981; }
+.sede-inline-info { flex: 1; min-width: 0; }
+.sede-inline-info h4 { margin: 0 0 3px; color: #0f1a2e; font-size: 14px; }
+.sede-inline-info p,.sede-inline-info small { display: block; margin: 0; color: #64748b; font-size: 12px; overflow-wrap: anywhere; }
+.sede-inline-info small { color: #94a3b8; margin-top: 5px; }
+.sede-inline-actions { display: flex; gap: 5px; flex: 0 0 auto; }
+.sede-inline-edit { display: grid; gap: 7px; flex: 1; }
+.sede-inline-edit input,.sede-inline-edit textarea { width: 100%; box-sizing: border-box; padding: 8px 10px; border: 1px solid #e2e8f0; border-radius: 8px; font: inherit; font-size: 13px; }
+.sedes-vacio { display: grid; place-items: center; padding: 26px; color: #94a3b8; border: 1px dashed #cbd5e1; border-radius: 12px; }
+.sedes-vacio p { margin: 7px 0 0; }
+@media (max-width:640px) { .gestion-empresas-main{padding-inline:16px}.empresa-card{align-items:flex-start;padding:15px}.empresa-card-actions{flex-direction:column}.empresa-card-info small{max-width:48vw}.sedes-desplegable{padding:15px}.sedes-desplegable-header{align-items:flex-start;flex-direction:column}.btn-nueva-sede-inline{width:100%!important;justify-content:center!important} }
+
 .empresas-stats {
   margin-bottom: 20px;
 }

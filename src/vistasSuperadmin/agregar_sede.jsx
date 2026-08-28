@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { ArrowLeft, CircleCheck } from "lucide-react";
 import { Autocomplete, useJsApiLoader } from '@react-google-maps/api';
 import "./agregar_sede.css";
@@ -46,9 +46,10 @@ const AgregarSedeSkeleton = () => (
 
 function AgregarSede() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [empresas, setEmpresas] = useState([]);
   const [formData, setFormData] = useState({
-    idEmpresa: "",
+    idEmpresa: location.state?.empresaId ? String(location.state.empresaId) : "",
     nombre: "",
     descripcion: "",
     ubicacion: "",
@@ -126,7 +127,7 @@ function AgregarSede() {
     });
 
     if (response.respuesta) {
-      navigate("/superadmin/gestion_sedes", { replace: true });
+      navigate("/superadmin/gestion_empresas", { replace: true, state: { empresaId: Number(formData.idEmpresa) } });
     } else {
       setLoading(false);
       setError(response.datos?.message || "Error al crear la sede.");
@@ -138,7 +139,7 @@ function AgregarSede() {
       <HeaderSuperadmin />
       <main className="agregar-sede-main">
         <div className="agregar-sede-top">
-          <button className="boton-back" onClick={() => navigate("/superadmin/gestion_sedes")}>
+          <button className="boton-back" onClick={() => navigate("/superadmin/gestion_empresas", { state: { empresaId: Number(formData.idEmpresa) || undefined } })}>
             <ArrowLeft size={20} />
           </button>
           <div>
@@ -230,7 +231,7 @@ function AgregarSede() {
             <BotonGenerico
               style={{ backgroundColor: "grey" }}
               className="btn-cancelar-grande"
-              onClick={() => navigate("/superadmin/gestion_sedes", { replace: true })}
+              onClick={() => navigate("/superadmin/gestion_empresas", { replace: true, state: { empresaId: Number(formData.idEmpresa) || undefined } })}
             >
               <span>Cancelar</span>
             </BotonGenerico>

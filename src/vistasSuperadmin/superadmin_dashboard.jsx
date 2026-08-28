@@ -171,17 +171,9 @@ function SuperadminDashboard() {
               <div className="superadmin-stagger-card">
                 <SuperadminDashboardBoton
                   icono={<Building2 />}
-                  titulo="Gestión de Empresas"
-                  descripcion="Agregar y gestionar empresas"
+                  titulo="Empresas y Sedes"
+                  descripcion="Gestionar empresas y consultar sus sedes"
                   onClick={() => navigate("/superadmin/gestion_empresas")}
-                />
-              </div>
-              <div className="superadmin-stagger-card">
-                <SuperadminDashboardBoton
-                  icono={<MapPin />}
-                  titulo="Gestión de Sedes"
-                  descripcion="Agregar y gestionar sedes"
-                  onClick={() => navigate("/superadmin/gestion_sedes")}
                 />
               </div>
               <div className="superadmin-stagger-card">

@@ -2,7 +2,6 @@ import "./footer_superadmin.css";
 import {
   House,
   Building2,
-  MapPin,
   MessageSquareWarning,
   Users,
 } from "lucide-react";
@@ -23,11 +22,6 @@ const FOOTER_ITEMS = [
     titulo: "EMPRESAS",
     path: "/superadmin/gestion_empresas",
     icono: <Building2 size={28} />,
-  },
-  {
-    titulo: "SEDES",
-    path: "/superadmin/gestion_sedes",
-    icono: <MapPin size={28} />,
   },
   {
     titulo: "USUARIOS",
@@ -73,7 +67,10 @@ function FooterSuperadmin() {
   return (
     <footer
       className={`footer-superadmin${compacto ? " footer-compacto" : ""}`}
-      style={{ "--footer-active-offset": activeOffset }}
+      style={{
+        "--footer-active-offset": activeOffset,
+        "--footer-items": FOOTER_ITEMS.length,
+      }}
       aria-label="Navegacion principal del superadministrador"
     >
       <span className="footer-active-indicator" aria-hidden="true" />
