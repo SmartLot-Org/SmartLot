@@ -35,6 +35,7 @@ import SuperadminReservas from "./vistasSuperadmin/superadmin_reservas";
 import SuperadminCache from "./vistasSuperadmin/superadmin_cache";
 import SuperadminPagosTest from "./vistasSuperadmin/superadmin_pagos_test";
 import SuperadminEmailTemplates from "./vistasSuperadmin/superadmin_email_templates";
+import PaymentStatus from "./pages/PaymentStatus";
 
 // Vistas Landing & Base
 import LandingPage from "./vistasLanding/Landing";
@@ -266,6 +267,11 @@ function AppRoutes() {
           <SuperadminEmailTemplates />
         </ProtectedRoute>
       } />
+
+      {/* Mercado Pago – retorno de Checkout Pro (Opción A). Rutas públicas con verificación interna por payment_id / external_reference */}
+      <Route path="/payment/success" element={<PaymentStatus />} />
+      <Route path="/payment/failure" element={<PaymentStatus />} />
+      <Route path="/payment/pending" element={<PaymentStatus />} />
 
       {/* Catch-all: Fallback seguro */}
       <Route path="*" element={
