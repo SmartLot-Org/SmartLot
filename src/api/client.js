@@ -221,7 +221,19 @@ apiClient.interceptors.response.use(
     }
 
     if (!error.response) {
-      showToast('No se pudo conectar con el servidor. Revisá tu conexión a internet.', 'error');
+      const rawMsg = error.message || '';
+      const isCertError = /self-signed|certificate|UNABLE_TO_GET_ISSUER|ERR_CERT|CERT_HAS_EXPIRED/i.test(rawMsg)
+        || error.code === 'ERR_CERT_AUTHORITY_INVALID'
+        || error.code === 'UNABLE_TO_GET_ISSUER_CERT'
+        || error.code === 'SELF_SIGNED_CERT_IN_CHAIN';
+      if (isCertError) {
+        // Error típico cuando el backend en Render usa un cert self-signed / Cloudflare Origin
+        // o un proxy corporativo intercepta TLS. No es un error del front.
+        console.error('[apiClient] TLS cert error:', rawMsg, error.code);
+        showToast('Error de certificado del servidor (self-signed). Revisá la configuración TLS de api.smartlot.ar en Render/Cloudflare.', 'error');
+      } else {
+        showToast('No se pudo conectar con el servidor. Revisá tu conexión a internet.', 'error');
+      }
       return Promise.reject(error);
     }
 
