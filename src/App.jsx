@@ -58,6 +58,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { useAuth } from "./contexts/useAuth";
 import { setNavigate } from "./api/navigation";
+import ForgotPassword from "./pages/ForgotPassword";
 
 function AppRoutes() {
   const navigate = useNavigate();
@@ -80,6 +81,7 @@ function AppRoutes() {
       <Route path="/logout" element={<Logout />} />
       <Route path="/unauthorized" element={<Unauthorized />} />
       <Route path="/auth/callback" element={<AuthCallback />} />
+      <Route path="/recuperar-clave" element={<ForgotPassword />} />
 
       {/* Rutas protegidas - Empleados */}
       <Route path="/empleados_dashboard" element={

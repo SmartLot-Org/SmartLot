@@ -151,6 +151,10 @@ export default function LoginForm() {
           </label>
         </div>
 
+        <p className="text-right text-sm text-brand-muted mt-1">
+          <a href="/recuperar-clave" className="hover:underline">¿Olvidaste tu contraseña?</a>
+        </p>
+
         <button
           ref={buttonRef}
           type="submit"

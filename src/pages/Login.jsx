@@ -114,6 +114,10 @@ export default function Login() {
             </div>
           )}
 
+          <div className="login-olvido">
+            <Link to="/recuperar-clave">¿Olvidaste tu contraseña?</Link>
+          </div>
+
           <button
             type="submit"
             className="login-boton"

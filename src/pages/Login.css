@@ -240,6 +240,23 @@
   text-decoration: underline;
 }
 
+/* Olvido contraseña */
+.login-olvido {
+  margin: 8px 0 4px;
+  text-align: right;
+  font-size: 12px;
+}
+
+.login-olvido a {
+  color: #2563EB;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.login-olvido a:hover {
+  text-decoration: underline;
+}
+
 /* Responsive */
 
 @media (max-width: 480px) {
@@ -257,4 +274,89 @@
   .login-boton {
     transition: none;
   }
+}
+
+/* Código input styling */
+.login-codigo-input {
+  letter-spacing: 0.5em;
+  text-align: center;
+  font-family: 'Courier New', monospace;
+  font-size: 18px !important;
+  font-weight: 600;
+}
+
+.login-boton--secundario {
+  background: #ffffff;
+  color: #2563EB;
+  border: 1px solid #E2E8F0;
+  box-shadow: none;
+}
+
+.login-boton--secundario:hover:not(:disabled) {
+  background: #F8FAFC;
+  border-color: #CBD5E1;
+  box-shadow: none;
+  filter: none;
+}
+
+.login-separador {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 4px 0;
+  color: #94A3B8;
+  font-size: 13px;
+}
+
+.login-separador::before,
+.login-separador::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: #E2E8F0;
+}
+
+.login-separador span {
+  padding: 0 4px;
+}
+
+.login-link-secundario {
+  background: none;
+  border: none;
+  color: #64748B;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 4px;
+  font-family: inherit;
+}
+
+.login-link-secundario:hover {
+  color: #475569;
+}
+
+/* Success box */
+.login-ok {
+  text-align: center;
+  padding: 8px 0 0;
+}
+
+.login-ok-icon {
+  color: #22C55E;
+  margin-bottom: 16px;
+}
+
+.login-ok-titulo {
+  margin: 0 0 8px;
+  font-size: 20px;
+  font-weight: 800;
+  color: #0F1A2E;
+}
+
+.login-ok-mensaje {
+  margin: 0 0 24px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #64748B;
 }
