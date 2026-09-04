@@ -4,11 +4,10 @@ import Swal from "sweetalert2";
 import { ArrowLeft, Building2, Car, CalendarDays, CheckCircle2, Clock, MapPin, ParkingCircle, WalletCards } from "lucide-react";
 import HeaderEmpleado from "../componentesEmpleado/header_empleado";
 import FormularioReserva from "../componentesEmpleado/form_reserva";
-import { ReservasCreate, ReservasGetAll } from "../servicies/API_Reserva";
+import { ReservasCreate, ReservasQuote } from "../servicies/API_Reserva";
 import { VehiculosGetAll } from "../servicies/API_Vehiculo";
 import { GaragesGetAll } from "../servicies/API_Garage";
-import { UsuariosGetAll, UsuariosGetById } from "../servicies/API_Usuario";
-import { TratosGetByGarage } from "../servicies/API_TratoEmpresaGarage";
+import { UsuariosGetById } from "../servicies/API_Usuario";
 import { useAuth } from "../contexts/useAuth";
 import "./nueva_reserva.css";
 import FooterEmpleado from "../componentesEmpleado/footer_empleado";
@@ -23,24 +22,6 @@ const disponibilidadInicial = {
 };
 
 const obtenerDisponibilidadInicial = () => disponibilidadInicial;
-
-const obtenerIdUsuarioReserva = (reserva) =>
-  reserva?.id_usuario ?? reserva?.idUsuario ?? reserva?.usuario_id ?? reserva?.usuarioId ?? reserva?.usuario?.id;
-
-const obtenerFechaReserva = (reserva, tipo) => obtenerCampo(reserva, tipo === "entrada"
-  ? ["fecha_entrada", "fechaEntrada", "fecha_inicio", "fechaInicio"]
-  : ["fecha_salida", "fechaSalida", "fecha_finalizacion", "fechaFinalizacion", "fecha_fin", "fechaFin"]);
-
-const estaCancelada = (reserva) => [reserva?.borrado, reserva?.Borrado, reserva?.cancelada, reserva?.anulada]
-  .some((valor) => valor === true || valor === 1 || String(valor).toLowerCase() === "true");
-
-const seSuperpone = (reserva, inicioSolicitado, finSolicitado) => {
-  if (estaCancelada(reserva)) return false;
-  const inicio = new Date(String(obtenerFechaReserva(reserva, "entrada")).replace(" ", "T"));
-  const fin = new Date(String(obtenerFechaReserva(reserva, "salida")).replace(" ", "T"));
-  if (Number.isNaN(inicio.getTime()) || Number.isNaN(fin.getTime())) return false;
-  return inicio < finSolicitado && fin > inicioSolicitado;
-};
 
 const formatearPrecio = (precio) => new Intl.NumberFormat("es-AR", {
   style: "currency",
@@ -179,6 +160,7 @@ const NuevaReserva = () => {
   const formularioRef = useRef(null);
   const resultadoRef = useRef(null);
   const disponibilidadTimerRef = useRef(null);
+  const reservaSolicitudRef = useRef(0);
 
   useEffect(() => () => window.clearTimeout(disponibilidadTimerRef.current), []);
 
@@ -246,7 +228,9 @@ const NuevaReserva = () => {
     };
   }, [usuario]);
 
-  const crearReservaCorporativa = async (datosFormulario) => {
+  const crearReservaCorporativa = async (datosFormulario, solicitudId = reservaSolicitudRef.current) => {
+    if (solicitudId !== reservaSolicitudRef.current) return;
+
     setLoading(true);
     setMensaje({ tipo: "", texto: "" });
 
@@ -271,18 +255,21 @@ const NuevaReserva = () => {
 
     if (!idUsuario) {
       setLoading(false);
+      setConsultandoDisponibilidad(false);
       setMensaje({ tipo: "error", texto: "No se pudo identificar tu usuario para crear la reserva." });
       return;
     }
 
     if (!idGarage) {
       setLoading(false);
+      setConsultandoDisponibilidad(false);
       setMensaje({ tipo: "error", texto: "No se pudo identificar el garage para crear la reserva." });
       return;
     }
 
     if (!garageSeleccionado) {
       setLoading(false);
+      setConsultandoDisponibilidad(false);
       setMensaje({ tipo: "error", texto: "El garage seleccionado no fue encontrado o no pertenece a tu sede." });
       return;
     }
@@ -301,11 +288,13 @@ const NuevaReserva = () => {
 
       if (!resultado.respuesta) {
         setLoading(false);
+        setConsultandoDisponibilidad(false);
         setMensaje({ tipo: "error", texto: mensajeAmigable(resultado.datos, nombreGarage) });
         return;
       }
 
       setLoading(false);
+      setConsultandoDisponibilidad(false);
 
       Swal.fire({
         icon: "success",
@@ -318,6 +307,7 @@ const NuevaReserva = () => {
       });
     } catch {
       setLoading(false);
+      setConsultandoDisponibilidad(false);
       setMensaje({
         tipo: "error",
         texto: "Hubo un error al procesar la reserva. Intentalo de nuevo.",
@@ -326,61 +316,51 @@ const NuevaReserva = () => {
   };
 
   const handleReservationSubmit = async (datosFormulario) => {
+    const solicitudId = ++reservaSolicitudRef.current;
     window.clearTimeout(disponibilidadTimerRef.current);
     setConsultandoDisponibilidad(true);
     setMensaje({ tipo: "", texto: "" });
     setDisponibilidad(null);
 
     disponibilidadTimerRef.current = window.setTimeout(async () => {
-      setReservaPendiente({
+      const reservaBase = {
         ...datosFormulario,
         ...datosFormulario._metaData,
         fechaFormateada: formatearFecha(datosFormulario._metaData?.fecha),
-      });
-      const garageSeleccionado = garages.find(
-        (garage) => Number(obtenerIdGarage(garage)) === Number(datosFormulario.idGarage)
-      );
+      };
+      setReservaPendiente(reservaBase);
       const idGarage = Number(datosFormulario.idGarage);
-      const idUsuarioSesion = obtenerNumeroValido(obtenerIdUsuario(usuario));
-      const [reservasRes, usuariosRes, tratosRes, perfilRes] = await Promise.all([
-        ReservasGetAll({ force: true }),
-        UsuariosGetAll({ force: true }),
-        TratosGetByGarage(idGarage, { force: true }),
-        idUsuarioSesion ? UsuariosGetById(idUsuarioSesion, { force: true }) : Promise.resolve({ respuesta: false }),
-      ]);
+      const quoteRes = await ReservasQuote({
+        id_garage: idGarage,
+        id_vehiculo: datosFormulario.id_vehiculo ?? datosFormulario.idVehiculo,
+        fecha_entrada: datosFormulario.fecha_entrada,
+        fecha_salida: datosFormulario.fecha_salida,
+        dia: datosFormulario.dia,
+      });
 
-      if (!reservasRes.respuesta || !usuariosRes.respuesta || !tratosRes.respuesta) {
+      if (solicitudId !== reservaSolicitudRef.current) return;
+
+      if (!quoteRes.respuesta) {
         setConsultandoDisponibilidad(false);
-        setMensaje({ tipo: "error", texto: "No se pudo verificar la disponibilidad en este momento." });
+        setMensaje({ tipo: "error", texto: quoteRes.datos?.message || "No se pudo verificar la disponibilidad en este momento." });
+        return;
+      }
+      const quote = quoteRes.datos;
+
+      // El cupo corporativo no requiere una segunda confirmacion: la reserva
+      // se crea al completar el primer envio del formulario.
+      if (quote.tipoCupo === "dentro_cupo") {
+        disponibilidadTimerRef.current = null;
+        await crearReservaCorporativa(reservaBase, solicitudId);
         return;
       }
 
-      const perfil = perfilRes.respuesta ? obtenerObjeto(perfilRes.datos) : usuario;
-      const idSede = Number(obtenerIdSedeUsuario(perfil) ?? obtenerIdSedeUsuario(usuario));
-      const usuarios = obtenerListado(usuariosRes.datos);
-      const sedesPorUsuario = new Map(usuarios.map((item) => [Number(obtenerIdUsuario(item)), Number(obtenerIdSedeUsuario(item))]));
-      const inicio = new Date(datosFormulario.fecha_entrada.replace(" ", "T"));
-      const fin = new Date(datosFormulario.fecha_salida.replace(" ", "T"));
-      const reservasSuperpuestas = obtenerListado(reservasRes.datos).filter((reserva) =>
-        Number(obtenerIdGarage(reserva)) === idGarage && seSuperpone(reserva, inicio, fin)
-      );
-      const reservasCorporativas = reservasSuperpuestas.filter((reserva) => {
-        const sedeReserva = Number(obtenerIdSedeUsuario(reserva) ?? sedesPorUsuario.get(Number(obtenerIdUsuarioReserva(reserva))));
-        return sedeReserva === idSede;
-      }).length;
-      const trato = obtenerListado(tratosRes.datos).find((item) =>
-        Number(item.id_sede ?? item.idSede ?? item.sede_id) === idSede && Number(item.id_garage ?? item.idGarage ?? item.garage_id) === idGarage
-      );
-      const cuposCorporativos = Number(trato?.cantidad_cocheras ?? 0);
-      const capacidadTotal = Number(garageSeleccionado?.capacidad ?? 0);
-      const lugaresPagos = Math.max(capacidadTotal - reservasSuperpuestas.length, 0);
-      const hayCupoCorporativo = reservasCorporativas < cuposCorporativos;
-
       setDisponibilidad({
-        hay_cupo_corporativo: hayCupoCorporativo,
-        hay_cupo_pago: !hayCupoCorporativo && lugaresPagos > 0,
-        lugares_pagos_disponibles: lugaresPagos,
-        precio: Number(garageSeleccionado?.precio_auto ?? garageSeleccionado?.precio ?? 0),
+        hay_cupo_corporativo: quote.tipoCupo === "dentro_cupo",
+        hay_cupo_pago: quote.requierePago,
+        lugares_pagos_disponibles: quote.requierePago ? 1 : 0,
+        precio: Number(quote.importe),
+        ...quote,
       });
       setConsultandoDisponibilidad(false);
       disponibilidadTimerRef.current = null;
@@ -388,6 +368,7 @@ const NuevaReserva = () => {
   };
 
   const limpiarResultado = () => {
+    reservaSolicitudRef.current += 1;
     window.clearTimeout(disponibilidadTimerRef.current);
     disponibilidadTimerRef.current = null;
     setConsultandoDisponibilidad(false);
@@ -472,7 +453,7 @@ const NuevaReserva = () => {
                   <div className="disponibilidad-card__heading"><span>Cupo corporativo disponible</span><h2>Tu empresa cubre esta reserva</h2><p>Podés continuar con el flujo habitual sin ningún cargo.</p></div>
                   {detalleReserva}
                   <div className="disponibilidad-total"><span>Total</span><strong>$0</strong></div>
-                  <button className="disponibilidad-button disponibilidad-button--primary" type="button" disabled={loading} onClick={() => crearReservaCorporativa(reservaPendiente)}>{loading ? "Procesando..." : "Crear reserva"}</button>
+                  <p className="disponibilidad-auto-confirmada" role="status">La reserva se crea automáticamente al confirmar el formulario.</p>
                 </>
               ) : disponibilidad.hay_cupo_pago ? (
                 <>

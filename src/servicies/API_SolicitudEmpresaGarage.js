@@ -44,3 +44,5 @@ const transition = async (id, action) => {
 
 export const SolicitudesAceptar = (id) => transition(id, 'aceptar');
 export const SolicitudesRechazar = (id) => transition(id, 'rechazar');
+export const SolicitudesAutorizarModificacion = (id) => transition(id, 'autorizar-modificacion');
+export const SolicitudesRechazarModificacion = (id) => transition(id, 'rechazar-modificacion');

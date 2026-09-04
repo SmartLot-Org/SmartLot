@@ -112,6 +112,7 @@
 .disponibilidad-places { display:flex; align-items:center; gap:8px; margin-bottom:12px; padding:11px 12px; border-radius:12px; background:#eff6ff; color:#1e40af; font-size:13px; }
 .disponibilidad-total { display:flex; align-items:center; justify-content:space-between; margin:14px 0 18px; color:#334155; font-size:14px; }
 .disponibilidad-total strong { color:#0f172a; font-size:23px; letter-spacing:-.03em; }
+.disponibilidad-auto-confirmada { margin:0; padding:12px 14px; border-radius:12px; background:#ecfdf5; color:#047857; font-size:13px; font-weight:700; line-height:1.45; }
 .disponibilidad-actions { display:flex; flex-direction:column; gap:10px; }
 .disponibilidad-button { width:100%; min-height:49px; padding:13px 16px; border-radius:14px; font:inherit; font-size:14px; font-weight:700; cursor:pointer; transition:transform .15s ease,box-shadow .2s ease; }
 .disponibilidad-button--primary { border:0; background:#1d63ed; color:#fff; box-shadow:0 10px 20px -4px rgba(29,99,237,.35); }

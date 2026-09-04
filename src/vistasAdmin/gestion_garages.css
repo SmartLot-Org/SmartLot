@@ -211,6 +211,8 @@
 .trato-card--pending { border-left: 3px solid #f59e0b; }
 .trato-location { display: flex; align-items: flex-start; gap: 6px; }
 .trato-location svg { flex: 0 0 auto; margin-top: 2px; }
+.trato-owner { display: flex; align-items: center; gap: 6px; margin: 4px 0; font-size: 13px; color: #475569; }
+.trato-owner svg { flex: 0 0 auto; color: #2563eb; }
 .trato-request-capacity { display: flex; align-items: center; gap: 8px; margin: 12px 0; padding: 12px; border-radius: 10px; color: var(--garage-primary); background: #f8fafc; }
 .trato-request-capacity strong { color: var(--garage-text); font-size: 20px; font-variant-numeric: tabular-nums; }
 .trato-request-capacity span { color: var(--garage-muted); font-size: 12px; }
