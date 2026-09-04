@@ -3,7 +3,7 @@ import Swal from "sweetalert2";
 import { Building2, CarFront, Check, Handshake, Inbox, ParkingCircle, RefreshCw, Truck, Warehouse, X } from "lucide-react";
 import { GaragesGetAll } from "../servicies/API_Garage";
 import { TratosGetAll } from "../servicies/API_TratoEmpresaGarage";
-import { SolicitudesAceptar, SolicitudesGetRecibidas, SolicitudesRechazar } from "../servicies/API_SolicitudEmpresaGarage";
+import { SolicitudesAceptar, SolicitudesGetRecibidas, SolicitudesRechazar, SolicitudesAutorizarModificacion, SolicitudesRechazarModificacion } from "../servicies/API_SolicitudEmpresaGarage";
 import { formatARS } from "../helpers/prices";
 import { normalizeList } from "../helpers/tratos";
 import { notifySolicitudesChanged } from "../hooks/useSolicitudesPendientesCount";
@@ -47,7 +47,8 @@ export default function GestionTratosGarage() {
     return () => cancelAnimationFrame(frame);
   }, [load]);
 
-  const pendientes = useMemo(() => solicitudes.filter((solicitud) => solicitud.estado === "pendiente"), [solicitudes]);
+  const pendientes = useMemo(() => solicitudes.filter((solicitud) => solicitud.estado === "pendiente" && solicitud.tipo_solicitud !== "modificacion"), [solicitudes]);
+  const pendientesModificacion = useMemo(() => solicitudes.filter((solicitud) => solicitud.estado === "pendiente" && solicitud.tipo_solicitud === "modificacion"), [solicitudes]);
   const cocherasComprometidas = useMemo(() => tratos.reduce((total, trato) => total + Number(trato.cantidad_cocheras || 0), 0), [tratos]);
 
   const resolve = async (solicitud, action) => {
@@ -76,11 +77,41 @@ export default function GestionTratosGarage() {
     await Swal.fire(accepting ? "Trato aceptado" : "Solicitud rechazada", accepting ? "El acuerdo fue creado correctamente." : "La solicitud fue rechazada.", "success");
   };
 
+  const resolveModificacion = async (solicitud, action) => {
+    const autorizando = action === "autorizar";
+    const tratoActual = solicitud.cantidad_actual_trato || "?";
+    const confirm = await Swal.fire({
+      title: autorizando ? "¿Autorizar cambio?" : "¿Rechazar cambio?",
+      text: autorizando
+        ? `Vas a autorizar el cambio de cocheras del trato con ${nombreEmpresa(solicitud)}: de ${tratoActual} a ${solicitud.cantidad_cocheras} cocheras en ${nombreGarage(solicitud)}.`
+        : `El cambio de cocheras solicitado por ${nombreEmpresa(solicitud)} será rechazado.`,
+      icon: autorizando ? "question" : "warning",
+      showCancelButton: true,
+      confirmButtonText: autorizando ? "Sí, autorizar" : "Sí, rechazar",
+      cancelButtonText: "Volver",
+      confirmButtonColor: autorizando ? "#16a34a" : "#dc2626",
+    });
+    if (!confirm.isConfirmed) return;
+    setResolviendo(solicitud.id);
+    const response = autorizando
+      ? await SolicitudesAutorizarModificacion(solicitud.id)
+      : await SolicitudesRechazarModificacion(solicitud.id);
+    setResolviendo(null);
+    if (!response.respuesta) {
+      await Swal.fire("No se pudo completar", response.datos?.message || "Ocurrió un error.", "error");
+      return;
+    }
+    await load();
+    notifySolicitudesChanged();
+    await Swal.fire(autorizando ? "Cambio autorizado" : "Cambio rechazado", autorizando ? "Las cocheras del trato fueron actualizadas." : "El cambio fue rechazado.", "success");
+  };
+
   if (loading) return <SkeletonTratos />;
   if (error) return <div className="deal-state deal-state--error" role="alert"><X size={24}/><div><strong>No pudimos cargar esta sección</strong><p>{error}</p></div><button type="button" onClick={load}>Reintentar</button></div>;
 
   const resumen = [
     { label: "Solicitudes pendientes", valor: pendientes.length, icono: Inbox, tono: "amber" },
+    { label: "Cambios pendientes", valor: pendientesModificacion.length, icono: RefreshCw, tono: "blue" },
     { label: "Tratos vigentes", valor: tratos.length, icono: Handshake, tono: "blue" },
     { label: "Cocheras comprometidas", valor: cocherasComprometidas, icono: ParkingCircle, tono: "green" },
     { label: "Garages administrados", valor: garages.length, icono: Warehouse, tono: "slate" },
@@ -108,6 +139,17 @@ export default function GestionTratosGarage() {
         <div className="deal-request-actions"><button type="button" disabled={resolviendo === solicitud.id} onClick={() => resolve(solicitud, "aceptar")}><Check size={17}/>{resolviendo === solicitud.id ? "Procesando…" : "Aceptar trato"}</button><button type="button" disabled={resolviendo === solicitud.id} className="danger" onClick={() => resolve(solicitud, "rechazar")}><X size={17}/>Rechazar</button></div>
       </article>)}</div>}
     </section>
+
+    {pendientesModificacion.length > 0 && <section className="deal-panel" aria-labelledby="modificaciones-title">
+      <header className="deal-section-title"><div><span className="deal-section-icon"><RefreshCw size={19}/></span><div><h3 id="modificaciones-title">Solicitudes de cambio de cocheras</h3><p>Cambios en la cantidad de cocheras que las empresas solicitan en tus garages.</p></div></div><span>{pendientesModificacion.length} pendientes</span></header>
+      <div className="deal-request-grid">{pendientesModificacion.map((solicitud) => <article className="deal-request-card deal-request-card--modificacion" key={solicitud.id}>
+        <header className="deal-request-card__top"><span><Building2 size={16}/>{nombreEmpresa(solicitud)}</span><small className="deal-badge--modificacion">Modificación</small></header>
+        <div className="deal-request-garage"><ParkingCircle size={18}/><div><span>Garage</span><strong>{nombreGarage(solicitud)}</strong><small>{nombreSede(solicitud)}{solicitud.sede_ubicacion ? ` · ${solicitud.sede_ubicacion}` : ""}</small></div></div>
+        <div className="deal-request-amount"><div className="deal-modificacion-cambio"><strong>{solicitud.cantidad_actual_trato || "?"}</strong><span>→</span><strong>{solicitud.cantidad_cocheras}</strong></div><span>cocheras propuestas</span></div>
+        {solicitud.descripcion ? <p>{solicitud.descripcion}</p> : null}
+        <div className="deal-request-actions"><button type="button" disabled={resolviendo === solicitud.id} onClick={() => resolveModificacion(solicitud, "autorizar")}><Check size={17}/>{resolviendo === solicitud.id ? "Procesando…" : "Autorizar cambio"}</button><button type="button" disabled={resolviendo === solicitud.id} className="danger" onClick={() => resolveModificacion(solicitud, "rechazar")}><X size={17}/>Rechazar</button></div>
+      </article>)}</div>
+    </section>}
 
     <section className="deal-panel" aria-labelledby="vigentes-title">
       <header className="deal-section-title"><div><span className="deal-section-icon"><Handshake size={19}/></span><div><h3 id="vigentes-title">Tratos vigentes</h3><p>Empresas con acuerdos activos en tus garages.</p></div></div><span>{tratos.length} activos</span></header>

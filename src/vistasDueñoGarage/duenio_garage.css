@@ -747,3 +747,8 @@
   .deal-summary{grid-template-columns:1fr}.deal-summary article{min-height:80px}.deal-panel{padding:.85rem}.deal-section-title{align-items:flex-start}.deal-section-title>span{white-space:nowrap}.deal-request-grid{grid-template-columns:1fr}.deal-request-actions{display:grid;grid-template-columns:1fr}.deal-active-cards{grid-template-columns:1fr}
 }
 .deal-request-garage small { color:#64748b;font-size:.72rem;line-height:1.35 }
+
+.deal-request-card--modificacion { border-left:3px solid #2563eb }
+.deal-badge--modificacion { background:#dbeafe !important;color:#1e40af !important }
+.deal-modificacion-cambio { display:flex;align-items:center;gap:.5rem;font-size:1.1rem }
+.deal-modificacion-cambio span { color:#94a3b8;font-weight:700 }

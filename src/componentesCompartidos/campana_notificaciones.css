@@ -286,6 +286,34 @@
   background: #156fe5;
 }
 
+.cn-item-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 7px;
+  flex-wrap: wrap;
+}
+
+.cn-item-cta--success {
+  background: #16a34a;
+}
+
+.cn-item-cta--success:hover {
+  background: #15803d;
+}
+
+.cn-item-cta--danger {
+  background: #dc2626;
+}
+
+.cn-item-cta--danger:hover {
+  background: #b91c1c;
+}
+
+.cn-item-cta:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .cn-item-eliminar {
   position: absolute;
   top: 8px;

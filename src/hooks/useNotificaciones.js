@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { NotificacionesGetAll, NotificacionesGetNoLeidas, NotificacionesMarcarLeida, NotificacionesMarcarTodasLeidas, NotificacionesEliminar } from "../servicies/API_Notificacion";
+import { SolicitudesAutorizarModificacion, SolicitudesRechazarModificacion } from "../servicies/API_SolicitudEmpresaGarage";
 import { normalizeList } from "../helpers/tratos";
 
 const POLL_INTERVAL_MS = 30 * 1000;
@@ -95,6 +96,30 @@ export function useNotificaciones() {
     return response;
   }, [notificaciones]);
 
+  const autorizarModificacion = useCallback(async (solicitudId, notificacionId) => {
+    const response = await SolicitudesAutorizarModificacion(solicitudId);
+    if (response.respuesta) {
+      if (notificacionId) {
+        setNotificaciones((prev) => prev.filter((item) => item.id !== notificacionId));
+        setNoLeidas((prev) => Math.max(0, prev - 1));
+      }
+      notifyNotificacionesChanged();
+    }
+    return response;
+  }, []);
+
+  const rechazarModificacion = useCallback(async (solicitudId, notificacionId) => {
+    const response = await SolicitudesRechazarModificacion(solicitudId);
+    if (response.respuesta) {
+      if (notificacionId) {
+        setNotificaciones((prev) => prev.filter((item) => item.id !== notificacionId));
+        setNoLeidas((prev) => Math.max(0, prev - 1));
+      }
+      notifyNotificacionesChanged();
+    }
+    return response;
+  }, []);
+
   return {
     notificaciones,
     noLeidas,
@@ -104,5 +129,7 @@ export function useNotificaciones() {
     marcarLeida,
     marcarTodasLeidas,
     eliminar,
+    autorizarModificacion,
+    rechazarModificacion,
   };
 }
