@@ -7,7 +7,7 @@ const logApiError = (error) => {
     }
 };
 
-const PagosCrearPreferencia = async (items, orderId, backUrls) => {
+const PagosCrearPreferencia = async (items, orderId, backUrls, extra = {}) => {
 
     let returnObject = { respuesta: false, datos: null };
 
@@ -17,6 +17,16 @@ const PagosCrearPreferencia = async (items, orderId, backUrls) => {
 
         if (backUrls) {
             body.backUrls = backUrls;
+        }
+        // Soporte para pagos de admin: consumosIds, metadata, periodo, idGarage, idSede
+        if (extra && typeof extra === 'object' && Object.keys(extra).length) {
+            if (extra.metadata) body.metadata = extra.metadata;
+            if (extra.consumosIds) body.consumosIds = extra.consumosIds;
+            if (extra.periodo) body.periodo = extra.periodo;
+            if (extra.idGarage) body.idGarage = extra.idGarage;
+            if (extra.idSede) body.idSede = extra.idSede;
+            // compat: si viene directamente consumos_ids
+            if (extra.consumos_ids) body.consumosIds = extra.consumos_ids;
         }
 
         const response = await apiClient.post('/api/payments/preference', body);
