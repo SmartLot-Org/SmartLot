@@ -61,8 +61,22 @@ const ReservasGetControlAcceso = async (idGarage, fecha, { force = false } = {})
         );
     } catch (error) {
         logApiError(error);
-        returnObject.datos = error.response?.data || { message: error.message };
-        return returnObject;
+
+        // Algunos despliegues todavia no habilitan control-acceso para el rol
+        // garagista. La ruta general sigue protegida por sesion y se solicita
+        // acotada al mismo garage y fecha; la vista vuelve a validar ambos.
+        try {
+            const response = await apiClient.get('/api/reserva', {
+                params: { id_garage: idGarage, fecha },
+            });
+            return { respuesta: true, datos: response.data, origen: 'fallback' };
+        } catch (fallbackError) {
+            logApiError(fallbackError);
+            returnObject.datos = fallbackError.response?.data
+                || error.response?.data
+                || { message: fallbackError.message || error.message };
+            return returnObject;
+        }
     }
 };
 

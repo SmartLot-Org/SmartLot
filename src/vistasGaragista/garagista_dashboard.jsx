@@ -14,12 +14,19 @@ import {
 } from "lucide-react";
 import { GaragesGetAll, GaragesGetById } from "../servicies/API_Garage";
 import { ReservasCheckIn, ReservasCheckOut, ReservasGetControlAcceso } from "../servicies/API_Reserva";
+import { UsuariosGetById } from "../servicies/API_Usuario";
 import ModalPortal from "../componentesCompartidos/ModalPortal";
 import HeaderAdmin from "../componentesAdmin/header_admin";
 import FooterAdmin from "../componentesAdmin/footer_admin";
 import { useAuth } from "../contexts/useAuth";
 import { showToast } from "../helpers/toast";
 import { normalizarPatente } from "../helpers/patente";
+import { getUsuarioGarageIds } from "../helpers/usuarios";
+import {
+  aplanarReservaControlAcceso,
+  obtenerReservasControlAcceso,
+  reservaPerteneceAlGarage,
+} from "../helpers/controlAcceso";
 import "./garagista_dashboard.css";
 
 const MENSAJE_INGRESO_ANTICIPADO =
@@ -86,6 +93,8 @@ const obtenerFechaReserva = (reserva) => {
   const candidatos = [
     reserva.fecha_entrada,
     reserva.fechaEntrada,
+    reserva.fecha_inicio,
+    reserva.fechaInicio,
     reserva.fecha,
     reserva.fecha_reserva,
     reserva.fechaReserva,
@@ -100,9 +109,6 @@ const obtenerFechaReserva = (reserva) => {
 
 const obtenerIdGarage = (garage) =>
   garage?.id_garage ?? garage?.idGarage ?? garage?.garage_id ?? garage?.id ?? garage?._id;
-
-const obtenerIdGarageUsuario = (user) =>
-  user?.id_garage ?? user?.idGarage ?? user?.garage_id ?? user?.garageId;
 
 const obtenerIdReserva = (reserva) =>
   reserva?.id_reserva ?? reserva?.id ?? reserva?._id;
@@ -419,6 +425,8 @@ export default function GaragistaDashboard() {
   const [garageData, setGarageData] = useState(null);
   const [garagesDisponibles, setGaragesDisponibles] = useState([]);
   const [garageSeleccionadoId, setGarageSeleccionadoId] = useState(null);
+  const [garageGaragistaId, setGarageGaragistaId] = useState(null);
+  const [asignacionConsultada, setAsignacionConsultada] = useState(false);
   const [cargandoGaragesAdmin, setCargandoGaragesAdmin] = useState(true);
   const [cargando, setCargando] = useState(true);
   const [errorCarga, setErrorCarga] = useState("");
@@ -432,18 +440,27 @@ export default function GaragistaDashboard() {
   const [guardandoAccion, setGuardandoAccion] = useState(false);
 
   const esAdmin = Number(usuario?.id_rol) === 1;
+  const idUsuarioSesion = Number(usuario?.id ?? usuario?.id_usuario ?? usuario?._id) || null;
+  const idGarageSesion = useMemo(() => {
+    const idNormalizado = getUsuarioGarageIds(usuario)[0];
+    if (idNormalizado) return idNormalizado;
+    const idAlternativo = Number(usuario?.idGarage ?? usuario?.garage_id ?? usuario?.garageId);
+    return Number.isInteger(idAlternativo) && idAlternativo > 0 ? idAlternativo : null;
+  }, [usuario]);
   const [fechaISOActual, setFechaISOActual] = useState(obtenerFechaISOActual);
   const fechaActual = obtenerFechaActual();
   const idGarageAsignado = useMemo(
-    () => esAdmin ? garageSeleccionadoId : Number(obtenerIdGarageUsuario(usuario)) || null,
-    [esAdmin, garageSeleccionadoId, usuario]
+    () => esAdmin ? garageSeleccionadoId : garageGaragistaId ?? idGarageSesion,
+    [esAdmin, garageGaragistaId, garageSeleccionadoId, idGarageSesion]
   );
   const terminoBusqueda = busqueda.trim().toLowerCase();
   const capacidadTotal = useMemo(() => {
     if (!garageData) return 0;
     return Number(garageData.capacidad_reservas || 0) + Number(garageData.capacidad_para_no_reservas || 0);
   }, [garageData]);
-  const cargandoVista = idGarageAsignado ? cargando : esAdmin && cargandoGaragesAdmin;
+  const cargandoVista = idGarageAsignado
+    ? cargando
+    : esAdmin ? cargandoGaragesAdmin : Boolean(idUsuarioSesion) && !asignacionConsultada;
   const errorVista = idGarageAsignado
     ? errorCarga
     : esAdmin
@@ -462,6 +479,35 @@ export default function GaragistaDashboard() {
       document.removeEventListener("visibilitychange", actualizarFecha);
     };
   }, []);
+
+  useEffect(() => {
+    if (esAdmin) return;
+
+    let cancelado = false;
+    if (!idUsuarioSesion) return;
+
+    UsuariosGetById(idUsuarioSesion, { force: true })
+      .then((respuesta) => {
+        if (cancelado || !respuesta.respuesta) return;
+
+        const payload = respuesta.datos;
+        const candidatos = [
+          ...(Array.isArray(payload) ? payload : []),
+          payload,
+          payload?.usuario,
+          payload?.data,
+          payload?.datos,
+        ].filter((item) => item && typeof item === "object" && !Array.isArray(item));
+        const ids = candidatos.flatMap(getUsuarioGarageIds);
+        const idActual = ids[0] ?? idGarageSesion;
+        setGarageGaragistaId(Number(idActual) || null);
+      })
+      .finally(() => {
+        if (!cancelado) setAsignacionConsultada(true);
+      });
+
+    return () => { cancelado = true; };
+  }, [esAdmin, idGarageSesion, idUsuarioSesion]);
 
   useEffect(() => {
     if (!esAdmin) return;
@@ -524,20 +570,29 @@ export default function GaragistaDashboard() {
 
         setGarageData(garage);
 
-        const todasReservas = obtenerListado(reservasResp.datos);
+        if (!reservasResp.respuesta) {
+          throw new Error(
+            reservasResp.datos?.message || "No se pudieron obtener las reservas del garage."
+          );
+        }
+
+        const todasReservas = obtenerReservasControlAcceso(reservasResp.datos)
+          .map(aplanarReservaControlAcceso);
 
         const reservasDelGarage = todasReservas
           .filter((r) => {
             if (esValorVerdadero(r.borrado)) return false;
-            const idGarageReserva = Number(
-              r.id_garage ?? r.idGarage ?? r.garage_id ?? r.garageId
-            );
-            return idGarageReserva === idGarageAsignado;
+            return reservaPerteneceAlGarage(r, idGarageAsignado);
           })
           .map((r) => {
             const estadoBase = normalizarEstadoReserva(r);
             const fechaReserva = obtenerFechaReserva(r);
-            const horaSalidaPrevista = extraerHora(r.hora_salida) ?? extraerHora(r.fecha_salida) ?? "--:--";
+            const horaSalidaPrevista = extraerHora(r.hora_salida)
+              ?? extraerHora(r.horaFin)
+              ?? extraerHora(r.fecha_salida)
+              ?? extraerHora(r.fecha_fin)
+              ?? extraerHora(r.fechaFinalizacion)
+              ?? "--:--";
             const estado = estaReservaPendienteVencida({
               estado: estadoBase,
               fechaReserva,
@@ -546,12 +601,19 @@ export default function GaragistaDashboard() {
 
             return {
               id: obtenerIdReserva(r),
-              conductor: r.conductor || "Conductor desconocido",
+              conductor: r.conductor || r.usuario_nombre || r.usuario?.nombre || "Conductor desconocido",
               fechaReserva,
-              horaReserva: extraerHora(r.hora_entrada) ?? extraerHora(r.fecha_entrada) ?? "--:--",
+              horaReserva: extraerHora(r.hora_entrada)
+                ?? extraerHora(r.horaInicio)
+                ?? extraerHora(r.fecha_entrada)
+                ?? extraerHora(r.fecha_inicio)
+                ?? "--:--",
               horaSalidaPrevista,
-              vehiculo: [r.marca_nombre, r.modelo_nombre].filter(Boolean).join(" ") || "Vehículo desconocido",
-              patenteInterna: r.patente || "--",
+              vehiculo: [
+                r.marca_nombre ?? r.vehiculo?.marca?.nombre ?? r.vehiculo?.marca,
+                r.modelo_nombre ?? r.vehiculo?.modelo?.nombre ?? r.vehiculo?.modelo,
+              ].filter(Boolean).join(" ") || "Vehículo desconocido",
+              patenteInterna: r.patente || r.vehiculo?.patente || r.vehiculo?.placa || "--",
               estado,
               horaEntrada: obtenerHoraEntradaReal(r),
               horaSalida: obtenerHoraSalidaReal(r),
@@ -560,8 +622,10 @@ export default function GaragistaDashboard() {
           });
 
         if (!cancelado) setReservas(reservasDelGarage);
-      } catch {
-        if (!cancelado) setErrorCarga("No se pudieron cargar los datos del garage.");
+      } catch (error) {
+        if (!cancelado) {
+          setErrorCarga(error.message || "No se pudieron cargar las reservas del garage.");
+        }
       } finally {
         if (!cancelado) setCargando(false);
       }
