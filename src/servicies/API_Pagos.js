@@ -7,13 +7,13 @@ const logApiError = (error) => {
     }
 };
 
-const PagosCrearPreferencia = async (items, orderId, backUrls) => {
+const PagosCrearPreferencia = async (idReserva, backUrls) => {
 
     let returnObject = { respuesta: false, datos: null };
 
     try {
 
-        const body = { items, orderId };
+        const body = { idReserva };
 
         if (backUrls) {
             body.backUrls = backUrls;

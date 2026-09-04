@@ -32,3 +32,7 @@ export const TratosCreate = (trato) => mutate(() => apiClient.post(base, {
 }));
 export const TratosUpdate = (id, trato) => { const safe = parsePositiveInteger(id); return mutate(() => apiClient.put(`${base}/${safe}`, { cantidad_cocheras: parsePositiveInteger(trato.cantidad_cocheras, 'Cantidad') })); };
 export const TratosDelete = (id) => { const safe = parsePositiveInteger(id); return mutate(() => apiClient.delete(`${base}/${safe}`)); };
+export const TratosUpdatePaymentModality = (id, modalidadPago) => {
+  const safe = parsePositiveInteger(id);
+  return mutate(() => apiClient.patch(`${base}/${safe}/modalidad-pago`, { modalidadPago }));
+};

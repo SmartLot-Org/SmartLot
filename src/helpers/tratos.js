@@ -17,7 +17,9 @@ export function buildSolicitudPayload(values) {
     id_sede: parsePositiveInteger(values.id_sede, 'Sede'),
     id_garage: parsePositiveInteger(values.id_garage, 'Garage'),
     cantidad_cocheras: parsePositiveInteger(values.cantidad_cocheras, 'Cantidad de cocheras'),
+    modalidad_pago: values.modalidad_pago,
   };
+  if (!['empresa_cubre_cupo', 'empleado_paga_todo'].includes(payload.modalidad_pago)) throw new Error('Modalidad de pago invalida.');
   if (values.descripcion !== undefined && values.descripcion !== null && String(values.descripcion).trim()) {
     payload.descripcion = String(values.descripcion).trim();
   }

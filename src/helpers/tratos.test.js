@@ -19,8 +19,8 @@ test('normaliza arrays de días y literales PostgreSQL de enum[]', () => {
   assert.deepEqual(normalizeDays(null), []);
 });
 test('payload de solicitud exige sede y no permite empresa, estado ni precios manipulados', () => {
-  assert.deepEqual(buildSolicitudPayload({ id_empresa: 99, id_sede: 4, id_garage: '5', cantidad_cocheras: '2', descripcion: ' hola ', estado: 'aceptada', precio_auto: 1 }), {
-    id_sede: 4, id_garage: 5, cantidad_cocheras: 2, descripcion: 'hola',
+  assert.deepEqual(buildSolicitudPayload({ id_empresa: 99, id_sede: 4, id_garage: '5', cantidad_cocheras: '2', descripcion: ' hola ', modalidad_pago: 'empleado_paga_todo', estado: 'aceptada', precio_auto: 1 }), {
+    id_sede: 4, id_garage: 5, cantidad_cocheras: 2, descripcion: 'hola', modalidad_pago: 'empleado_paga_todo',
   });
   assert.throws(() => buildSolicitudPayload({ id_garage: 5, cantidad_cocheras: 2 }), /Sede/);
 });

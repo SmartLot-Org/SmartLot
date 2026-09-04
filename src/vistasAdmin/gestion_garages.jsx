@@ -7,7 +7,7 @@ import Header from '../componentesAdmin/header_admin';
 import FooterAdmin from '../componentesAdmin/footer_admin';
 import { SedesGetAll } from '../servicies/API_Sede';
 import { GaragesGetCercanos } from '../servicies/API_Garage';
-import { TratosDelete, TratosGetAll, TratosUpdate } from '../servicies/API_TratoEmpresaGarage';
+import { TratosDelete, TratosGetAll, TratosUpdate, TratosUpdatePaymentModality } from '../servicies/API_TratoEmpresaGarage';
 import { SolicitudesCreate, SolicitudesGetEnviadas } from '../servicies/API_SolicitudEmpresaGarage';
 import { buildSolicitudPayload, filterGarages, normalizeDays, normalizeList, parsePositiveInteger } from '../helpers/tratos';
 import './gestion_garages.css';
@@ -38,6 +38,7 @@ export default function GestionGarages() {
   const [selected, setSelected] = useState(null);
   const [cantidad, setCantidad] = useState('');
   const [descripcion, setDescripcion] = useState('');
+  const [modalidadPago, setModalidadPago] = useState('empresa_cubre_cupo');
   const [solicitudes, setSolicitudes] = useState([]);
   const [submitting, setSubmitting] = useState(false);
   const [mapSelectedGarageId, setMapSelectedGarageId] = useState(null);
@@ -110,6 +111,7 @@ export default function GestionGarages() {
     setSelected(garage);
     setCantidad('1');
     setDescripcion('');
+    setModalidadPago('empresa_cubre_cupo');
   };
 
   const selectGarageOnMap = useCallback((garage, { scroll = true } = {}) => {
@@ -125,7 +127,7 @@ export default function GestionGarages() {
     if (!sedeId || !cantidadValida || submitting) return;
     try {
       setSubmitting(true);
-      const payload = buildSolicitudPayload({ id_sede: sedeId, id_garage: selected.id, cantidad_cocheras: cantidad, descripcion });
+      const payload = buildSolicitudPayload({ id_sede: sedeId, id_garage: selected.id, cantidad_cocheras: cantidad, descripcion, modalidad_pago: modalidadPago });
       if (payload.cantidad_cocheras > Number(selected.cocheras_disponibles)) throw new Error('La cantidad supera las cocheras disponibles.');
       const confirm = await showGarageAlert({ title: 'Enviar solicitud', text: `Solicitar ${payload.cantidad_cocheras} cocheras en ${selected.nombre}?`, icon: 'question', showCancelButton: true, confirmButtonText: 'Enviar', cancelButtonText: 'Cancelar' });
       if (!confirm.isConfirmed) return;
@@ -143,6 +145,33 @@ export default function GestionGarages() {
       if (nearby.respuesta) setCercanos(normalizeList(nearby.datos));
     } catch (e) { await showGarageAlert({ title: 'No se pudo enviar la solicitud', text: e.message, icon: 'error', confirmButtonText: 'Revisar datos' }); }
     finally { setSubmitting(false); }
+  };
+
+  const changeModality = async (trato) => {
+    const confirm = await Swal.fire({
+      title: 'Elegí la modalidad de pago',
+      html: `<div style="text-align:left;line-height:1.45">
+        <p><strong>La empresa cubre el cupo</strong><br>La empresa paga las reservas que usan una cochera dentro del cupo contratado. Si el cupo está completo, el empleado puede reservar un lugar extra y pagarlo.</p>
+        <p><strong>El empleado paga todo</strong><br>Cada empleado paga su reserva, tanto dentro del cupo como en una cochera extra. El cupo contratado sigue reservado para la sede.</p>
+        <hr><p><strong>Importante:</strong> el cambio se aplicará solamente a las reservas nuevas. Las reservas existentes conservarán su responsable de pago.</p>
+      </div>`,
+      input: 'select',
+      inputOptions: {
+        empresa_cubre_cupo: 'La empresa cubre el cupo',
+        empleado_paga_todo: 'El empleado paga todo',
+      },
+      inputValue: trato.modalidad_pago,
+      icon: 'info',
+      showCancelButton: true,
+      confirmButtonText: 'Aplicar modalidad',
+      cancelButtonText: 'Cancelar',
+      inputValidator: (value) => !value && 'Seleccioná una modalidad.',
+    });
+    if (!confirm.isConfirmed) return;
+    if (confirm.value === trato.modalidad_pago) return Swal.fire('Sin cambios', 'El trato ya utiliza esa modalidad.', 'info');
+    const response = await TratosUpdatePaymentModality(trato.id, confirm.value);
+    if (!response.respuesta) return Swal.fire('Error', messageOf(response), 'error');
+    await loadContracts();
   };
 
   const editContract = async (trato) => {
@@ -177,7 +206,7 @@ export default function GestionGarages() {
       {tab === 'buscar' && <><label className="garage-filter-field"><span>Radio de búsqueda</span><select value={radio} onChange={(e) => setRadio(Number(e.target.value))}><option value={5}>5 km</option><option value={15}>15 km</option><option value={50}>50 km</option><option value={100}>100 km</option></select></label><label className="garage-check"><input type="checkbox" checked={availableOnly} onChange={(e) => setAvailableOnly(e.target.checked)}/> Con disponibilidad</label><label className="garage-check"><input type="checkbox" checked={activeOnly} onChange={(e) => setActiveOnly(e.target.checked)}/> Activos/abiertos</label></>}
     </section>
     {loading && <p className="garages-feedback">Cargando garages…</p>}{error && <p className="garages-feedback garages-feedback-error">{error}</p>}
-    {!loading && !error && tab === 'contratados' && <section className="trato-grid">{contracts.length === 0 ? <p className="garages-feedback">No hay garages contratados para esta selección.</p> : contracts.map((t) => <article className="trato-card" key={t.id}><span className="trato-sede">{t.sede_nombre || `Sede ${t.id_sede || 'legacy'}`}</span><h2>{t.garage_nombre}</h2><p>{t.garage_ubicacion}</p><p>{t.hora_apertura || '—'} a {t.hora_cierre || '—'} · {normalizeDays(t.dias).join(', ') || 'Días no informados'}</p><strong>{t.cantidad_cocheras} cocheras</strong><p>Desde {t.created_at ? new Date(t.created_at).toLocaleDateString('es-AR') : 'fecha legacy'}</p><p>Auto {money(t.precio_auto)} · Pickup {money(t.precio_pickup)}</p><div className="trato-actions"><button onClick={() => editContract(t)}>Cambiar cantidad</button><button className="danger" onClick={() => cancelContract(t)}>Cancelar trato</button></div></article>)}</section>}
+    {!loading && !error && tab === 'contratados' && <section className="trato-grid">{contracts.length === 0 ? <p className="garages-feedback">No hay garages contratados para esta selección.</p> : contracts.map((t) => <article className="trato-card" key={t.id}><span className="trato-sede">{t.sede_nombre || `Sede ${t.id_sede || 'legacy'}`}</span><h2>{t.garage_nombre}</h2><p>{t.garage_ubicacion}</p><p>{t.hora_apertura || '—'} a {t.hora_cierre || '—'} · {normalizeDays(t.dias).join(', ') || 'Días no informados'}</p><strong>{t.cantidad_cocheras} cocheras</strong><p>Modalidad: {t.modalidad_pago === 'empleado_paga_todo' ? 'Paga el empleado' : 'La empresa cubre el cupo'}</p><p>Desde {t.created_at ? new Date(t.created_at).toLocaleDateString('es-AR') : 'fecha legacy'}</p><p>Auto {money(t.precio_auto)} · Pickup {money(t.precio_pickup)}</p><div className="trato-actions"><button onClick={() => editContract(t)}>Cambiar cantidad</button><button onClick={() => changeModality(t)}>Cambiar modalidad</button><button className="danger" onClick={() => cancelContract(t)}>Cancelar trato</button></div></article>)}</section>}
     {!loading && !error && tab === 'pendientes' && <section className="trato-grid">{pendingRequests.length === 0 ? <div className="garage-empty"><CheckCircle2 size={31}/><h2>Estás al día</h2><p>No hay solicitudes esperando respuesta para esta selección.</p><button onClick={() => setTab('buscar')}>Buscar garages</button></div> : pendingRequests.map((s) => <article className="trato-card trato-card--pending" key={s.id}><header className="trato-card__header"><span className="trato-sede"><Building2 size={14}/>{s.sede_nombre || `Sede ${s.id_sede}`}</span><span className="trato-status"><Clock3 size={13}/> Pendiente</span></header><h2>{s.garage_nombre || `Garage ${s.id_garage}`}</h2><p className="trato-location"><MapPin size={16}/>{s.garage_ubicacion || 'Ubicación no informada'}</p><div className="trato-request-capacity"><Send size={21}/><strong>{s.cantidad_cocheras}</strong><span>cocheras solicitadas</span></div>{s.descripcion ? <p className="trato-request-note">“{s.descripcion}”</p> : null}<div className="trato-waiting"><Clock3 size={18}/><div><strong>Esperando confirmación del garage</strong><span>Si la acepta, aparecerá automáticamente entre tus contratos.</span></div></div><small className="trato-request-date">Enviada el {s.created_at ? new Date(s.created_at).toLocaleDateString('es-AR') : 'fecha no informada'}</small></article>)}</section>}
     {!loading && !error && tab === 'buscar' && !sedeId && <p className="garages-feedback">Seleccioná una sede para buscar garages cercanos.</p>}
     {!loading && !error && tab === 'buscar' && sedeId && <section className="garage-search-results" aria-label="Mapa y garages cercanos">
@@ -207,6 +236,6 @@ export default function GestionGarages() {
         })}
       </div>
     </section>}
-    {selected && <div className="trato-modal" role="dialog" aria-modal="true"><div><h2>Solicitar cocheras en {selected.nombre}</h2><p>Sede de referencia: {sedes.find((s) => Number(s.id) === Number(sedeId))?.nombre}</p><p>Disponibles: <strong>{selected.cocheras_disponibles}</strong></p><p>Auto {money(selected.precio_auto)} · Moto {money(selected.precio_moto)} · Pickup {money(selected.precio_pickup)}</p><label>Cantidad de cocheras <input type="number" min="1" max={selected.cocheras_disponibles} step="1" value={cantidad} onChange={(e) => setCantidad(e.target.value)}/>{!cantidadValida && <small className="trato-field-error">Ingresá un número entero entre 1 y {selected.cocheras_disponibles}.</small>}</label><label>Descripción opcional <textarea maxLength="1000" value={descripcion} onChange={(e) => setDescripcion(e.target.value)} /></label><div className="trato-actions"><button disabled={submitting} onClick={() => setSelected(null)}>Volver</button><button disabled={!cantidadValida || submitting} onClick={submit}>{submitting ? 'Enviando…' : 'Revisar y enviar'}</button></div></div></div>}
+    {selected && <div className="trato-modal" role="dialog" aria-modal="true"><div><h2>Solicitar cocheras en {selected.nombre}</h2><p>Sede de referencia: {sedes.find((s) => Number(s.id) === Number(sedeId))?.nombre}</p><p>Disponibles: <strong>{selected.cocheras_disponibles}</strong></p><p>Auto {money(selected.precio_auto)} · Moto {money(selected.precio_moto)} · Pickup {money(selected.precio_pickup)}</p><label>Cantidad de cocheras <input type="number" min="1" max={selected.cocheras_disponibles} step="1" value={cantidad} onChange={(e) => setCantidad(e.target.value)}/>{!cantidadValida && <small className="trato-field-error">Ingresá un número entero entre 1 y {selected.cocheras_disponibles}.</small>}</label><label>Modalidad de pago <select value={modalidadPago} onChange={(e) => setModalidadPago(e.target.value)}><option value="empresa_cubre_cupo">La empresa cubre el cupo</option><option value="empleado_paga_todo">El empleado paga todo</option></select></label><label>Descripción opcional <textarea maxLength="1000" value={descripcion} onChange={(e) => setDescripcion(e.target.value)} /></label><div className="trato-actions"><button disabled={submitting} onClick={() => setSelected(null)}>Volver</button><button disabled={!cantidadValida || submitting} onClick={submit}>{submitting ? 'Enviando…' : 'Revisar y enviar'}</button></div></div></div>}
   </main><FooterAdmin /></div>;
 }
