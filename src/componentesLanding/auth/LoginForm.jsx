@@ -133,27 +133,28 @@ export default function LoginForm() {
           </label>
         </div>
 
-        <div className="auth-stagger relative">
-          <input
-            type="password"
-            id="password"
-            required
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder=" "
-            className="peer w-full px-5 pt-6 pb-2.5 bg-brand-surface/70 border border-brand-deep/10 rounded-xl text-brand-warm text-base outline-none transition-all duration-300 ease-out focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/20"
-          />
-          <label
-            htmlFor="password"
-            className="font-body absolute left-5 top-4 text-brand-muted text-base pointer-events-none transition-all duration-300 ease-out peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-placeholder-shown:text-brand-muted peer-focus:top-2 peer-focus:text-xs peer-focus:text-brand-blue peer-not-placeholder-shown:top-2 peer-not-placeholder-shown:text-xs peer-not-placeholder-shown:text-brand-muted"
-          >
-            Contraseña
-          </label>
+        <div className="auth-stagger">
+          <div className="flex justify-end pr-1 mb-1.5">
+            <a href="/recuperar-clave" className="text-sm font-semibold text-brand-blue hover:underline">¿Olvidaste tu contraseña?</a>
+          </div>
+          <div className="relative">
+            <input
+              type="password"
+              id="password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder=" "
+              className="peer w-full px-5 pt-6 pb-2.5 bg-brand-surface/70 border border-brand-deep/10 rounded-xl text-brand-warm text-base outline-none transition-all duration-300 ease-out focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/20"
+            />
+            <label
+              htmlFor="password"
+              className="font-body absolute left-5 top-4 text-brand-muted text-base pointer-events-none transition-all duration-300 ease-out peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-placeholder-shown:text-brand-muted peer-focus:top-2 peer-focus:text-xs peer-focus:text-brand-blue peer-not-placeholder-shown:top-2 peer-not-placeholder-shown:text-xs peer-not-placeholder-shown:text-brand-muted"
+            >
+              Contraseña
+            </label>
+          </div>
         </div>
-
-        <p className="text-right text-sm text-brand-muted mt-1">
-          <a href="/recuperar-clave" className="hover:underline">¿Olvidaste tu contraseña?</a>
-        </p>
 
         <button
           ref={buttonRef}

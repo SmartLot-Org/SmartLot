@@ -72,9 +72,24 @@ const tieneSalidaRegistrada = (reserva) =>
     obtenerCampo(reserva, ["hora_salida_real", "horaSalidaReal"]),
   ].some(esValorVerdadero);
 
+const TZ_ARG = "America/Argentina/Buenos_Aires";
+
+const tieneZonaHoraria = (valor) => /(?:Z|[+-]\d{2}:?\d{2})$/.test(String(valor).trim());
+
 const extraerFechaStr = (datetime) => {
   if (!datetime) return "";
-  const valor = String(datetime);
+  const valor = String(datetime).trim();
+  if (tieneZonaHoraria(valor)) {
+    const fecha = new Date(valor);
+    if (!Number.isNaN(fecha.getTime())) {
+      return new Intl.DateTimeFormat("en-CA", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        timeZone: TZ_ARG,
+      }).format(fecha);
+    }
+  }
   const conEspacio = valor.split(" ");
   if (conEspacio.length > 1) return conEspacio[0];
   return valor.split("T")[0];
@@ -82,19 +97,24 @@ const extraerFechaStr = (datetime) => {
 
 const extraerHoraLocal = (fechaStr) => {
   if (!fechaStr) return "--:--";
-  const valor = String(fechaStr);
-  if (/^\d{2}:\d{2}/.test(valor)) return valor.slice(0, 5);
+  const valor = String(fechaStr).trim();
+  if (/^\d{2}:\d{2}/.test(valor) && !valor.includes("T") && !valor.includes(" ")) return valor.slice(0, 5);
+
+  if (tieneZonaHoraria(valor)) {
+    const fecha = new Date(valor);
+    if (!Number.isNaN(fecha.getTime())) {
+      return new Intl.DateTimeFormat("es-AR", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+        timeZone: TZ_ARG,
+      }).format(fecha);
+    }
+  }
 
   if (valor.includes("T")) {
-    const tieneZonaHoraria = /(?:Z|[+-]\d{2}:?\d{2})$/.test(valor);
-    if (tieneZonaHoraria) {
-      const fecha = new Date(valor);
-      if (!Number.isNaN(fecha.getTime())) {
-        return `${String(fecha.getHours()).padStart(2, "0")}:${String(fecha.getMinutes()).padStart(2, "0")}`;
-      }
-    }
     const hora = valor.split("T")[1]?.slice(0, 5);
-    return hora || "--:--";
+    return hora && /^\d{2}:\d{2}$/.test(hora) ? hora : "--:--";
   }
 
   const partes = valor.split(" ");
@@ -103,15 +123,36 @@ const extraerHoraLocal = (fechaStr) => {
 };
 
 const fechaHoyStr = () => {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  return new Intl.DateTimeFormat("en-CA", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    timeZone: TZ_ARG,
+  }).format(new Date());
 };
 
 const formatearFechaCorta = (fecha) => {
   if (!fecha) return "Sin fecha";
-  const date = new Date(`${fecha}T00:00:00`);
+  if (/^\d{4}-\d{2}-\d{2}$/.test(String(fecha))) {
+    const [y, m, d] = String(fecha).split("-").map(Number);
+    const date = new Date(Date.UTC(y, m - 1, d, 15, 0, 0));
+    return new Intl.DateTimeFormat("es-AR", {
+      weekday: "short",
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      timeZone: TZ_ARG,
+    }).format(date);
+  }
+  const date = new Date(fecha);
   if (Number.isNaN(date.getTime())) return fecha;
-  return new Intl.DateTimeFormat("es-AR", { weekday: "short", day: "2-digit", month: "short", year: "numeric" }).format(date);
+  return new Intl.DateTimeFormat("es-AR", {
+    weekday: "short",
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    timeZone: TZ_ARG,
+  }).format(date);
 };
 
 const ESTADOS = {
@@ -132,7 +173,7 @@ const derivarEstado = (reserva, fecha, horaFin) => {
   if (tieneEntradaRegistrada(reserva)) return "en_curso";
 
   if (/^\d{4}-\d{2}-\d{2}$/.test(String(fecha)) && /^\d{2}:\d{2}$/.test(String(horaFin))) {
-    const fin = new Date(`${fecha}T${horaFin}:00`);
+    const fin = new Date(`${fecha}T${horaFin}:00-03:00`);
     if (!Number.isNaN(fin.getTime()) && fin < new Date()) return "vencida";
   }
   return "programada";
