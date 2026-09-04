@@ -160,6 +160,7 @@ const NuevaReserva = () => {
   const formularioRef = useRef(null);
   const resultadoRef = useRef(null);
   const disponibilidadTimerRef = useRef(null);
+  const reservaSolicitudRef = useRef(0);
 
   useEffect(() => () => window.clearTimeout(disponibilidadTimerRef.current), []);
 
@@ -227,7 +228,9 @@ const NuevaReserva = () => {
     };
   }, [usuario]);
 
-  const crearReservaCorporativa = async (datosFormulario) => {
+  const crearReservaCorporativa = async (datosFormulario, solicitudId = reservaSolicitudRef.current) => {
+    if (solicitudId !== reservaSolicitudRef.current) return;
+
     setLoading(true);
     setMensaje({ tipo: "", texto: "" });
 
@@ -252,18 +255,21 @@ const NuevaReserva = () => {
 
     if (!idUsuario) {
       setLoading(false);
+      setConsultandoDisponibilidad(false);
       setMensaje({ tipo: "error", texto: "No se pudo identificar tu usuario para crear la reserva." });
       return;
     }
 
     if (!idGarage) {
       setLoading(false);
+      setConsultandoDisponibilidad(false);
       setMensaje({ tipo: "error", texto: "No se pudo identificar el garage para crear la reserva." });
       return;
     }
 
     if (!garageSeleccionado) {
       setLoading(false);
+      setConsultandoDisponibilidad(false);
       setMensaje({ tipo: "error", texto: "El garage seleccionado no fue encontrado o no pertenece a tu sede." });
       return;
     }
@@ -282,11 +288,13 @@ const NuevaReserva = () => {
 
       if (!resultado.respuesta) {
         setLoading(false);
+        setConsultandoDisponibilidad(false);
         setMensaje({ tipo: "error", texto: mensajeAmigable(resultado.datos, nombreGarage) });
         return;
       }
 
       setLoading(false);
+      setConsultandoDisponibilidad(false);
 
       Swal.fire({
         icon: "success",
@@ -299,6 +307,7 @@ const NuevaReserva = () => {
       });
     } catch {
       setLoading(false);
+      setConsultandoDisponibilidad(false);
       setMensaje({
         tipo: "error",
         texto: "Hubo un error al procesar la reserva. Intentalo de nuevo.",
@@ -307,17 +316,19 @@ const NuevaReserva = () => {
   };
 
   const handleReservationSubmit = async (datosFormulario) => {
+    const solicitudId = ++reservaSolicitudRef.current;
     window.clearTimeout(disponibilidadTimerRef.current);
     setConsultandoDisponibilidad(true);
     setMensaje({ tipo: "", texto: "" });
     setDisponibilidad(null);
 
     disponibilidadTimerRef.current = window.setTimeout(async () => {
-      setReservaPendiente({
+      const reservaBase = {
         ...datosFormulario,
         ...datosFormulario._metaData,
         fechaFormateada: formatearFecha(datosFormulario._metaData?.fecha),
-      });
+      };
+      setReservaPendiente(reservaBase);
       const idGarage = Number(datosFormulario.idGarage);
       const quoteRes = await ReservasQuote({
         id_garage: idGarage,
@@ -327,12 +338,23 @@ const NuevaReserva = () => {
         dia: datosFormulario.dia,
       });
 
+      if (solicitudId !== reservaSolicitudRef.current) return;
+
       if (!quoteRes.respuesta) {
         setConsultandoDisponibilidad(false);
         setMensaje({ tipo: "error", texto: quoteRes.datos?.message || "No se pudo verificar la disponibilidad en este momento." });
         return;
       }
       const quote = quoteRes.datos;
+
+      // El cupo corporativo no requiere una segunda confirmacion: la reserva
+      // se crea al completar el primer envio del formulario.
+      if (quote.tipoCupo === "dentro_cupo") {
+        disponibilidadTimerRef.current = null;
+        await crearReservaCorporativa(reservaBase, solicitudId);
+        return;
+      }
+
       setDisponibilidad({
         hay_cupo_corporativo: quote.tipoCupo === "dentro_cupo",
         hay_cupo_pago: quote.requierePago,
@@ -346,6 +368,7 @@ const NuevaReserva = () => {
   };
 
   const limpiarResultado = () => {
+    reservaSolicitudRef.current += 1;
     window.clearTimeout(disponibilidadTimerRef.current);
     disponibilidadTimerRef.current = null;
     setConsultandoDisponibilidad(false);
@@ -430,7 +453,7 @@ const NuevaReserva = () => {
                   <div className="disponibilidad-card__heading"><span>Cupo corporativo disponible</span><h2>Tu empresa cubre esta reserva</h2><p>Podés continuar con el flujo habitual sin ningún cargo.</p></div>
                   {detalleReserva}
                   <div className="disponibilidad-total"><span>Total</span><strong>$0</strong></div>
-                  <button className="disponibilidad-button disponibilidad-button--primary" type="button" disabled={loading} onClick={() => crearReservaCorporativa(reservaPendiente)}>{loading ? "Procesando..." : "Crear reserva"}</button>
+                  <p className="disponibilidad-auto-confirmada" role="status">La reserva se crea automáticamente al confirmar el formulario.</p>
                 </>
               ) : disponibilidad.hay_cupo_pago ? (
                 <>
