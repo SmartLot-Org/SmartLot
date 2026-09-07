@@ -31,6 +31,9 @@
     "recharts": "^3.9.0",
     "sweetalert2": "^11.26.25"
   },
+  "overrides": {
+    "uuid": "^11.1.1"
+  },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@tailwindcss/vite": "^4.3.0",

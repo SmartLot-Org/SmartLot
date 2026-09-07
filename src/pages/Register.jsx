@@ -30,8 +30,7 @@ const validationSchema = {
 
 export default function Register() {
   const [form, setForm] = useState({
-    nombre: '', apellido: '', email: '',
-    contraseña: '', id_rol: 2, id_sede: '', id_empresa: ''
+    nombre: '', apellido: '', email: '', contraseña: ''
   });
   const [serverError, setServerError] = useState('');
 
@@ -46,7 +45,13 @@ export default function Register() {
     if (!isValid) return;
 
     try {
-      await apiClient.post('/api/usuario', form);
+      const payload = {
+        nombre: form.nombre.trim(),
+        apellido: form.apellido.trim(),
+        email: form.email.trim(),
+        contraseña: form.contraseña,
+      };
+      await apiClient.post('/api/usuario/register', payload);
       window.location.href = '/login?registro=exitoso';
     } catch (err) {
       setServerError(err.response?.data?.message || 'Error al registrar.');
