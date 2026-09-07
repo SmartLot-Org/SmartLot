@@ -24,14 +24,42 @@ const normalizarFechaHora = (valor) => {
   return Number.isNaN(fecha.getTime()) ? null : fecha;
 };
 
+// La API devuelve instantes con offset (ej. "...T14:00:00.000Z"): convertir a
+// hora local AR en vez de recortar el string, que mostraba la hora UTC.
+const tieneZonaHoraria = (valor) => /(?:Z|[+-]\d{2}:?\d{2})$/.test(String(valor).trim());
+
 const extraerFecha = (valor) => {
   if (!valor) return "";
-  return String(valor).trim().split(/[T ]/)[0] || "";
+  const texto = String(valor).trim();
+  if (tieneZonaHoraria(texto)) {
+    const fecha = new Date(texto);
+    if (!Number.isNaN(fecha.getTime())) {
+      return new Intl.DateTimeFormat("en-CA", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        timeZone: "America/Argentina/Buenos_Aires",
+      }).format(fecha);
+    }
+  }
+  return texto.split(/[T ]/)[0] || "";
 };
 
 const extraerHora = (valor) => {
   if (!valor) return "";
-  const partes = String(valor).trim().split(/[T ]/);
+  const texto = String(valor).trim();
+  if (tieneZonaHoraria(texto)) {
+    const fecha = new Date(texto);
+    if (!Number.isNaN(fecha.getTime())) {
+      return new Intl.DateTimeFormat("es-AR", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+        timeZone: "America/Argentina/Buenos_Aires",
+      }).format(fecha);
+    }
+  }
+  const partes = texto.split(/[T ]/);
   const hora = partes.length > 1 ? partes[1] : partes[0];
   return hora ? hora.substring(0, 5) : "";
 };

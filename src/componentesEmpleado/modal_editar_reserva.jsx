@@ -61,9 +61,11 @@ function ModalEditarReserva({ reservaRaw, reservaNorm, onClose, onActualizada, o
     const idVehiculo = Number(obtenerCampo(reservaRaw, ["id_vehiculo", "idVehiculo", "vehiculo_id", "vehiculoId"]));
     const idGarage = Number(obtenerCampo(reservaRaw, ["id_garage", "idGarage", "garage_id", "garageId"]));
 
+    // Offset explicito -03:00: el servidor puede correr en UTC (Render) y sin
+    // offset interpretaria la hora local AR como UTC, corrida 3 horas.
     const payload = {
-      fecha_entrada: `${fechaBase} ${horaInicio}:00`,
-      fecha_salida: `${fechaBase} ${horaFin}:00`,
+      fecha_entrada: `${fechaBase}T${horaInicio}:00-03:00`,
+      fecha_salida: `${fechaBase}T${horaFin}:00-03:00`,
       id_usuario: idUsuario,
       id_vehiculo: idVehiculo,
       id_garage: idGarage,

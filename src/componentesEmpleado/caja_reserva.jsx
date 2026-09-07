@@ -8,15 +8,32 @@ function CajaReserva({ reserva }) {
   const fechaFormateada = reserva.fecha 
     ? new Date(reserva.fecha).toLocaleDateString('es-AR', { timeZone: 'UTC' })
     : reserva.fecha_entrada 
-      ? new Date(reserva.fecha_entrada).toLocaleDateString('es-AR')
+      ? new Date(reserva.fecha_entrada).toLocaleDateString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })
       : "Fecha pendiente";
 
   const obtenerHoraCorta = (fechaStr) => {
     if (!fechaStr) return "00:00";
-    if (fechaStr.includes(" ")) {
-      return fechaStr.split(" ")[1].substring(0, 5);
+    const valor = String(fechaStr);
+    // Instante con offset (ej. "...T14:00:00.000Z"): convertir a hora local AR
+    // en vez de recortar el string, que mostraba la hora UTC corrida 3 horas.
+    if (/(?:Z|[+-]\d{2}:?\d{2})$/.test(valor)) {
+      const fecha = new Date(valor);
+      if (!Number.isNaN(fecha.getTime())) {
+        return new Intl.DateTimeFormat('es-AR', {
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: false,
+          timeZone: 'America/Argentina/Buenos_Aires',
+        }).format(fecha);
+      }
     }
-    return fechaStr.substring(0, 5);
+    if (valor.includes(" ")) {
+      return valor.split(" ")[1].substring(0, 5);
+    }
+    if (valor.includes("T")) {
+      return valor.split("T")[1]?.substring(0, 5) || "00:00";
+    }
+    return valor.substring(0, 5);
   };
 
   const horaInicio = reserva.horaInicio || obtenerHoraCorta(reserva.fecha_entrada);

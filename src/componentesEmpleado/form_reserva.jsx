@@ -204,8 +204,10 @@ const FormularioReserva = forwardRef(function FormularioReserva({
     }
 
     setError("");
-    const fechaEntrada = `${formData.fecha} ${formData.horaInicio}:00`;
-    const fechaSalida = `${formData.fecha} ${formData.horaFin}:00`;
+    // Offset explicito -03:00: el servidor puede correr en UTC (Render) y sin
+    // offset interpretaria la hora local AR como UTC, corrida 3 horas.
+    const fechaEntrada = `${formData.fecha}T${formData.horaInicio}:00-03:00`;
+    const fechaSalida = `${formData.fecha}T${formData.horaFin}:00-03:00`;
     const garageSeleccionado = garages.find(
       (garage) => Number(obtenerIdGarage(garage)) === Number(formData.idGarage)
     );

@@ -207,25 +207,45 @@ const formatearFecha = (fecha) => {
 
 const extraerFechaStr = (datetime) => {
   if (!datetime) return "";
-  const conEspacio = datetime.split(" ");
+  const valor = String(datetime).trim();
+  if (/(?:Z|[+-]\d{2}:?\d{2})$/.test(valor)) {
+    const fecha = new Date(valor);
+    if (!Number.isNaN(fecha.getTime())) {
+      return new Intl.DateTimeFormat("en-CA", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        timeZone: TZ_ARG,
+      }).format(fecha);
+    }
+  }
+  const conEspacio = valor.split(" ");
   if (conEspacio.length > 1) return conEspacio[0];
-  return datetime.split("T")[0];
+  return valor.split("T")[0];
 };
+
+const TZ_ARG = "America/Argentina/Buenos_Aires";
 
 const extraerHoraLocal = (fechaStr) => {
   if (!fechaStr) return "--:--";
-  const valor = String(fechaStr);
-  if (/^\d{2}:\d{2}/.test(valor)) return valor.slice(0, 5);
+  const valor = String(fechaStr).trim();
+  if (/^\d{2}:\d{2}/.test(valor) && !valor.includes("T") && !valor.includes(" ")) return valor.slice(0, 5);
+
+  // La API devuelve instante con offset (Z/+00:00): convertir a hora local AR.
+  // getHours() usa la zona del navegador y corria los horarios fuera de UTC-3.
+  if (/(?:Z|[+-]\d{2}:?\d{2})$/.test(valor)) {
+    const fecha = new Date(valor);
+    if (!Number.isNaN(fecha.getTime())) {
+      return new Intl.DateTimeFormat("es-AR", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+        timeZone: TZ_ARG,
+      }).format(fecha);
+    }
+  }
 
   if (valor.includes("T")) {
-    const tieneZonaHoraria = /(?:Z|[+-]\d{2}:?\d{2})$/.test(valor);
-    if (tieneZonaHoraria) {
-      const fecha = new Date(valor);
-      if (!Number.isNaN(fecha.getTime())) {
-        return `${String(fecha.getHours()).padStart(2, "0")}:${String(fecha.getMinutes()).padStart(2, "0")}`;
-      }
-    }
-
     const hora = valor.split("T")[1]?.slice(0, 5);
     return hora || "--:--";
   }
@@ -267,8 +287,8 @@ const normalizarReserva = (reserva, vehiculosPorId, garagesPorId, modelosPorId, 
     plaza,
     nivel: zona,
     nombre_garage: ubicacion,
-    nro_plaza: fecha ? new Date(`${fecha}T00:00:00`).toLocaleDateString("es-AR", { day: "2-digit", timeZone: "UTC" }) : "-",
-    nombre_zona: fecha ? new Date(`${fecha}T00:00:00`).toLocaleDateString("es-AR", { month: "long", timeZone: "UTC" }) : "Mes",
+    nro_plaza: fecha ? fecha.slice(8, 10) : "-",
+    nombre_zona: fecha ? new Intl.DateTimeFormat("es-AR", { month: "long", timeZone: "UTC" }).format(new Date(`${fecha}T00:00:00Z`)) : "Mes",
     hora_entrada: horaInicio,
     hora_salida: horaFin,
     entradaRegistrada: tieneEntradaRegistrada(reserva),
