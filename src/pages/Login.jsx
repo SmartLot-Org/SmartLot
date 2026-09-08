@@ -131,7 +131,7 @@ export default function Login() {
         </form>
 
         <p className="login-pie">
-          ¿No tenés cuenta?{' '}
+          ¿Nuevo en SmartLot?{' '}
           <Link to="/register">Registrate</Link>
         </p>
       </main>

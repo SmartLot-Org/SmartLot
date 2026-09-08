@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import apiClient from "../../api/client";
@@ -247,6 +247,11 @@ export default function LoginForm() {
           {googleLoading ? "Conectando..." : "Google"}
         </div>
       </button>
+
+      <p className="auth-stagger login-registro-msg text-center text-sm text-brand-muted">
+        ¿Nuevo en SmartLot?{' '}
+        <Link to="/register" className="font-semibold text-brand-blue hover:underline">Registrate</Link>
+      </p>
     </div>
   );
 }

@@ -1,4 +1,6 @@
 import { forwardRef } from 'react';
+import { Link } from 'react-router-dom';
+import { Car, ChevronRight } from 'lucide-react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 
@@ -67,13 +69,27 @@ const Hero = forwardRef(function Hero({ startAnimation }, ref) {
               <div className="overflow-hidden py-1"><span className="word inline-block text-brand-blue">Escalá.</span></div>
             </h1>
            
-            <p className="hero-p text-brand-muted max-w-lg mb-10">
+            <p className="hero-p text-brand-muted max-w-lg">
               La plataforma SaaS que redefine el control de accesos y estacionamientos corporativos con IA.
             </p>
-           
-            <button className="hero-btn px-8 py-4 bg-brand-blue text-white rounded-xl font-bold text-base hover:bg-brand-deep focus-visible:bg-brand-deep active:scale-95 transition-all duration-300 hover:shadow-xl shadow-lg shadow-brand-deep/20">
-              Solicitar Demo Gratis
-            </button>
+
+            <div className="hero-btn mt-10 flex items-center gap-3">
+              <div className="h-px max-w-[4rem] flex-1 bg-brand-navy/10" aria-hidden="true" />
+              <Link
+                to="/para-garages"
+                aria-label="Ver funcionalidades para dueños de garages"
+                className="group inline-flex items-center gap-2 rounded-full border border-brand-navy/10 bg-white/70 px-4 py-1.5 text-xs font-semibold text-brand-muted shadow-sm transition-all duration-300 hover:border-[#93C5FD] hover:bg-[#BFDBFE]/50 hover:text-brand-deep hover:shadow-md active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2 focus-visible:ring-offset-brand-bg"
+              >
+                <Car size={14} aria-hidden="true" className="shrink-0" />
+                <span>Para dueños de garages</span>
+                <ChevronRight
+                  size={12}
+                  aria-hidden="true"
+                  className="shrink-0 motion-safe:transition-transform motion-safe:duration-300 motion-safe:group-hover:translate-x-0.5 motion-safe:group-focus-visible:translate-x-0.5"
+                />
+              </Link>
+              <div className="h-px flex-1 bg-brand-navy/10" aria-hidden="true" />
+            </div>
           </div>
 
 
