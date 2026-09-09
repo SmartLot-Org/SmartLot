@@ -120,6 +120,14 @@ export function useNotificaciones() {
     return response;
   }, []);
 
+  const eliminarLeidas = useCallback(async () => {
+    const leidas = notificaciones.filter((item) => item.leida);
+    if (!leidas.length) return;
+    await Promise.all(leidas.map((item) => NotificacionesEliminar(item.id)));
+    setNotificaciones((prev) => prev.filter((item) => !item.leida));
+    notifyNotificacionesChanged();
+  }, [notificaciones]);
+
   return {
     notificaciones,
     noLeidas,
@@ -129,6 +137,7 @@ export function useNotificaciones() {
     marcarLeida,
     marcarTodasLeidas,
     eliminar,
+    eliminarLeidas,
     autorizarModificacion,
     rechazarModificacion,
   };

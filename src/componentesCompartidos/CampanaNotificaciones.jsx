@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowRight, Bell, Check, CheckCircle2, Inbox, X, XCircle } from "lucide-react";
+import { ArrowRight, Bell, CheckCircle2, Inbox, X, XCircle } from "lucide-react";
 import { useNotificaciones } from "../hooks/useNotificaciones";
 import "./campana_notificaciones.css";
 
@@ -41,9 +41,8 @@ const tipoNotificacion = (tipo) => {
 
 export default function CampanaNotificaciones({ rutaTratos }) {
   const navigate = useNavigate();
-  const { notificaciones, noLeidas, loading, marcarLeida, marcarTodasLeidas, eliminar, autorizarModificacion, rechazarModificacion } = useNotificaciones();
+  const { notificaciones, noLeidas, loading, marcarTodasLeidas, eliminar, eliminarLeidas } = useNotificaciones();
   const [isOpen, setIsOpen] = useState(false);
-  const [resolviendo, setResolviendo] = useState(null);
   const containerRef = useRef(null);
   const triggerRef = useRef(null);
 
@@ -68,25 +67,15 @@ export default function CampanaNotificaciones({ rutaTratos }) {
     };
   }, [isOpen]);
 
+  useEffect(() => {
+    if (isOpen) eliminarLeidas();
+  }, [isOpen, eliminarLeidas]);
+
   const irATratos = useCallback((notificacion) => {
     setIsOpen(false);
-    if (notificacion && !notificacion.leida) marcarLeida(notificacion.id);
+    if (notificacion) eliminar(notificacion.id);
     navigate(rutaTratos);
-  }, [navigate, rutaTratos, marcarLeida]);
-
-  const handleAutorizar = useCallback(async (notificacion) => {
-    if (!notificacion.id_relacion) return;
-    setResolviendo(notificacion.id);
-    await autorizarModificacion(notificacion.id_relacion, notificacion.id);
-    setResolviendo(null);
-  }, [autorizarModificacion]);
-
-  const handleRechazar = useCallback(async (notificacion) => {
-    if (!notificacion.id_relacion) return;
-    setResolviendo(notificacion.id);
-    await rechazarModificacion(notificacion.id_relacion, notificacion.id);
-    setResolviendo(null);
-  }, [rechazarModificacion]);
+  }, [navigate, rutaTratos, eliminar]);
 
   const totalBadge = noLeidas > 0 ? (noLeidas > 99 ? "99+" : noLeidas) : null;
 
@@ -131,8 +120,6 @@ export default function CampanaNotificaciones({ rutaTratos }) {
             ) : (
               notificaciones.map((notificacion) => {
                 const { icono: Icono, tono } = tipoNotificacion(notificacion.tipo);
-                const esModificacion = notificacion.tipo === "solicitud_modificacion" && notificacion.id_relacion;
-                const procesando = resolviendo === notificacion.id;
                 return (
                   <article
                     key={notificacion.id}
@@ -147,33 +134,10 @@ export default function CampanaNotificaciones({ rutaTratos }) {
                         {!notificacion.leida && <span className="cn-item-dot" aria-hidden="true" />}
                         <small>{tiempoRelativo(notificacion.created_at)}</small>
                       </div>
-                      {esModificacion && !notificacion.leida ? (
-                        <div className="cn-item-actions">
-                          <button
-                            type="button"
-                            className="cn-item-cta cn-item-cta--success"
-                            disabled={procesando}
-                            onClick={() => handleAutorizar(notificacion)}
-                          >
-                            <Check size={14} />
-                            {procesando ? "Procesando…" : "Autorizar cambio"}
-                          </button>
-                          <button
-                            type="button"
-                            className="cn-item-cta cn-item-cta--danger"
-                            disabled={procesando}
-                            onClick={() => handleRechazar(notificacion)}
-                          >
-                            <X size={14} />
-                            {procesando ? "…" : "Rechazar"}
-                          </button>
-                        </div>
-                      ) : (
-                        <button type="button" className="cn-item-cta" onClick={() => irATratos(notificacion)}>
-                          Ir a tratos
-                          <ArrowRight size={14} />
-                        </button>
-                      )}
+                      <button type="button" className="cn-item-cta" onClick={() => irATratos(notificacion)}>
+                        Ir a tratos
+                        <ArrowRight size={14} />
+                      </button>
                     </div>
                     <button
                       type="button"

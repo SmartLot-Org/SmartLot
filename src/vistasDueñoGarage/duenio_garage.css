@@ -752,3 +752,6 @@
 .deal-badge--modificacion { background:#dbeafe !important;color:#1e40af !important }
 .deal-modificacion-cambio { display:flex;align-items:center;gap:.5rem;font-size:1.1rem }
 .deal-modificacion-cambio span { color:#94a3b8;font-weight:700 }
+
+.deal-subsection-divider { height:1px;background:#e2e8f0;margin:1.2rem 0 }
+.deal-section-title--sub { margin-top:0 !important;padding-top:1.2rem !important;border-top:none !important }

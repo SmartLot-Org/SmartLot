@@ -138,18 +138,17 @@ export default function GestionTratosGarage() {
         <p>{solicitud.descripcion || "La empresa no agregó una descripción."}</p>
         <div className="deal-request-actions"><button type="button" disabled={resolviendo === solicitud.id} onClick={() => resolve(solicitud, "aceptar")}><Check size={17}/>{resolviendo === solicitud.id ? "Procesando…" : "Aceptar trato"}</button><button type="button" disabled={resolviendo === solicitud.id} className="danger" onClick={() => resolve(solicitud, "rechazar")}><X size={17}/>Rechazar</button></div>
       </article>)}</div>}
-    </section>
 
-    {pendientesModificacion.length > 0 && <section className="deal-panel" aria-labelledby="modificaciones-title">
-      <header className="deal-section-title"><div><span className="deal-section-icon"><RefreshCw size={19}/></span><div><h3 id="modificaciones-title">Solicitudes de cambio de cocheras</h3><p>Cambios en la cantidad de cocheras que las empresas solicitan en tus garages.</p></div></div><span>{pendientesModificacion.length} pendientes</span></header>
-      <div className="deal-request-grid">{pendientesModificacion.map((solicitud) => <article className="deal-request-card deal-request-card--modificacion" key={solicitud.id}>
+      <div className="deal-subsection-divider" />
+      <header className="deal-section-title deal-section-title--sub"><div><span className="deal-section-icon"><RefreshCw size={19}/></span><div><h3>Solicitudes de cambio de cocheras</h3><p>Cambios en la cantidad de cocheras que las empresas solicitan en tus garages.</p></div></div><span>{pendientesModificacion.length} pendientes</span></header>
+      {!pendientesModificacion.length ? <div className="deal-empty"><RefreshCw size={28}/><strong>No hay solicitudes de cambio pendientes</strong><p>Cuando una empresa solicite modificar la cantidad de cocheras de un trato, aparecerá acá.</p></div> : <div className="deal-request-grid">{pendientesModificacion.map((solicitud) => <article className="deal-request-card deal-request-card--modificacion" key={solicitud.id}>
         <header className="deal-request-card__top"><span><Building2 size={16}/>{nombreEmpresa(solicitud)}</span><small className="deal-badge--modificacion">Modificación</small></header>
         <div className="deal-request-garage"><ParkingCircle size={18}/><div><span>Garage</span><strong>{nombreGarage(solicitud)}</strong><small>{nombreSede(solicitud)}{solicitud.sede_ubicacion ? ` · ${solicitud.sede_ubicacion}` : ""}</small></div></div>
         <div className="deal-request-amount"><div className="deal-modificacion-cambio"><strong>{solicitud.cantidad_actual_trato || "?"}</strong><span>→</span><strong>{solicitud.cantidad_cocheras}</strong></div><span>cocheras propuestas</span></div>
         {solicitud.descripcion ? <p>{solicitud.descripcion}</p> : null}
         <div className="deal-request-actions"><button type="button" disabled={resolviendo === solicitud.id} onClick={() => resolveModificacion(solicitud, "autorizar")}><Check size={17}/>{resolviendo === solicitud.id ? "Procesando…" : "Autorizar cambio"}</button><button type="button" disabled={resolviendo === solicitud.id} className="danger" onClick={() => resolveModificacion(solicitud, "rechazar")}><X size={17}/>Rechazar</button></div>
-      </article>)}</div>
-    </section>}
+      </article>)}</div>}
+    </section>
 
     <section className="deal-panel" aria-labelledby="vigentes-title">
       <header className="deal-section-title"><div><span className="deal-section-icon"><Handshake size={19}/></span><div><h3 id="vigentes-title">Tratos vigentes</h3><p>Empresas con acuerdos activos en tus garages.</p></div></div><span>{tratos.length} activos</span></header>
