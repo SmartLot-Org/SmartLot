@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./agregar_zona.css";
-import Header from "../componentesAdmin/header_admin";
+import Header from "../componentesSuperadmin/header_superadmin";
+import { UsuariosGetAll } from "../servicies/API_Usuario";
 import { CirclePlus, ArrowLeft } from "lucide-react";
 import FormularioZona from "../componentesAdmin/formulario_zona";
 import FormularioCapacidad from "../componentesAdmin/formulario_capacidad";
@@ -26,6 +27,33 @@ function AgregarZona() {
   const [coordenadas, setCoordenadas] = useState({ lat: null, lng: null, direccion: '' });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [usuarios, setUsuarios] = useState([]);
+  const [cargandoUsuarios, setCargandoUsuarios] = useState(true);
+  const [errorUsuarios, setErrorUsuarios] = useState("");
+  const [idDueno, setIdDueno] = useState("");
+  const [idGaragistas, setIdGaragistas] = useState([]);
+  const [estado, setEstado] = useState(true);
+  const [intentoUsuarios, setIntentoUsuarios] = useState(0);
+
+  const cargarUsuarios = () => {
+    setCargandoUsuarios(true);
+    setErrorUsuarios("");
+    setIntentoUsuarios(actual => actual + 1);
+  };
+  useEffect(() => {
+    let activo = true;
+    UsuariosGetAll({ force: true }).then(response => {
+      if (!activo) return;
+      if (!response.respuesta || !Array.isArray(response.datos)) throw new Error();
+      setUsuarios(response.datos.filter(usuario => !usuario.Borrado));
+    }).catch(() => {
+      if (activo) setErrorUsuarios("No se pudieron cargar los usuarios. Volvé a intentar.");
+    }).finally(() => { if (activo) setCargandoUsuarios(false); });
+    return () => { activo = false; };
+  }, [intentoUsuarios]);
+  const duenos = usuarios.filter(usuario => usuario.tipo_rol?.trim().toLowerCase() === 'dueño_garage');
+  const garagistas = usuarios.filter(usuario => usuario.tipo_rol?.trim().toLowerCase() === 'garagista');
+  const nombreUsuario = usuario => `${usuario.nombre || ''} ${usuario.apellido || ''}`.trim() + ` (${usuario.email || '#' + usuario.id})`;
 
   const getSchema = () => ({
     nombre: [
@@ -93,7 +121,13 @@ function AgregarZona() {
   };
 
   const handleCrearZona = async () => {
+    if (loading) return;
     setError("");
+
+    if (cargandoUsuarios || errorUsuarios || !idDueno) {
+      setError("Seleccioná un dueño antes de crear el garage.");
+      return;
+    }
 
     if (!isValid) {
       setError("❌ Corrige los errores antes de guardar.");
@@ -103,6 +137,7 @@ function AgregarZona() {
     const capRes = Number(formData.capacidad_reservas);
     const capNoRes = Number(formData.capacidad_para_no_reservas);
     const cap = capRes + capNoRes;
+    if (cap <= 0) { setError("La capacidad total debe ser mayor que cero."); return; }
 
     let precios;
     try { precios = buildGaragePricesPayload(formData); }
@@ -118,7 +153,9 @@ function AgregarZona() {
       longitud: coordenadas.lng,
       hora_apertura: formData.hora_apertura,
       hora_cierre: formData.hora_cierre,
-      estado: true,
+      estado,
+      id_dueno: Number(idDueno),
+      id_garagistas: idGaragistas,
       capacidad: cap,
       capacidad_para_no_reservas: capNoRes,
       capacidad_reservas: capRes,
@@ -132,7 +169,7 @@ function AgregarZona() {
     setLoading(false);
 
     if (response.respuesta) {
-      navigate("/gestion_garages", { replace: true });
+      navigate("/superadmin/gestion_garages", { replace: true });
     } else {
       const errorMsg = response.datos?.message || response.datos || 'Error desconocido al conectar con la BD.';
       setError(`❌ Error al crear garage: ${typeof errorMsg === 'string' ? errorMsg : JSON.stringify(errorMsg)}`);
@@ -145,7 +182,7 @@ function AgregarZona() {
 
       <div className="contenido-agregar-zona">
         <div className="top-garage">
-          <button className="boton-back" onClick={() => navigate("/gestion_garages", { replace: true })}>
+          <button className="boton-back" onClick={() => navigate("/superadmin/gestion_garages", { replace: true })}>
             <ArrowLeft size={24} />
           </button>
 
@@ -157,6 +194,34 @@ function AgregarZona() {
         </div>
 
         <div className="form-garage">
+          <fieldset className="garage-responsables" disabled={loading || cargandoUsuarios}>
+            <legend>Dueño y personal</legend>
+            {cargandoUsuarios && <p role="status">Cargando usuarios...</p>}
+            {errorUsuarios && <p role="alert">{errorUsuarios} <button type="button" onClick={cargarUsuarios}>Reintentar</button></p>}
+            <label htmlFor="garage-dueno">Dueño del garage *</label>
+            <select id="garage-dueno" value={idDueno} onChange={event => setIdDueno(event.target.value)} required>
+              <option value="">Seleccionar dueño</option>
+              {duenos.map(usuario => <option key={usuario.id} value={usuario.id}>{nombreUsuario(usuario)}</option>)}
+            </select>
+            {!cargandoUsuarios && !errorUsuarios && duenos.length === 0 && <p>No hay dueños registrados. Creá un usuario con el rol dueño de garage para continuar.</p>}
+            <p id="garagistas-ayuda">Garagistas (opcional). Podés seleccionar varios o crear el garage sin garagistas.</p>
+            <div className="garage-personal-lista" role="group" aria-label="Garagistas" aria-describedby="garagistas-ayuda">
+              {garagistas.map(usuario => <label key={usuario.id}>
+                <input type="checkbox" checked={idGaragistas.includes(Number(usuario.id))}
+                  onChange={event => setIdGaragistas(actual => event.target.checked ? [...actual, Number(usuario.id)] : actual.filter(id => id !== Number(usuario.id)))} />
+                <span>{nombreUsuario(usuario)}</span>
+              </label>)}
+            </div>
+            {!cargandoUsuarios && !errorUsuarios && garagistas.length === 0 && <p>No hay garagistas registrados. Podés agregarlos más adelante.</p>}
+          </fieldset>
+          <fieldset className="garage-responsables" disabled={loading}>
+            <legend>Estado inicial</legend>
+            <label htmlFor="garage-estado">Estado del garage</label>
+            <select id="garage-estado" value={String(estado)} onChange={event => setEstado(event.target.value === 'true')}>
+              <option value="true">Abierto</option>
+              <option value="false">Cerrado</option>
+            </select>
+          </fieldset>
           <FormularioZona
             formData={formData}
             onChange={handleChange}
@@ -178,7 +243,7 @@ function AgregarZona() {
           <BotonGenerico
             className="btn-guardar-grande"
             onClick={handleCrearZona}
-            disabled={loading}
+            disabled={loading || cargandoUsuarios || Boolean(errorUsuarios) || !idDueno}
           >
             <CirclePlus size={22} />
             <span>{loading ? "Creando..." : "Crear Garage"}</span>
@@ -186,7 +251,7 @@ function AgregarZona() {
 
           <BotonGenerico
             className="btn-cancelar-grande"
-            onClick={() => navigate("/gestion_garages", { replace: true })}
+            onClick={() => navigate("/superadmin/gestion_garages", { replace: true })}
           >
             <span>Cancelar</span>
           </BotonGenerico>

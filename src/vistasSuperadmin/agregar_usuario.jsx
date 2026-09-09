@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, CircleCheck } from "lucide-react";
 
@@ -9,7 +9,6 @@ import { UsuariosCreate, UsuariosGetAll } from "../servicies/API_Usuario";
 import { EmpresasGetAll } from "../servicies/API_Empresa";
 import { SedesGetAll } from "../servicies/API_Sede";
 import { GaragesGetAll } from "../servicies/API_Garage";
-import { TratosGetAll } from "../servicies/API_TratoEmpresaGarage";
 import useLiveValidation from "../hooks/useLiveValidation";
 import FieldValidation from "../components/FieldValidation";
 import { showToast } from "../helpers/toast";
@@ -38,8 +37,8 @@ const ROLE_OPTIONS = [
   { id: 3, label: "Garagista" },
 ];
 
-const ROLES_NEED_EMPRESA = [1, 2, 3];
-const ROLES_NEED_SEDE = [1, 2, 3];
+const ROLES_NEED_EMPRESA = [1, 2];
+const ROLES_NEED_SEDE = [1, 2];
 const ROLES_NEED_GARAGE = [3];
 
 const AgregarUsuarioSkeleton = () => (
@@ -77,9 +76,6 @@ function AgregarUsuario() {
   const [empresas, setEmpresas] = useState([]);
   const [sedes, setSedes] = useState([]);
   const [garages, setGarages] = useState([]);
-  const [tratos, setTratos] = useState([]);
-  const [sedesFiltradas, setSedesFiltradas] = useState([]);
-  const [garagesFiltrados, setGaragesFiltrados] = useState([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [loadingCatalogos, setLoadingCatalogos] = useState(true);
@@ -93,22 +89,16 @@ function AgregarUsuario() {
     const fetchData = async () => {
       setLoadingCatalogos(true);
       try {
-        const [empRes, sedRes, garRes, tratosRes, rolesRes] = await Promise.all([
+        const [empRes, sedRes, garRes, rolesRes] = await Promise.all([
           EmpresasGetAll(),
           SedesGetAll(),
           GaragesGetAll(),
-          TratosGetAll(),
           RolesGetAll(),
         ]);
         if (!mounted) return;
         if (empRes.respuesta) setEmpresas(obtenerListado(empRes.datos));
         if (sedRes.respuesta) setSedes(obtenerListado(sedRes.datos));
-        if (garRes.respuesta) {
-          const garageList = obtenerListado(garRes.datos);
-          setGarages(garageList);
-          setGaragesFiltrados(garageList);
-        }
-        if (tratosRes.respuesta) setTratos(obtenerListado(tratosRes.datos));
+        if (garRes.respuesta) setGarages(obtenerListado(garRes.datos));
         if (rolesRes.respuesta) {
           const roles = obtenerListado(rolesRes.datos);
           const owner = roles.find((role) => normalizeRoleName(role.tipo_rol) === 'due\u00f1o_garage');
@@ -124,30 +114,26 @@ function AgregarUsuario() {
     return () => { mounted = false; };
   }, []);
 
-  useEffect(() => {
-    if (formData.id_empresa) {
-      setSedesFiltradas(
-        sedes.filter((s) => Number(s.id_empresa) === Number(formData.id_empresa))
-      );
-      setFormData((prev) => ({ ...prev, id_sede: "", id_garage: "" }));
-    } else {
-      setSedesFiltradas([]);
-      setFormData((prev) => ({ ...prev, id_sede: "", id_garage: "" }));
-    }
-  }, [formData.id_empresa]);
-
-  useEffect(() => {
-    const idsContratados = new Set(
-      tratos
-        .filter((trato) => Number(trato.id_sede) === Number(formData.id_sede))
-        .map((trato) => Number(trato.id_garage))
-    );
-    setGaragesFiltrados(garages.filter((garage) => idsContratados.has(Number(garage.id_garage ?? garage.id))));
-    setFormData((prev) => ({ ...prev, id_garage: "" }));
-  }, [formData.id_sede, garages, tratos]);
+  const sedesFiltradas = useMemo(
+    () => formData.id_empresa
+      ? sedes.filter((s) => Number(s.id_empresa) === Number(formData.id_empresa))
+      : [],
+    [formData.id_empresa, sedes]
+  );
 
   const handleChange = (field, value) => {
-    handleChangeWithTouch(field, value, setFormData);
+    handleChangeWithTouch(field, value, (updater) => {
+      setFormData((prev) => {
+        const next = updater(prev);
+        if (field === "id_rol") {
+          return { ...next, id_empresa: "", id_sede: "", id_garage: "" };
+        }
+        if (field === "id_empresa") {
+          return { ...next, id_sede: "", id_garage: "" };
+        }
+        return next;
+      });
+    });
   };
 
   const getSchema = () => ({
@@ -412,14 +398,11 @@ function AgregarUsuario() {
                 <select
                   value={formData.id_garage}
                   onChange={(e) => handleChange("id_garage", e.target.value)}
-                  disabled={!formData.id_sede}
                   autoComplete="off"
                   required={needsGarage}
                 >
-                  <option value="">
-                    {formData.id_sede ? "Seleccionar garage..." : "Primero elige una sede"}
-                  </option>
-                  {garagesFiltrados.map((gar) => (
+                  <option value="">Seleccionar garage...</option>
+                  {garages.map((gar) => (
                     <option key={gar.id_garage || gar.id} value={gar.id_garage || gar.id}>
                       {gar.nombre}
                     </option>
