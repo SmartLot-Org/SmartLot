@@ -1041,3 +1041,322 @@
     flex: 1;
   }
 }
+
+/* ==========================================================================
+   BANDEJA DE SOLICITUDES DE REGISTRO DE EMPRESAS
+   ========================================================================== */
+
+.btn-solicitudes {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 8px 16px !important;
+  border-radius: 10px !important;
+  background: #F1F5F9 !important;
+  color: #475569 !important;
+  border: 1px solid #E2E8F0 !important;
+  font-weight: 600 !important;
+  font-size: 13px !important;
+  cursor: pointer !important;
+  transition: all 0.2s !important;
+}
+
+.btn-solicitudes:hover {
+  background: #E2E8F0 !important;
+}
+
+.solicitudes-count-badge {
+  background: #D97706;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 1px 6px;
+  border-radius: 10px;
+  line-height: 1.4;
+}
+
+/* 1. PANEL PRINCIPAL */
+.modal-solicitudes-panel {
+  width: min(560px, 92vw);
+  max-height: 85vh;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: 16px;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  box-shadow:
+    0 20px 25px -5px rgba(15, 23, 42, 0.08),
+    0 10px 10px -5px rgba(15, 23, 42, 0.04);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* 2. ENCABEZADO */
+.modal-solicitudes-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid #f1f5f9 !important;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #fafbfc !important;
+}
+
+.modal-solicitudes-title-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #0f1a2e !important;
+}
+
+.modal-solicitudes-title-group svg {
+  color: #475569 !important;
+  flex-shrink: 0;
+}
+
+.modal-solicitudes-title-group h2 {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.modal-solicitudes-title-group p {
+  font-size: 12px;
+  font-weight: 500;
+  color: #64748b !important;
+  margin: 2px 0 0 0;
+}
+
+.modal-solicitudes-close {
+  background: none;
+  border: none;
+  color: #94a3b8 !important;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.modal-solicitudes-close:hover {
+  background: #f1f5f9 !important;
+  color: #0f1a2e;
+}
+
+/* 3. BÚSQUEDA */
+.modal-solicitudes-search {
+  padding: 16px 24px;
+  background: #fafbfc !important;
+  border-bottom: 1px solid #f1f5f9 !important;
+}
+
+/* 4. CUERPO */
+.modal-solicitudes-body {
+  padding: 20px 24px;
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: #ffffff !important;
+}
+
+.modal-solicitudes-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modal-solicitudes-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.modal-solicitudes-body::-webkit-scrollbar-thumb {
+  background: #cbd5e1 !important;
+  border-radius: 999px;
+}
+
+/* 5. TARJETAS DE SOLICITUD */
+.solicitud-registro-card {
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition:
+    transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.2s ease;
+  will-change: transform, opacity, box-shadow;
+}
+
+.solicitud-registro-card:hover {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.04);
+}
+
+.solicitud-registro-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.solicitud-registro-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.solicitud-registro-info h3 {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 4px 0;
+}
+
+.solicitud-registro-card .usuario-email {
+  font-size: 13px;
+  color: #64748b !important;
+  margin: 0;
+  padding-left: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.badge-solicitud-pendiente {
+  font-size: 10px;
+  font-weight: 700;
+  color: #92400e !important;
+  background: #fef3c7 !important;
+  border: 1px solid #fde68a !important;
+  padding: 3px 8px;
+  border-radius: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.solicitud-registro-empresa {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+
+.solicitud-registro-empresa svg {
+  color: #2563eb !important;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.solicitud-registro-empresa strong {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.solicitud-registro-empresa p {
+  font-size: 12px;
+  color: #64748b !important;
+  margin: 2px 0 0 0;
+  line-height: 1.5;
+}
+
+.solicitud-registro-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #64748b !important;
+  padding-left: 2px;
+}
+
+.solicitud-registro-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+  border-top: 1px solid #f1f5f9 !important;
+  padding-top: 12px;
+}
+
+.solicitud-registro-actions .btn-aprobar-solicitud {
+  flex: 1;
+  height: 36px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  background: rgba(22, 163, 74, 0.08) !important;
+  border: 1px solid rgba(22, 163, 74, 0.2) !important;
+  color: #15803d !important;
+  border-radius: 8px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.solicitud-registro-actions .btn-aprobar-solicitud:hover:not(:disabled) {
+  background: #16a34a !important;
+  border-color: transparent !important;
+  color: #ffffff !important;
+}
+
+.solicitud-registro-actions .btn-rechazar-solicitud {
+  flex: 1;
+  height: 36px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  background: rgba(239, 68, 68, 0.06) !important;
+  border: 1px solid rgba(239, 68, 68, 0.15) !important;
+  color: #dc2626 !important;
+  border-radius: 8px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.solicitud-registro-actions .btn-rechazar-solicitud:hover:not(:disabled) {
+  background: #ef4444 !important;
+  border-color: transparent !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+}
+
+.solicitud-registro-actions .btn-aprobar-solicitud:disabled,
+.solicitud-registro-actions .btn-rechazar-solicitud:disabled {
+  opacity: 0.6 !important;
+  cursor: not-allowed !important;
+}
+
+.empty-solicitudes {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 16px;
+  text-align: center;
+  color: #94a3b8 !important;
+}
+
+.empty-solicitudes svg {
+  margin-bottom: 12px;
+  color: #cbd5e1 !important;
+}

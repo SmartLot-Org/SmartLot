@@ -14,6 +14,8 @@ import {
   Building2,
   Car,
   ShieldCheck,
+  Check,
+  Inbox,
   Filter, // <-- Nuevo icono
   SlidersHorizontal // <-- Nuevo icono
 } from "lucide-react";
@@ -21,6 +23,7 @@ import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import Swal from "sweetalert2";
 import { Z_INDEX } from "../helpers/zIndex";
+import { showToast } from "../helpers/toast";
 import { guardarSuperadminBackup, guardarUsuarioImpersonado } from "../helpers/superadminSession";
 import { useAuth } from "../contexts/useAuth";
 
@@ -41,6 +44,11 @@ import {
 import { EmpresasGetAll } from "../servicies/API_Empresa";
 import { SedesGetAll } from "../servicies/API_Sede";
 import { GaragesGetAll } from "../servicies/API_Garage";
+import {
+  SolicitudesRegistroGetAll,
+  SolicitudesRegistroAprobar,
+  SolicitudesRegistroRechazar,
+} from "../servicies/API_SolicitudRegistro";
 import { getUserHomeRoute } from '../helpers/roles';
 import { getUsuarioGarageIds, mergeUsuariosById } from '../helpers/usuarios';
 
@@ -196,6 +204,10 @@ const GestionUsuarios = () => {
   const [selectedGarage, setSelectedGarage] = useState("");
   const [showArchived, setShowArchived] = useState(false);
   const [garagesModalUsuario, setGaragesModalUsuario] = useState(null);
+  const [solicitudes, setSolicitudes] = useState([]);
+  const [showSolicitudes, setShowSolicitudes] = useState(false);
+  const [searchSolicitudesTerm, setSearchSolicitudesTerm] = useState("");
+  const [resolviendoSolicitud, setResolviendoSolicitud] = useState(null);
   const [showFilters, setShowFilters] = useState(false); // Estado para abrir/cerrar filtros
   const { usuario, setUsuario, setRoleTransition } = useAuth();
 
@@ -234,12 +246,13 @@ const GestionUsuarios = () => {
       setError("");
 
       try {
-        const [usuRes, empRes, sedRes, garRes, auditRes] = await Promise.all([
+        const [usuRes, empRes, sedRes, garRes, auditRes, solRes] = await Promise.all([
           UsuariosGetAll(),
           EmpresasGetAll(),
           SedesGetAll(),
           GaragesGetAll(),
           UsuariosGetAuditoria(),
+          SolicitudesRegistroGetAll(),
         ]);
 
         if (!mounted) return;
@@ -267,6 +280,9 @@ const GestionUsuarios = () => {
         setSedeMap(sMap);
         setGarageMap(gMap);
         setUsuarios(mergeUsuariosById(usuariosRaw).map((u) => normalizarUsuario(u, eMap, sMap, gMap)));
+        if (solRes.respuesta) {
+          setSolicitudes(obtenerListado(solRes.datos));
+        }
         if (auditRes.respuesta) {
           setAuditoria(crearEventosAuditoriaUsuario(obtenerListado(auditRes.datos)));
         }
@@ -290,6 +306,36 @@ const GestionUsuarios = () => {
       setAuditoria(crearEventosAuditoriaUsuario(obtenerListado(auditRes.datos)));
     }
     setLoadingAuditoria(false);
+  };
+
+  const cargarSolicitudes = async () => {
+    const solRes = await SolicitudesRegistroGetAll({ force: true });
+    if (solRes.respuesta) {
+      setSolicitudes(obtenerListado(solRes.datos));
+    }
+  };
+
+  const recargarUsuariosYEmpresas = async () => {
+    const [usuRes, empRes] = await Promise.all([
+      UsuariosGetAll({ force: true }),
+      EmpresasGetAll({ force: true }),
+    ]);
+    if (!usuRes.respuesta) return;
+    const empresas = empRes.respuesta ? obtenerListado(empRes.datos) : [];
+    const eMap = Object.fromEntries(empresas.map((e) => [Number(e.id), e.nombre]));
+    setEmpresaMap(eMap);
+    setUsuarios(
+      mergeUsuariosById(obtenerListado(usuRes.datos)).map((u) =>
+        normalizarUsuario(u, eMap, sedeMap, garageMap)
+      )
+    );
+  };
+
+  const formatearFechaSolicitud = (valor) => {
+    if (!valor) return "fecha desconocida";
+    const fecha = new Date(valor);
+    if (Number.isNaN(fecha.getTime())) return "fecha desconocida";
+    return fecha.toLocaleDateString("es-AR", { day: "numeric", month: "short", year: "numeric" });
   };
 
   useEffect(() => {
@@ -415,6 +461,108 @@ const GestionUsuarios = () => {
     () => usuarios.filter((u) => u.activo === false).length,
     [usuarios]
   );
+
+  const solicitudesPendientes = useMemo(
+    () => solicitudes.filter((s) => s?.estado === "pendiente"),
+    [solicitudes]
+  );
+
+  const totalSolicitudesPendientes = solicitudesPendientes.length;
+
+  const solicitudesFiltradas = useMemo(() => {
+    const query = searchSolicitudesTerm.toLowerCase().trim();
+    return solicitudesPendientes.filter((s) => {
+      if (!query) return true;
+      return (
+        `${s.nombre || ""} ${s.apellido || ""}`.toLowerCase().includes(query) ||
+        (s.email || "").toLowerCase().includes(query) ||
+        (s.empresa_nombre || "").toLowerCase().includes(query)
+      );
+    });
+  }, [searchSolicitudesTerm, solicitudesPendientes]);
+
+  const handleAprobarSolicitud = async (solicitud) => {
+    const nombreEmpresa = solicitud.empresa_nombre || "la empresa";
+    const result = await Swal.fire({
+      title: "¿Aprobar solicitud?",
+      text: `Se creará ${nombreEmpresa} y su usuario administrador.`,
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonColor: "#16A34A",
+      cancelButtonColor: "#64748B",
+      confirmButtonText: "Sí, aprobar",
+      cancelButtonText: "Cancelar",
+      reverseButtons: true,
+      zIndex: Z_INDEX.SWAL_DIALOG,
+    });
+
+    if (!result.isConfirmed) return;
+
+    setResolviendoSolicitud(solicitud.id);
+    try {
+      const response = await SolicitudesRegistroAprobar(solicitud.id);
+      if (response.respuesta) {
+        gsap.to(`.solicitud-card-id-${solicitud.id}`, {
+          scale: 0.95,
+          opacity: 0,
+          duration: 0.25,
+          ease: "power2.inOut",
+          onComplete: async () => {
+            await cargarSolicitudes();
+            await recargarUsuariosYEmpresas();
+            showToast("Empresa y administrador creados.", "success");
+          },
+        });
+      } else {
+        Swal.fire("Error", response.datos?.message || "No se pudo aprobar.", "error");
+      }
+    } catch (err) {
+      Swal.fire("Error de red", "Hubo un error al conectar.", "error");
+    } finally {
+      setResolviendoSolicitud(null);
+    }
+  };
+
+  const handleRechazarSolicitud = async (solicitud) => {
+    const nombreEmpresa = solicitud.empresa_nombre || "la empresa";
+    const result = await Swal.fire({
+      title: "¿Rechazar solicitud?",
+      text: `Se descartará el registro de ${nombreEmpresa}.`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#EF4444",
+      cancelButtonColor: "#64748B",
+      confirmButtonText: "Sí, rechazar",
+      cancelButtonText: "Cancelar",
+      reverseButtons: true,
+      zIndex: Z_INDEX.SWAL_DIALOG,
+    });
+
+    if (!result.isConfirmed) return;
+
+    setResolviendoSolicitud(solicitud.id);
+    try {
+      const response = await SolicitudesRegistroRechazar(solicitud.id);
+      if (response.respuesta) {
+        gsap.to(`.solicitud-card-id-${solicitud.id}`, {
+          scale: 0.95,
+          opacity: 0,
+          duration: 0.25,
+          ease: "power2.inOut",
+          onComplete: async () => {
+            await cargarSolicitudes();
+            showToast("Solicitud rechazada.", "success");
+          },
+        });
+      } else {
+        Swal.fire("Error", response.datos?.message || "No se pudo rechazar.", "error");
+      }
+    } catch (err) {
+      Swal.fire("Error de red", "Hubo un error al conectar.", "error");
+    } finally {
+      setResolviendoSolicitud(null);
+    }
+  };
 
   const handleArchivar = async (id, nombre) => {
     const result = await Swal.fire({
@@ -597,6 +745,45 @@ const GestionUsuarios = () => {
     }
   }, [showArchived]);
 
+  // Bloqueo de scroll + Escape para la bandeja de solicitudes
+  const cerrarSolicitudes = () => {
+    setShowSolicitudes(false);
+    setSearchSolicitudesTerm("");
+  };
+
+  useEffect(() => {
+    if (!showSolicitudes) return;
+
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const handleKey = (e) => {
+      if (e.key === "Escape") cerrarSolicitudes();
+    };
+    document.addEventListener("keydown", handleKey);
+
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      document.removeEventListener("keydown", handleKey);
+    };
+  }, [showSolicitudes]);
+
+  // Animación de la bandeja de solicitudes
+  useGSAP(() => {
+    if (showSolicitudes) {
+      gsap.fromTo(
+        ".modal-portal-overlay",
+        { opacity: 0 },
+        { opacity: 1, duration: 0.25, ease: "power2.out" }
+      );
+      gsap.fromTo(
+        ".modal-solicitudes-panel",
+        { y: 30, opacity: 0, scale: 0.97 },
+        { y: 0, opacity: 1, scale: 1, duration: 0.35, ease: "power3.out", delay: 0.05 }
+      );
+    }
+  }, [showSolicitudes]);
+
   // Animación del Dropdown de Filtros (AutoAlpha para mejor Performance)
   useGSAP(() => {
     if (showFilters) {
@@ -637,6 +824,17 @@ const GestionUsuarios = () => {
               <span>Archivados</span>
               {totalArchivados > 0 && (
                 <span className="archivados-count-badge">{totalArchivados}</span>
+              )}
+            </BotonGenerico>
+
+            <BotonGenerico
+              className="btn-solicitudes"
+              onClick={() => setShowSolicitudes(true)}
+            >
+              <Inbox size={20} />
+              <span>Solicitudes</span>
+              {totalSolicitudesPendientes > 0 && (
+                <span className="solicitudes-count-badge">{totalSolicitudesPendientes}</span>
               )}
             </BotonGenerico>
 
@@ -1023,6 +1221,108 @@ const GestionUsuarios = () => {
                           </BotonGenerico>
                         </>
                       )}
+                    </div>
+                  </article>
+                ))
+              )}
+            </div>
+          </div>
+        </ModalPortal>
+      )}
+
+      {/* BANDEJA DE SOLICITUDES DE REGISTRO DE EMPRESAS */}
+      {showSolicitudes && (
+        <ModalPortal onClose={cerrarSolicitudes}>
+          <div
+            className="modal-solicitudes-panel"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="modal-solicitudes-header">
+              <div className="modal-solicitudes-title-group">
+                <Inbox size={24} />
+                <div>
+                  <h2>Solicitudes de registro</h2>
+                  <p>Empresas pendientes de validación</p>
+                </div>
+              </div>
+              <button
+                className="modal-solicitudes-close"
+                onClick={cerrarSolicitudes}
+                aria-label="Cerrar bandeja de solicitudes"
+              >
+                <X size={22} />
+              </button>
+            </div>
+
+            <div className="modal-solicitudes-search">
+              <div className="usuarios-search" style={{ width: "100%" }}>
+                <Search className="search-icon" size={20} />
+                <input
+                  type="text"
+                  placeholder="Buscar por nombre, email o empresa..."
+                  value={searchSolicitudesTerm}
+                  onChange={(e) => setSearchSolicitudesTerm(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <div className="modal-solicitudes-body">
+              {totalSolicitudesPendientes === 0 ? (
+                <div className="empty-solicitudes">
+                  <Inbox size={48} />
+                  <p className="empty-text">No hay solicitudes pendientes</p>
+                  <p className="empty-sub">
+                    Los registros de nuevas empresas aparecerán aquí.
+                  </p>
+                </div>
+              ) : solicitudesFiltradas.length === 0 ? (
+                <div className="usuarios-no-results" style={{ padding: "40px 20px" }}>
+                  <p>No se encontraron solicitudes para "{searchSolicitudesTerm}"</p>
+                </div>
+              ) : (
+                solicitudesFiltradas.map((s) => (
+                  <article key={s.id} className={`solicitud-registro-card solicitud-card-id-${s.id}`}>
+                    <div className="solicitud-registro-top">
+                      <div className="solicitud-registro-info">
+                        <div className="usuario-avatar">{(s.nombre || "?").charAt(0).toUpperCase()}</div>
+                        <div>
+                          <h3>{`${s.nombre || ""} ${s.apellido || ""}`.trim() || "Sin nombre"}</h3>
+                          <p className="usuario-email">{s.email}</p>
+                        </div>
+                      </div>
+                      <span className="badge-solicitud-pendiente">Pendiente</span>
+                    </div>
+
+                    <div className="solicitud-registro-empresa">
+                      <Building2 size={15} />
+                      <div>
+                        <strong>{s.empresa_nombre}</strong>
+                        {s.empresa_descripcion && <p>{s.empresa_descripcion}</p>}
+                      </div>
+                    </div>
+
+                    <div className="solicitud-registro-meta">
+                      {s.telefono && <span>{s.telefono}</span>}
+                      <span>Recibida el {formatearFechaSolicitud(s.created_at)}</span>
+                    </div>
+
+                    <div className="solicitud-registro-actions">
+                      <BotonGenerico
+                        className="btn-aprobar-solicitud"
+                        disabled={resolviendoSolicitud === s.id}
+                        onClick={() => handleAprobarSolicitud(s)}
+                      >
+                        <Check size={16} />
+                        <span>{resolviendoSolicitud === s.id ? "Procesando…" : "Aprobar"}</span>
+                      </BotonGenerico>
+                      <BotonGenerico
+                        className="btn-rechazar-solicitud"
+                        disabled={resolviendoSolicitud === s.id}
+                        onClick={() => handleRechazarSolicitud(s)}
+                      >
+                        <X size={16} />
+                        <span>Rechazar</span>
+                      </BotonGenerico>
                     </div>
                   </article>
                 ))
