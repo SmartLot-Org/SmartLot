@@ -65,6 +65,12 @@ test('la bandeja vive en gestión de usuarios con aprobar y rechazar', () => {
   assert.match(gestion, /solicitudes-count-badge/);
 });
 
+test('?modo=garage abre el registro en modo garage', () => {
+  assert.match(register, /useSearchParams/);
+  assert.match(register, /MODO_GARAGE/);
+  assert.match(register, /get\("modo"\) === "garage"/);
+});
+
 test('el cambio de modo anima altura y respeta reduced motion', () => {
   assert.match(register, /offsetHeight/);
   assert.match(register, /prefers-reduced-motion: reduce/);

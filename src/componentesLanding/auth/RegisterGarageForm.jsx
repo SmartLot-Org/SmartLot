@@ -189,7 +189,6 @@ export default function RegisterGarageForm() {
         {...getFieldProps("telefono", setFormData)}
         conditions={buildConditions("telefono")}
         isTouched={touched.telefono}
-        hint="Solo números, de 7 a 15 dígitos."
       />
 
       <RegisterField

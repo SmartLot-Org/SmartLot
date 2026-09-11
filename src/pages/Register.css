@@ -13,6 +13,46 @@
   }
 }
 
+/* ── Layout sin scroll de página (desktop) ──
+   La página queda fijada al viewport: el panel del formulario ocupa
+   exactamente la altura visible y, si el contenido excede, hace scroll
+   interno (nunca scroll de página). En móvil el flujo es normal. */
+.register-page {
+  scrollbar-gutter: stable;
+}
+
+@media (min-width: 768px) {
+  .register-page {
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .register-form-pane {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(37, 99, 235, 0.25) transparent;
+  }
+
+  .register-form-pane::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .register-form-pane::-webkit-scrollbar-thumb {
+    background: rgba(37, 99, 235, 0.25);
+    border-radius: 999px;
+  }
+
+  .register-form-pane::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
+
+/* Compensar la barra de scroll de la ventana (html tiene overflow-y: scroll) */
+@media (min-width: 768px) {
+  html:has(.register-page) {
+    overflow-y: hidden;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .register-success-pop {
     animation: none;

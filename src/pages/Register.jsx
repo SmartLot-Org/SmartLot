@@ -1,11 +1,11 @@
-import { useRef, useState } from "react";
-import { Link, Navigate } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Link, Navigate, useSearchParams } from "react-router-dom";
+import { ArrowLeft, Building2 } from "lucide-react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { useAuth } from "../contexts/useAuth";
 import { getUserHomeRoute } from "../helpers/roles";
-import RegisterRoleToggle, { MODO_EMPRESA } from "../componentesLanding/auth/RegisterRoleToggle";
+import RegisterRoleToggle, { MODO_EMPRESA, MODO_GARAGE } from "../componentesLanding/auth/RegisterRoleToggle";
 import RegisterEmpresaForm from "../componentesLanding/auth/RegisterEmpresaForm";
 import RegisterGarageForm from "../componentesLanding/auth/RegisterGarageForm";
 import RegisterBrandPanel from "../componentesLanding/auth/RegisterBrandPanel";
@@ -15,10 +15,29 @@ gsap.registerPlugin(useGSAP);
 
 export default function Register() {
   const { usuario } = useAuth();
+  const [searchParams] = useSearchParams();
   const container = useRef(null);
   const formWrapRef = useRef(null);
-  const [modo, setModo] = useState(MODO_EMPRESA);
-  const [renderedModo, setRenderedModo] = useState(MODO_EMPRESA);
+  const modoInicial = searchParams.get("modo") === "garage" ? MODO_GARAGE : MODO_EMPRESA;
+  const [modo, setModo] = useState(modoInicial);
+  const [renderedModo, setRenderedModo] = useState(modoInicial);
+
+  // En desktop fijamos la página al viewport para evitar scroll de página;
+  // si el contenido excede la altura, el propio panel hace scroll interno.
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 768px)");
+    const aplicar = () => {
+      document.body.style.overflow = mq.matches ? "hidden" : "";
+      document.body.style.height = mq.matches ? "100vh" : "";
+    };
+    aplicar();
+    mq.addEventListener("change", aplicar);
+    return () => {
+      mq.removeEventListener("change", aplicar);
+      document.body.style.overflow = "";
+      document.body.style.height = "";
+    };
+  }, []);
 
   useGSAP(
     () => {
@@ -91,27 +110,35 @@ export default function Register() {
   if (usuario) return <Navigate to={getUserHomeRoute(usuario)} replace />;
 
   return (
-    <div ref={container} className="min-h-screen bg-white relative flex flex-col md:flex-row overflow-hidden">
-      <div className="w-full md:w-1/2 min-h-screen flex items-center justify-center p-6 sm:p-12 relative z-10 bg-white">
-        <div className="w-full max-w-md py-8">
+    <div ref={container} className="register-page min-h-screen md:h-screen bg-white relative flex flex-col md:flex-row md:overflow-hidden">
+      <div className="register-form-pane w-full md:w-1/2 min-h-screen md:h-screen md:overflow-y-auto flex flex-col p-6 sm:p-12 relative z-10 bg-white">
+        <div className="m-auto w-full max-w-md py-8">
           <Link
             to="/"
-            className="auth-stagger inline-flex items-center gap-2 text-sm font-semibold text-brand-muted hover:text-brand-blue transition-colors mb-6 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue rounded"
+            className="auth-stagger inline-flex items-center gap-1.5 text-sm font-semibold text-brand-muted hover:text-brand-blue transition-colors mb-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue rounded"
           >
-            <ArrowLeft size={18} aria-hidden="true" />
+            <ArrowLeft size={16} aria-hidden="true" />
             Volver al inicio
           </Link>
 
-          <h1 className="auth-stagger text-3xl md:text-4xl font-extrabold text-brand-warm mb-1 font-display">
+          <h1 className="auth-stagger text-3xl md:text-4xl font-extrabold text-brand-warm mb-4 font-display">
             Creá tu cuenta
           </h1>
-          <p className="auth-stagger text-brand-muted text-sm md:text-base mb-6 leading-relaxed">
-            Elegí tu perfil para empezar
-          </p>
 
           <RegisterRoleToggle modo={modo} onChange={cambiarModo} />
 
-          <div ref={formWrapRef} className="mt-6">
+          {modo === MODO_EMPRESA && (
+            <div className="auth-stagger flex gap-2.5 rounded-xl border border-brand-blue/20 bg-brand-blue/5 p-3 mt-4">
+              <Building2 size={18} className="text-brand-blue shrink-0 mt-0.5" aria-hidden="true" />
+              <p className="text-sm text-brand-muted leading-relaxed">
+                Tu registro debe ser <strong className="text-brand-warm">aprobado</strong> antes de que se pueda
+                crear tu usuario con tu empresa. Luego, desde tu dashboard vas a poder{" "}
+                <strong className="text-brand-warm">crear tus sedes</strong>.
+              </p>
+            </div>
+          )}
+
+          <div ref={formWrapRef} className="mt-4">
             {renderedModo === MODO_EMPRESA ? (
               <RegisterEmpresaForm key="empresa" />
             ) : (
@@ -119,7 +146,10 @@ export default function Register() {
             )}
           </div>
 
-          <p className="auth-stagger text-center text-sm text-brand-muted mt-6">
+          <p
+            className="auth-stagger text-center text-sm text-brand-muted"
+            style={{ marginTop: "1rem" }}
+          >
             ¿Ya tenés cuenta?{" "}
             <Link to="/login" className="font-semibold text-brand-blue hover:underline">
               Ingresá
@@ -128,7 +158,7 @@ export default function Register() {
         </div>
       </div>
 
-      <div className="hidden md:block w-full md:w-1/2 min-h-screen relative z-0">
+      <div className="hidden md:block w-full md:w-1/2 md:h-screen relative z-0">
         <RegisterBrandPanel modo={modo} />
       </div>
     </div>

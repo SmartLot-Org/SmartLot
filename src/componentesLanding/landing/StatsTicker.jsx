@@ -2,14 +2,17 @@ import { useRef } from 'react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 
-const stats = [
+const DEFAULT_STATS = [
   { label: "Satisfacción del cliente", value: "4.9/5" },
   { label: "Tiempo de respuesta", value: "2 min" },
   { label: "Calificación en empresas", value: "4.8★" },
   { label: "Soporte técnico", value: "24/7" },
 ];
 
-export default function StatsTicker() {
+export default function StatsTicker({
+  stats = DEFAULT_STATS,
+  ariaLabel = "Estadísticas de la plataforma",
+}) {
   const tickerRef = useRef();
 
   useGSAP(() => {
@@ -31,7 +34,7 @@ export default function StatsTicker() {
   }, { scope: tickerRef });
 
   return (
-    <div ref={tickerRef} className="w-full bg-brand-deep py-6 overflow-hidden border-y border-white/5" aria-label="Estadísticas de la plataforma">
+    <div ref={tickerRef} className="w-full bg-brand-deep py-6 overflow-hidden border-y border-white/5" aria-label={ariaLabel}>
       <div className="ticker-track flex whitespace-nowrap w-fit" aria-hidden="true">
 
         {[...Array(2)].map((_, idx) => (

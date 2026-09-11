@@ -56,10 +56,15 @@ export default function RegisterRoleToggle({ modo, onChange, disabled = false })
           );
         })}
       </div>
-      <p className="mt-2 text-center text-sm text-brand-muted" aria-live="polite">
+      <p
+        className="flex items-center justify-center gap-2 text-sm leading-none text-brand-muted"
+        style={{ marginTop: "1.25rem" }}
+        aria-live="polite"
+      >
+        <span className="h-1 w-1 rounded-full bg-brand-blue/60 shrink-0" aria-hidden="true" />
         {modo === MODO_EMPRESA
-          ? "Para administradores de empresas con flotas de vehículos."
-          : "Para dueños de garages que quieren publicar sus espacios."}
+          ? "Gestioná la flota y las cocheras de tu empresa."
+          : "Publicá tus garages y aparecé en el mapa de empresas."}
       </p>
     </div>
   );

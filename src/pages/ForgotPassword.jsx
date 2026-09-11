@@ -317,7 +317,7 @@ export default function ForgotPassword() {
 
         <h1 className="login-titulo">Recuperar Contraseña</h1>
         <p className="login-subtitulo">
-          {paso === 'email' && 'Te enviaremos un código de verificación a tu correo'}
+          {paso === 'email' && 'Te enviaremos un código de verificación a tu correo para que inicies sesión o cambies tu contraseña.'}
           {paso === 'codigo' && 'Ingresá el código para iniciar sesión o cambiá tu contraseña (opcional)'}
           {paso === 'exito' && ''}
         </p>

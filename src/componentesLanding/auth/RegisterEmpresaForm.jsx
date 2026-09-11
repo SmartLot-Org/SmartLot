@@ -212,11 +212,10 @@ export default function RegisterEmpresaForm() {
         type="tel"
         inputMode="numeric"
         autoComplete="tel"
-        {...getFieldProps("telefono", setFormData)}
-        conditions={buildConditions("telefono")}
-        isTouched={touched.telefono}
-        hint="Solo números, de 7 a 15 dígitos."
-      />
+          {...getFieldProps("telefono", setFormData)}
+          conditions={buildConditions("telefono")}
+          isTouched={touched.telefono}
+        />
 
       <RegisterField
         id="reg-emp-contraseña"
@@ -247,7 +246,6 @@ export default function RegisterEmpresaForm() {
         id="reg-emp-empresa-nombre"
         label="Nombre de la empresa"
         autoComplete="organization"
-        placeholder="Ej: Transportes del Sur"
         {...getFieldProps("empresa_nombre", setFormData)}
         conditions={buildConditions("empresa_nombre")}
         isTouched={touched.empresa_nombre}
