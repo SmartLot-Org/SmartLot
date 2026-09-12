@@ -57,6 +57,7 @@ import Logout from "./pages/Logout";
 import Unauthorized from "./pages/Unauthorized";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ErrorBoundary from "./components/ErrorBoundary";
+import ScrollToTop from "./components/ScrollToTop";
 import { useAuth } from "./contexts/useAuth";
 import { setNavigate } from "./api/navigation";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -286,6 +287,7 @@ function AppRoutes() {
 function App() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <ErrorBoundary>
         <AppRoutes />
       </ErrorBoundary>
