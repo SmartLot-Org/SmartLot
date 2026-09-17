@@ -9,10 +9,21 @@ gsap.registerPlugin(ScrollTrigger);
 
 const TOTAL_FRAMES = 120;
 const FRAME_PATH = (i) => `/GIF_IMGS_LOGO/ffout${String(i).padStart(3, '0')}.png`;
-// Los frames del gif tienen el logo más chico (con padding) que logoEntero.png:
-// arrancamos la reproducción con este zoom para que el tamaño coincida y lo
-// bajamos a 1 durante el giro.
+// Los frames tienen el logo más chico (con padding para el giro) que
+// logoEntero.png: arrancamos con este zoom para que coincida y lo bajamos
+// a 1 durante el giro.
+// Medición al píxel (bbox con alfa > 100, arte central sin halo/sombra):
+//   logoEntero.png 1408x768 → contenido 1148x441 (aspecto 2.603)
+//   ffout001.png    800x450 → contenido  426x164 (aspecto 2.598)
+// El 1.25 iguala el *área* aparente (ancho −6.7% / alto +7.4%, se compensan
+// a la vista) y es el tamaño que el recorrido original usa en todo el giro,
+// así que se mantiene: achicarlo más se notaba como encogimiento.
 const START_FRAME_ZOOM = 1.25;
+// Con el zoom 1.25 el centro del frame0 queda corrido respecto al de
+// logoEntero (el contenido del frame viene descentrado): se compensa acá y
+// se lleva a 0 junto con el zoom. Medido al píxel sobre el mismo bbox.
+const FRAME0_ALIGN_X = -5.23;
+const FRAME0_ALIGN_Y = -8.12;
 // Cuántos frames (~40 = 0.66s) reintentamos el swap si el hero aún no tiene
 // layout válido (entrada del Hero, fuentes, primer paint tras navegar).
 const SWAP_MAX_RETRIES = 40;
@@ -174,6 +185,16 @@ export default function LogoWatermark({ heroRef }) {
       const getHeroLogo = () => heroRef.current?.querySelector('.floating-logo');
       const getHeroLogoContainer = () => heroRef.current?.querySelector('.hero-logo-container');
 
+      // Rect del hero en coords de viewport, o null si aún no hay layout
+      // válido (mismo criterio que el retry del swap).
+      const measureRect = () => {
+        const el = getHeroLogo();
+        if (!el) return null;
+        const r = el.getBoundingClientRect();
+        if (!isValidRect(r)) return null;
+        return { left: r.left, top: r.top, width: r.width, height: r.height };
+      };
+
 
       // Estado pre-swap determinista: invisible Y pineado en fixed. Si el swap
       // fallara, el wrapper queda oculto en vez de animarse deformado desde
@@ -191,7 +212,13 @@ export default function LogoWatermark({ heroRef }) {
         transformOrigin: '50% 50%',
         transformPerspective: 1000,
       });
-      gsap.set(canvasRef.current, { opacity: 0 });
+      gsap.set(canvasRef.current, {
+        opacity: 0,
+        scale: 1,
+        xPercent: 0,
+        yPercent: 0,
+        transformOrigin: '50% 50%',
+      });
       gsap.set(staticImgRef.current, { opacity: 0 });
 
 
@@ -202,14 +229,14 @@ export default function LogoWatermark({ heroRef }) {
         const heroLogo = getHeroLogo();
         const heroContainer = getHeroLogoContainer();
         if (!heroLogo) return false;
-        const rect = heroLogo.getBoundingClientRect();
-        if (!isValidRect(rect)) return false;
+        const r = measureRect();
+        if (!r) return false;
         gsap.set(wrapperRef.current, {
           position: 'fixed',
-          top: rect.top,
-          left: rect.left,
-          width: rect.width,
-          height: rect.height,
+          top: r.top,
+          left: r.left,
+          width: r.width,
+          height: r.height,
           scale: 1,
           rotationY: 0,
           rotationX: 0,
@@ -221,25 +248,44 @@ export default function LogoWatermark({ heroRef }) {
         });
         // The ResizeObserver won't have seen the new wrapper size yet
         // (it fires async), so size the canvas from the rect before drawing
-        canvasSizeRef.current = { width: rect.width * 2, height: rect.height * 2 };
-        if (isDrawable(cachedStartLogo)) {
-          drawImage(cachedStartLogo);
-        } else if (isDrawable(cachedFrames?.[0])) {
+        canvasSizeRef.current = { width: r.width * 2, height: r.height * 2 };
+        if (isDrawable(cachedFrames?.[0])) {
+          // Camino principal: frame0 con zoom + offset calibrados ya
+          // aplicados → el swap es continuo y el scroll solo interpola
+          // (sin el salto 1 → zoom del fromTo anterior).
+          gsap.set(canvasRef.current, {
+            opacity: 1,
+            scale: START_FRAME_ZOOM,
+            xPercent: FRAME0_ALIGN_X,
+            yPercent: FRAME0_ALIGN_Y,
+            transformOrigin: '50% 50%',
+          });
           drawImage(cachedFrames[0]);
+        } else {
+          // Fallback primera visita (frames aún sin decodificar): dibujo
+          // exacto sin zoom; el onUpdate pinta el frame0 apenas esté listo.
+          gsap.set(canvasRef.current, {
+            opacity: 1,
+            scale: 1,
+            xPercent: 0,
+            yPercent: 0,
+            transformOrigin: '50% 50%',
+          });
+          if (isDrawable(cachedStartLogo)) drawImage(cachedStartLogo);
         }
-        // Si nada es dibujable aún (primera visita sin caché), no pasa nada:
-        // el wrapper ya tiene el tamaño correcto y los frames del onUpdate
-        // lo pintan apenas decodifican — sin estirar.
-        gsap.set(canvasRef.current, { opacity: 1, scale: 1 });
+        // Si nada es dibujable aún, no pasa nada: el wrapper ya tiene el
+        // tamaño correcto y los frames del onUpdate lo pintan apenas
+        // decodifican — sin estirar.
         gsap.set(heroLogo, { visibility: 'hidden' });
         if (heroContainer) {
           gsap.set(heroContainer, { opacity: 0 });
         }
         swappedInRef.current = true;
-        // Si el swap llegó tarde (remount con scroll restaurado a mitad de
-        // página), el tween con scrub ya grabó valores iniciales basura —
-        // forzar re-grabado para interpolar desde el rect real.
-        if (tl && tl.progress() > 0) tl.invalidate();
+        // Re-grabar inicios/fines con el rect fresco: en el caso normal
+        // (onEnter con playhead ~0) alinea el timeline con el swap antes de
+        // que el scrub avance; si el swap llegó tarde (remount con scroll
+        // restaurado), corrige los valores iniciales que el scrub ya grabó.
+        if (tl) tl.invalidate();
         return true;
       };
 
@@ -323,11 +369,13 @@ export default function LogoWatermark({ heroRef }) {
       });
 
 
-      // Phase 2: Play the frame animation on canvas. The frames pad the logo
-      // smaller than logoEntero, so they start zoomed to match and ease to 1.
+      // Phase 2: el canvas arranca ya calibrado desde el swapIn (zoom +
+      // offset que igualan al hero) y se normaliza mientras giran los
+      // frames — continuo desde el tick 0 de scroll, sin la
+      // discontinuidad 1 → zoom del fromTo anterior.
       tl.fromTo(canvasRef.current,
-        { scale: START_FRAME_ZOOM },
-        { scale: 1, duration: 0.2, ease: "power1.out", immediateRender: false },
+        { scale: START_FRAME_ZOOM, xPercent: FRAME0_ALIGN_X, yPercent: FRAME0_ALIGN_Y },
+        { scale: 1, xPercent: 0, yPercent: 0, duration: 0.2, ease: "power1.out", immediateRender: false },
       0.02)
       .to(state, {
         currentFrame: TOTAL_FRAMES - 1,
