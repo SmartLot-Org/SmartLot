@@ -40,7 +40,6 @@ import PaymentStatus from "./pages/PaymentStatus";
 import LandingPage from "./vistasLanding/Landing";
 import Auth from "./vistasLanding/Auth";
 import AuthCallback from "./vistasLanding/AuthCallback";
-import ParaEmpresas from "./vistasLanding/ParaEmpresas";
 import ParaGarages from "./vistasLanding/ParaGarages";
 
 // Vistas de Empleados (Conexión corregida del perfil de empleado)
@@ -76,7 +75,6 @@ function AppRoutes() {
     <Routes>
       {/* Rutas públicas */}
       <Route path="/" element={<LandingPage />} />
-      <Route path="/para-empresas" element={<ParaEmpresas />} />
       <Route path="/para-garages" element={<ParaGarages />} />
       <Route path="/login" element={<Auth />} />
       <Route path="/register" element={<Register />} />

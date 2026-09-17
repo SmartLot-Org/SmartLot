@@ -8,7 +8,8 @@ function seededRandom(seed) {
 }
 
 const shapes = ['circle', 'diamond', 'dot'];
-const colors = ['#1E90FF', '#87CEEB', '#4169E1', '#00BFFF', '#5B9BD5'];
+// Familia del azul señal: anclado en #2563EB, sin azules de stock.
+const colors = ['#2563EB', '#1D4ED8', '#3B82F6', '#60A5FA', '#93C5FD'];
 
 export default function InteractiveBackground({ 
   count = 45,
@@ -92,12 +93,12 @@ export default function InteractiveBackground({
 
   return (
     <div ref={containerRef} className="fixed inset-0 z-0 overflow-hidden pointer-events-none bg-brand-bg">
-      <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_20%_20%,rgba(30,144,255,0.04)_0%,transparent_50%),radial-gradient(ellipse_at_80%_80%,rgba(135,206,235,0.03)_0%,transparent_50%)]"></div>
-      
-      <div 
+      <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_20%_20%,rgba(37,99,235,0.04)_0%,transparent_50%),radial-gradient(ellipse_at_80%_80%,rgba(96,165,250,0.03)_0%,transparent_50%)]"></div>
+
+      <div
         className="absolute inset-0 opacity-[0.025]"
         style={{
-          backgroundImage: `linear-gradient(rgba(135,206,235,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(135,206,235,0.1) 1px, transparent 1px)`,
+          backgroundImage: `linear-gradient(rgba(37,99,235,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(37,99,235,0.08) 1px, transparent 1px)`,
           backgroundSize: '60px 60px'
         }}
       ></div>

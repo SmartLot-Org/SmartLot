@@ -77,10 +77,36 @@ export default function LogoWatermark({ heroRef }) {
   const lastImgRef = useRef(null);
   const swappedInRef = useRef(false);
   const retryRafRef = useRef(0);
+  const drawRetryRafRef = useRef(0);
 
 
   useEffect(() => {
-    ensurePreloaded();
+    const reduceMq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const kick = () => ensurePreloaded();
+    let idleHandle = 0;
+
+    // Los frames son el momento de marca del scroll: arrancan apenas la
+    // página queda idle (o con la primera señal de scroll, lo que pase
+    // antes) para que el giro esté listo al llegar al hero — sin competir
+    // con el primer paint. Con reduce no hay flip-book: no se carga nada.
+    if (!reduceMq.matches) {
+      if (window.scrollY > 0) {
+        kick();
+      } else {
+        if ('requestIdleCallback' in window) {
+          idleHandle = window.requestIdleCallback(kick, { timeout: 1200 });
+        } else {
+          idleHandle = window.setTimeout(kick, 900);
+        }
+        window.addEventListener('scroll', kick, { once: true, passive: true });
+        window.addEventListener('wheel', kick, { once: true, passive: true });
+        window.addEventListener('touchmove', kick, { once: true, passive: true });
+      }
+    }
+    // Reduce apagado a mitad de sesión: recién ahí empieza la descarga.
+    const onReduceChange = (e) => { if (!e.matches) kick(); };
+    reduceMq.addEventListener('change', onReduceChange);
+
     // El layout puede moverse tras el mount (fuentes, imágenes con distinto
     // timing de caché al volver por navegación) — re-medir una vez estable.
     let cancelled = false;
@@ -91,7 +117,15 @@ export default function LogoWatermark({ heroRef }) {
     window.addEventListener('load', refresh);
     return () => {
       cancelled = true;
+      if (idleHandle) {
+        if ('cancelIdleCallback' in window) window.cancelIdleCallback(idleHandle);
+        else clearTimeout(idleHandle);
+      }
       window.removeEventListener('load', refresh);
+      window.removeEventListener('scroll', kick);
+      window.removeEventListener('wheel', kick);
+      window.removeEventListener('touchmove', kick);
+      reduceMq.removeEventListener('change', onReduceChange);
     };
   }, []);
 
@@ -139,7 +173,17 @@ export default function LogoWatermark({ heroRef }) {
 
 
   const drawFrame = useCallback((frameIndex) => {
-    drawImage(cachedFrames?.[frameIndex]);
+    if (!cachedFrames) return false;
+    // Pinta el frame pedido o, si todavía no decodificó, el más cercano ya
+    // disponible hacia atrás: el canvas nunca queda vacío durante el giro.
+    const start = Math.min(Math.max(frameIndex, 0), cachedFrames.length - 1);
+    for (let i = start; i >= 0; i--) {
+      if (isDrawable(cachedFrames[i])) {
+        drawImage(cachedFrames[i]);
+        return true;
+      }
+    }
+    return false;
   }, [drawImage]);
 
 
@@ -272,6 +316,9 @@ export default function LogoWatermark({ heroRef }) {
             transformOrigin: '50% 50%',
           });
           if (isDrawable(cachedStartLogo)) drawImage(cachedStartLogo);
+          // Red de seguridad: si los frames decodifican después del swap,
+          // pinta la posición actual del scrub apenas haya uno real.
+          startDrawRetry();
         }
         // Si nada es dibujable aún, no pasa nada: el wrapper ya tiene el
         // tamaño correcto y los frames del onUpdate lo pintan apenas
@@ -301,9 +348,23 @@ export default function LogoWatermark({ heroRef }) {
       };
 
 
+      // Reintento acotado de dibujo (≈10s): mientras el frame exacto del
+      // scrub no esté decodificado, mantiene en el canvas el frame real más
+      // cercano disponible y se apaga solo cuando llega el pedido.
+      const startDrawRetry = (attempt = 0) => {
+        cancelAnimationFrame(drawRetryRafRef.current);
+        if (attempt > 600) return;
+        const target = Math.round(state.currentFrame);
+        if (isDrawable(cachedFrames?.[target])) return;
+        drawFrame(target);
+        drawRetryRafRef.current = requestAnimationFrame(() => startDrawRetry(attempt + 1));
+      };
+
+
       // Swap out: restore hero logo, hide the wrapper
       const swapOut = () => {
         cancelAnimationFrame(retryRafRef.current);
+        cancelAnimationFrame(drawRetryRafRef.current);
         swappedInRef.current = false;
         const heroLogo = getHeroLogo();
         const heroContainer = getHeroLogoContainer();
@@ -413,10 +474,11 @@ export default function LogoWatermark({ heroRef }) {
       }, 0.80);
 
       // Cleanup del contexto: matar el giro infinito (nace en un callback
-      // async de scroll y matchMedia no siempre lo rastrea) y cancelar el
-      // retry pendiente para no tocar nodos desmontados.
+      // async de scroll y matchMedia no siempre lo rastrea) y cancelar los
+      // reintentos pendientes para no tocar nodos desmontados.
       return () => {
         cancelAnimationFrame(retryRafRef.current);
+        cancelAnimationFrame(drawRetryRafRef.current);
         if (continuousAnim) {
           continuousAnim.kill();
           continuousAnim = null;

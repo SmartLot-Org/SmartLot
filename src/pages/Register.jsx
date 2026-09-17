@@ -10,6 +10,7 @@ import RegisterEmpresaForm from "../componentesLanding/auth/RegisterEmpresaForm"
 import RegisterGarageForm from "../componentesLanding/auth/RegisterGarageForm";
 import RegisterBrandPanel from "../componentesLanding/auth/RegisterBrandPanel";
 import "./Register.css";
+import usePageMeta from "../hooks/usePageMeta";
 
 gsap.registerPlugin(useGSAP);
 
@@ -21,6 +22,11 @@ export default function Register() {
   const modoInicial = searchParams.get("modo") === "garage" ? MODO_GARAGE : MODO_EMPRESA;
   const [modo, setModo] = useState(modoInicial);
   const [renderedModo, setRenderedModo] = useState(modoInicial);
+
+  usePageMeta({
+    title: "Crear cuenta | SmartLot",
+    description: "Registrate como empresa o dueño de garage y empezá a gestionar tus cocheras. Sin hardware.",
+  });
 
   // En desktop fijamos la página al viewport para evitar scroll de página;
   // si el contenido excede la altura, el propio panel hace scroll interno.

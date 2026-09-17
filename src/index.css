@@ -10,11 +10,11 @@
   --color-brand-deep:    #0C1E3F;
   --color-brand-navy:    #0C1E3F;
   --color-brand-blue:    #2563EB;
-  --color-brand-sky:     #6C93D6;
+  --color-brand-sky:     #93C5FD;
   --color-brand-bg:      #F5F7FB;
   --color-brand-surface: #FFFFFF;
   --color-brand-warm:    #1E293B;
-  --color-brand-muted:   #64748B;
+  --color-brand-muted:   #475569;
   --color-brand-cream:   #F5F7FB;
 
   /* ── Font Families ── */
@@ -39,7 +39,7 @@
   --font-body:    'DM Sans', system-ui, sans-serif;
 
   /* Existing design tokens */
-  --text:   #64748B;
+  --text:   #475569;
   --text-h: #1E293B;
   --bg:     #F5F7FB;
   --border: #E2E8F0;

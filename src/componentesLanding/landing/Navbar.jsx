@@ -1,23 +1,13 @@
 import { useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { useAuth } from '../../contexts/useAuth';
-import { showToast } from '../../helpers/toast';
 import { getUserHomeRoute } from '../../helpers/roles';
 
 export default function Navbar() {
   const { usuario } = useAuth();
-  const navigate = useNavigate();
   const navRef = useRef();
-
-  const handleLoginClick = (e) => {
-    if (usuario) {
-      e.preventDefault();
-      showToast('Ya tenés una sesión activa. Redirigiendo a tu panel…', 'info');
-      setTimeout(() => navigate(getUserHomeRoute(usuario)), 1500);
-    }
-  };
 
   useGSAP(() => {
     let mm = gsap.matchMedia();
@@ -54,11 +44,10 @@ export default function Navbar() {
         </Link>
 
         <Link
-          to="/login"
-          onClick={handleLoginClick}
+          to={usuario ? getUserHomeRoute(usuario) : '/login'}
           className="px-4 py-2 bg-brand-blue text-white rounded-lg font-semibold text-sm hover:bg-brand-deep active:scale-[0.97] transition-all duration-300 shadow-md hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2 focus-visible:ring-offset-brand-bg"
         >
-          Iniciar Sesión
+          {usuario ? 'Ir a mi panel' : 'Iniciar Sesión'}
         </Link>
 
       </div>

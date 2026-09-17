@@ -81,10 +81,10 @@ export default function ParaGaragesCTA() {
             />
             <defs>
               <linearGradient id="garage-beam" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#2A5CBF" stopOpacity="0" />
-                <stop offset="25%" stopColor="#2A5CBF" stopOpacity="0.35" />
+                <stop offset="0%" stopColor="#2563EB" stopOpacity="0" />
+                <stop offset="25%" stopColor="#2563EB" stopOpacity="0.35" />
                 <stop offset="50%" stopColor="#0C1E3F" stopOpacity="0.7" />
-                <stop offset="75%" stopColor="#2A5CBF" stopOpacity="0.35" />
+                <stop offset="75%" stopColor="#2563EB" stopOpacity="0.35" />
                 <stop offset="100%" stopColor="#0C1E3F" stopOpacity="0" />
               </linearGradient>
             </defs>
@@ -137,7 +137,7 @@ export default function ParaGaragesCTA() {
               height="48"
               className="h-10 w-auto opacity-50 grayscale transition-all duration-300 group-hover:opacity-100 group-hover:grayscale-0 md:h-12"
             />
-            <span className="font-display text-base font-bold text-brand-muted/40 transition-colors duration-300 group-hover:text-brand-warm md:text-lg">
+            <span className="font-display text-base font-bold text-brand-muted transition-colors duration-300 group-hover:text-brand-warm md:text-lg">
               SmartLot
             </span>
           </Link>
@@ -164,10 +164,10 @@ export default function ParaGaragesCTA() {
           </nav>
 
           <div className="flex flex-col gap-2 md:items-end">
-            <p className="text-sm font-medium text-brand-muted/50">
+            <p className="text-sm font-medium text-brand-muted">
               © {new Date().getFullYear()} SmartLot. El estacionamiento del futuro.
             </p>
-            <p className="text-xs text-brand-muted/40">Digitalización de espacios B2B sin hardware.</p>
+            <p className="text-xs text-brand-muted">Digitalización de espacios B2B sin hardware.</p>
           </div>
         </div>
       </div>

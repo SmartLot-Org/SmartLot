@@ -1,10 +1,11 @@
-import { useEffect, lazy, Suspense } from "react";
+import { lazy, Suspense } from "react";
 import Navbar from "../componentesLanding/landing/Navbar";
 import StatsTicker from "../componentesLanding/landing/StatsTicker";
 import InteractiveBackground from "../componentesLanding/landing/InteractiveBackground";
 import ParaGaragesHero from "../componentesLanding/paraGarages/ParaGaragesHero";
 import GarageWatermark from "../componentesLanding/paraGarages/GarageWatermark";
 import "../componentesLanding/landing/landing.css";
+import usePageMeta from "../hooks/usePageMeta";
 
 const ParaGaragesPains = lazy(() => import("../componentesLanding/paraGarages/ParaGaragesPains"));
 const ParaGaragesSteps = lazy(() => import("../componentesLanding/paraGarages/ParaGaragesSteps"));
@@ -31,27 +32,11 @@ function SkeletonFallback() {
 }
 
 export default function ParaGarages() {
-  useEffect(() => {
-    const prevTitle = document.title;
-    const prevDesc = document.querySelector('meta[name="description"]');
-    const prevContent = prevDesc?.getAttribute("content") ?? "";
-    const prevLang = document.documentElement.lang;
-
-    document.title = "SmartLot para dueños de garages | Aparecé en el mapa de las empresas";
-    document.documentElement.lang = "es-AR";
-    if (prevDesc) {
-      prevDesc.setAttribute(
-        "content",
-        "Publicá tus garages, recibí solicitudes de empresas y gestioná tratos, ocupación y consumos desde un solo panel. Sin hardware."
-      );
-    }
-
-    return () => {
-      document.title = prevTitle;
-      document.documentElement.lang = prevLang;
-      if (prevDesc) prevDesc.setAttribute("content", prevContent);
-    };
-  }, []);
+  usePageMeta({
+    title: "SmartLot para dueños de garages | Aparecé en el mapa de las empresas",
+    description:
+      "Publicá tus garages, recibí solicitudes de empresas y gestioná tratos, ocupación y consumos desde un solo panel. Sin hardware.",
+  });
 
   return (
     <>
@@ -61,7 +46,7 @@ export default function ParaGarages() {
       >
         Saltar al contenido principal
       </a>
-      <InteractiveBackground count={70} interactionRadius={150} repelForce={80} />
+      <InteractiveBackground count={35} interactionRadius={150} repelForce={80} />
       <GarageWatermark />
       <div className="landing-page pg-page bg-noise min-h-screen overflow-x-hidden">
         <Navbar />

@@ -220,7 +220,7 @@ export default function RegisterGarageForm() {
       </button>
 
       {error && (
-        <p className="text-sm text-red-500 mt-1 text-center" role="alert">
+        <p className="text-sm text-red-600 mt-1 text-center" role="alert">
           {error}
         </p>
       )}

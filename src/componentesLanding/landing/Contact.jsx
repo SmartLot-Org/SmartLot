@@ -74,10 +74,10 @@ export default function Contact() {
             
             <defs>
               <linearGradient id="warm-beam" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#2A5CBF" stopOpacity="0" />
-                <stop offset="25%" stopColor="#2A5CBF" stopOpacity="0.35" />
+                <stop offset="0%" stopColor="#2563EB" stopOpacity="0" />
+                <stop offset="25%" stopColor="#2563EB" stopOpacity="0.35" />
                 <stop offset="50%" stopColor="#0C1E3F" stopOpacity="0.7" />
-                <stop offset="75%" stopColor="#2A5CBF" stopOpacity="0.35" />
+                <stop offset="75%" stopColor="#2563EB" stopOpacity="0.35" />
                 <stop offset="100%" stopColor="#0C1E3F" stopOpacity="0" />
               </linearGradient>
             </defs>
@@ -97,7 +97,7 @@ export default function Contact() {
               </p>
               
               <Link to="/register" className="cta-content group flex items-center gap-2 px-10 py-5 bg-brand-blue text-white rounded-2xl font-bold text-base hover:bg-brand-deep focus-visible:bg-brand-deep active:scale-95 transition-all duration-300 shadow-xl shadow-brand-deep/20">
-                <span>Regístrate</span>
+                <span>Registrate</span>
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1.5 transition-transform duration-300" aria-hidden="true" />
               </Link>
             </div>
@@ -117,16 +117,16 @@ export default function Contact() {
                 className="relative h-10 md:h-12 w-auto grayscale opacity-50 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-300"
               />
             </div>
-            <span className="text-base md:text-lg font-bold text-brand-muted/40 group-hover:text-brand-warm transition-colors duration-300 font-display">
+            <span className="text-base md:text-lg font-bold text-brand-muted group-hover:text-brand-warm transition-colors duration-300 font-display">
               SmartLot
             </span>
           </div>
           
           <div className="flex flex-col md:items-end gap-2">
-            <p className="text-brand-muted/40 text-[1px] font-medium">
+            <p className="text-brand-muted text-xs font-medium">
               © {new Date().getFullYear()} SmartLot. El estacionamiento del futuro.
             </p>
-            <p className="text-brand-muted/30 text-[1px]">
+            <p className="text-brand-muted text-xs">
               Digitalización de espacios B2B sin hardware.
             </p>
           </div>

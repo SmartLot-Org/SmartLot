@@ -16,13 +16,14 @@ El sistema es **preciso, funcional y consistente** — prioriza la legibilidad o
 
 | Uso | Fuente | Peso |
 |-----|--------|------|
-| Títulos | **DM Sans** | 500–700 |
+| Títulos de landing (display) | **Archivo** | 600–900 |
+| Títulos de producto | **DM Sans** | 500–700 |
 | Subtítulos | **DM Sans** | 500 |
 | Cuerpo | **DM Sans** | 400 |
 | Datos/monospace | **JetBrains Mono** | 400–600 |
 | UI (botones, labels) | **DM Sans** | 500 |
 
-DM Sans ya se usa en el códigobase. JetBrains Mono se añade para datos. Sin fuentes adicionales — la solidez tipográfica viene de la jerarquía, no de la variedad.
+DM Sans ya se usa en el códigobase y sigue siendo la voz de producto (app, dashboards, formularios). **Archivo** es la voz display de las superficies de landing (H1/H2 de marketing). JetBrains Mono se usa para datos. La solidez tipográfica viene de la jerarquía, no de la variedad.
 
 ---
 
@@ -38,12 +39,26 @@ DM Sans ya se usa en el códigobase. JetBrains Mono se añade para datos. Sin fu
 | `--bg-dark` | `#191C1E` | Header, footer, nav |
 | `--bg-dark-alt` | `#1A1C1E` | Superficie oscura alternativa |
 
+### Tokens Tailwind v4 (`@theme` en `src/index.css`)
+
+| Token | Valor | Uso |
+|-------|-------|-----|
+| `--color-brand-deep` / `--color-brand-navy` | `#0C1E3F` | Superficies oscuras, texto sobre claro |
+| `--color-brand-blue` | `#2563EB` | Acento, CTAs, enlaces |
+| `--color-brand-sky` | `#93C5FD` | Bordes y hovers secundarios, avatares |
+| `--color-brand-bg` / `--color-brand-cream` | `#F5F7FB` | Fondo de página |
+| `--color-brand-surface` | `#FFFFFF` | Tarjetas, paneles |
+| `--color-brand-warm` | `#1E293B` | Texto principal |
+| `--color-brand-muted` | `#475569` | Texto secundario (AA: 7.07:1 sobre `#F5F7FB`) |
+
+Familia del azul señal para canvas y partículas: `#2563EB` · `#1D4ED8` · `#3B82F6` · `#60A5FA` · `#93C5FD`.
+
 ### Texto
 
 | Variable | Color actual | Uso |
 |----------|-------------|-----|
 | `--text-primary` | `#1E293B` | Cuerpo principal |
-| `--text-secondary` | `#64748B` | Metadatos, descripciones |
+| `--text-secondary` | `#475569` | Metadatos, descripciones (AA: 7.07:1 sobre `#F5F7FB`) |
 | `--text-muted` | `#94A3B8` | Placeholder, texto secundario |
 | `--text-inverse` | `#E2E8F0` | Sobre fondos oscuros |
 

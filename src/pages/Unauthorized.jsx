@@ -12,7 +12,7 @@ export default function Unauthorized() {
         No tenés permisos suficientes para acceder a esta página.
       </p>
       <Link to="/login" style={{
-        padding: '0.75rem 2rem', backgroundColor: '#2A5CBF', color: 'white',
+        padding: '0.75rem 2rem', backgroundColor: '#2563EB', color: 'white',
         borderRadius: '8px', textDecoration: 'none', fontWeight: '600'
       }}>
         Volver al inicio

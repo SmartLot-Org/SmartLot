@@ -6,10 +6,16 @@ import LoginForm from '../componentesLanding/auth/LoginForm';
 import BrandPanel from '../componentesLanding/auth/BrandPanel';
 import { useAuth } from '../contexts/useAuth';
 import { getUserHomeRoute } from '../helpers/roles';
+import usePageMeta from '../hooks/usePageMeta';
 
 export default function Auth() {
   const { usuario } = useAuth();
   const container = useRef(null);
+
+  usePageMeta({
+    title: 'Iniciar sesión | SmartLot',
+    description: 'Ingresá a tu panel de gestión de estacionamientos.',
+  });
 
   useGSAP(() => {
     if (!container.current) return;

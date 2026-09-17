@@ -119,6 +119,7 @@ export default function LoginForm() {
           <input
             type="email"
             id="email"
+            autoComplete="email"
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -141,6 +142,7 @@ export default function LoginForm() {
             <input
               type="password"
               id="password"
+              autoComplete="current-password"
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -192,19 +194,19 @@ export default function LoginForm() {
             />
             <defs>
               <linearGradient id="btn-beam" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#2A5CBF" stopOpacity="0" />
-                <stop offset="20%" stopColor="#2A5CBF" stopOpacity="0.3" />
+                <stop offset="0%" stopColor="#2563EB" stopOpacity="0" />
+                <stop offset="20%" stopColor="#2563EB" stopOpacity="0.3" />
                 <stop offset="35%" stopColor="#FFFFFF" stopOpacity="1" />
-                <stop offset="50%" stopColor="#6BA3E8" stopOpacity="0.9" />
+                <stop offset="50%" stopColor="#60A5FA" stopOpacity="0.9" />
                 <stop offset="65%" stopColor="#FFFFFF" stopOpacity="1" />
-                <stop offset="80%" stopColor="#2A5CBF" stopOpacity="0.3" />
+                <stop offset="80%" stopColor="#2563EB" stopOpacity="0.3" />
                 <stop offset="100%" stopColor="#0C1E3F" stopOpacity="0" />
               </linearGradient>
               <linearGradient id="btn-beam-glow" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#2A5CBF" stopOpacity="0" />
-                <stop offset="25%" stopColor="#2A5CBF" stopOpacity="0.4" />
-                <stop offset="50%" stopColor="#6BA3E8" stopOpacity="0.6" />
-                <stop offset="75%" stopColor="#2A5CBF" stopOpacity="0.4" />
+                <stop offset="0%" stopColor="#2563EB" stopOpacity="0" />
+                <stop offset="25%" stopColor="#2563EB" stopOpacity="0.4" />
+                <stop offset="50%" stopColor="#60A5FA" stopOpacity="0.6" />
+                <stop offset="75%" stopColor="#2563EB" stopOpacity="0.4" />
                 <stop offset="100%" stopColor="#0C1E3F" stopOpacity="0" />
               </linearGradient>
             </defs>
@@ -217,7 +219,7 @@ export default function LoginForm() {
           </div>
         </button>
         
-        {error && <p className="text-sm text-red-500 mt-2 text-center">{error}</p>}
+        {error && <p className="text-sm text-red-600 mt-2 text-center" role="alert">{error}</p>}
       </form>
 
       <div className="auth-stagger relative my-6">
@@ -229,7 +231,7 @@ export default function LoginForm() {
         </div>
       </div>
 
-      {googleError && <p className="text-sm text-red-500 mb-3 text-center">{googleError}</p>}
+      {googleError && <p className="text-sm text-red-600 mb-3 text-center" role="alert">{googleError}</p>}
 
       <button
         type="button"

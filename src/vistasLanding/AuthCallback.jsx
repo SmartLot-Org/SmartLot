@@ -42,7 +42,13 @@ export default function AuthCallback() {
 
   return (
     <div className="min-h-screen bg-brand-bg flex items-center justify-center">
-      <p className="text-brand-muted text-lg">Iniciando sesión...</p>
+      <div role="status" aria-live="polite" className="flex flex-col items-center gap-4">
+        <div
+          className="h-8 w-8 animate-spin rounded-full border-2 border-brand-blue border-t-transparent"
+          aria-hidden="true"
+        />
+        <p className="text-brand-muted text-lg">Iniciando sesión...</p>
+      </div>
     </div>
   );
 }

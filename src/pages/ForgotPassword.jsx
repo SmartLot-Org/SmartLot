@@ -4,6 +4,7 @@ import { Eye, EyeOff, Lock, Mail, Key, CheckCircle, ArrowLeft, LogIn } from 'luc
 import apiClient from '../api/client';
 import { getUserHomeRoute } from '../helpers/roles';
 import './Login.css';
+import usePageMeta from '../hooks/usePageMeta';
 
 export default function ForgotPassword() {
   const [paso, setPaso] = useState('email');
@@ -16,6 +17,11 @@ export default function ForgotPassword() {
   const [error, setError] = useState('');
   const [cooldown, setCooldown] = useState(0);
   const [loading, setLoading] = useState(false);
+
+  usePageMeta({
+    title: 'Recuperar contraseña | SmartLot',
+    description: 'Restablecé la contraseña de tu cuenta SmartLot.',
+  });
 
   useEffect(() => {
     if (cooldown <= 0) return;
@@ -292,7 +298,7 @@ export default function ForgotPassword() {
         <h3 className="login-ok-titulo">¡Contraseña restablecida!</h3>
         <p className="login-ok-mensaje">
           Tu contraseña ha sido actualizada exitosamente.
-          Ya puedes iniciar sesión con tu nueva contraseña.
+          Ya podés iniciar sesión con tu nueva contraseña.
         </p>
         <Link to="/login" className="login-boton">
           <ArrowLeft size={18} />

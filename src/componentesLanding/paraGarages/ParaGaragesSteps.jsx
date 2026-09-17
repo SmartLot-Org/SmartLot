@@ -70,7 +70,7 @@ export default function ParaGaragesSteps() {
         <div className="pg-item mt-10 text-center">
           <a
             href="#funcionalidades"
-            className="inline-flex min-h-11 items-center justify-center rounded-full border border-brand-navy/10 bg-white/70 px-5 py-2.5 text-sm font-semibold text-brand-muted transition-colors hover:border-[#93C5FD] hover:text-brand-deep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2"
+            className="inline-flex min-h-11 items-center justify-center rounded-full border border-brand-navy/10 bg-white/70 px-5 py-2.5 text-sm font-semibold text-brand-muted transition-colors hover:border-brand-sky hover:text-brand-deep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2"
           >
             Ver el panel en detalle
           </a>
