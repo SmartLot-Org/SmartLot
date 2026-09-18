@@ -58,3 +58,18 @@ test("actualiza la fecha del tablero sin recargar la página", async () => {
   assert.match(source, /addEventListener\("focus", actualizarFecha\)/);
   assert.match(source, /addEventListener\("visibilitychange", actualizarFecha\)/);
 });
+
+test("mantiene el ingreso manual por patente y agrega el lector QR solo para garagistas", async () => {
+  const source = await readFile(dashboardPath, "utf8");
+  assert.match(source, /Verificar ingreso/);
+  assert.match(source, /ReservasCheckIn\(reservaSeleccionada\.id, patenteIngresada\)/);
+  assert.match(source, /!esAdmin \? \([\s\S]*Escanear QR/);
+  assert.match(source, /<LectorQrReserva/);
+});
+
+test("tras un ingreso QR solicita una recarga real de las reservas", async () => {
+  const source = await readFile(dashboardPath, "utf8");
+  assert.match(source, /setRecargaReservas\(\(actual\) => actual \+ 1\)/);
+  assert.match(source, /\[fechaISOActual, idGarageAsignado, recargaReservas\]/);
+  assert.match(source, /ReservasGetControlAcceso\(idGarageAsignado, fechaISOActual, \{ force: true \}\)/);
+});

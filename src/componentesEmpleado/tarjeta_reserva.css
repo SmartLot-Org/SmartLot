@@ -5,6 +5,38 @@
   margin-top: 10px;
 }
 
+.empleado-reserva-qr-btn {
+  width: 100%;
+  min-height: 44px;
+  margin-top: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid #bfdbfe;
+  border-radius: 13px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 850;
+  cursor: pointer;
+  transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+}
+
+.empleado-reserva-qr-btn:hover {
+  transform: translateY(-1px);
+  border-color: #93c5fd;
+  background: #dbeafe;
+}
+
+.empleado-reserva-qr-btn:active { transform: scale(0.99); }
+
+.empleado-reserva-qr-btn:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.24);
+  outline-offset: 3px;
+}
+
 .empleado-reserva-card {
   box-sizing: border-box;
   appearance: none;

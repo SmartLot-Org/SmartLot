@@ -8,6 +8,7 @@ import {
   Clock3,
   DoorOpen,
   Eye,
+  QrCode,
   Search,
   ShieldCheck,
   X,
@@ -16,6 +17,7 @@ import { GaragesGetAll, GaragesGetById } from "../servicies/API_Garage";
 import { ReservasCheckIn, ReservasCheckOut, ReservasGetControlAcceso } from "../servicies/API_Reserva";
 import { UsuariosGetById } from "../servicies/API_Usuario";
 import ModalPortal from "../componentesCompartidos/ModalPortal";
+import LectorQrReserva from "./LectorQrReserva";
 import HeaderAdmin from "../componentesAdmin/header_admin";
 import FooterAdmin from "../componentesAdmin/footer_admin";
 import { useAuth } from "../contexts/useAuth";
@@ -438,6 +440,8 @@ export default function GaragistaDashboard() {
   const [errorVerificacion, setErrorVerificacion] = useState("");
   const [patenteVerificada, setPatenteVerificada] = useState(false);
   const [guardandoAccion, setGuardandoAccion] = useState(false);
+  const [lectorQrAbierto, setLectorQrAbierto] = useState(false);
+  const [recargaReservas, setRecargaReservas] = useState(0);
 
   const esAdmin = Number(usuario?.id_rol) === 1;
   const idUsuarioSesion = Number(usuario?.id ?? usuario?.id_usuario ?? usuario?._id) || null;
@@ -633,7 +637,7 @@ export default function GaragistaDashboard() {
 
     cargarDatos();
     return () => { cancelado = true; };
-  }, [fechaISOActual, idGarageAsignado]);
+  }, [fechaISOActual, idGarageAsignado, recargaReservas]);
 
   const reservasFiltradas = useMemo(() => {
     return reservas.filter((reserva) => {
@@ -810,7 +814,12 @@ export default function GaragistaDashboard() {
                 <h1>Control de acceso</h1>
               </div>
             </div>
-
+            {!esAdmin ? (
+              <button type="button" className="garagista-scan-btn" onClick={() => setLectorQrAbierto(true)}>
+                <QrCode size={20} />
+                Escanear QR
+              </button>
+            ) : null}
           </header>
 
           <section className="garagista-summary-card" aria-label="Resumen operativo">
@@ -1131,6 +1140,15 @@ export default function GaragistaDashboard() {
             </div>
           </form>
         </ModalPortal>
+      ) : null}
+      {lectorQrAbierto && !esAdmin ? (
+        <LectorQrReserva
+          onClose={() => setLectorQrAbierto(false)}
+          onIngresoExitoso={() => {
+            setLectorQrAbierto(false);
+            setRecargaReservas((actual) => actual + 1);
+          }}
+        />
       ) : null}
     </>
   );

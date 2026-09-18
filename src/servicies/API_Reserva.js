@@ -17,6 +17,29 @@ const invalidateReservasDependencies = () => {
     invalidateByPrefix('reservas:disponibilidad:');
 };
 
+const normalizarPayloadQr = (payload) => payload?.data ?? payload?.datos ?? payload;
+
+const normalizarErrorQr = (error) => {
+    const payload = error.response?.data;
+    const status = error.response?.status;
+    const message = typeof payload === 'string'
+        ? payload
+        : payload?.message
+            ?? payload?.mensaje
+            ?? payload?.error?.message
+            ?? (typeof payload?.error === 'string' ? payload.error : null)
+            ?? error.message
+            ?? (status ? `La solicitud del QR falló con HTTP ${status}.` : 'No se pudo conectar con el servidor.');
+
+    return {
+        ...(payload && typeof payload === 'object' ? payload : {}),
+        message: status && (!message || message === 'Request failed with status code ' + status)
+            ? `La solicitud del QR falló con HTTP ${status}.`
+            : message,
+        status,
+    };
+};
+
 const ReservasGetAll = async ({ force = false } = {}) => {
 
     let returnObject = { respuesta: false, datos: [] };
@@ -317,6 +340,55 @@ const ReservasGetDisponibilidadPorHora = async (garageId, fecha, { force = false
         return returnObject;
     }
 };
+const ReservasGetQr = async (id) => {
+    const returnObject = {
+        respuesta: false,
+        datos: null,
+    };
+
+    try {
+        const response = await apiClient.get(`/api/reserva/${id}/qr`, { _skipToast: true });
+
+        const datos = normalizarPayloadQr(response.data);
+        returnObject.respuesta = Boolean(datos?.qr);
+        returnObject.datos = datos?.qr
+            ? datos
+            : { ...datos, message: datos?.message ?? datos?.mensaje ?? 'El servidor respondió sin un código QR.' };
+    } catch (error) {
+        logApiError(error);
+        returnObject.datos = normalizarErrorQr(error);
+    }
+
+    return returnObject;
+};
+
+const ReservasCheckInQr = async (qr) => {
+    const returnObject = {
+        respuesta: false,
+        datos: null,
+    };
+
+    try {
+        const response = await apiClient.post(
+            '/api/reserva/qr/check-in',
+            { qr },
+            { _skipToast: true }
+        );
+
+        returnObject.respuesta = true;
+        returnObject.datos = normalizarPayloadQr(response.data);
+
+        invalidateReservasDependencies();
+    } catch (error) {
+        logApiError(error);
+        returnObject.datos = normalizarErrorQr(error);
+    }
+
+    return returnObject;
+};
+
+
+
 
 export {
     ReservasGetAll,
@@ -329,6 +401,9 @@ export {
     ReservasCheckIn,
     ReservasCheckOut,
     ReservasGetDisponibilidadPorHora,
-    ReservasGetByUsuario
-    ,ReservasQuote
+    ReservasGetByUsuario,
+    ReservasQuote,
+    ReservasGetQr,
+    ReservasCheckInQr
+
 };

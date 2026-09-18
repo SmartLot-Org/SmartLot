@@ -15,6 +15,8 @@ import { ConflictosCreate } from "../servicies/API_Conflicto";
 import { useAuth } from "../contexts/useAuth";
 import FooterEmpleado from "../componentesEmpleado/footer_empleado";
 import FormularioDetallesVehiculo from "../componentesEmpleado/formulario_detalles_vehiculo";
+import ModalQrReserva from "../componentesEmpleado/ModalQrReserva";
+import { puedeMostrarQrReserva } from "../helpers/qrReserva";
 
 
 const GARAGE_DASHBOARD_STORAGE_KEY = "smartlot_empleado_dashboard_garage";
@@ -293,7 +295,9 @@ const normalizarReserva = (reserva, vehiculosPorId, garagesPorId, modelosPorId, 
     hora_salida: horaFin,
     entradaRegistrada: tieneEntradaRegistrada(reserva),
     salidaRegistrada: tieneSalidaRegistrada(reserva),
+    estado: obtenerCampo(reserva, ["estado", "status", "estado_reserva", "estadoReserva"], "confirmada"),
     vehiculo: vehiculo ? { patente, marca: marcaNombre, modelo } : null,
+    raw: reserva,
   };
 };
 
@@ -365,6 +369,7 @@ function EmpleadoDashboard() {
   const [prioridadReporte, setPrioridadReporte] = useState("Media");
   const [enviandoReporte, setEnviandoReporte] = useState(false);
   const [mensajeReporte, setMensajeReporte] = useState(null);
+  const [reservaQrId, setReservaQrId] = useState(null);
   const reporteSuccessTimeoutRef = useRef(null);
   const [fechaSeleccionada, setFechaSeleccionada] = useState(() => {
     const d = new Date();
@@ -581,6 +586,8 @@ function EmpleadoDashboard() {
 
   const nombre = obtenerNombreUsuario(perfilUsuario || usuario);
 
+  const abrirQrReserva = (reserva) => setReservaQrId(reserva.id);
+
   const handleGarageDashboardChange = (event) => {
     const nuevoId = event.target.value;
     const garageSeleccionado = garagesSede.find((garage) => String(obtenerIdGarage(garage)) === nuevoId) ?? null;
@@ -756,7 +763,13 @@ function EmpleadoDashboard() {
           <EmpleadoReservasSkeleton />
         ) : reservasNormalizadas.length > 0 ? (
           <>
-            <TarjetaReserva key={reservasNormalizadas[0].id} reserva={reservasNormalizadas[0]} onClick={handleReservaClick} onCopy={handleCopyReserva} />
+            <TarjetaReserva
+              reserva={reservaPrincipal}
+              onClick={handleReservaClick}
+              onCopy={handleCopyReserva}
+              onShowQr={abrirQrReserva}
+              mostrarQr={puedeMostrarQrReserva(reservaPrincipal)}
+            />
             {tieneResto && (
               <button type="button" className={`empleado-reservas-toggle${deployableOpen ? " empleado-reservas-toggle--open" : ""}`} onClick={() => setDeployableOpen((prev) => !prev)}>
                 <span>{deployableOpen ? "Ocultar" : `Mostrar todas (${restoReservas.length})`}</span>
@@ -764,8 +777,15 @@ function EmpleadoDashboard() {
               </button>
             )}
             <div className={`empleado-reservas-rest${deployableOpen ? " empleado-reservas-rest--open" : ""}`}>
-              {restoReservas.map((reserva) => (
-                <TarjetaReserva key={reserva.id} reserva={reserva} onClick={handleReservaClick} onCopy={handleCopyReserva} />
+              {restoReservas.map((reserva, index) => (
+                <TarjetaReserva
+                  key={`${reserva.id}-${index}`}
+                  reserva={reserva}
+                  onClick={handleReservaClick}
+                  onCopy={handleCopyReserva}
+                  onShowQr={abrirQrReserva}
+                  mostrarQr={puedeMostrarQrReserva(reserva)}
+                />
               ))}
             </div>
           </>
@@ -855,6 +875,9 @@ function EmpleadoDashboard() {
           onEliminada={handleReservaEliminada}
         />
       )}
+      {reservaQrId !== null ? (
+        <ModalQrReserva idReserva={reservaQrId} onClose={() => setReservaQrId(null)} />
+      ) : null}
     </div>
   );
 }

@@ -1,5 +1,5 @@
 // src/componentesEmpleado/tarjeta_reserva.jsx
-import { Car, Check, Copy, X } from "lucide-react";
+import { Car, Check, Copy, QrCode, X } from "lucide-react";
 import "./tarjeta_reserva.css";
 
 const esValorVerdadero = (valor) => {
@@ -77,7 +77,7 @@ const obtenerEstadoHistorial = (reserva) => {
   };
 };
 
-function TarjetaReserva({ reserva, onClick, onCopy, variant = "default" }) {
+function TarjetaReserva({ reserva, onClick, onCopy, onShowQr, mostrarQr = false, variant = "default" }) {
   if (!reserva) return null;
 
   const esHistorialPasado = variant === "historyPast";
@@ -163,6 +163,19 @@ function TarjetaReserva({ reserva, onClick, onCopy, variant = "default" }) {
           <span className="empleado-reserva-arrow" aria-hidden="true">&gt;</span>
         </div>
       </div>
+      {mostrarQr ? (
+        <button
+          type="button"
+          className="empleado-reserva-qr-btn"
+          onClick={(event) => {
+            event.stopPropagation();
+            onShowQr?.(reserva);
+          }}
+        >
+          <QrCode size={18} aria-hidden="true" />
+          Mostrar QR de ingreso
+        </button>
+      ) : null}
     </section>
   );
 }
