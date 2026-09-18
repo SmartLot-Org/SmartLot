@@ -115,6 +115,11 @@ const obtenerIdGarage = (garage) =>
 const obtenerIdReserva = (reserva) =>
   reserva?.id_reserva ?? reserva?.id ?? reserva?._id;
 
+const obtenerReservaResultadoQr = (datos) => {
+  const candidatos = [datos?.reserva, datos?.data?.reserva, datos?.data, datos?.datos, datos];
+  return candidatos.find((item) => item && typeof item === "object" && !Array.isArray(item) && obtenerIdReserva(item)) ?? null;
+};
+
 const obtenerListado = (datos) => {
   if (Array.isArray(datos)) return datos;
   if (Array.isArray(datos?.datos)) return datos.datos;
@@ -155,6 +160,10 @@ const normalizarEstadoReserva = (reserva) => {
     reserva.horaIngreso,
     reserva.ingreso_at,
     reserva.ingresoAt,
+    reserva.ingreso_exitoso,
+    reserva.ingresoExitoso,
+    reserva.esta_dentro,
+    reserva.estaDentro,
     reserva.movimiento?.fecha_entrada,
     reserva.movimiento?.fechaIngreso,
   ].some(esValorVerdadero);
@@ -179,7 +188,7 @@ const normalizarEstadoReserva = (reserva) => {
   if (salio || ["finalizado", "finalizada", "completado", "completada", "fuera", "checkout", "check_out"].includes(estadoExplicito)) {
     return "Finalizado";
   }
-  if (entro || ["dentro", "ingresado", "ingresada", "en_curso", "checkin", "check_in"].includes(estadoExplicito)) {
+  if (entro || ["dentro", "ingresado", "ingresada", "adentro", "ocupado", "ocupada", "ingreso", "en_curso", "dentro_garage", "checkin", "check_in"].includes(estadoExplicito)) {
     return "Dentro";
   }
   return "Pendiente";
@@ -575,7 +584,7 @@ export default function GaragistaDashboard() {
     let cancelado = false;
 
     const cargarDatos = async () => {
-      setCargando(true);
+      if (recargaReservas === 0) setCargando(true);
       setErrorCarga("");
 
       try {
@@ -662,7 +671,9 @@ export default function GaragistaDashboard() {
 
   const reservasFiltradas = useMemo(() => {
     return reservas.filter((reserva) => {
-      if (reserva.fechaReserva !== fechaISOActual) return false;
+      // Un auto que ya ingresó debe permanecer visible aunque el backend
+      // devuelva la fecha de ingreso en lugar de la fecha programada.
+      if (reserva.fechaReserva !== fechaISOActual && reserva.estado !== "Dentro") return false;
       if (!terminoBusqueda) return true;
 
       const textoVisible = `${reserva.conductor} ${reserva.vehiculo}`.toLowerCase();
@@ -1165,7 +1176,21 @@ export default function GaragistaDashboard() {
       {lectorQrAbierto && !esAdmin ? (
         <LectorQrReserva
           onClose={() => setLectorQrAbierto(false)}
-          onIngresoExitoso={() => {
+          onIngresoExitoso={(datosIngreso) => {
+            const reservaIngresada = obtenerReservaResultadoQr(datosIngreso);
+            const idReservaIngresada = obtenerIdReserva(reservaIngresada);
+            if (idReservaIngresada) {
+              setReservas((actuales) => actuales.map((reserva) =>
+                Number(reserva.id) === Number(idReservaIngresada)
+                  ? {
+                      ...reserva,
+                      estado: "Dentro",
+                      horaEntrada: obtenerHoraEntradaReal(reservaIngresada) || obtenerHoraActual(),
+                      raw: { ...reserva.raw, ...reservaIngresada },
+                    }
+                  : reserva
+              ));
+            }
             setLectorQrAbierto(false);
             setRecargaReservas((actual) => actual + 1);
           }}

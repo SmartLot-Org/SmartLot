@@ -117,7 +117,7 @@ function TarjetaReserva({ reserva, onClick, onCopy, onShowQr, mostrarQr = false,
           <div className="empleado-reserva-plaza">
             <strong>{reserva.nro_plaza || "-"}</strong>
             <span>{reserva.nombre_zona || "Sector"}</span>
-            <small>Reservado</small>
+            <small>{reserva.entradaRegistrada ? "Dentro" : "Reservado"}</small>
           </div>
         )}
 

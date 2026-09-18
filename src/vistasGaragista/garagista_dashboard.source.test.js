@@ -62,9 +62,14 @@ test("actualiza la fecha del tablero sin recargar la página", async () => {
 test("reconoce como Dentro los estados y campos devueltos por el check-in QR", async () => {
   const source = await readFile(dashboardPath, "utf8");
   assert.match(source, /reserva\.estado_reserva/);
-  assert.match(source, /"dentro", "ingresado", "ingresada", "en_curso"/);
+  assert.match(source, /"dentro", "ingresado", "ingresada", "adentro", "ocupado"/);
   assert.match(source, /reserva\.fecha_ingreso/);
   assert.match(source, /reserva\.ingreso_at/);
+});
+
+test("mantiene visibles los autos dentro aunque la fecha devuelta sea la del ingreso", async () => {
+  const source = await readFile(dashboardPath, "utf8");
+  assert.match(source, /reserva\.fechaReserva !== fechaISOActual && reserva\.estado !== "Dentro"/);
 });
 
 test("mantiene el ingreso manual por patente y agrega el lector QR solo para garagistas", async () => {
@@ -80,4 +85,6 @@ test("tras un ingreso QR solicita una recarga real de las reservas", async () =>
   assert.match(source, /setRecargaReservas\(\(actual\) => actual \+ 1\)/);
   assert.match(source, /\[fechaISOActual, idGarageAsignado, recargaReservas\]/);
   assert.match(source, /ReservasGetControlAcceso\(idGarageAsignado, fechaISOActual, \{ force: true \}\)/);
+  assert.match(source, /estado: "Dentro"/);
+  assert.match(source, /obtenerReservaResultadoQr\(datosIngreso\)/);
 });

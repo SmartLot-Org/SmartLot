@@ -5,7 +5,7 @@ import "./empleados_dashboard.css";
 import HeaderEmpleado from "../componentesEmpleado/header_empleado";
 import TarjetaReserva from "../componentesEmpleado/tarjeta_reserva";
 import ModalEditarReserva from "../componentesEmpleado/modal_editar_reserva";
-import { ReservasGetAll, ReservasGetDisponibilidadPorHora } from "../servicies/API_Reserva";
+import { ReservasGetAll, ReservasGetByUsuario, ReservasGetDisponibilidadPorHora } from "../servicies/API_Reserva";
 import { VehiculosGetAll } from "../servicies/API_Vehiculo";
 import { GaragesGetAll } from "../servicies/API_Garage";
 import { UsuariosGetById } from "../servicies/API_Usuario";
@@ -165,7 +165,14 @@ const tieneEntradaRegistrada = (reserva) =>
     obtenerCampo(reserva, ["entrada_registrada", "entradaRegistrada"]),
     obtenerCampo(reserva, ["fecha_entrada_real", "fechaEntradaReal"]),
     obtenerCampo(reserva, ["hora_entrada_real", "horaEntradaReal"]),
-  ].some(esValorVerdadero);
+    obtenerCampo(reserva, ["fecha_ingreso", "fechaIngreso"]),
+    obtenerCampo(reserva, ["hora_ingreso", "horaIngreso"]),
+    obtenerCampo(reserva, ["ingreso_at", "ingresoAt"]),
+    obtenerCampo(reserva, ["ingreso_exitoso", "ingresoExitoso", "esta_dentro", "estaDentro"]),
+  ].some(esValorVerdadero) || ["dentro", "ingresado", "ingresada", "adentro", "ocupado", "ocupada", "ingreso", "en_curso", "dentro_garage", "checkin", "check_in"].includes(
+    String(obtenerCampo(reserva, ["estado", "status", "estado_reserva", "estadoReserva"], ""))
+      .trim().toLowerCase().replace(/[\s-]+/g, "_")
+  );
 
 const obtenerFechaHoraProgramada = (fecha, hora) => {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(String(fecha)) || !/^\d{2}:\d{2}$/.test(String(hora))) {
@@ -473,6 +480,39 @@ function EmpleadoDashboard() {
       montado = false;
     };
   }, [usuario]);
+
+  useEffect(() => {
+    const idUsuario = Number(obtenerIdUsuario(usuario));
+    if (!Number.isFinite(idUsuario)) return undefined;
+
+    let activo = true;
+    const recargarReservas = async () => {
+      const response = await ReservasGetByUsuario(idUsuario, { force: true });
+      if (!activo || !response.respuesta) return;
+
+      const idsVehiculos = new Set(vehiculos.map((vehiculo) => Number(obtenerIdVehiculo(vehiculo))));
+      const reservasActualizadas = obtenerListado(response.datos).filter((reserva) => {
+        const reservaUsuarioId = Number(reserva.id_usuario ?? reserva.idUsuario ?? reserva.usuario_id);
+        const reservaVehiculoId = Number(reserva.id_vehiculo ?? reserva.idVehiculo ?? reserva.vehiculo_id ?? reserva.vehiculoId);
+        return reservaUsuarioId === idUsuario || idsVehiculos.has(reservaVehiculoId);
+      });
+      setReservas(reservasActualizadas);
+    };
+
+    const alRecuperarVisibilidad = () => {
+      if (document.visibilityState === "visible") void recargarReservas();
+    };
+    const intervalo = window.setInterval(() => { void recargarReservas(); }, 15_000);
+    window.addEventListener("focus", recargarReservas);
+    document.addEventListener("visibilitychange", alRecuperarVisibilidad);
+
+    return () => {
+      activo = false;
+      window.clearInterval(intervalo);
+      window.removeEventListener("focus", recargarReservas);
+      document.removeEventListener("visibilitychange", alRecuperarVisibilidad);
+    };
+  }, [usuario, vehiculos]);
 
   useEffect(() => {
     let montado = true;

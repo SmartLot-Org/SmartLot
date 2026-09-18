@@ -13,6 +13,7 @@ test("extrae reservas de las variantes de respuesta del control de acceso", () =
   assert.deepEqual(obtenerReservasControlAcceso({ reservas }), reservas);
   assert.deepEqual(obtenerReservasControlAcceso({ data: { reservas } }), reservas);
   assert.deepEqual(obtenerReservasControlAcceso({ datos: { data: reservas } }), reservas);
+  assert.deepEqual(obtenerReservasControlAcceso({ autos_dentro: reservas }), reservas);
 });
 
 test("no descarta una reserva cuando el endpoint acotado no repite el garage", () => {

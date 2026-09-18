@@ -21,7 +21,13 @@ export const reservaTieneIngreso = (reserva = {}) => [
   reserva.entrada, reserva.ingreso, reserva.check_in, reserva.checkIn, reserva.entro,
   reserva.entrada_registrada, reserva.entradaRegistrada, reserva.fecha_entrada_real,
   reserva.fechaEntradaReal, reserva.hora_entrada_real, reserva.horaEntradaReal,
-].some(esValorVerdadero);
+  reserva.fecha_ingreso, reserva.fechaIngreso, reserva.hora_ingreso, reserva.horaIngreso,
+  reserva.ingreso_at, reserva.ingresoAt,
+  reserva.ingreso_exitoso, reserva.ingresoExitoso, reserva.esta_dentro, reserva.estaDentro,
+].some(esValorVerdadero) || ["dentro", "ingresado", "ingresada", "adentro", "ocupado", "ocupada", "ingreso", "en_curso", "dentro_garage", "checkin", "check_in"].includes(
+  String(reserva.estado ?? reserva.status ?? reserva.estado_reserva ?? reserva.estadoReserva ?? "")
+    .trim().toLowerCase().replace(/[\s-]+/g, "_")
+);
 
 export const puedeMostrarQrReserva = (reserva = {}) => {
   if (!reserva || reservaTieneIngreso(reserva)) return false;

@@ -1,4 +1,20 @@
-const LIST_KEYS = ["reservas", "datos", "data", "results", "items"];
+const LIST_KEYS = [
+  "reservas",
+  "reservas_actuales",
+  "reservasActivas",
+  "autos_dentro",
+  "autosDentro",
+  "reservas_dentro",
+  "reservasDentro",
+  "ingresos",
+  "ingresos_actuales",
+  "vehiculosDentro",
+  "dentro",
+  "datos",
+  "data",
+  "results",
+  "items",
+];
 
 export const obtenerReservasControlAcceso = (payload) => {
   if (Array.isArray(payload)) return payload;
