@@ -76,7 +76,10 @@ export default function LoginForm() {
       );
 
       const usuario = res.data?.usuario;
-      const rutaDestino = getUserHomeRoute(usuario);
+      const redirect = new URLSearchParams(location.search).get("redirect");
+      const rutaDestino = redirect && redirect.startsWith("/") && !redirect.startsWith("//") && !redirect.includes("\\")
+        ? redirect
+        : getUserHomeRoute(usuario);
       window.location.href = rutaDestino;
     } catch (err) {
       const msg = err.response?.data?.message || "Error de conexión.";

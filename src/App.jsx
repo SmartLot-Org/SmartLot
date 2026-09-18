@@ -34,6 +34,7 @@ import SuperadminReservas from "./vistasSuperadmin/superadmin_reservas";
 import SuperadminCache from "./vistasSuperadmin/superadmin_cache";
 import SuperadminPagosTest from "./vistasSuperadmin/superadmin_pagos_test";
 import SuperadminEmailTemplates from "./vistasSuperadmin/superadmin_email_templates";
+import ConfirmarSolicitud from "./vistasSuperadmin/ConfirmarSolicitud";
 import PaymentStatus from "./pages/PaymentStatus";
 
 // Vistas Landing & Base
@@ -266,6 +267,11 @@ function AppRoutes() {
       <Route path="/superadmin/email-templates" element={
         <ProtectedRoute allowedRoles={[4]} usuario={usuario}>
           <SuperadminEmailTemplates />
+        </ProtectedRoute>
+      } />
+      <Route path="/solicitud-registro/revision" element={
+        <ProtectedRoute allowedRoles={[4]} usuario={usuario}>
+          <ConfirmarSolicitud />
         </ProtectedRoute>
       } />
 
