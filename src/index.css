@@ -230,3 +230,18 @@ body[style*="padding-right"] {
   font-size: 0.75em;
 }
 
+/* ═══════════════════════════════════════════════════════════════════
+   SweetAlert2 — siempre por encima de modales/overlays propios
+   SweetAlert2 v11 no tiene opción `zIndex`; su CSS inyectado define
+   div:where(.swal2-container) { z-index: 1060 } (especificidad 0,0,1).
+   Se sobreescribe aquí con la especificidad y !important necesarios.
+   Valores alineados con src/helpers/zIndex.js
+   ═══════════════════════════════════════════════════════════════════ */
+body .swal2-container {
+  z-index: 10600 !important; /* Z_INDEX.SWAL_DIALOG */
+}
+
+body.swal2-toast-shown .swal2-container {
+  z-index: 10200 !important; /* Z_INDEX.SWAL_TOAST */
+}
+

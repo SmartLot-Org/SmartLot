@@ -30,25 +30,44 @@ export default function Navbar() {
       ref={navRef}
       className="fixed top-0 left-0 w-full z-50 glass-nav"
     >
-      <div className="max-w-6xl mx-auto px-6 py-3.5 flex justify-between items-center">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3.5 flex flex-wrap justify-between items-center gap-x-3 gap-y-2">
 
-        <Link to="/" className="flex items-center gap-2 group">
+        <Link to="/" className="flex items-center gap-2 group min-w-0">
           <img
             src="/logo.png"
             alt="SmartLot Logo"
             className="h-10 md:h-12 w-auto drop-shadow-sm transition-all duration-300 group-hover:brightness-110"
           />
-          <span className="text-xl md:text-2xl font-extrabold text-brand-warm tracking-tight font-display">
+          <span className="hidden sm:inline text-xl md:text-2xl font-extrabold text-brand-warm tracking-tight font-display">
             SmartLot
           </span>
         </Link>
 
-        <Link
-          to={usuario ? getUserHomeRoute(usuario) : '/login'}
-          className="px-4 py-2 bg-brand-blue text-white rounded-lg font-semibold text-sm hover:bg-brand-deep active:scale-[0.97] transition-all duration-300 shadow-md hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2 focus-visible:ring-offset-brand-bg"
-        >
-          {usuario ? 'Ir a mi panel' : 'Iniciar Sesión'}
-        </Link>
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+          {usuario ? (
+            <Link
+              to={getUserHomeRoute(usuario)}
+              className="inline-flex items-center justify-center whitespace-nowrap rounded-lg bg-brand-blue px-3 sm:px-4 py-2.5 text-sm font-semibold text-white shadow-md hover:bg-brand-deep hover:shadow-lg active:scale-[0.97] transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2 focus-visible:ring-offset-brand-bg"
+            >
+              Ir a mi panel
+            </Link>
+          ) : (
+            <>
+              <Link
+                to="/login"
+                className="inline-flex items-center justify-center whitespace-nowrap rounded-lg border border-brand-navy/10 bg-white/70 px-3 sm:px-4 py-2.5 text-sm font-semibold text-brand-muted shadow-sm hover:border-brand-blue/40 hover:bg-brand-blue/10 hover:text-brand-deep hover:shadow-md active:scale-[0.97] transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2 focus-visible:ring-offset-brand-bg"
+              >
+                Iniciar sesión
+              </Link>
+              <Link
+                to="/register"
+                className="inline-flex items-center justify-center whitespace-nowrap rounded-lg bg-brand-blue px-3 sm:px-4 py-2.5 text-sm font-semibold text-white shadow-md hover:bg-brand-deep hover:shadow-lg active:scale-[0.97] transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2 focus-visible:ring-offset-brand-bg"
+              >
+                Registrate
+              </Link>
+            </>
+          )}
+        </div>
 
       </div>
     </header>
