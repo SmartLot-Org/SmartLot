@@ -84,6 +84,12 @@
   gap: 1px;
 }
 
+.cn-panel-head > .cn-panel-actions {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
 .cn-panel-head strong {
   font-size: 14px;
   font-weight: 800;

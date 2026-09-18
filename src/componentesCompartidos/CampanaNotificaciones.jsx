@@ -2,6 +2,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowRight, Bell, CheckCircle2, Inbox, X, XCircle } from "lucide-react";
 import { useNotificaciones } from "../hooks/useNotificaciones";
+import { useAuth } from "../contexts/useAuth";
+import { ROLE_NAMES, userHasRole } from "../helpers/roles";
 import "./campana_notificaciones.css";
 
 const tiempoRelativo = (valor) => {
@@ -39,9 +41,9 @@ const tipoNotificacion = (tipo) => {
   }
 };
 
-export default function CampanaNotificaciones({ rutaTratos }) {
+function CampanaNotificacionesInterna({ rutaTratos }) {
   const navigate = useNavigate();
-  const { notificaciones, noLeidas, loading, marcarTodasLeidas, eliminar, eliminarLeidas } = useNotificaciones();
+  const { notificaciones, noLeidas, loading, marcarLeida, marcarTodasLeidas, eliminar, eliminarLeidas } = useNotificaciones();
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef(null);
   const triggerRef = useRef(null);
@@ -67,15 +69,11 @@ export default function CampanaNotificaciones({ rutaTratos }) {
     };
   }, [isOpen]);
 
-  useEffect(() => {
-    if (isOpen) eliminarLeidas();
-  }, [isOpen, eliminarLeidas]);
-
   const irATratos = useCallback((notificacion) => {
     setIsOpen(false);
-    if (notificacion) eliminar(notificacion.id);
+    if (notificacion && !notificacion.leida) marcarLeida(notificacion.id);
     navigate(rutaTratos);
-  }, [navigate, rutaTratos, eliminar]);
+  }, [navigate, rutaTratos, marcarLeida]);
 
   const totalBadge = noLeidas > 0 ? (noLeidas > 99 ? "99+" : noLeidas) : null;
 
@@ -103,11 +101,18 @@ export default function CampanaNotificaciones({ rutaTratos }) {
               <strong>Notificaciones</strong>
               <span>{noLeidas > 0 ? `${noLeidas} sin leer` : "Estás al día"}</span>
             </div>
-            {noLeidas > 0 && (
-              <button type="button" onClick={marcarTodasLeidas}>
-                Marcar todas leídas
-              </button>
-            )}
+            <div className="cn-panel-actions">
+              {notificaciones.some((notificacion) => notificacion.leida) && (
+                <button type="button" onClick={eliminarLeidas}>
+                  Limpiar leídas
+                </button>
+              )}
+              {noLeidas > 0 && (
+                <button type="button" onClick={marcarTodasLeidas}>
+                  Marcar todas leídas
+                </button>
+              )}
+            </div>
           </header>
 
           <div className="cn-lista">
@@ -158,4 +163,10 @@ export default function CampanaNotificaciones({ rutaTratos }) {
       )}
     </div>
   );
+}
+
+export default function CampanaNotificaciones(props) {
+  const { usuario } = useAuth();
+  if (userHasRole(usuario, ROLE_NAMES.GARAGISTA)) return null;
+  return <CampanaNotificacionesInterna {...props} />;
 }

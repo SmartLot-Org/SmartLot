@@ -40,31 +40,38 @@ export function useNotificaciones() {
   const [noLeidas, setNoLeidas] = useState(0);
   const [loading, setLoading] = useState(true);
 
-  const refresh = useCallback(async () => {
-    setLoading(true);
-    const value = await fetchNotificaciones();
+  const aplicar = useCallback((value) => {
     setNotificaciones(value.notificaciones);
     setNoLeidas(value.noLeidas);
-    setLoading(false);
   }, []);
+
+  const refresh = useCallback(async () => {
+    setLoading(true);
+    aplicar(await fetchNotificaciones());
+    setLoading(false);
+  }, [aplicar]);
 
   useEffect(() => {
     const frame = requestAnimationFrame(refresh);
     refreshListeners.add(refresh);
 
-    const interval = setInterval(() => {
-      fetchNotificaciones().then((value) => {
-        setNotificaciones(value.notificaciones);
-        setNoLeidas(value.noLeidas);
-      });
-    }, POLL_INTERVAL_MS);
+    const cargar = () => fetchNotificaciones().then(aplicar);
+    const interval = setInterval(cargar, POLL_INTERVAL_MS);
+
+    const alVolver = () => {
+      if (!document.hidden) cargar();
+    };
+    window.addEventListener("focus", alVolver);
+    document.addEventListener("visibilitychange", alVolver);
 
     return () => {
       cancelAnimationFrame(frame);
       clearInterval(interval);
       refreshListeners.delete(refresh);
+      window.removeEventListener("focus", alVolver);
+      document.removeEventListener("visibilitychange", alVolver);
     };
-  }, [refresh]);
+  }, [refresh, aplicar]);
 
   const marcarLeida = useCallback(async (id) => {
     const response = await NotificacionesMarcarLeida(id);

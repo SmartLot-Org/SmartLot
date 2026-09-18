@@ -7,7 +7,7 @@ import Header from '../componentesAdmin/header_admin';
 import FooterAdmin from '../componentesAdmin/footer_admin';
 import { SedesGetAll } from '../servicies/API_Sede';
 import { GaragesGetCercanos } from '../servicies/API_Garage';
-import { TratosDelete, TratosGetAll, TratosUpdate, TratosUpdatePaymentModality } from '../servicies/API_TratoEmpresaGarage';
+import { TratosCancelar, TratosGetAll, TratosUpdate, TratosUpdatePaymentModality } from '../servicies/API_TratoEmpresaGarage';
 import { SolicitudesCreate, SolicitudesGetEnviadas } from '../servicies/API_SolicitudEmpresaGarage';
 import { buildSolicitudPayload, filterGarages, normalizeDays, normalizeList, parsePositiveInteger } from '../helpers/tratos';
 import './gestion_garages.css';
@@ -191,7 +191,7 @@ export default function GestionGarages() {
   const cancelContract = async (trato) => {
     const confirm = await Swal.fire({ title: '¿Cancelar trato?', icon: 'warning', showCancelButton: true, confirmButtonText: 'Sí, cancelar' });
     if (!confirm.isConfirmed) return;
-    const response = await TratosDelete(trato.id);
+    const response = await TratosCancelar(trato.id);
     if (!response.respuesta) return Swal.fire('Error', messageOf(response), 'error');
     await loadContracts();
   };
