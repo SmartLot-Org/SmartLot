@@ -136,6 +136,9 @@ const esValorVerdadero = (valor) => {
 };
 
 const normalizarEstadoReserva = (reserva) => {
+  const estadoExplicito = String(
+    reserva.estado ?? reserva.status ?? reserva.estado_reserva ?? reserva.estadoReserva ?? ""
+  ).trim().toLowerCase().replace(/[\s-]+/g, "_");
   const entro = [
     reserva.entrada,
     reserva.ingreso,
@@ -146,6 +149,14 @@ const normalizarEstadoReserva = (reserva) => {
     reserva.entradaRegistrada,
     reserva.fecha_entrada_real,
     reserva.fechaEntradaReal,
+    reserva.fecha_ingreso,
+    reserva.fechaIngreso,
+    reserva.hora_ingreso,
+    reserva.horaIngreso,
+    reserva.ingreso_at,
+    reserva.ingresoAt,
+    reserva.movimiento?.fecha_entrada,
+    reserva.movimiento?.fechaIngreso,
   ].some(esValorVerdadero);
   const salio = [
     reserva.salida,
@@ -157,10 +168,20 @@ const normalizarEstadoReserva = (reserva) => {
     reserva.salidaRegistrada,
     reserva.fecha_salida_real,
     reserva.fechaSalidaReal,
+    reserva.fecha_egreso,
+    reserva.fechaEgreso,
+    reserva.hora_egreso,
+    reserva.horaEgreso,
+    reserva.egreso_at,
+    reserva.egresoAt,
   ].some(esValorVerdadero);
 
-  if (salio) return "Finalizado";
-  if (entro) return "Dentro";
+  if (salio || ["finalizado", "finalizada", "completado", "completada", "fuera", "checkout", "check_out"].includes(estadoExplicito)) {
+    return "Finalizado";
+  }
+  if (entro || ["dentro", "ingresado", "ingresada", "en_curso", "checkin", "check_in"].includes(estadoExplicito)) {
+    return "Dentro";
+  }
   return "Pendiente";
 };
 
