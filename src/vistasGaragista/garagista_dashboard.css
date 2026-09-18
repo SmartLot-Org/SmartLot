@@ -6,9 +6,9 @@
 }
 
 .garagista-shell {
-  width: min(1180px, calc(100% - 32px));
-  margin: 0 auto;
-  padding: 34px 0 118px;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 34px 48px 118px;
 }
 
 .garagista-hero,
@@ -832,8 +832,8 @@
 
 @media (max-width: 640px) {
   .garagista-shell {
-    width: min(100% - 24px, 1180px);
-    padding-top: 22px;
+    width: 100%;
+    padding: 22px 16px 118px;
   }
 
   .garagista-hero {
