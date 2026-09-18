@@ -1,0 +1,97 @@
+.confirmar-datos {
+  background: rgba(59, 130, 246, 0.06);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  border-radius: 12px;
+  padding: 18px 20px;
+  margin: 18px 0;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.confirmar-dato {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.confirmar-dato-label {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(59, 130, 246, 0.9);
+}
+
+.confirmar-dato-valor {
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--texto-principal, #1e293b);
+  overflow-wrap: anywhere;
+}
+
+.confirmar-dato-valor--debil {
+  color: var(--texto-secundario, #64748b);
+}
+
+.confirmar-acciones {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin: 22px 0 0;
+}
+
+.confirmar-boton-aprobar,
+.confirmar-boton-rechazar {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 28px;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 15px;
+  color: #ffffff;
+  cursor: pointer;
+  transition: filter 0.2s ease, transform 0.1s ease;
+}
+
+.confirmar-boton-aprobar {
+  background: #16a34a;
+}
+
+.confirmar-boton-rechazar {
+  background: #dc2626;
+}
+
+.confirmar-boton-aprobar:hover:not(:disabled),
+.confirmar-boton-rechazar:hover:not(:disabled) {
+  filter: brightness(0.92);
+}
+
+.confirmar-boton-aprobar:active:not(:disabled),
+.confirmar-boton-rechazar:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.confirmar-boton-aprobar:disabled,
+.confirmar-boton-rechazar:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .confirmar-boton-aprobar,
+  .confirmar-boton-rechazar {
+    transition: none;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .confirmar-boton-aprobar,
+  .confirmar-boton-rechazar {
+    transition: filter 0.2s ease, transform 0.1s ease;
+  }
+}

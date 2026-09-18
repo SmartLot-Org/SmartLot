@@ -23,6 +23,20 @@ const result = async (key, request, options = {}) => {
 export const SolicitudesRegistroGetAll = (options = {}) =>
   result('solicitudes-registro:all', () => apiClient.get(base), options);
 
+// Sin caché: la página de confirmación necesita el estado actual de la solicitud.
+export const SolicitudRegistroGetById = async (id) => {
+  try {
+    const response = await apiClient.get(`${base}/${id}`);
+    return { respuesta: true, datos: response.data };
+  } catch (error) {
+    return {
+      respuesta: false,
+      datos: error.response?.data || { message: error.message },
+      status: error.response?.status || 0,
+    };
+  }
+};
+
 const transition = async (id, action) => {
   try {
     const response = await apiClient.patch(`${base}/${id}/${action}`);
