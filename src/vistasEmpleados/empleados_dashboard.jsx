@@ -16,7 +16,7 @@ import { useAuth } from "../contexts/useAuth";
 import FooterEmpleado from "../componentesEmpleado/footer_empleado";
 import FormularioDetallesVehiculo from "../componentesEmpleado/formulario_detalles_vehiculo";
 import ModalQrReserva from "../componentesEmpleado/ModalQrReserva";
-import { puedeMostrarQrReserva } from "../helpers/qrReserva";
+import { obtenerTipoQrReserva, puedeMostrarQrReserva } from "../helpers/qrReserva";
 
 
 const GARAGE_DASHBOARD_STORAGE_KEY = "smartlot_empleado_dashboard_garage";
@@ -600,6 +600,7 @@ function EmpleadoDashboard() {
 
   const reservaPrincipal = reservasNormalizadas[0] || null;
   const restoReservas = reservasNormalizadas.slice(1);
+  const reservaQrActiva = reservasNormalizadas.find((reserva) => Number(reserva.id) === Number(reservaQrId)) ?? null;
   const tieneResto = restoReservas.length > 0;
   const capacidadReservas = Number(garageUsuario?.capacidad_reservas || 0);
   const capacidadNoReservas = Number(garageUsuario?.capacidad_para_no_reservas || 0);
@@ -809,6 +810,7 @@ function EmpleadoDashboard() {
               onCopy={handleCopyReserva}
               onShowQr={abrirQrReserva}
               mostrarQr={puedeMostrarQrReserva(reservaPrincipal)}
+              tipoQr={obtenerTipoQrReserva(reservaPrincipal)}
             />
             {tieneResto && (
               <button type="button" className={`empleado-reservas-toggle${deployableOpen ? " empleado-reservas-toggle--open" : ""}`} onClick={() => setDeployableOpen((prev) => !prev)}>
@@ -825,6 +827,7 @@ function EmpleadoDashboard() {
                   onCopy={handleCopyReserva}
                   onShowQr={abrirQrReserva}
                   mostrarQr={puedeMostrarQrReserva(reserva)}
+                  tipoQr={obtenerTipoQrReserva(reserva)}
                 />
               ))}
             </div>
@@ -915,8 +918,12 @@ function EmpleadoDashboard() {
           onEliminada={handleReservaEliminada}
         />
       )}
-      {reservaQrId !== null ? (
-        <ModalQrReserva idReserva={reservaQrId} onClose={() => setReservaQrId(null)} />
+      {reservaQrId !== null && reservaQrActiva ? (
+        <ModalQrReserva
+          idReserva={reservaQrId}
+          tipo={obtenerTipoQrReserva(reservaQrActiva)}
+          onClose={() => setReservaQrId(null)}
+        />
       ) : null}
     </div>
   );

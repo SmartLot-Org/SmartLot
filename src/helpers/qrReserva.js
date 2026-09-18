@@ -57,6 +57,9 @@ export const puedeMostrarQrReserva = (reserva = {}) => {
   return ESTADOS_HABILITADOS_QR.has(estado);
 };
 
+export const obtenerTipoQrReserva = (reserva = {}) =>
+  reservaTieneIngreso(reserva) ? "salida" : "ingreso";
+
 export const crearControlLecturasQr = () => {
   let procesando = false;
   let ultimoContenido = null;

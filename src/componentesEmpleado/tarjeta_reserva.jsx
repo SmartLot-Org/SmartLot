@@ -77,7 +77,7 @@ const obtenerEstadoHistorial = (reserva) => {
   };
 };
 
-function TarjetaReserva({ reserva, onClick, onCopy, onShowQr, mostrarQr = false, variant = "default" }) {
+function TarjetaReserva({ reserva, onClick, onCopy, onShowQr, mostrarQr = false, tipoQr = "ingreso", variant = "default" }) {
   if (!reserva) return null;
 
   const esHistorialPasado = variant === "historyPast";
@@ -173,7 +173,7 @@ function TarjetaReserva({ reserva, onClick, onCopy, onShowQr, mostrarQr = false,
           }}
         >
           <QrCode size={18} aria-hidden="true" />
-          Mostrar QR de acceso
+          Mostrar QR de {tipoQr}
         </button>
       ) : null}
     </section>

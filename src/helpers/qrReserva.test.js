@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { crearControlLecturasQr, puedeMostrarQrReserva } from "./qrReserva.js";
+import { crearControlLecturasQr, obtenerTipoQrReserva, puedeMostrarQrReserva } from "./qrReserva.js";
 
 test("muestra QR para una reserva confirmada sin ingreso", () => {
   assert.equal(puedeMostrarQrReserva({ estado: "Confirmada", entrada_registrada: false }), true);
@@ -22,6 +22,12 @@ test("muestra el QR mientras el vehículo está dentro", () => {
 test("oculta el QR una vez registrada la salida", () => {
   assert.equal(puedeMostrarQrReserva({ estado: "Finalizado" }), false);
   assert.equal(puedeMostrarQrReserva({ estado: "Dentro", fecha_salida_real: "2026-09-18T18:00:00-03:00" }), false);
+});
+
+test("cambia el QR de ingreso por uno de salida cuando el vehículo entra", () => {
+  assert.equal(obtenerTipoQrReserva({ estado: "Confirmada" }), "ingreso");
+  assert.equal(obtenerTipoQrReserva({ estado: "Dentro" }), "salida");
+  assert.equal(obtenerTipoQrReserva({ entrada_registrada: true }), "salida");
 });
 
 test("el control del lector bloquea frames y tokens duplicados mientras procesa", () => {
