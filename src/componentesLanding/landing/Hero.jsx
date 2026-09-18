@@ -1,4 +1,4 @@
-import { forwardRef } from 'react';
+import { forwardRef, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Car, ChevronRight } from 'lucide-react';
 import gsap from 'gsap';
@@ -6,29 +6,43 @@ import { useGSAP } from '@gsap/react';
 
 
 const Hero = forwardRef(function Hero({ startAnimation }, ref) {
+  // La entrada se reproduce una sola vez: cuando la intro la desbloquea
+  // después del montaje. Si ya venimos con startAnimation en true (volver por
+  // SPA o refresh con la intro ya vista) no se repite: el logo tiene que
+  // estar apenas caés en la landing, no ~2.6s después, que es lo que dura la
+  // entrada y hacía parecer que faltaba hasta scrollear.
+  const playEntranceRef = useRef(!startAnimation);
+
+
   useGSAP(() => {
     if (!startAnimation) return;
+
+
+    const playEntrance = playEntranceRef.current;
+    playEntranceRef.current = false;
 
 
     const mm = gsap.matchMedia();
 
 
     mm.add("(prefers-reduced-motion: no-preference)", () => {
-      const tl = gsap.timeline({
-        defaults: { ease: "power4.out" },
-        delay: 0.4
-      });
-     
-      tl.from(".word", {
-        y: 80,
-        rotateX: -30,
-        opacity: 0,
-        duration: 1.2,
-        stagger: 0.2
-      })
-      .from(".hero-p", { opacity: 0, x: -16, duration: 1 }, "-=0.6")
-      .from(".hero-btn", { scale: 0.85, opacity: 0, duration: 0.7 }, "-=0.8")
-      .from(".hero-logo-container", { x: 80, opacity: 0, duration: 1.4 }, "-=1");
+      if (playEntrance) {
+        const tl = gsap.timeline({
+          defaults: { ease: "power4.out" },
+          delay: 0.4
+        });
+       
+        tl.from(".word", {
+          y: 80,
+          rotateX: -30,
+          opacity: 0,
+          duration: 1.2,
+          stagger: 0.2
+        })
+        .from(".hero-p", { opacity: 0, x: -16, duration: 1 }, "-=0.6")
+        .from(".hero-btn", { scale: 0.85, opacity: 0, duration: 0.7 }, "-=0.8")
+        .from(".hero-logo-container", { x: 80, opacity: 0, duration: 1.4 }, "-=1");
+      }
 
 
       gsap.to(".floating-logo", {
