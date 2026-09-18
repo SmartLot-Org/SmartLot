@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Camera, RefreshCw, X } from "lucide-react";
 import ModalPortal from "../componentesCompartidos/ModalPortal";
-import { ReservasCheckInQr } from "../servicies/API_Reserva";
+import { ReservasCheckInQr, ReservasCheckOutQr } from "../servicies/API_Reserva";
 import { showToast } from "../helpers/toast";
 import { crearControlLecturasQr } from "../helpers/qrReserva";
 import "./lector_qr_reserva.css";
@@ -19,7 +19,7 @@ const mensajeCamara = (error) => {
   return "No se pudo iniciar la cámara. Revisá los permisos e intentá nuevamente.";
 };
 
-export default function LectorQrReserva({ onClose, onIngresoExitoso }) {
+export default function LectorQrReserva({ tipo = "ingreso", onClose, onIngresoExitoso, onSalidaExitosa }) {
   const [estado, setEstado] = useState("iniciando");
   const [error, setError] = useState("");
   const lectorRef = useRef(null);
@@ -27,12 +27,14 @@ export default function LectorQrReserva({ onClose, onIngresoExitoso }) {
   const iniciandoRef = useRef(false);
   const onCloseRef = useRef(onClose);
   const onIngresoExitosoRef = useRef(onIngresoExitoso);
+  const onSalidaExitosaRef = useRef(onSalidaExitosa);
   const controlRef = useRef(crearControlLecturasQr());
 
   useEffect(() => {
     onCloseRef.current = onClose;
     onIngresoExitosoRef.current = onIngresoExitoso;
-  }, [onClose, onIngresoExitoso]);
+    onSalidaExitosaRef.current = onSalidaExitosa;
+  }, [onClose, onIngresoExitoso, onSalidaExitosa]);
 
   const detenerCamara = useCallback(async () => {
     const lector = lectorRef.current;
@@ -51,20 +53,22 @@ export default function LectorQrReserva({ onClose, onIngresoExitoso }) {
     await detenerCamara();
     if (!montadoRef.current) return;
 
-    const resultado = await ReservasCheckInQr(qr);
+    const esSalida = tipo === "salida";
+    const resultado = await (esSalida ? ReservasCheckOutQr(qr) : ReservasCheckInQr(qr));
     if (!montadoRef.current) return;
 
     if (resultado.respuesta) {
-      showToast(resultado.datos?.message || "Ingreso verificado correctamente.", "success");
-      onIngresoExitosoRef.current?.(resultado.datos);
+      showToast(resultado.datos?.message || `${esSalida ? "Salida" : "Ingreso"} verificado correctamente.`, "success");
+      if (esSalida) onSalidaExitosaRef.current?.(resultado.datos);
+      else onIngresoExitosoRef.current?.(resultado.datos);
       onCloseRef.current();
       return;
     }
 
-    setError(resultado.datos?.message || "No se pudo registrar el ingreso con este código.");
+    setError(resultado.datos?.message || `No se pudo registrar ${esSalida ? "la salida" : "el ingreso"} con este código.`);
     setEstado("error");
     controlRef.current.habilitarReintento();
-  }, [detenerCamara]);
+  }, [detenerCamara, tipo]);
 
   const iniciarCamara = useCallback(async () => {
     if (!montadoRef.current || iniciandoRef.current || lectorRef.current) return;
@@ -117,15 +121,15 @@ export default function LectorQrReserva({ onClose, onIngresoExitoso }) {
     <ModalPortal onClose={onClose} overlayClassName="lector-qr-overlay">
       <section className="lector-qr-modal" role="dialog" aria-modal="true" aria-labelledby="lector-qr-title" onClick={(event) => event.stopPropagation()}>
         <div className="lector-qr-header">
-          <div><span>Control de acceso</span><h2 id="lector-qr-title">Escanear QR</h2></div>
+          <div><span>Control de acceso</span><h2 id="lector-qr-title">Escanear QR de {tipo}</h2></div>
           <button type="button" className="lector-qr-close" onClick={onClose} aria-label="Cerrar lector QR"><X size={20} /></button>
         </div>
-        <p className="lector-qr-help">Apuntá la cámara al código que muestra el empleado.</p>
+        <p className="lector-qr-help">Apuntá la cámara al código que muestra el empleado para registrar {tipo === "salida" ? "su salida" : "su ingreso"}.</p>
 
         <div className="lector-qr-viewport">
           <div id={READER_ID} className="lector-qr-reader" />
           {estado === "iniciando" ? <div className="lector-qr-status" role="status"><Camera size={28} />Iniciando cámara...</div> : null}
-          {estado === "verificando" ? <div className="lector-qr-status lector-qr-status--processing" role="status">Verificando reserva...</div> : null}
+          {estado === "verificando" ? <div className="lector-qr-status lector-qr-status--processing" role="status">Verificando {tipo}...</div> : null}
         </div>
 
         {error ? <p className="lector-qr-error" role="alert">{error}</p> : null}

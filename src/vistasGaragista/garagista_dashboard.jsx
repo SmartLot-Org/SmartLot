@@ -470,7 +470,7 @@ export default function GaragistaDashboard() {
   const [errorVerificacion, setErrorVerificacion] = useState("");
   const [patenteVerificada, setPatenteVerificada] = useState(false);
   const [guardandoAccion, setGuardandoAccion] = useState(false);
-  const [lectorQrAbierto, setLectorQrAbierto] = useState(false);
+  const [lectorQrAbierto, setLectorQrAbierto] = useState(null);
   const [recargaReservas, setRecargaReservas] = useState(0);
 
   const esAdmin = Number(usuario?.id_rol) === 1;
@@ -846,12 +846,6 @@ export default function GaragistaDashboard() {
                 <h1>Control de acceso</h1>
               </div>
             </div>
-            {!esAdmin ? (
-              <button type="button" className="garagista-scan-btn" onClick={() => setLectorQrAbierto(true)}>
-                <QrCode size={20} />
-                Escanear QR
-              </button>
-            ) : null}
           </header>
 
           <section className="garagista-summary-card" aria-label="Resumen operativo">
@@ -964,15 +958,27 @@ export default function GaragistaDashboard() {
                       </dl>
 
                       {!esAdmin ? (
-                        <button
-                          className="garagista-primary-btn"
-                          type="button"
-                          onClick={() => abrirVerificacion(reserva)}
-                          disabled={guardandoAccion}
-                        >
-                          <ShieldCheck size={17} />
-                          Verificar ingreso
-                        </button>
+                        <div className="access-card__actions">
+                          <button
+                            className="garagista-primary-btn"
+                            type="button"
+                            onClick={() => setLectorQrAbierto("ingreso")}
+                            disabled={guardandoAccion}
+                          >
+                            <QrCode size={17} />
+                            Escanear QR
+                          </button>
+                          <button
+                            className="garagista-secondary-btn"
+                            type="button"
+                            onClick={() => abrirVerificacion(reserva)}
+                            disabled={guardandoAccion}
+                            aria-label={`Registrar ingreso de ${reserva.conductor} con patente manual`}
+                          >
+                            <ShieldCheck size={17} />
+                            Patente manual
+                          </button>
+                        </div>
                       ) : null}
                     </article>
                   ))
@@ -1023,15 +1029,27 @@ export default function GaragistaDashboard() {
                       </dl>
 
                       {!esAdmin ? (
-                        <button
-                          className="garagista-secondary-btn"
-                          type="button"
-                          onClick={() => abrirVerificacionSalida(reserva)}
-                          disabled={guardandoAccion}
-                        >
-                          <CheckCircle2 size={17} />
-                          Verificar salida
-                        </button>
+                        <div className="access-card__actions">
+                          <button
+                            className="garagista-primary-btn"
+                            type="button"
+                            onClick={() => setLectorQrAbierto("salida")}
+                            disabled={guardandoAccion}
+                          >
+                            <QrCode size={17} />
+                            Escanear QR
+                          </button>
+                          <button
+                            className="garagista-secondary-btn"
+                            type="button"
+                            onClick={() => abrirVerificacionSalida(reserva)}
+                            disabled={guardandoAccion}
+                            aria-label={`Registrar salida de ${reserva.conductor} con patente manual`}
+                          >
+                            <CheckCircle2 size={17} />
+                            Patente manual
+                          </button>
+                        </div>
                       ) : null}
                     </article>
                   ))
@@ -1175,7 +1193,8 @@ export default function GaragistaDashboard() {
       ) : null}
       {lectorQrAbierto && !esAdmin ? (
         <LectorQrReserva
-          onClose={() => setLectorQrAbierto(false)}
+          tipo={lectorQrAbierto}
+          onClose={() => setLectorQrAbierto(null)}
           onIngresoExitoso={(datosIngreso) => {
             const reservaIngresada = obtenerReservaResultadoQr(datosIngreso);
             const idReservaIngresada = obtenerIdReserva(reservaIngresada);
@@ -1191,7 +1210,25 @@ export default function GaragistaDashboard() {
                   : reserva
               ));
             }
-            setLectorQrAbierto(false);
+            setLectorQrAbierto(null);
+            setRecargaReservas((actual) => actual + 1);
+          }}
+          onSalidaExitosa={(datosSalida) => {
+            const reservaFinalizada = obtenerReservaResultadoQr(datosSalida);
+            const idReservaFinalizada = obtenerIdReserva(reservaFinalizada);
+            if (idReservaFinalizada) {
+              setReservas((actuales) => actuales.map((reserva) =>
+                Number(reserva.id) === Number(idReservaFinalizada)
+                  ? {
+                      ...reserva,
+                      estado: "Finalizado",
+                      horaSalida: obtenerHoraSalidaReal(reservaFinalizada) || obtenerHoraActual(),
+                      raw: { ...reserva.raw, ...reservaFinalizada },
+                    }
+                  : reserva
+              ));
+            }
+            setLectorQrAbierto(null);
             setRecargaReservas((actual) => actual + 1);
           }}
         />

@@ -173,7 +173,7 @@ function TarjetaReserva({ reserva, onClick, onCopy, onShowQr, mostrarQr = false,
           }}
         >
           <QrCode size={18} aria-hidden="true" />
-          Mostrar QR de ingreso
+          Mostrar QR de acceso
         </button>
       ) : null}
     </section>

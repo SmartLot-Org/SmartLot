@@ -387,6 +387,30 @@ const ReservasCheckInQr = async (qr) => {
     return returnObject;
 };
 
+const ReservasCheckOutQr = async (qr) => {
+    const returnObject = {
+        respuesta: false,
+        datos: null,
+    };
+
+    try {
+        const response = await apiClient.post(
+            '/api/reserva/qr/check-out',
+            { qr },
+            { _skipToast: true }
+        );
+
+        returnObject.respuesta = true;
+        returnObject.datos = normalizarPayloadQr(response.data);
+        invalidateReservasDependencies();
+    } catch (error) {
+        logApiError(error);
+        returnObject.datos = normalizarErrorQr(error);
+    }
+
+    return returnObject;
+};
+
 
 
 
@@ -404,6 +428,7 @@ export {
     ReservasGetByUsuario,
     ReservasQuote,
     ReservasGetQr,
-    ReservasCheckInQr
+    ReservasCheckInQr,
+    ReservasCheckOutQr
 
 };

@@ -30,16 +30,16 @@ export default function ModalQrReserva({ idReserva, onClose }) {
     <ModalPortal onClose={onClose} overlayClassName="reserva-qr-overlay">
       <section className="reserva-qr-modal" role="dialog" aria-modal="true" aria-labelledby="reserva-qr-title" onClick={(event) => event.stopPropagation()}>
         <button type="button" className="reserva-qr-close" onClick={onClose} aria-label="Cerrar código QR"><X size={20} /></button>
-        <h2 id="reserva-qr-title">Código de ingreso</h2>
-        <p>Mostrale este código al garagista para registrar tu entrada.</p>
+        <h2 id="reserva-qr-title">Código de acceso</h2>
+        <p>Mostrale este código al garagista al ingresar y nuevamente al salir.</p>
         {cargando ? (
           <div className="reserva-qr-loading" role="status">Generando código...</div>
         ) : error ? (
           <p className="reserva-qr-error" role="alert">{error}</p>
         ) : (
-          <div className="reserva-qr-code"><QRCodeSVG value={qr} size={240} level="H" includeMargin title="QR de ingreso de la reserva" /></div>
+          <div className="reserva-qr-code"><QRCodeSVG value={qr} size={240} level="H" includeMargin title="QR de acceso de la reserva" /></div>
         )}
-        <small>Este código corresponde únicamente a esta reserva.</small>
+        <small>El código seguirá disponible hasta que se registre tu salida.</small>
         <button type="button" className="reserva-qr-dismiss" onClick={onClose}>Cerrar</button>
       </section>
     </ModalPortal>

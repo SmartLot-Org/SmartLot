@@ -12,7 +12,8 @@ test("el dashboard no muestra ni mapea una plaza", async () => {
 test("Autos dentro abre la verificación de salida sin mostrar la patente", async () => {
   const source = await readFile(dashboardPath, "utf8");
   assert.match(source, /abrirVerificacionSalida\(reserva\)/);
-  assert.match(source, />\s*Verificar salida\s*</);
+  assert.match(source, /setLectorQrAbierto\("salida"\)/);
+  assert.match(source, />\s*Patente manual\s*</);
   assert.match(source, /tipoVerificacion === "ingreso" \? <small>Patente/);
 });
 
@@ -74,10 +75,13 @@ test("mantiene visibles los autos dentro aunque la fecha devuelta sea la del ing
 
 test("mantiene el ingreso manual por patente y agrega el lector QR solo para garagistas", async () => {
   const source = await readFile(dashboardPath, "utf8");
-  assert.match(source, /Verificar ingreso/);
+  assert.match(source, /setLectorQrAbierto\("ingreso"\)/);
+  assert.match(source, /setLectorQrAbierto\("salida"\)/);
+  assert.match(source, /Patente manual/);
   assert.match(source, /ReservasCheckIn\(reservaSeleccionada\.id, patenteIngresada\)/);
   assert.match(source, /!esAdmin \? \([\s\S]*Escanear QR/);
   assert.match(source, /<LectorQrReserva/);
+  assert.match(source, /onSalidaExitosa/);
 });
 
 test("tras un ingreso QR solicita una recarga real de las reservas", async () => {

@@ -15,6 +15,7 @@ test("QR usa los endpoints y el body acordados", async () => {
   const source = await readFile(servicePath, "utf8");
   assert.match(source, /apiClient\.get\(`\/api\/reserva\/\$\{id\}\/qr`/);
   assert.match(source, /apiClient\.post\(\s*'\/api\/reserva\/qr\/check-in',\s*\{ qr \}/);
+  assert.match(source, /apiClient\.post\(\s*'\/api\/reserva\/qr\/check-out',\s*\{ qr \}/);
 });
 
 test("un check-in QR exitoso invalida las dependencias de reservas", async () => {

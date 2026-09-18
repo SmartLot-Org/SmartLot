@@ -5,6 +5,16 @@ const ESTADOS_HABILITADOS_QR = new Set([
   "confirmado",
   "confirmed",
   "pendiente",
+  "dentro",
+  "ingresado",
+  "ingresada",
+  "adentro",
+  "ocupado",
+  "ocupada",
+  "en_curso",
+  "dentro_garage",
+  "checkin",
+  "check_in",
 ]);
 
 const esValorVerdadero = (valor) => {
@@ -29,11 +39,21 @@ export const reservaTieneIngreso = (reserva = {}) => [
     .trim().toLowerCase().replace(/[\s-]+/g, "_")
 );
 
+export const reservaTieneSalida = (reserva = {}) => [
+  reserva.salida, reserva.egreso, reserva.check_out, reserva.checkOut, reserva.salio,
+  reserva.salida_registrada, reserva.salidaRegistrada, reserva.fecha_salida_real,
+  reserva.fechaSalidaReal, reserva.hora_salida_real, reserva.horaSalidaReal,
+  reserva.egreso_at, reserva.egresoAt, reserva.salida_exitosa, reserva.salidaExitosa,
+].some(esValorVerdadero) || ["finalizado", "finalizada", "completado", "completada", "salida", "egresado", "egresada", "checkout", "check_out"].includes(
+  String(reserva.estado ?? reserva.status ?? reserva.estado_reserva ?? reserva.estadoReserva ?? "")
+    .trim().toLowerCase().replace(/[\s-]+/g, "_")
+);
+
 export const puedeMostrarQrReserva = (reserva = {}) => {
-  if (!reserva || reservaTieneIngreso(reserva)) return false;
+  if (!reserva || reservaTieneSalida(reserva)) return false;
   const estado = String(
     reserva.estado ?? reserva.status ?? reserva.estado_reserva ?? reserva.estadoReserva ?? "confirmada"
-  ).trim().toLowerCase();
+  ).trim().toLowerCase().replace(/[\s-]+/g, "_");
   return ESTADOS_HABILITADOS_QR.has(estado);
 };
 

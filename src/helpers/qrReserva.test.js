@@ -10,13 +10,18 @@ test("no muestra QR para una reserva no confirmada", () => {
   assert.equal(puedeMostrarQrReserva({ estado: "Cancelada" }), false);
 });
 
-test("no muestra QR para una reserva que ya registró ingreso", () => {
-  assert.equal(puedeMostrarQrReserva({ estado: "Confirmada", fecha_entrada_real: "2026-09-18T10:30:00-03:00" }), false);
+test("mantiene el QR disponible después de registrar el ingreso", () => {
+  assert.equal(puedeMostrarQrReserva({ estado: "Confirmada", fecha_entrada_real: "2026-09-18T10:30:00-03:00" }), true);
 });
 
-test("reconoce el estado Dentro aunque el backend no repita la fecha de ingreso", () => {
-  assert.equal(puedeMostrarQrReserva({ estado: "Dentro" }), false);
-  assert.equal(puedeMostrarQrReserva({ estado_reserva: "en_curso" }), false);
+test("muestra el QR mientras el vehículo está dentro", () => {
+  assert.equal(puedeMostrarQrReserva({ estado: "Dentro" }), true);
+  assert.equal(puedeMostrarQrReserva({ estado_reserva: "en_curso" }), true);
+});
+
+test("oculta el QR una vez registrada la salida", () => {
+  assert.equal(puedeMostrarQrReserva({ estado: "Finalizado" }), false);
+  assert.equal(puedeMostrarQrReserva({ estado: "Dentro", fecha_salida_real: "2026-09-18T18:00:00-03:00" }), false);
 });
 
 test("el control del lector bloquea frames y tokens duplicados mientras procesa", () => {
