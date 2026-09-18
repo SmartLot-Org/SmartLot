@@ -2,10 +2,11 @@ import { useRef } from 'react';
 import { Link } from 'react-router-dom';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
+import CtaButton from '../CtaButton';
 import { useAuth } from '../../contexts/useAuth';
 import { getUserHomeRoute } from '../../helpers/roles';
 
-export default function Navbar() {
+export default function Navbar({ links = [] }) {
   const { usuario } = useAuth();
   const navRef = useRef();
 
@@ -15,9 +16,11 @@ export default function Navbar() {
       gsap.from(navRef.current, {
         yPercent: -100,
         autoAlpha: 0,
-        duration: 1.2,
+        duration: 0.6,
         ease: "power4.out",
-        delay: 0.3
+        delay: 0.1,
+        pointerEvents: "none",
+        clearProps: "pointerEvents"
       });
     });
     mm.add("(prefers-reduced-motion: reduce)", () => {
@@ -43,11 +46,25 @@ export default function Navbar() {
           </span>
         </Link>
 
+        {links.length > 0 && (
+          <nav className="hidden md:flex items-center gap-7" aria-label="Secciones de la página">
+            {links.map(({ label, href }) => (
+              <a
+                key={href}
+                href={href}
+                className="rounded-md text-sm font-medium text-brand-muted transition-colors duration-200 hover:text-brand-warm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2 focus-visible:ring-offset-brand-bg"
+              >
+                {label}
+              </a>
+            ))}
+          </nav>
+        )}
+
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           {usuario ? (
             <Link
               to={getUserHomeRoute(usuario)}
-              className="inline-flex items-center justify-center whitespace-nowrap rounded-lg bg-brand-blue px-3 sm:px-4 py-2.5 text-sm font-semibold text-white shadow-md hover:bg-brand-deep hover:shadow-lg active:scale-[0.97] transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2 focus-visible:ring-offset-brand-bg"
+              className="inline-flex items-center justify-center whitespace-nowrap rounded-lg bg-brand-blue px-3 sm:px-4 py-2.5 text-sm font-semibold text-white shadow-accent hover:bg-brand-accent-hover active:scale-[0.97] transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2 focus-visible:ring-offset-brand-bg"
             >
               Ir a mi panel
             </Link>
@@ -59,12 +76,7 @@ export default function Navbar() {
               >
                 Iniciar sesión
               </Link>
-              <Link
-                to="/register"
-                className="inline-flex items-center justify-center whitespace-nowrap rounded-lg bg-brand-blue px-3 sm:px-4 py-2.5 text-sm font-semibold text-white shadow-md hover:bg-brand-deep hover:shadow-lg active:scale-[0.97] transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2 focus-visible:ring-offset-brand-bg"
-              >
-                Registrate
-              </Link>
+              <CtaButton to="/register" size="sm" arrow={false}>Regístrate</CtaButton>
             </>
           )}
         </div>

@@ -10,6 +10,7 @@
   --color-brand-deep:    #0C1E3F;
   --color-brand-navy:    #0C1E3F;
   --color-brand-blue:    #2563EB;
+  --color-brand-accent-hover: #156FE5;
   --color-brand-sky:     #93C5FD;
   --color-brand-bg:      #F5F7FB;
   --color-brand-surface: #FFFFFF;
@@ -23,6 +24,20 @@
 
   /* ── Animations ── */
   --animate-border-spin: border-spin 10s linear infinite;
+
+  /* ── Shadows ── */
+  --shadow-accent: 0 4px 14px rgba(37, 99, 235, 0.25);
+}
+
+/* Smooth anchor scrolling on landing pages only; disabled with reduced motion */
+html:has(.landing-page) {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:has(.landing-page) {
+    scroll-behavior: auto;
+  }
 }
 
 @keyframes border-spin {

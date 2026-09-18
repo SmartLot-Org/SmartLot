@@ -41,7 +41,9 @@ const Hero = forwardRef(function Hero({ startAnimation }, ref) {
         })
         .from(".hero-p", { opacity: 0, x: -16, duration: 1 }, "-=0.6")
         .from(".hero-btn", { scale: 0.85, opacity: 0, duration: 0.7 }, "-=0.8")
-        .from(".hero-logo-container", { x: 80, opacity: 0, duration: 1.4 }, "-=1");
+        // La entrada va en el wrapper interno, nunca en .hero-logo-anchor:
+        // ese nodo es el ancla de medición del LogoWatermark y no debe moverse.
+        .from(".hero-logo-entrance", { x: 80, opacity: 0, duration: 1.4 }, "-=1");
       }
 
 
@@ -56,7 +58,7 @@ const Hero = forwardRef(function Hero({ startAnimation }, ref) {
 
 
     mm.add("(prefers-reduced-motion: reduce)", () => {
-      gsap.set([".word", ".hero-p", ".hero-btn", ".hero-logo-container"], { opacity: 1, y: 0, x: 0 });
+      gsap.set([".word", ".hero-p", ".hero-btn", ".hero-logo-entrance"], { opacity: 1, y: 0, x: 0 });
     });
 
 
@@ -104,7 +106,15 @@ const Hero = forwardRef(function Hero({ startAnimation }, ref) {
 
           <div className="hero-logo-container relative flex justify-center lg:justify-end z-20">
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-brand-navy rounded-full blur-[100px] opacity-[0.07] -z-10"></div>
-            <img src="/logoEntero.png" alt="SmartLot" width="1408" height="768" className="floating-logo w-full max-w-[480px] h-auto drop-shadow-xl" />
+            {/* Ancla de medición del LogoWatermark: caja de reposo del logo.
+                No la anima nadie (la entrada va en .hero-logo-entrance y el
+                float en .floating-logo), así el rect medido es estable desde
+                el primer layout, sin importar timings de animación. */}
+            <div className="hero-logo-anchor w-full max-w-[480px]">
+              <div className="hero-logo-entrance">
+                <img src="/logoEntero.png" alt="SmartLot" width="1408" height="768" className="floating-logo w-full h-auto drop-shadow-xl" />
+              </div>
+            </div>
           </div>
 
 

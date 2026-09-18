@@ -45,6 +45,7 @@ DM Sans ya se usa en el códigobase y sigue siendo la voz de producto (app, dash
 |-------|-------|-----|
 | `--color-brand-deep` / `--color-brand-navy` | `#0C1E3F` | Superficies oscuras, texto sobre claro |
 | `--color-brand-blue` | `#2563EB` | Acento, CTAs, enlaces |
+| `--color-brand-accent-hover` | `#156FE5` | Hover de CTAs (azul más brillante, no navy) |
 | `--color-brand-sky` | `#93C5FD` | Bordes y hovers secundarios, avatares |
 | `--color-brand-bg` / `--color-brand-cream` | `#F5F7FB` | Fondo de página |
 | `--color-brand-surface` | `#FFFFFF` | Tarjetas, paneles |

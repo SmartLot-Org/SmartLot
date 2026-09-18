@@ -49,7 +49,7 @@ export default function ParaGarages() {
       <InteractiveBackground count={35} interactionRadius={150} repelForce={80} />
       <GarageWatermark />
       <div className="landing-page pg-page bg-noise min-h-screen overflow-x-hidden">
-        <Navbar />
+        <Navbar links={[{ label: 'Funcionalidades', href: '#funcionalidades' }]} />
         <main id="main-content" className="relative z-10">
           <ParaGaragesHero />
           <StatsTicker stats={GARAGE_STATS} ariaLabel="Datos y capacidades de la plataforma" />

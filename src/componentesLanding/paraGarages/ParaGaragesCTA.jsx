@@ -3,7 +3,8 @@ import { Link } from "react-router-dom";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
-import { ArrowRight, Lock } from "lucide-react";
+import { Lock } from "lucide-react";
+import CtaButton from "../CtaButton";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -103,16 +104,9 @@ export default function ParaGaragesCTA() {
                 Creá tu cuenta, cargá tu primer garage y publicitalo para que las empresas de tu zona lo
                 encuentren. Sin hardware y sin costo de instalación.
               </p>
-              <Link
-                to="/register?modo=garage"
-                className="cta-content group flex min-h-11 items-center gap-2 rounded-2xl bg-brand-blue px-10 py-5 text-base font-bold text-white shadow-xl shadow-brand-deep/20 transition-all duration-300 hover:bg-brand-deep focus-visible:bg-brand-deep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2 active:scale-95"
-              >
-                <span>Registrar mi garage</span>
-                <ArrowRight
-                  className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1.5"
-                  aria-hidden="true"
-                />
-              </Link>
+              <CtaButton to="/register?modo=garage" className="cta-content">
+                Registrar mi garage
+              </CtaButton>
               <p className="cta-content flex items-center gap-2 text-xs text-brand-muted">
                 <Lock size={14} aria-hidden="true" />
                 Registro en minutos. Tus datos quedan protegidos y podés dejar de usar la plataforma cuando

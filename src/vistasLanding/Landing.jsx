@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback, lazy, Suspense } from 'react';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Navbar from '../componentesLanding/landing/Navbar';
 import Hero from '../componentesLanding/landing/Hero';
 import '../componentesLanding/landing/landing.css';
@@ -13,9 +14,25 @@ const Contact = lazy(() => import('../componentesLanding/landing/Contact'));
 
 const INTRO_SEEN_KEY = 'smartlot-intro-seen';
 
-function SkeletonFallback() {
+// Un solo refresh por frame aunque resuelvan varios chunks a la vez: al
+// reemplazar el skeleton por la sección real cambia el alto de la página y
+// los start/end de los ScrollTrigger deben re-medirse.
+let refreshRaf = 0;
+function scheduleTriggerRefresh() {
+  cancelAnimationFrame(refreshRaf);
+  refreshRaf = requestAnimationFrame(() => ScrollTrigger.refresh());
+}
+
+function SectionReady({ children }) {
+  useEffect(() => {
+    scheduleTriggerRefresh();
+  }, []);
+  return children;
+}
+
+function SkeletonFallback({ className = 'h-96' }) {
   return (
-    <div className="w-full h-96 flex items-center justify-center">
+    <div className={`w-full flex items-center justify-center ${className}`}>
       <div className="w-8 h-8 border-2 border-brand-blue border-t-transparent rounded-full animate-spin" />
     </div>
   );
@@ -84,13 +101,22 @@ export default function LandingPage() {
         repelForce={80}
       />
       <div className="min-h-screen overflow-x-hidden bg-noise landing-page">
-        <Navbar />
+        <Navbar
+          links={[
+            { label: 'Solución', href: '#solucion' },
+            { label: 'Contacto', href: '#contacto' },
+          ]}
+        />
         <main id="main-content" className="relative z-10">
           <Hero ref={heroRef} startAnimation={startHero} />
           <StatsTicker />
-          <Suspense fallback={<SkeletonFallback />}><BentoGrid /></Suspense>
+          <Suspense fallback={<SkeletonFallback className="min-h-[44rem]" />}>
+            <SectionReady><BentoGrid /></SectionReady>
+          </Suspense>
         </main>
-        <Suspense fallback={<SkeletonFallback />}><Contact /></Suspense>
+        <Suspense fallback={<SkeletonFallback className="min-h-[32rem]" />}>
+          <SectionReady><Contact /></SectionReady>
+        </Suspense>
         <LogoWatermark heroRef={heroRef} />
       </div>
     </>

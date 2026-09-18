@@ -33,7 +33,8 @@
   contain: layout;
 }
 
-.pg-page section[id] {
+.landing-page section[id],
+.landing-page footer[id] {
   scroll-margin-top: 5.5rem;
 }
 
