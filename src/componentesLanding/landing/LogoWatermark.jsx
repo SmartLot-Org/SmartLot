@@ -36,14 +36,34 @@ let cachedFrames = null;
 let cachedStartLogo = null;
 let preloadStarted = false;
 
+// Los 120 frames pesan ~8 MB: se piden de a tandas (y recién cuando el
+// usuario scrollea) para no competir con la carga inicial.
+const FRAME_BATCH = 10;
+
+function scheduleBatch(cb) {
+  if ('requestIdleCallback' in window) window.requestIdleCallback(cb, { timeout: 300 });
+  else window.setTimeout(cb, 100);
+}
+
+function loadFrameBatch(startIndex = 0) {
+  const end = Math.min(startIndex + FRAME_BATCH, TOTAL_FRAMES);
+  for (let i = startIndex; i < end; i++) {
+    const img = cachedFrames[i];
+    if (!img || img.src) continue;
+    img.src = FRAME_PATH(i + 1);
+    if (typeof img.decode === 'function') img.decode().catch(() => {});
+  }
+  if (end < TOTAL_FRAMES) scheduleBatch(() => loadFrameBatch(end));
+}
+
 function ensurePreloaded() {
   if (preloadStarted) return;
   preloadStarted = true;
   cachedFrames = [];
+  // Sin src todavía: cada frame se resuelve cuando le toca su tanda, así el
+  // índice del array sigue mapeando 1:1 con ffoutNNN.png.
   for (let i = 1; i <= TOTAL_FRAMES; i++) {
-    const img = new Image();
-    img.src = FRAME_PATH(i);
-    cachedFrames.push(img);
+    cachedFrames.push(new Image());
   }
   const staticLogo = new Image();
   staticLogo.src = '/logo.png';
@@ -51,6 +71,8 @@ function ensurePreloaded() {
 
   cachedStartLogo = new Image();
   cachedStartLogo.src = '/logoEntero.png';
+
+  loadFrameBatch();
 }
 
 function isDrawable(img) {
@@ -79,21 +101,15 @@ export default function LogoWatermark({ heroRef }) {
   useEffect(() => {
     const reduceMq = window.matchMedia('(prefers-reduced-motion: reduce)');
     const kick = () => ensurePreloaded();
-    let idleHandle = 0;
 
-    // Los frames son el momento de marca del scroll: arrancan apenas la
-    // página queda idle (o con la primera señal de scroll, lo que pase
-    // antes) para que el giro esté listo al llegar al hero — sin competir
-    // con el primer paint. Con reduce no hay flip-book: no se carga nada.
+    // Los frames son el momento de marca del scroll: se piden recién con la
+    // primera señal real de scroll (nada de precarga automática en idle, que
+    // bajaba ~8 MB sin que el usuario hubiera pedido nada). Con reduce no hay
+    // flip-book: no se carga nada.
     if (!reduceMq.matches) {
       if (window.scrollY > 0) {
         kick();
       } else {
-        if ('requestIdleCallback' in window) {
-          idleHandle = window.requestIdleCallback(kick, { timeout: 1200 });
-        } else {
-          idleHandle = window.setTimeout(kick, 900);
-        }
         window.addEventListener('scroll', kick, { once: true, passive: true });
         window.addEventListener('wheel', kick, { once: true, passive: true });
         window.addEventListener('touchmove', kick, { once: true, passive: true });
@@ -113,10 +129,6 @@ export default function LogoWatermark({ heroRef }) {
     window.addEventListener('load', refresh);
     return () => {
       cancelled = true;
-      if (idleHandle) {
-        if ('cancelIdleCallback' in window) window.cancelIdleCallback(idleHandle);
-        else clearTimeout(idleHandle);
-      }
       window.removeEventListener('load', refresh);
       window.removeEventListener('scroll', kick);
       window.removeEventListener('wheel', kick);
@@ -205,6 +217,7 @@ export default function LogoWatermark({ heroRef }) {
 
 
   useGSAP(() => {
+    if (!wrapperRef.current || !canvasRef.current || !staticImgRef.current) return;
     const mm = gsap.matchMedia();
 
 
@@ -242,6 +255,8 @@ export default function LogoWatermark({ heroRef }) {
       // scrolleada fuera de pantalla.
       let swapGeom = { top: 0, left: 0 };
       swappedInRef.current = false;
+
+      if (!heroRef.current) return;
 
 
       const getHeroLogo = () => heroRef.current?.querySelector('.floating-logo');
@@ -457,7 +472,7 @@ export default function LogoWatermark({ heroRef }) {
             else if (self.progress === 0) swapOut();
           },
           onUpdate: (self) => {
-            if (self.progress >= 1 && !continuousAnim) {
+            if (self.progress >= 1 && !continuousAnim && wrapperRef.current) {
               continuousAnim = gsap.to(wrapperRef.current, {
                 rotationY: "+=360",
                 duration: 20,

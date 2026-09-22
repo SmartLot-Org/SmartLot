@@ -1,8 +1,5 @@
 
 
-import { jsPDF } from "jspdf";
-import { autoTable } from "jspdf-autotable";
-
 const obtenerFechaArchivo = () => {
   return new Date().toISOString().split("T")[0];
 };
@@ -43,7 +40,8 @@ const agregarFooter = (doc) => {
   }
 };
 
-export const exportarReportePDF = (reporte = {}, opciones = {}) => {
+export const exportarReportePDF = async (reporte = {}, opciones = {}) => {
+  const [{ jsPDF }, { autoTable }] = await Promise.all([import("jspdf"), import("jspdf-autotable")]);
   const metricasBase = reporte.metricas ?? reporte;
   const metricas = {
     ...metricasBase,

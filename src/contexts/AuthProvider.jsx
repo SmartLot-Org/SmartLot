@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import apiClient from '../api/client';
+import apiClient, { SESSION_EXPIRED_EVENT } from '../api/client';
 import { AuthContext } from './authContext';
 import { haySuperadminBackup, obtenerUsuarioImpersonado, eliminarUsuarioImpersonado, eliminarSuperadminBackup } from '../helpers/superadminSession';
 
@@ -40,6 +40,19 @@ export function AuthProvider({ children }) {
       });
 
     return () => { cancelado = true; controller.abort(); clearTimeout(timeout); };
+  }, []);
+
+  // Cuando el interceptor confirma que ni siquiera el refresh puede recuperar
+  // la sesión, limpia el estado en memoria para no dejar un usuario stale.
+  useEffect(() => {
+    const onSessionExpired = () => {
+      setUsuario(null);
+      setRoleTransition(false);
+      eliminarUsuarioImpersonado();
+      eliminarSuperadminBackup();
+    };
+    window.addEventListener(SESSION_EXPIRED_EVENT, onSessionExpired);
+    return () => window.removeEventListener(SESSION_EXPIRED_EVENT, onSessionExpired);
   }, []);
 
   return (

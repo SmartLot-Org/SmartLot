@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from "react";
-import { Autocomplete, useJsApiLoader } from '@react-google-maps/api';
+import { Autocomplete } from '@react-google-maps/api';
 import "./editar_zona.css";
 import Header from "../componentesAdmin/header_admin";
 import {
@@ -34,8 +34,7 @@ import useLiveValidation from "../hooks/useLiveValidation";
 import FieldValidation from "../components/FieldValidation";
 import FormularioPreciosGarage from "../componentesCompartidos/FormularioPreciosGarage";
 import { buildGaragePricesPayload } from "../helpers/prices";
-
-const libraries = ['places'];
+import { useGoogleMaps } from "../contexts/useGoogleMaps";
 
 const parseEstadoBool = (estado) => {
   if (estado === 1 || estado === true || estado === "1" || estado === "activo" || estado === "Abierto" || estado === "abierto" || estado === "true") return true;
@@ -156,10 +155,7 @@ function EditarZona() {
   const [loading, setLoading] = useState(false);
   const capacidad = capacidadReservas + capacidadNoReservas;
 
-  const { isLoaded, loadError } = useJsApiLoader({
-    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_FRONTEND_KEY,
-    libraries
-  });
+  const { isLoaded, loadError } = useGoogleMaps();
   if (loadError) console.warn('editar_zona: Google Maps no cargó:', loadError);
 
   const autocompleteRef = useRef(null);

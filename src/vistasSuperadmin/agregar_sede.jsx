@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ArrowLeft, CircleCheck } from "lucide-react";
-import { Autocomplete, useJsApiLoader } from '@react-google-maps/api';
+import { Autocomplete } from '@react-google-maps/api';
 import "./agregar_sede.css";
 import HeaderSuperadmin from "../componentesSuperadmin/header_superadmin";
 import BotonGenerico from "../componentesAdmin/boton_generico";
@@ -9,8 +9,7 @@ import { SedesCreate } from "../servicies/API_Sede";
 import { EmpresasGetAll } from "../servicies/API_Empresa";
 import useLiveValidation from "../hooks/useLiveValidation";
 import FieldValidation from "../components/FieldValidation";
-
-const libraries = ['places'];
+import { useGoogleMaps } from "../contexts/useGoogleMaps";
 
 const validationSchema = {
   idEmpresa: [
@@ -59,10 +58,7 @@ function AgregarSede() {
   const [loading, setLoading] = useState(false);
   const [loadingEmpresas, setLoadingEmpresas] = useState(true);
 
-  const { isLoaded, loadError } = useJsApiLoader({
-    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_FRONTEND_KEY,
-    libraries
-  });
+  const { isLoaded, loadError } = useGoogleMaps();
   if (loadError) console.warn('agregar_sede: Google Maps no cargó:', loadError);
 
   const autocompleteRef = useRef(null);

@@ -1,10 +1,9 @@
 import { useState, useRef } from 'react';
-import { Autocomplete, useJsApiLoader } from '@react-google-maps/api';
+import { Autocomplete } from '@react-google-maps/api';
 import "./formulario_zona.css";
 import FieldValidation from "../components/FieldValidation";
 import SelectorDiasOperativos from "./selector_dias_operativos";
-
-const libraries = ['places'];
+import { useGoogleMaps } from '../contexts/useGoogleMaps';
 
 function FormularioZona({
     formData,
@@ -14,10 +13,7 @@ function FormularioZona({
     onCoordenadasChange,
     hideSede = false
 }) {
-  const { isLoaded, loadError } = useJsApiLoader({
-    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_FRONTEND_KEY,
-    libraries
-  });
+  const { isLoaded, loadError } = useGoogleMaps();
   if (loadError) console.warn('formulario_zona: Google Maps no cargó:', loadError);
 
   const autocompleteRef = useRef(null);

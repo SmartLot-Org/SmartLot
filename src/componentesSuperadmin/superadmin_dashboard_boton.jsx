@@ -9,6 +9,7 @@ function SuperadminDashboardBoton({ icono, titulo, descripcion, onClick }) {
   const { contextSafe } = useGSAP({ scope: cardRef });
 
   const onMouseEnter = contextSafe(() => {
+    if (!cardRef.current) return;
     gsap.to(cardRef.current, {
       y: -6,
       backgroundColor: "#1E2A45",
@@ -17,16 +18,19 @@ function SuperadminDashboardBoton({ icono, titulo, descripcion, onClick }) {
       ease: "power2.out",
     });
 
-    gsap.to(bgIconRef.current, {
-      scale: 1.15,
-      rotation: -8,
-      opacity: 0.12,
-      duration: 0.4,
-      ease: "back.out(1.4)",
-    });
+    if (bgIconRef.current) {
+      gsap.to(bgIconRef.current, {
+        scale: 1.15,
+        rotation: -8,
+        opacity: 0.12,
+        duration: 0.4,
+        ease: "back.out(1.4)",
+      });
+    }
   });
 
   const onMouseLeave = contextSafe(() => {
+    if (!cardRef.current) return;
     gsap.to(cardRef.current, {
       y: 0,
       backgroundColor: "#1A2744",
@@ -35,13 +39,15 @@ function SuperadminDashboardBoton({ icono, titulo, descripcion, onClick }) {
       ease: "power2.inOut",
     });
 
-    gsap.to(bgIconRef.current, {
-      scale: 1,
-      rotation: 0,
-      opacity: 0.06,
-      duration: 0.3,
-      ease: "power2.inOut",
-    });
+    if (bgIconRef.current) {
+      gsap.to(bgIconRef.current, {
+        scale: 1,
+        rotation: 0,
+        opacity: 0.06,
+        duration: 0.3,
+        ease: "power2.inOut",
+      });
+    }
   });
 
   return (

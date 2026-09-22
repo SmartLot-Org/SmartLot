@@ -1,8 +1,5 @@
 // src/utils/exportarReporteExcel.js
 
-import ExcelJS from "exceljs";
-import { saveAs } from "file-saver";
-
 const HEADER_TEXT = "FFFFFFFF";
 const MIN_COLUMN_WIDTH = 12;
 
@@ -155,6 +152,7 @@ const insertarGraficoTendencia = (workbook, worksheet, graficoTendencia, startRo
 };
 
 export const exportarReporteExcel = async (datosReporte, opciones = {}) => {
+  const [{ default: ExcelJS }] = await Promise.all([import("exceljs")]);
   const workbook = new ExcelJS.Workbook();
   const { graficoTendencia } = opciones;
   const granularidadLabel = datosReporte.granularidadLabel ?? "Periodo";
@@ -285,5 +283,6 @@ export const exportarReporteExcel = async (datosReporte, opciones = {}) => {
     type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
   });
 
+  const { saveAs } = await import("file-saver");
   saveAs(blob, nombreArchivo);
 };

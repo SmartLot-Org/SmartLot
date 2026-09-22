@@ -11,6 +11,7 @@ export default function Navbar({ links = [] }) {
   const navRef = useRef();
 
   useGSAP(() => {
+    if (!navRef.current) return;
     let mm = gsap.matchMedia();
     mm.add("(prefers-reduced-motion: no-preference)", () => {
       gsap.from(navRef.current, {

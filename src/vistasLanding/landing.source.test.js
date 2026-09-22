@@ -43,16 +43,26 @@ test('la intro respira ~2.3s: ningún tween llega a 1s', () => {
   assert.doesNotMatch(intro, /duration:\s*(1(?![0-9.])|[1-9][0-9.]*\.)/);
 });
 
-test('el flip-book arranca en idle y el giro tiene red de dibujo', () => {
+test('el flip-book arranca con el primer scroll (sin precarga en idle) y el giro tiene red de dibujo', () => {
   const mountEffect = watermark.slice(watermark.indexOf('useEffect(() => {'));
   assert.match(mountEffect, /matchMedia\('(?:\(prefers-reduced-motion: reduce\))'\)/);
   assert.match(mountEffect, /window\.scrollY > 0/);
-  assert.match(mountEffect, /requestIdleCallback\(kick/);
+  assert.doesNotMatch(mountEffect, /requestIdleCallback\(kick/);
   assert.match(mountEffect, /addEventListener\('scroll', kick/);
   assert.match(mountEffect, /addEventListener\('wheel', kick/);
   assert.match(mountEffect, /addEventListener\('touchmove', kick/);
+  assert.match(watermark, /FRAME_BATCH/);
   assert.match(watermark, /startDrawRetry/);
   assert.match(watermark, /drawRetryRafRef/);
+});
+
+test('las vistas pesadas se cargan por ruta y la landing no espera a la sesión', () => {
+  assert.doesNotMatch(app, /if \(loading\) return null/);
+  assert.match(app, /lazy\(\(\) => import\("\.\/vistasAdmin\//);
+  assert.match(app, /lazy\(\(\) => import\("\.\/vistasSuperadmin\//);
+  assert.match(app, /lazy\(\(\) => import\("\.\/vistasEmpleados\//);
+  assert.match(app, /<Suspense fallback=/);
+  assert.match(app, /import LandingPage from "\.\/vistasLanding\/Landing"/);
 });
 
 test('el hero conserva el trío de marca y ya no promete IA ni lleva eyebrow', () => {

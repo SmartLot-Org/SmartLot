@@ -14,6 +14,7 @@ export default function ParaGaragesCTA() {
 
   useGSAP(
     () => {
+      if (!container.current) return;
       const mm = gsap.matchMedia();
 
       mm.add("(prefers-reduced-motion: no-preference)", () => {
@@ -35,12 +36,14 @@ export default function ParaGaragesCTA() {
           "-=0.8"
         );
 
-        gsap.to(pathRef.current, {
-          strokeDashoffset: 0,
-          duration: 5,
-          ease: "none",
-          repeat: -1,
-        });
+        if (pathRef.current) {
+          gsap.to(pathRef.current, {
+            strokeDashoffset: 0,
+            duration: 5,
+            ease: "none",
+            repeat: -1,
+          });
+        }
       });
 
       mm.add("(prefers-reduced-motion: reduce)", () => {

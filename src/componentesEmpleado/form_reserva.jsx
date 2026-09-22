@@ -5,8 +5,9 @@ import { getDiaDesdeFecha, getDiaDisplay } from "../helpers/diasSemana";
 import useLiveValidation from "../hooks/useLiveValidation";
 import FieldValidation from "../components/FieldValidation";
 import { GaragesGetDistanciaSede } from "../servicies/API_Garage";
-import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
+import { GoogleMap, Marker } from "@react-google-maps/api";
 import { useAuth } from "../contexts/useAuth";
+import { useGoogleMaps } from "../contexts/useGoogleMaps";
 
 const obtenerIdVehiculo = (vehiculo) => vehiculo?.id ?? vehiculo?.id_vehiculo ?? vehiculo?._id;
 const obtenerIdGarage = (garage) => garage?.id_garage ?? garage?.idGarage ?? garage?.id ?? garage?._id;
@@ -54,9 +55,7 @@ const FormularioReserva = forwardRef(function FormularioReserva({
   const [loadingDistancia, setLoadingDistancia] = useState(false);
   const [distanciaError, setDistanciaError] = useState("");
 
-  const { isLoaded: mapsLoaded, loadError: mapsLoadError } = useJsApiLoader({
-    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_FRONTEND_KEY,
-  });
+  const { isLoaded: mapsLoaded, loadError: mapsLoadError } = useGoogleMaps();
   if (mapsLoadError) console.warn('form_reserva: Google Maps no cargó:', mapsLoadError);
 
   const [formData, setFormData] = useState({

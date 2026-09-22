@@ -937,7 +937,7 @@ export default function AdminReportesAnalisis() {
       setExportando(true);
       const graficoTendencia = generarGraficoTendenciaPng(datosReporteVisible.tendencia);
       const logoBase64 = await cargarImagenBase64(logoSmartLot);
-      exportarReportePDF(datosReporteVisible, {
+      await exportarReportePDF(datosReporteVisible, {
         graficoTendencia,
         logoBase64,
       });

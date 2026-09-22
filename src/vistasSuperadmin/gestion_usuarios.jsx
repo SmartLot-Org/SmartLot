@@ -786,6 +786,7 @@ const GestionUsuarios = () => {
 
   // Animación del Dropdown de Filtros (AutoAlpha para mejor Performance)
   useGSAP(() => {
+    if (!dropdownRef.current) return;
     if (showFilters) {
       gsap.fromTo(
         dropdownRef.current,

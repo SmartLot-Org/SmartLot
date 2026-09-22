@@ -8,6 +8,7 @@ export default function GarageWatermark() {
 
   useGSAP(
     () => {
+      if (!logoRef.current) return;
       const mm = gsap.matchMedia();
 
       mm.add("(prefers-reduced-motion: reduce)", () => {

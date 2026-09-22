@@ -10,6 +10,7 @@ function DashboardBoton({ icono, titulo, descripcion, onClick }) {
 
   // Animación coordinada de alto rendimiento (GPU) en el Hover
   const onMouseEnter = contextSafe(() => {
+    if (!cardRef.current) return;
     // Elevación de la tarjeta
     gsap.to(cardRef.current, {
       y: -6,
@@ -20,16 +21,19 @@ function DashboardBoton({ icono, titulo, descripcion, onClick }) {
     });
 
     // Efecto dinámico en el icono gigante gris del fondo
-    gsap.to(bgIconRef.current, {
-      scale: 1.15,
-      rotation: -8,
-      opacity: 0.15, // Se vuelve ligeramente más visible
-      duration: 0.4,
-      ease: "back.out(1.4)",
-    });
+    if (bgIconRef.current) {
+      gsap.to(bgIconRef.current, {
+        scale: 1.15,
+        rotation: -8,
+        opacity: 0.15, // Se vuelve ligeramente más visible
+        duration: 0.4,
+        ease: "back.out(1.4)",
+      });
+    }
   });
 
   const onMouseLeave = contextSafe(() => {
+    if (!cardRef.current) return;
     // Retorno al estado inicial limpio
     gsap.to(cardRef.current, {
       y: 0,
@@ -39,13 +43,15 @@ function DashboardBoton({ icono, titulo, descripcion, onClick }) {
       ease: "power2.inOut",
     });
 
-    gsap.to(bgIconRef.current, {
-      scale: 1,
-      rotation: 0,
-      opacity: 0.08, // Vuelve a su estado sutil de marca de agua
-      duration: 0.3,
-      ease: "power2.inOut",
-    });
+    if (bgIconRef.current) {
+      gsap.to(bgIconRef.current, {
+        scale: 1,
+        rotation: 0,
+        opacity: 0.08, // Vuelve a su estado sutil de marca de agua
+        duration: 0.3,
+        ease: "power2.inOut",
+      });
+    }
   });
 
   return (

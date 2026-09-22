@@ -10,6 +10,7 @@ export default function BrandPanel() {
   const shadowRef = useRef(null);
 
   useGSAP(() => {
+    if (!logoRef.current || !shadowRef.current) return;
     const mm = gsap.matchMedia();
 
     // Animación de levitación suave (Logo)

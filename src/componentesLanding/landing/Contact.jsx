@@ -11,6 +11,7 @@ export default function Contact() {
   const pathRef = useRef();
 
   useGSAP(() => {
+    if (!container.current) return;
     const mm = gsap.matchMedia();
 
     mm.add("(prefers-reduced-motion: no-preference)", () => {
@@ -31,12 +32,14 @@ export default function Contact() {
         "-=0.8"
       );
 
-      gsap.to(pathRef.current, {
-        strokeDashoffset: 0,
-        duration: 5,
-        ease: "none",
-        repeat: -1,
-      });
+      if (pathRef.current) {
+        gsap.to(pathRef.current, {
+          strokeDashoffset: 0,
+          duration: 5,
+          ease: "none",
+          repeat: -1,
+        });
+      }
     });
 
     mm.add("(prefers-reduced-motion: reduce)", () => {

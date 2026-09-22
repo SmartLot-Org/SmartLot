@@ -1,19 +1,18 @@
 import { useEffect, useState, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, MapPin, CirclePlus, Building2, Pencil, Trash2, X, Check } from "lucide-react";
-import { Autocomplete, useJsApiLoader } from "@react-google-maps/api";
+import { Autocomplete } from "@react-google-maps/api";
 import Swal from "sweetalert2";
 import { Z_INDEX } from "../helpers/zIndex";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
-
-const libraries = ["places"];
 
 import "./gestion_sedes.css";
 import HeaderSuperadmin from "../componentesSuperadmin/header_superadmin";
 import FooterSuperadmin from "../componentesSuperadmin/footer_superadmin";
 import BotonGenerico from "../componentesAdmin/boton_generico";
 import { SedesGetAll, SedesUpdate, SedesDelete } from "../servicies/API_Sede";
+import { useGoogleMaps } from "../contexts/useGoogleMaps";
 import { EmpresasGetAll } from "../servicies/API_Empresa";
 
 gsap.registerPlugin(useGSAP);
@@ -51,10 +50,7 @@ function GestionSedes() {
   const [editLatitud, setEditLatitud] = useState(null);
   const [editLongitud, setEditLongitud] = useState(null);
 
-  const { isLoaded, loadError } = useJsApiLoader({
-    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_FRONTEND_KEY,
-    libraries,
-  });
+  const { isLoaded, loadError } = useGoogleMaps();
   if (loadError) console.warn('gestion_sedes: Google Maps no cargó:', loadError);
 
   const autocompleteRef = useRef(null);

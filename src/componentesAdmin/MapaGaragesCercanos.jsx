@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { GoogleMap, InfoWindow, Marker, useJsApiLoader } from '@react-google-maps/api';
+import { GoogleMap, InfoWindow, Marker } from '@react-google-maps/api';
 import { AlertCircle, MapPin } from 'lucide-react';
 import { getMapPosition } from '../helpers/tratos';
+import { useGoogleMaps } from '../contexts/useGoogleMaps';
 
 const MAP_OPTIONS = {
   streetViewControl: false,
@@ -15,9 +16,7 @@ const garageIdOf = (garage) => garage?.id ?? garage?.id_garage;
 
 export default function MapaGaragesCercanos({ sede, garages, selectedGarageId, onSelectGarage, onClearSelection }) {
   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_FRONTEND_KEY;
-  const { isLoaded, loadError } = useJsApiLoader({
-    googleMapsApiKey: apiKey || '',
-  });
+  const { isLoaded, loadError } = useGoogleMaps();
   const [map, setMap] = useState(null);
   const sedePosition = useMemo(() => getMapPosition(sede), [sede]);
   const garagePoints = useMemo(() => garages.flatMap((garage) => {

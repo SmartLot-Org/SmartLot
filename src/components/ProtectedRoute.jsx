@@ -7,11 +7,12 @@ import { getUserHomeRoute, userHasRole } from '../helpers/roles';
 export default function ProtectedRoute({ allowedRoles, children, usuario }) {
   const navigate = useNavigate();
   const location = useLocation();
-  const { roleTransition } = useAuth();
+  const { roleTransition, loading } = useAuth();
   const toastShown = useRef(false);
   const autorizado = usuario ? userHasRole(usuario, ...allowedRoles) : false;
 
   useEffect(() => {
+    if (loading) return;
     if (!usuario) {
       const destino = `${location.pathname}${location.search}`;
       navigate(`/login?redirect=${encodeURIComponent(destino)}`, { replace: true });
@@ -24,7 +25,15 @@ export default function ProtectedRoute({ allowedRoles, children, usuario }) {
       }
       navigate(getUserHomeRoute(usuario), { replace: true });
     }
-  }, [usuario, allowedRoles, navigate, autorizado, roleTransition, location.pathname, location.search]);
+  }, [usuario, loading, allowedRoles, navigate, autorizado, roleTransition, location.pathname, location.search]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-brand-blue border-t-transparent" />
+      </div>
+    );
+  }
 
   if (!usuario) return null;
   if (!autorizado) return null;

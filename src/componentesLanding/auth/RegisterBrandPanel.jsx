@@ -44,6 +44,7 @@ export default function RegisterBrandPanel({ modo }) {
 
   useGSAP(
     () => {
+      if (!logoRef.current || !shadowRef.current) return;
       const mm = gsap.matchMedia();
 
       mm.add("(prefers-reduced-motion: no-preference)", () => {
@@ -82,6 +83,7 @@ export default function RegisterBrandPanel({ modo }) {
     () => {
       const entrada = esEmpresa ? empresaMarkRef.current : garageMarkRef.current;
       const salida = esEmpresa ? garageMarkRef.current : empresaMarkRef.current;
+      if (!entrada || !salida) return;
       const mm = gsap.matchMedia();
 
       mm.add("(prefers-reduced-motion: no-preference)", () => {
@@ -112,6 +114,7 @@ export default function RegisterBrandPanel({ modo }) {
 
   useGSAP(
     () => {
+      if (!textRef.current) return;
       const mm = gsap.matchMedia();
       mm.add("(prefers-reduced-motion: no-preference)", () => {
         gsap.fromTo(

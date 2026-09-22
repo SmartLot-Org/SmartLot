@@ -31,6 +31,7 @@ const IntroAnimation = ({ onComplete, onOpenDoors }) => {
   }, [skip]);
 
   useGSAP(() => {
+    if (!logoContainerRef.current || !leftDoorRef.current || !rightDoorRef.current) return;
     const mm = gsap.matchMedia();
 
     mm.add("(prefers-reduced-motion: no-preference)", () => {
