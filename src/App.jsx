@@ -33,6 +33,9 @@ const PerfilAdmin = lazy(() => import("./vistasAdmin/perfil_admin"));
 const AdminPanelControl = lazy(() => import("./vistasAdmin/admin_panel_de_control"));
 const AdminReportesAnalisis = lazy(() => import("./vistasAdmin/admin_reportes_analisis"));
 const AdminPagos = lazy(() => import("./vistasAdmin/admin_pagos"));
+const GestionSedesAdmin = lazy(() => import("./vistasAdmin/gestion_sedes"));
+const AgregarSedeAdmin = lazy(() => import("./vistasAdmin/agregar_sede"));
+const AgregarAdminSede = lazy(() => import("./vistasAdmin/agregar_admin_sede"));
 
 // Vistas Dueño de Garage
 const DuenioGarageDashboard = lazy(() => import("./vistasDueñoGarage/duenio_garage_dashboard"));
@@ -195,6 +198,21 @@ function AppRoutes() {
         <Route path="/admin_pagos" element={
           <ProtectedRoute allowedRoles={[1]} usuario={usuario}>
             <AdminPagos />
+          </ProtectedRoute>
+        } />
+        <Route path="/gestion_sedes" element={
+          <ProtectedRoute allowedRoles={[1]} requireEmpresaAdmin usuario={usuario}>
+            <GestionSedesAdmin />
+          </ProtectedRoute>
+        } />
+        <Route path="/agregar_sede" element={
+          <ProtectedRoute allowedRoles={[1]} requireEmpresaAdmin usuario={usuario}>
+            <AgregarSedeAdmin />
+          </ProtectedRoute>
+        } />
+        <Route path="/agregar_admin_sede" element={
+          <ProtectedRoute allowedRoles={[1]} requireEmpresaAdmin usuario={usuario}>
+            <AgregarAdminSede />
           </ProtectedRoute>
         } />
         <Route path="/admin/tratos-garages" element={<ProtectedRoute allowedRoles={["admin"]} usuario={usuario}><Navigate to="/gestion_garages" replace /></ProtectedRoute>} />

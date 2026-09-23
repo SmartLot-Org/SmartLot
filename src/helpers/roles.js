@@ -17,6 +17,8 @@ export function getUserRoleName(usuario) {
   return Object.entries(HISTORICAL_ROLE_IDS).find(([, id]) => id === roleId)?.[0] || '';
 }
 export const userHasRole = (usuario, ...roles) => roles.some((role) => typeof role === 'number' ? Number(usuario?.id_rol) === role : getUserRoleName(usuario) === normalizeRoleName(role));
+export const isEmpresaAdmin = (usuario) => userHasRole(usuario, ROLE_NAMES.ADMIN) && !usuario?.id_sede;
+export const isSedeAdmin = (usuario) => userHasRole(usuario, ROLE_NAMES.ADMIN) && Boolean(usuario?.id_sede);
 export const getUserHomeRoute = (usuario, fallback = '/') => ROLE_HOME_ROUTES[getUserRoleName(usuario)] || fallback;
 export const getUserProfileRoute = (usuario, fallback) => ROLE_PROFILE_ROUTES[getUserRoleName(usuario)] || getUserHomeRoute(usuario, fallback);
 export const getUserRoleLabel = (usuario) => ROLE_LABELS[getUserRoleName(usuario)] || 'Usuario';

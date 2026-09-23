@@ -22,7 +22,7 @@ const FEATURES = [
   {
     title: "Solicitudes con tu OK",
     icon: Handshake,
-    desc: "Aceptás o rechazás cada empresa y cada cambio de cocheras. Nada se activa sin tu confirmación.",
+    desc: "Aprobás cada empresa y cambio de cocheras. Nada se activa sin tu OK.",
     size: "md:col-span-1 md:row-span-1",
     badge: "Control",
     badgeStyle: "border-brand-navy/10 text-brand-navy bg-white/90",
