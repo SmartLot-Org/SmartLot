@@ -5,6 +5,7 @@ import { ArrowLeft, Building2, Car, CalendarDays, CheckCircle2, Clock, MapPin, P
 import HeaderEmpleado from "../componentesEmpleado/header_empleado";
 import FormularioReserva from "../componentesEmpleado/form_reserva";
 import { ReservasCreate, ReservasQuote } from "../servicies/API_Reserva";
+import { PagosCrearPreferenciaReserva } from "../servicies/API_Pagos";
 import { VehiculosGetAll } from "../servicies/API_Vehiculo";
 import { GaragesGetAll } from "../servicies/API_Garage";
 import { UsuariosGetById } from "../servicies/API_Usuario";
@@ -116,6 +117,19 @@ const obtenerNumeroValido = (...valores) => {
   return null;
 };
 
+const obtenerUrlCheckout = (datos) => {
+  const enlace = datos?.initPoint ?? datos?.init_point ?? datos?.sandboxInitPoint ?? datos?.sandbox_init_point;
+  if (!enlace) return null;
+  try {
+    const url = new URL(enlace);
+    const host = url.hostname.toLowerCase();
+    if (url.protocol !== "https:" || !/(^|\.)mercadopago\.com(\.ar)?$/.test(host)) return null;
+    return url.href;
+  } catch {
+    return null;
+  }
+};
+
 const NuevaReservaSkeleton = () => (
   <div className="reserva-skeleton-card" aria-label="Cargando formulario de reserva">
     <div className="reserva-skeleton-field">
@@ -157,6 +171,10 @@ const NuevaReserva = () => {
   const [disponibilidad, setDisponibilidad] = useState(null);
   const [reservaPendiente, setReservaPendiente] = useState(null);
   const [modalPagoAbierto, setModalPagoAbierto] = useState(false);
+  const [reservaPendientePago, setReservaPendientePago] = useState(null);
+  const [procesandoPago, setProcesandoPago] = useState(false);
+  const [errorPago, setErrorPago] = useState("");
+  const procesandoPagoRef = useRef(false);
   const formularioRef = useRef(null);
   const resultadoRef = useRef(null);
   const disponibilidadTimerRef = useRef(null);
@@ -349,14 +367,14 @@ const NuevaReserva = () => {
 
       // El cupo corporativo no requiere una segunda confirmacion: la reserva
       // se crea al completar el primer envio del formulario.
-      if (quote.tipoCupo === "dentro_cupo") {
+      if (quote.requierePago === false) {
         disponibilidadTimerRef.current = null;
         await crearReservaCorporativa(reservaBase, solicitudId);
         return;
       }
 
       setDisponibilidad({
-        hay_cupo_corporativo: quote.tipoCupo === "dentro_cupo",
+        hay_cupo_corporativo: quote.requierePago === false,
         hay_cupo_pago: quote.requierePago,
         lugares_pagos_disponibles: quote.requierePago ? 1 : 0,
         precio: Number(quote.importe),
@@ -374,6 +392,8 @@ const NuevaReserva = () => {
     setConsultandoDisponibilidad(false);
     setDisponibilidad(null);
     setReservaPendiente(null);
+    setReservaPendientePago(null);
+    setErrorPago("");
     setModalPagoAbierto(false);
   };
 
@@ -382,14 +402,75 @@ const NuevaReserva = () => {
     formularioRef.current?.limpiarGarage();
   };
 
-  const handleContinuarPago = () => {
-    setModalPagoAbierto(false);
-    Swal.fire({
-      icon: "info",
-      title: "Integración con Mercado Pago pendiente",
-      confirmButtonText: "Entendido",
-      confirmButtonColor: "#2563eb",
-    });
+  const handleContinuarPago = async () => {
+    if (procesandoPagoRef.current || !reservaPendiente || !disponibilidad?.requierePago) return;
+    procesandoPagoRef.current = true;
+    setProcesandoPago(true);
+    setErrorPago("");
+
+    try {
+      let reserva = reservaPendientePago;
+      if (!reserva) {
+        const creada = await ReservasCreate({
+          id_garage: reservaPendiente.id_garage ?? reservaPendiente.idGarage,
+          id_vehiculo: reservaPendiente.id_vehiculo ?? reservaPendiente.idVehiculo,
+          fecha_entrada: reservaPendiente.fecha_entrada,
+          fecha_salida: reservaPendiente.fecha_salida,
+          dia: reservaPendiente.dia,
+        });
+        if (!creada.respuesta) {
+          setErrorPago(creada.datos?.message || "No se pudo retener el lugar. Volvé a verificar la disponibilidad.");
+          return;
+        }
+        const datos = creada.datos?.data ?? creada.datos?.reserva ?? creada.datos;
+        const id = Number(datos?.id ?? datos?.id_reserva);
+        if (!Number.isInteger(id) || id <= 0) {
+          setErrorPago("La reserva se creó, pero el servidor no devolvió su ID. Revisá tus reservas antes de intentar de nuevo.");
+          return;
+        }
+        reserva = { id, importe: Number(datos.importe_estimado), estado: datos.estado_reserva };
+        setReservaPendientePago(reserva);
+      }
+
+      if (reserva.estado === "confirmada") {
+        setModalPagoAbierto(false);
+        navigate("/empleados_dashboard");
+        return;
+      }
+      if (reserva.estado !== "pendiente_pago") {
+        setErrorPago("La reserva no quedó pendiente de pago. Revisá su estado antes de intentar de nuevo.");
+        return;
+      }
+      if (!Number.isFinite(reserva.importe) || reserva.importe <= 0) {
+        setErrorPago("El servidor no devolvió un importe válido para esta reserva.");
+        return;
+      }
+      if (Math.round(reserva.importe * 100) !== Math.round(Number(disponibilidad.precio) * 100)) {
+        setDisponibilidad((actual) => ({ ...actual, precio: reserva.importe }));
+        setErrorPago("El precio cambió al retener el lugar. Revisá el nuevo importe y continuá nuevamente.");
+        return;
+      }
+
+      const preferencia = await PagosCrearPreferenciaReserva(reserva.id);
+      if (!preferencia.respuesta) {
+        setErrorPago(preferencia.datos?.message || "No se pudo iniciar el pago. Intentá nuevamente mientras la reserva siga vigente.");
+        return;
+      }
+      const url = obtenerUrlCheckout(preferencia.datos);
+      if (!url) {
+        setErrorPago("Mercado Pago no devolvió un enlace válido. Intentá nuevamente mientras la reserva siga vigente.");
+        return;
+      }
+      try {
+        sessionStorage.setItem("mp_pending_orderId", `reserva-${reserva.id}`);
+      } catch { /* La vuelta también trae external_reference en la URL. */ }
+      window.location.assign(url);
+    } catch {
+      setErrorPago("No se pudo preparar el pago. Intentá nuevamente.");
+    } finally {
+      procesandoPagoRef.current = false;
+      setProcesandoPago(false);
+    }
   };
 
   const detalleReserva = reservaPendiente && (
@@ -458,7 +539,7 @@ const NuevaReserva = () => {
               ) : disponibilidad.hay_cupo_pago ? (
                 <>
                   <div className="disponibilidad-card__icon"><WalletCards size={24} /></div>
-                  <div className="disponibilidad-card__heading"><span>Lugar pago disponible</span><h2>El cupo gratuito de tu empresa se agotó</h2><p>Todavía podés reservar este garage utilizando un lugar pago.</p></div>
+                  <div className="disponibilidad-card__heading"><span>Lugar pago disponible</span><h2>Esta reserva requiere pago</h2><p>Podés retener el lugar y completar el pago con Mercado Pago.</p></div>
                   {detalleReserva}
                   <div className="disponibilidad-places"><ParkingCircle size={18} /><span><strong>{disponibilidad.lugares_pagos_disponibles}</strong> lugares pagos disponibles</span></div>
                   <div className="disponibilidad-total"><span>Precio final</span><strong>{formatearPrecio(disponibilidad.precio)}</strong></div>
@@ -487,6 +568,8 @@ const NuevaReserva = () => {
         precioFormateado={formatearPrecio(disponibilidad?.precio || 0)}
         onClose={() => setModalPagoAbierto(false)}
         onContinuar={handleContinuarPago}
+        procesando={procesandoPago}
+        error={errorPago}
       />
      
     </div>

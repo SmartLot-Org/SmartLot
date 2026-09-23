@@ -2,11 +2,11 @@ import { AlertCircle, Car, CalendarDays, Clock, MapPin, X } from "lucide-react";
 import ModalPortal from "../componentesCompartidos/ModalPortal";
 import "./confirmacion_reserva_paga.css";
 
-export default function ConfirmacionReservaPaga({ abierto, reserva, precioFormateado, onClose, onContinuar }) {
+export default function ConfirmacionReservaPaga({ abierto, reserva, precioFormateado, onClose, onContinuar, procesando = false, error = "" }) {
   if (!abierto || !reserva) return null;
 
   return (
-    <ModalPortal onClose={onClose} overlayClassName="reserva-paga-overlay">
+    <ModalPortal onClose={procesando ? undefined : onClose} overlayClassName="reserva-paga-overlay">
       <section
         className="reserva-paga-modal"
         role="dialog"
@@ -19,7 +19,7 @@ export default function ConfirmacionReservaPaga({ abierto, reserva, precioFormat
             <span className="reserva-paga-modal__eyebrow">Reserva con cargo</span>
             <h2 id="reserva-paga-titulo">Confirmar reserva paga</h2>
           </div>
-          <button type="button" className="reserva-paga-modal__close" onClick={onClose} aria-label="Cerrar modal">
+          <button type="button" className="reserva-paga-modal__close" onClick={onClose} disabled={procesando} aria-label="Cerrar modal">
             <X size={20} />
           </button>
         </header>
@@ -37,9 +37,11 @@ export default function ConfirmacionReservaPaga({ abierto, reserva, precioFormat
           <span>Al continuar, tendrás un tiempo limitado para completar el pago.</span>
         </p>
 
+        {error ? <p className="reserva-paga-modal__error" role="alert">{error}</p> : null}
+
         <div className="reserva-paga-modal__actions">
-          <button type="button" className="reserva-paga-button reserva-paga-button--secondary" onClick={onClose}>Cancelar</button>
-          <button type="button" className="reserva-paga-button reserva-paga-button--primary" onClick={onContinuar}>Continuar al pago</button>
+          <button type="button" className="reserva-paga-button reserva-paga-button--secondary" onClick={onClose} disabled={procesando}>Cancelar</button>
+          <button type="button" className="reserva-paga-button reserva-paga-button--primary" onClick={onContinuar} disabled={procesando}>{procesando ? "Preparando pago..." : "Continuar al pago"}</button>
         </div>
       </section>
     </ModalPortal>

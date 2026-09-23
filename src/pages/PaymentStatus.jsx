@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import Swal from "sweetalert2";
 import { PagosBuscar, PagosGetById } from "../servicies/API_Pagos";
+import { ReservasGetById } from "../servicies/API_Reserva";
 
 const formatearImporte = (importe) =>
   new Intl.NumberFormat("es-AR", {
@@ -82,13 +83,15 @@ export default function PaymentStatus() {
   const [loading, setLoading] = useState(false);
   const [buscandoPorOrder, setBuscandoPorOrder] = useState(false);
   const [pago, setPago] = useState(null);
+  const [estadoReserva, setEstadoReserva] = useState(null);
+  const [verificandoReserva, setVerificandoReserva] = useState(false);
   const [error, setError] = useState(null);
   const [intentoExterno, setIntentoExterno] = useState(false);
 
   const [manualPaymentId, setManualPaymentId] = useState("");
   const [manualOrderId, setManualOrderId] = useState(() => {
     try {
-      return localStorage.getItem("mp_last_orderId") || params.externalReference || "";
+      return params.externalReference || sessionStorage.getItem("mp_pending_orderId") || localStorage.getItem("mp_last_orderId") || "";
     } catch {
       return params.externalReference || "";
     }
@@ -231,6 +234,23 @@ export default function PaymentStatus() {
   const esAprobado = estado === "approved";
   const esRechazado = estado === "rejected" || estado === "cancelled" || estado === "charged_back";
   const esPendiente = estado === "pending" || estado === "in_process" || estado === "authorized";
+  const referenciaReserva = pago?.externalReference || pago?.external_reference || "";
+  const idReservaPago = /^reserva-(\d+)$/.exec(referenciaReserva)?.[1] || null;
+
+  useEffect(() => {
+    if (!pago || !idReservaPago) return undefined;
+    let activo = true;
+    const verificarReserva = async () => {
+      setVerificandoReserva(true);
+      const resultado = await ReservasGetById(idReservaPago, { force: true });
+      if (!activo) return;
+      const reserva = resultado.datos?.data ?? resultado.datos?.reserva ?? resultado.datos;
+      setEstadoReserva(resultado.respuesta ? reserva?.estado_reserva ?? reserva?.estado ?? null : null);
+      setVerificandoReserva(false);
+    };
+    void verificarReserva();
+    return () => { activo = false; };
+  }, [pago, idReservaPago]);
 
   return (
     <div style={{ minHeight: "100vh", background: "#f5f7fb", fontFamily: '"DM Sans", sans-serif', padding: "32px 4% 60px" }}>
@@ -344,6 +364,19 @@ export default function PaymentStatus() {
         )}
 
         {/* Pago verificado */}
+        {idReservaPago && pago ? (
+          <div style={{ background: "#fff", border: "1px solid #dbeafe", borderRadius: 16, padding: 18, marginBottom: 18 }} role="status">
+            <strong style={{ color: "#0F1A2E" }}>Reserva #{idReservaPago}</strong>
+            <p style={{ margin: "8px 0 14px", color: "#475569" }}>
+              {verificandoReserva ? "Verificando la confirmación de tu reserva..." : estadoReserva === "confirmada"
+                ? "Tu reserva está confirmada. Ya podés verla en tu panel."
+                : esAprobado
+                  ? "El pago está aprobado, pero la reserva aún no figura confirmada. Volvé a verificar su estado."
+                  : "La reserva se confirmará cuando el pago sea aprobado y siga vigente."}
+            </p>
+            <button type="button" onClick={() => navigate("/empleados_dashboard")} style={{ border: 0, borderRadius: 10, padding: "10px 14px", background: "#2563eb", color: "#fff", fontWeight: 700, cursor: "pointer" }}>Ver mis reservas</button>
+          </div>
+        ) : null}
         {pago && !loading && !buscandoPorOrder && (
           <div
             style={{

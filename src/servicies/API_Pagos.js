@@ -45,6 +45,20 @@ const PagosCrearPreferencia = async (items, orderId, backUrls, extra = {}) => {
     }
 };
 
+const PagosCrearPreferenciaReserva = async (idReserva) => {
+    try {
+        const response = await apiClient.post('/api/payments/preference', { idReserva });
+        return { respuesta: true, datos: response.data };
+    } catch (error) {
+        logApiError(error);
+        return {
+            respuesta: false,
+            datos: error.response?.data || { message: error.message },
+            status: error.response?.status || 0,
+        };
+    }
+};
+
 const PagosGetById = async (paymentId) => {
 
     let returnObject = { respuesta: false, datos: null };
@@ -148,6 +162,7 @@ const PagosWebhookEventos = async () => {
 
 export {
     PagosCrearPreferencia,
+    PagosCrearPreferenciaReserva,
     PagosGetById,
     PagosBuscar,
     PagosReembolsar,
