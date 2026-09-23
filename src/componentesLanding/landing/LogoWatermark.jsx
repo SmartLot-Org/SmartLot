@@ -25,6 +25,13 @@ const START_FRAME_ZOOM = 1.25;
 const FRAME0_ALIGN_X = -5.23;
 const FRAME0_ALIGN_Y = -8.12;
 
+// El recorrido del watermark (flip-book + swap + vuelo) asume el hero de dos
+// columnas que arranca en lg. Por debajo (mobile/tablet) no corre nada: ni
+// timeline, ni swap, ni la descarga de ~8 MB de frames — el logo del hero
+// queda tal cual. El corte sigue al layout, no al dispositivo.
+const DESKTOP_QUERY = '(min-width: 1024px)';
+const MOBILE_QUERY = '(max-width: 1023px)';
+
 
 // ---------------------------------------------------------------------------
 // Caché singleton a nivel módulo: en navegación SPA el componente se
@@ -100,13 +107,17 @@ export default function LogoWatermark({ heroRef }) {
 
   useEffect(() => {
     const reduceMq = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const kick = () => ensurePreloaded();
+    const mobileMq = window.matchMedia(MOBILE_QUERY);
+    // Nunca se descarga nada en mobile: ahí el recorrido no corre.
+    const kick = () => {
+      if (!reduceMq.matches && !mobileMq.matches) ensurePreloaded();
+    };
 
     // Los frames son el momento de marca del scroll: se piden recién con la
     // primera señal real de scroll (nada de precarga automática en idle, que
     // bajaba ~8 MB sin que el usuario hubiera pedido nada). Con reduce no hay
     // flip-book: no se carga nada.
-    if (!reduceMq.matches) {
+    if (!reduceMq.matches && !mobileMq.matches) {
       if (window.scrollY > 0) {
         kick();
       } else {
@@ -115,9 +126,11 @@ export default function LogoWatermark({ heroRef }) {
         window.addEventListener('touchmove', kick, { once: true, passive: true });
       }
     }
-    // Reduce apagado a mitad de sesión: recién ahí empieza la descarga.
-    const onReduceChange = (e) => { if (!e.matches) kick(); };
-    reduceMq.addEventListener('change', onReduceChange);
+    // Reduce apagado o resize mobile → desktop a mitad de sesión: recién ahí
+    // empieza la descarga.
+    const onModeChange = (e) => { if (!e.matches) kick(); };
+    reduceMq.addEventListener('change', onModeChange);
+    mobileMq.addEventListener('change', onModeChange);
 
     // El layout puede moverse tras el mount (fuentes, imágenes con distinto
     // timing de caché al volver por navegación) — re-medir una vez estable.
@@ -133,7 +146,8 @@ export default function LogoWatermark({ heroRef }) {
       window.removeEventListener('scroll', kick);
       window.removeEventListener('wheel', kick);
       window.removeEventListener('touchmove', kick);
-      reduceMq.removeEventListener('change', onReduceChange);
+      reduceMq.removeEventListener('change', onModeChange);
+      mobileMq.removeEventListener('change', onModeChange);
     };
   }, []);
 
@@ -245,7 +259,10 @@ export default function LogoWatermark({ heroRef }) {
     });
 
 
-    mm.add("(prefers-reduced-motion: no-preference)", () => {
+    // El recorrido vive sólo en desktop (hero de dos columnas): en mobile el
+    // wrapper nunca se activa, el logo del hero queda intacto y no hay scroll
+    // que animar. El estado reduce queda como estaba: watermark estático sutil.
+    mm.add(`(prefers-reduced-motion: no-preference) and ${DESKTOP_QUERY}`, () => {
       const state = { currentFrame: 0 };
       let continuousAnim = null;
       let tl = null;
@@ -510,6 +527,15 @@ export default function LogoWatermark({ heroRef }) {
       // Phase 3: Crossfade from canvas to static logo
       .to(canvasRef.current, { opacity: 0, duration: 0.03 }, 0.30)
       .to(staticImgRef.current, { opacity: 1, duration: 0.03 }, 0.30)
+
+      // Phase 3b: Recede — el logo cede el escenario al contenido. Tras el
+      // crossfade baja a la opacidad watermark (la misma del estado estático
+      // de reduce) para que el heading del BentoGrid, que coincide en
+      // pantalla con el vuelo/settle, conserve contraste pleno.
+      .fromTo(staticImgRef.current,
+        { opacity: 1 },
+        { opacity: 0.1, duration: 0.3, ease: "power2.out", immediateRender: false },
+      0.33)
 
 
       // Phase 4: Animate to final watermark position. fromTo con el punto de

@@ -76,6 +76,11 @@
   color: #0F1A2E;
 }
 
+.login-brand--flotante {
+  display: none;
+  justify-content: center;
+}
+
 .login-titulo {
   margin: 0;
   font-size: 28px;
@@ -260,6 +265,30 @@
 /* Responsive */
 
 @media (max-width: 480px) {
+  .login-page {
+    flex-direction: column;
+  }
+
+  .login-brand--card {
+    display: none;
+  }
+
+  .login-brand--flotante {
+    display: flex;
+    margin-bottom: 20px;
+  }
+
+  .login-brand--flotante .login-brand-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    box-shadow: 0 12px 28px rgba(37, 99, 235, 0.32);
+  }
+
+  .login-brand--flotante .login-brand-nombre {
+    font-size: 22px;
+  }
+
   .login-card {
     padding: 28px 20px;
     border-radius: 20px;
