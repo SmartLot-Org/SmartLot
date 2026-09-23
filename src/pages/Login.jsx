@@ -58,15 +58,8 @@ export default function Login() {
       <div className="login-glow login-glow--uno" aria-hidden="true" />
       <div className="login-glow login-glow--dos" aria-hidden="true" />
 
-      <div className="login-brand login-brand--flotante">
-        <span className="login-brand-icon">
-          <ParkingSquare size={34} />
-        </span>
-        <span className="login-brand-nombre">SmartLot</span>
-      </div>
-
       <main className="login-card">
-        <div className="login-brand login-brand--card">
+        <div className="login-brand">
           <span className="login-brand-icon">
             <ParkingSquare size={26} />
           </span>

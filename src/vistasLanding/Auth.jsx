@@ -61,7 +61,7 @@ export default function Auth() {
             ref={mobileLogoRef}
             src="/logoEntero.png"
             alt="SmartLot"
-            className="h-24 w-auto object-contain drop-shadow-sm pointer-events-none"
+            className="h-36 sm:h-44 w-auto object-contain drop-shadow-sm pointer-events-none"
           />
         </div>
 
