@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
-import FieldValidation from "../../components/FieldValidation";
 
 const INPUT_CLASS =
   "peer w-full px-5 pt-6 pb-2.5 bg-brand-surface/70 border border-brand-deep/10 rounded-xl text-brand-warm text-base outline-none transition-all duration-300 ease-out focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/20";
@@ -12,11 +11,9 @@ export default function RegisterField({
   label,
   type = "text",
   autoComplete,
-  value,
-  onChange,
-  onBlur,
-  conditions = [],
+  error,
   isTouched = false,
+  showError = false,
   textarea = false,
   rows = 3,
   hint,
@@ -24,6 +21,17 @@ export default function RegisterField({
 }) {
   const [visible, setVisible] = useState(false);
   const isPassword = type === "password";
+  const visibleError = showError ? error : undefined;
+  const errorId = `${id}-error`;
+  const hintId = `${id}-hint`;
+  const describedBy = [visibleError ? errorId : null, hint ? hintId : null]
+    .filter(Boolean)
+    .join(" ") || undefined;
+  const invalidClass = visibleError
+    ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
+    : isTouched
+      ? "border-green-500/50"
+      : "";
 
   if (textarea) {
     return (
@@ -34,14 +42,17 @@ export default function RegisterField({
         <textarea
           id={id}
           rows={rows}
-          value={value}
-          onChange={onChange}
-          onBlur={onBlur}
-          className="w-full px-5 py-3.5 bg-brand-surface/70 border border-brand-deep/10 rounded-xl text-brand-warm text-base outline-none transition-all duration-300 ease-out focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/20 resize-y"
+          aria-invalid={Boolean(visibleError)}
+          aria-describedby={describedBy}
+          className={`w-full px-5 py-3.5 bg-brand-surface/70 border border-brand-deep/10 rounded-xl text-brand-warm text-base outline-none transition-all duration-300 ease-out focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/20 resize-y ${invalidClass}`}
           {...rest}
         />
-        <FieldValidation conditions={conditions} isTouched={isTouched} />
-        {hint && <p className="text-xs text-brand-muted mt-1">{hint}</p>}
+        {visibleError && (
+          <p id={errorId} className="text-xs text-red-600 mt-1" role="alert">
+            {visibleError.message}
+          </p>
+        )}
+        {hint && <p id={hintId} className="text-xs text-brand-muted mt-1">{hint}</p>}
       </div>
     );
   }
@@ -52,12 +63,11 @@ export default function RegisterField({
         <input
           type={isPassword ? (visible ? "text" : "password") : type}
           id={id}
-          value={value}
-          onChange={onChange}
-          onBlur={onBlur}
           placeholder=" "
           autoComplete={autoComplete}
-          className={`${INPUT_CLASS} ${isPassword ? "pr-12" : ""}`}
+          aria-invalid={Boolean(visibleError)}
+          aria-describedby={describedBy}
+          className={`${INPUT_CLASS} ${isPassword ? "pr-12" : ""} ${invalidClass}`}
           {...rest}
         />
         <label htmlFor={id} className={LABEL_CLASS}>
@@ -74,8 +84,12 @@ export default function RegisterField({
           </button>
         )}
       </div>
-      <FieldValidation conditions={conditions} isTouched={isTouched} />
-      {hint && <p className="text-xs text-brand-muted mt-1">{hint}</p>}
+      {visibleError && (
+        <p id={errorId} className="text-xs text-red-600 mt-1" role="alert">
+          {visibleError.message}
+        </p>
+      )}
+      {hint && <p id={hintId} className="text-xs text-brand-muted mt-1">{hint}</p>}
     </div>
   );
 }
