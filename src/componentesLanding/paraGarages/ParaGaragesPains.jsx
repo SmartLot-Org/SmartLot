@@ -61,9 +61,11 @@ export default function ParaGaragesPains() {
           })}
         </div>
 
-        <p className="pg-item mx-auto mt-10 max-w-2xl text-center text-brand-muted">
-          SmartLot convierte ese caos en un panel con reglas claras: tu garage, tus precios, tus decisiones.
-        </p>
+        <div className="mt-10 flex justify-center">
+          <p className="pg-item max-w-2xl text-center text-brand-muted">
+            SmartLot convierte ese caos en un panel con reglas claras: tu garage, tus precios, tus decisiones.
+          </p>
+        </div>
       </div>
     </section>
   );

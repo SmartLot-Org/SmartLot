@@ -2,14 +2,16 @@ import { useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { showToast } from '../helpers/toast';
 import { useAuth } from '../contexts/useAuth';
-import { getUserHomeRoute, userHasRole } from '../helpers/roles';
+import { getUserHomeRoute, userHasRole, isEmpresaAdmin } from '../helpers/roles';
 
-export default function ProtectedRoute({ allowedRoles, children, usuario }) {
+export default function ProtectedRoute({ allowedRoles, children, usuario, requireEmpresaAdmin = false }) {
   const navigate = useNavigate();
   const location = useLocation();
   const { roleTransition, loading } = useAuth();
   const toastShown = useRef(false);
-  const autorizado = usuario ? userHasRole(usuario, ...allowedRoles) : false;
+  const autorizado = usuario
+    ? userHasRole(usuario, ...allowedRoles) && (!requireEmpresaAdmin || isEmpresaAdmin(usuario))
+    : false;
 
   useEffect(() => {
     if (loading) return;

@@ -4,7 +4,9 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../componentesAdmin/header_admin";
 import FooterAdmin from "../componentesAdmin/footer_admin";
-import { UserPlus, Car, SlidersVertical, PersonStanding, WalletCards, UserRound } from "lucide-react";
+import { useAuth } from "../contexts/useAuth";
+import { isEmpresaAdmin } from "../helpers/roles";
+import { UserPlus, Car, SlidersVertical, PersonStanding, WalletCards, UserRound, Building2 } from "lucide-react";
 
 const DashboardHeaderSkeleton = () => (
   <section className="dashboard-header-skeleton" aria-label="Cargando dashboard">
@@ -13,9 +15,9 @@ const DashboardHeaderSkeleton = () => (
   </section>
 );
 
-const DashboardSkeletonGrid = () => (
+const DashboardSkeletonGrid = ({ cantidad = 6 }) => (
   <div className="dashboard-grid" aria-label="Cargando acciones rapidas">
-    {Array.from({ length: 6 }).map((_, index) => (
+    {Array.from({ length: cantidad }).map((_, index) => (
       <article className="dashboard-card dashboard-card-skeleton" key={index}>
         <span className="dashboard-skeleton-icon" />
 
@@ -32,7 +34,9 @@ const DashboardSkeletonGrid = () => (
 
 function AdminDashboard() {
   const navigate = useNavigate(); // esto sirve para poder navegar a otras paginas
+  const { usuario } = useAuth();
   const [loading, setLoading] = useState(true);
+  const esAdminEmpresa = isEmpresaAdmin(usuario); // solo los administradores de empresa general gestionan sedes
 
   useEffect(() => {
     const timer = window.setTimeout(() => { //simula una carga de datos
@@ -57,7 +61,7 @@ function AdminDashboard() {
         )}
 
         {loading ? (
-          <DashboardSkeletonGrid />
+          <DashboardSkeletonGrid cantidad={esAdminEmpresa ? 6 : 5} />
         ) : (
           <div className="dashboard-grid">
             <DashboardBoton
@@ -66,6 +70,15 @@ function AdminDashboard() {
               descripcion="Gestionar y agregar nuevos usuarios"
               onClick={() => navigate("/gestion_de_empleados")}
             />
+
+            {esAdminEmpresa && (
+              <DashboardBoton
+                icono={<Building2 />}
+                titulo="Gestión de sedes"
+                descripcion="Creá sedes y asigná sus administradores"
+                onClick={() => navigate("/gestion_sedes")}
+              />
+            )}
 
             <DashboardBoton
               icono={<Car />}

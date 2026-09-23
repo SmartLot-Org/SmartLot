@@ -1,0 +1,339 @@
+.gestion-sedes-admin {
+  background-color: #f5f7fb;
+  min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  color: #4a5568;
+}
+
+.sedes-admin-main {
+  padding: 20px 4%;
+  padding-bottom: 120px;
+  max-width: 100%;
+}
+
+.sedes-admin-top {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.boton-back-admin {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  border: none;
+  background: #ffffff;
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.07);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #191c1e;
+  transition: all 0.2s;
+}
+
+.boton-back-admin:hover {
+  background: #2563eb;
+  color: #ffffff;
+  transform: translateY(-2px);
+}
+
+.sedes-admin-top p {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #2563eb;
+  margin: 0 0 2px;
+}
+
+.sedes-admin-top h1 {
+  font-size: 26px;
+  font-weight: 700;
+  color: #191c1e;
+  margin: 0;
+}
+
+.sedes-stats-admin {
+  margin-bottom: 20px;
+}
+
+.stats-sedes-card {
+  background: #ffffff;
+  border: 1px solid #dbe3ee;
+  border-radius: 16px;
+  padding: 20px 24px;
+  display: inline-flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 200px;
+}
+
+.stats-sedes-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #64748b;
+}
+
+.stats-sedes-header h4 {
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0;
+}
+
+.stats-sedes-header svg {
+  color: #2563eb;
+}
+
+.stats-sedes-card h2 {
+  font-size: 32px;
+  font-weight: 800;
+  color: #1e293b;
+  margin: 0;
+}
+
+.stats-sedes-card p {
+  font-size: 13px;
+  color: #94a3b8;
+  margin: 0;
+}
+
+.sedes-admin-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.btn-nueva-sede-admin {
+  background: #2563eb !important;
+  color: #ffffff !important;
+  border: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 10px 20px !important;
+  border-radius: 12px !important;
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  cursor: pointer !important;
+  transition: background 0.2s !important;
+}
+
+.btn-nueva-sede-admin:hover {
+  background: #1d4ed8 !important;
+}
+
+.sedes-admin-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 14px;
+}
+
+.sede-admin-card {
+  background: #ffffff;
+  border: 1px solid #dbe3ee;
+  border-radius: 16px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  transition: box-shadow 0.2s;
+}
+
+.sede-admin-card:hover {
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.07);
+}
+
+.sede-admin-card-header {
+  display: flex;
+  gap: 14px;
+  min-width: 0;
+}
+
+.sede-admin-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: rgba(37, 99, 235, 0.08);
+  color: #2563eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sede-admin-info {
+  min-width: 0;
+  flex: 1;
+}
+
+.sede-admin-info h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 4px;
+  overflow-wrap: anywhere;
+}
+
+.sede-admin-descripcion {
+  font-size: 13px;
+  color: #64748b;
+  margin: 2px 0;
+}
+
+.sede-admin-ubicacion {
+  font-size: 12px;
+  color: #94a3b8;
+  margin: 2px 0 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  overflow-wrap: anywhere;
+}
+
+.sede-admin-actions {
+  margin-top: auto;
+}
+
+.btn-crear-admin-sede {
+  width: 100%;
+  background: rgba(37, 99, 235, 0.08);
+  color: #2563eb;
+  border: 1px solid rgba(37, 99, 235, 0.16);
+  border-radius: 10px;
+  padding: 10px 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-crear-admin-sede:hover {
+  background: #2563eb;
+  color: #ffffff;
+  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.28);
+}
+
+.sedes-admin-feedback,
+.sedes-admin-feedback-error {
+  text-align: center;
+  padding: 40px 20px;
+  color: #64748b;
+  font-size: 15px;
+}
+
+.sedes-admin-feedback-error {
+  color: #ef4444;
+}
+
+.sedes-admin-stats-skeleton {
+  margin-bottom: 20px;
+}
+
+.stats-sedes-card-skeleton {
+  background: #ffffff;
+  border: 1px solid #dbe3ee;
+  border-radius: 16px;
+  padding: 20px 24px;
+  display: inline-flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 200px;
+}
+
+.sede-admin-card-skeleton {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.skl-sede-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+
+.skl-sede-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.skl-sede-name {
+  width: 40%;
+  height: 18px;
+}
+
+.skl-sede-desc {
+  width: 55%;
+  height: 14px;
+}
+
+.skl-sede-ubicacion {
+  width: 30%;
+  height: 14px;
+}
+
+.skl-stat-label {
+  width: 50%;
+  height: 13px;
+}
+
+.skl-stat-valor {
+  width: 35%;
+  height: 26px;
+}
+
+.skl-line {
+  display: block;
+  border-radius: 999px;
+  background: #e5e7eb;
+  position: relative;
+  overflow: hidden;
+}
+
+.skl-line::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.65) 50%, transparent 100%);
+  animation: sedes-admin-shimmer 1.35s infinite;
+}
+
+@keyframes sedes-admin-shimmer {
+  100% { transform: translateX(100%); }
+}
+
+@media (max-width: 480px) {
+  .sedes-admin-top {
+    gap: 12px;
+  }
+
+  .boton-back-admin {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+  }
+
+  .sedes-admin-top h1 {
+    font-size: 22px;
+  }
+
+  .btn-crear-admin-sede {
+    font-size: 13px;
+    padding: 9px 12px;
+  }
+}
