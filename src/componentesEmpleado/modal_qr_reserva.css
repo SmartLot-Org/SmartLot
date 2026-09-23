@@ -66,6 +66,25 @@
   color: #b91c1c !important;
 }
 
+.reserva-qr-generate {
+  width: 100%;
+  min-height: 46px;
+  margin-top: 18px;
+  border: 0;
+  border-radius: 13px;
+  background: #2563eb;
+  color: #ffffff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.reserva-qr-generate:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.reserva-qr-generate:focus-visible,
 .reserva-qr-close:focus-visible,
 .reserva-qr-dismiss:focus-visible {
   outline: 3px solid rgba(37, 99, 235, 0.28);

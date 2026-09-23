@@ -12,4 +12,6 @@ test("el QR abierto cambia a salida cuando el servidor confirma el ingreso", asy
   assert.match(source, /setTipoServidor\(obtenerTipoQrReserva\(reserva\)\)/);
   assert.match(source, /ReservasGetQr\(idReserva\)/);
   assert.match(source, /Código de \{tipoActual\}/);
+  assert.match(source, /Generar QR para salida/);
+  assert.match(source, /contenidoQr === qrIngresoRef\.current/);
 });

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import { X } from "lucide-react";
 import { ReservasGetById, ReservasGetQr } from "../servicies/API_Reserva";
@@ -7,10 +7,12 @@ import { obtenerTipoQrReserva, reservaTieneSalida } from "../helpers/qrReserva";
 import "./modal_qr_reserva.css";
 
 export default function ModalQrReserva({ idReserva, tipo = "ingreso", onClose }) {
-  const [qr, setQr] = useState("");
-  const [cargando, setCargando] = useState(true);
+  const [qr, setQr] = useState({ tipo: null, valor: "" });
+  const [cargando, setCargando] = useState(false);
   const [error, setError] = useState("");
   const [tipoServidor, setTipoServidor] = useState(null);
+  const qrIngresoRef = useRef("");
+  const solicitudRef = useRef(0);
   const tipoActual = tipoServidor ?? tipo;
 
   useEffect(() => {
@@ -42,25 +44,47 @@ export default function ModalQrReserva({ idReserva, tipo = "ingreso", onClose })
   }, [idReserva, onClose]);
 
   useEffect(() => {
+    if (tipoActual === "salida") return undefined;
     let activo = true;
-
-    const cargarQr = async () => {
+    const solicitud = ++solicitudRef.current;
+    const cargarQrIngreso = async () => {
       setCargando(true);
       setError("");
-      setQr("");
       const resultado = await ReservasGetQr(idReserva);
-      if (!activo) return;
+      if (!activo || solicitud !== solicitudRef.current) return;
       const contenidoQr = resultado.datos?.qr;
-      if (resultado.respuesta && typeof contenidoQr === "string" && contenidoQr) setQr(contenidoQr);
-      else setError(resultado.datos?.message || "No se pudo obtener el QR de la reserva.");
+      if (resultado.respuesta && typeof contenidoQr === "string" && contenidoQr) {
+        qrIngresoRef.current = contenidoQr;
+        setQr({ tipo: "ingreso", valor: contenidoQr });
+      } else {
+        setError(resultado.datos?.message || "No se pudo obtener el QR de la reserva.");
+      }
       setCargando(false);
     };
-
-    cargarQr();
-    return () => { activo = false; };
+    void cargarQrIngreso();
+    return () => { activo = false; solicitudRef.current += 1; };
   }, [idReserva, tipoActual]);
 
   const esSalida = tipoActual === "salida";
+  const qrVisible = qr.tipo === tipoActual ? qr.valor : "";
+
+  const generarQrSalida = async () => {
+    const solicitud = ++solicitudRef.current;
+    setCargando(true);
+    setError("");
+    setQr({ tipo: null, valor: "" });
+    const resultado = await ReservasGetQr(idReserva);
+    if (solicitud !== solicitudRef.current) return;
+    const contenidoQr = resultado.datos?.qr;
+    if (!resultado.respuesta || typeof contenidoQr !== "string" || !contenidoQr) {
+      setError(resultado.datos?.message || "No se pudo generar el QR de salida.");
+    } else if (contenidoQr === qrIngresoRef.current) {
+      setError("El servidor devolvió el QR de ingreso ya usado. Se necesita un código nuevo para la salida.");
+    } else {
+      setQr({ tipo: "salida", valor: contenidoQr });
+    }
+    setCargando(false);
+  };
 
   return (
     <ModalPortal onClose={onClose} overlayClassName="reserva-qr-overlay">
@@ -70,12 +94,16 @@ export default function ModalQrReserva({ idReserva, tipo = "ingreso", onClose })
         <p>Mostrale este código al garagista para registrar tu {tipoActual}.</p>
         {cargando ? (
           <div className="reserva-qr-loading" role="status">Generando código...</div>
-        ) : error ? (
-          <p className="reserva-qr-error" role="alert">{error}</p>
-        ) : (
-          <div className="reserva-qr-code"><QRCodeSVG value={qr} size={240} level="H" includeMargin title={`QR de ${tipoActual} de la reserva`} /></div>
-        )}
-        <small>{esSalida ? "Este código reemplaza al de ingreso y se desactivará al registrar tu salida." : "Después del ingreso, este código será reemplazado por el QR de salida."}</small>
+        ) : qrVisible ? (
+          <div className="reserva-qr-code"><QRCodeSVG value={qrVisible} size={240} level="H" includeMargin title={`QR de ${tipoActual} de la reserva`} /></div>
+        ) : null}
+        {error ? <p className="reserva-qr-error" role="alert">{error}</p> : null}
+        {esSalida ? (
+          <button type="button" className="reserva-qr-generate" onClick={generarQrSalida} disabled={cargando}>
+            {qrVisible ? "Generar otro QR para salida" : "Generar QR para salida"}
+          </button>
+        ) : null}
+        <small>{esSalida ? (qrVisible ? "Usá este código para registrar tu salida." : "Solicitá un código nuevo para registrar tu salida.") : "Después del ingreso podrás generar el QR de salida."}</small>
         <button type="button" className="reserva-qr-dismiss" onClick={onClose}>Cerrar</button>
       </section>
     </ModalPortal>
