@@ -123,6 +123,9 @@ function TarjetaReserva({ reserva, onClick, onCopy, onShowQr, mostrarQr = false,
 
         <div className="empleado-reserva-info">
           <h3>{reserva.nombre_garage || "Ubicacion no especificada"}</h3>
+          {!esHistorialPasado && String(reserva.estado || "").trim().toLowerCase() === "pendiente_pago" && (
+            <span className="empleado-reserva-badge-pago">Pago pendiente</span>
+          )}
           {esHistorialPasado && (
             <div className="empleado-reserva-location">
               <span>{reserva.nro_plaza || "-"}</span>

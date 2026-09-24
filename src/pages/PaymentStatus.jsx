@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import Swal from "sweetalert2";
 import { PagosBuscar, PagosGetById } from "../servicies/API_Pagos";
-import { ReservasGetById } from "../servicies/API_Reserva";
+import { ReservasGetById, ReservasLiberarRetencion } from "../servicies/API_Reserva";
 
 const formatearImporte = (importe) =>
   new Intl.NumberFormat("es-AR", {
@@ -84,6 +84,8 @@ export default function PaymentStatus() {
   const [buscandoPorOrder, setBuscandoPorOrder] = useState(false);
   const [pago, setPago] = useState(null);
   const [estadoReserva, setEstadoReserva] = useState(null);
+  const [retencionReserva, setRetencionReserva] = useState(null);
+  const [liberandoReserva, setLiberandoReserva] = useState(false);
   const [verificandoReserva, setVerificandoReserva] = useState(false);
   const [error, setError] = useState(null);
   const [intentoExterno, setIntentoExterno] = useState(false);
@@ -246,11 +248,26 @@ export default function PaymentStatus() {
       if (!activo) return;
       const reserva = resultado.datos?.data ?? resultado.datos?.reserva ?? resultado.datos;
       setEstadoReserva(resultado.respuesta ? reserva?.estado_reserva ?? reserva?.estado ?? null : null);
+      setRetencionReserva(resultado.respuesta ? reserva?.retencion_pago_hasta ?? null : null);
       setVerificandoReserva(false);
     };
     void verificarReserva();
     return () => { activo = false; };
   }, [pago, idReservaPago]);
+
+  const handleLiberarReserva = async () => {
+    if (!idReservaPago || liberandoReserva) return;
+    setLiberandoReserva(true);
+    const resultado = await ReservasLiberarRetencion(idReservaPago);
+    setLiberandoReserva(false);
+    if (resultado.respuesta) {
+      setEstadoReserva("cancelada");
+      setRetencionReserva(null);
+      Swal.fire({ toast: true, position: "top-end", icon: "success", title: "El lugar retenido fue liberado", showConfirmButton: false, timer: 2500 });
+    } else {
+      Swal.fire({ toast: true, position: "top-end", icon: "error", title: resultado.datos?.message || "No se pudo liberar el lugar retenido", showConfirmButton: false, timer: 3000 });
+    }
+  };
 
   return (
     <div style={{ minHeight: "100vh", background: "#f5f7fb", fontFamily: '"DM Sans", sans-serif', padding: "32px 4% 60px" }}>
@@ -370,10 +387,19 @@ export default function PaymentStatus() {
             <p style={{ margin: "8px 0 14px", color: "#475569" }}>
               {verificandoReserva ? "Verificando la confirmación de tu reserva..." : estadoReserva === "confirmada"
                 ? "Tu reserva está confirmada. Ya podés verla en tu panel."
-                : esAprobado
-                  ? "El pago está aprobado, pero la reserva aún no figura confirmada. Volvé a verificar su estado."
-                  : "La reserva se confirmará cuando el pago sea aprobado y siga vigente."}
+                : estadoReserva === "expirada"
+                  ? "La reserva expiró porque el pago no se completó dentro del tiempo de retención. Podés crear una nueva reserva."
+                  : estadoReserva === "pendiente_pago" && (esRechazado || variant === "failure")
+                    ? `El pago no se concretó, pero el lugar sigue retenido${retencionReserva ? ` hasta ${formatearFecha(retencionReserva)}` : ""}. Si no pagás en ese plazo, se libera solo.`
+                    : esAprobado
+                      ? "El pago está aprobado, pero la reserva aún no figura confirmada. Volvé a verificar su estado."
+                      : "La reserva se confirmará cuando el pago sea aprobado y siga vigente."}
             </p>
+            {estadoReserva === "pendiente_pago" && (esRechazado || variant === "failure") && (
+              <button type="button" onClick={handleLiberarReserva} disabled={liberandoReserva} style={{ border: "1px solid #fecaca", borderRadius: 10, padding: "10px 14px", background: "#fef2f2", color: "#b91c1c", fontWeight: 700, cursor: "pointer", marginRight: 10 }}>
+                {liberandoReserva ? "Liberando..." : "Liberar el lugar retenido"}
+              </button>
+            )}
             <button type="button" onClick={() => navigate("/empleados_dashboard")} style={{ border: 0, borderRadius: 10, padding: "10px 14px", background: "#2563eb", color: "#fff", fontWeight: 700, cursor: "pointer" }}>Ver mis reservas</button>
           </div>
         ) : null}

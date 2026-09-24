@@ -4,7 +4,7 @@ import Swal from "sweetalert2";
 import { ArrowLeft, Building2, Car, CalendarDays, CheckCircle2, Clock, MapPin, ParkingCircle, WalletCards } from "lucide-react";
 import HeaderEmpleado from "../componentesEmpleado/header_empleado";
 import FormularioReserva from "../componentesEmpleado/form_reserva";
-import { ReservasCreate, ReservasQuote } from "../servicies/API_Reserva";
+import { ReservasCreate, ReservasQuote, ReservasGetByUsuario, ReservasLiberarRetencion } from "../servicies/API_Reserva";
 import { PagosCrearPreferenciaReserva } from "../servicies/API_Pagos";
 import { VehiculosGetAll } from "../servicies/API_Vehiculo";
 import { GaragesGetAll } from "../servicies/API_Garage";
@@ -128,6 +128,22 @@ const obtenerUrlCheckout = (datos) => {
   } catch {
     return null;
   }
+};
+
+// Las reservas guardan timestamp sin zona (hora local AR). La API devuelve
+// "YYYY-MM-DD HH:mm:ss" y el formulario envia "-03:00": se normaliza ambos
+// al mismo instante para poder compararlos sin depender de la zona horaria
+// del navegador.
+const fechaReservaATiempo = (valor) => {
+  if (!valor) return null;
+  const fecha = new Date(String(valor).replace(" ", "T").slice(0, 19) + "-03:00");
+  return Number.isNaN(fecha.getTime()) ? null : fecha.getTime();
+};
+
+const mismasFechasReserva = (a, b) => {
+  const tiempoA = fechaReservaATiempo(a);
+  const tiempoB = fechaReservaATiempo(b);
+  return tiempoA !== null && tiempoB !== null && Math.abs(tiempoA - tiempoB) < 1000;
 };
 
 const NuevaReservaSkeleton = () => (
@@ -398,8 +414,58 @@ const NuevaReserva = () => {
   };
 
   const elegirOtroGarage = () => {
+    void liberarRetencionActiva();
     limpiarResultado();
     formularioRef.current?.limpiarGarage();
+  };
+
+  // Suelta el lugar retenido por una reserva pendiente de pago (el usuario
+  // abandono el checkout). Si no se libera a mano, el backend la expira solo
+  // al vencer la retencion.
+  const liberarRetencionActiva = async () => {
+    const retencion = reservaPendientePago;
+    setReservaPendientePago(null);
+    if (!retencion || retencion.estado !== "pendiente_pago") return;
+
+    const resultado = await ReservasLiberarRetencion(retencion.id);
+    if (resultado.respuesta) {
+      setMensaje({ tipo: "success", texto: "Se liberó el lugar que había quedado retenido por el pago." });
+    }
+  };
+
+  const cerrarModalPago = () => {
+    setModalPagoAbierto(false);
+    void liberarRetencionActiva();
+  };
+
+  // Si el usuario abandono el checkout de Mercado Pago y vuelve a intentar,
+  // su retencion anterior sigue vigente (10 minutos) y el backend rechaza la
+  // creacion con 409: se reutiliza esa reserva retenida en lugar de fallar.
+  const buscarRetencionVigente = async () => {
+    const idUsuario = obtenerNumeroValido(obtenerIdUsuario(usuario));
+    const idGarage = Number(reservaPendiente?.id_garage ?? reservaPendiente?.idGarage);
+    const idVehiculo = Number(reservaPendiente?.id_vehiculo ?? reservaPendiente?.idVehiculo);
+    if (!idUsuario || !Number.isFinite(idGarage) || !Number.isFinite(idVehiculo)) return null;
+
+    const resultado = await ReservasGetByUsuario(idUsuario, { force: true });
+    const vigente = obtenerListado(resultado.datos).find((item) =>
+      Number(item.id_garage ?? item.idGarage) === idGarage &&
+      Number(item.id_vehiculo ?? item.idVehiculo) === idVehiculo &&
+      (item.estado_reserva ?? item.estado) === "pendiente_pago" &&
+      (item.responsable_pago ?? "empleado") === "empleado" &&
+      item.retencion_pago_hasta &&
+      new Date(item.retencion_pago_hasta) > new Date() &&
+      mismasFechasReserva(item.fecha_entrada, reservaPendiente.fecha_entrada) &&
+      mismasFechasReserva(item.fecha_salida, reservaPendiente.fecha_salida)
+    );
+    if (!vigente) return null;
+
+    return {
+      id: vigente.id ?? vigente.id_reserva,
+      importe: Number(vigente.importe_estimado),
+      estado: vigente.estado_reserva ?? vigente.estado,
+      retencion: vigente.retencion_pago_hasta,
+    };
   };
 
   const handleContinuarPago = async () => {
@@ -418,18 +484,24 @@ const NuevaReserva = () => {
           fecha_salida: reservaPendiente.fecha_salida,
           dia: reservaPendiente.dia,
         });
-        if (!creada.respuesta) {
-          setErrorPago(creada.datos?.message || "No se pudo retener el lugar. Volvé a verificar la disponibilidad.");
-          return;
+        if (creada.respuesta) {
+          const datos = creada.datos?.data ?? creada.datos?.reserva ?? creada.datos;
+          const id = Number(datos?.id ?? datos?.id_reserva);
+          if (!Number.isInteger(id) || id <= 0) {
+            setErrorPago("La reserva se creó, pero el servidor no devolvió su ID. Revisá tus reservas antes de intentar de nuevo.");
+            return;
+          }
+          reserva = { id, importe: Number(datos.importe_estimado), estado: datos.estado_reserva, retencion: datos.retencion_pago_hasta ?? null };
+          setReservaPendientePago(reserva);
+        } else {
+          const reutilizada = await buscarRetencionVigente();
+          if (!reutilizada) {
+            setErrorPago(creada.datos?.message || "No se pudo retener el lugar. Volvé a verificar la disponibilidad.");
+            return;
+          }
+          reserva = reutilizada;
+          setReservaPendientePago(reutilizada);
         }
-        const datos = creada.datos?.data ?? creada.datos?.reserva ?? creada.datos;
-        const id = Number(datos?.id ?? datos?.id_reserva);
-        if (!Number.isInteger(id) || id <= 0) {
-          setErrorPago("La reserva se creó, pero el servidor no devolvió su ID. Revisá tus reservas antes de intentar de nuevo.");
-          return;
-        }
-        reserva = { id, importe: Number(datos.importe_estimado), estado: datos.estado_reserva };
-        setReservaPendientePago(reserva);
       }
 
       if (reserva.estado === "confirmada") {
@@ -566,7 +638,8 @@ const NuevaReserva = () => {
         abierto={modalPagoAbierto}
         reserva={reservaPendiente}
         precioFormateado={formatearPrecio(disponibilidad?.precio || 0)}
-        onClose={() => setModalPagoAbierto(false)}
+        retencionPagoHasta={reservaPendientePago?.retencion || null}
+        onClose={cerrarModalPago}
         onContinuar={handleContinuarPago}
         procesando={procesandoPago}
         error={errorPago}

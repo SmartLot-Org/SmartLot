@@ -1,9 +1,38 @@
+import { useEffect, useState } from "react";
 import { AlertCircle, Car, CalendarDays, Clock, MapPin, X } from "lucide-react";
 import ModalPortal from "../componentesCompartidos/ModalPortal";
 import "./confirmacion_reserva_paga.css";
 
-export default function ConfirmacionReservaPaga({ abierto, reserva, precioFormateado, onClose, onContinuar, procesando = false, error = "" }) {
+const formatoRestante = (restanteMs) => {
+  const minutos = Math.floor(restanteMs / 60000);
+  const segundos = Math.floor((restanteMs % 60000) / 1000);
+  return `${minutos}:${String(segundos).padStart(2, "0")}`;
+};
+
+export default function ConfirmacionReservaPaga({ abierto, reserva, precioFormateado, retencionPagoHasta = null, onClose, onContinuar, procesando = false, error = "" }) {
+  const [restanteMs, setRestanteMs] = useState(null);
+
+  useEffect(() => {
+    if (!abierto || !retencionPagoHasta) return undefined;
+    const objetivo = new Date(retencionPagoHasta).getTime();
+    if (!Number.isFinite(objetivo)) return undefined;
+
+    const actualizar = () => setRestanteMs(Math.max(0, objetivo - Date.now()));
+    actualizar();
+    const timer = window.setInterval(actualizar, 1000);
+    return () => {
+      window.clearInterval(timer);
+      setRestanteMs(null);
+    };
+  }, [abierto, retencionPagoHasta]);
+
   if (!abierto || !reserva) return null;
+
+  const avisoPago = restanteMs === null
+    ? "Al continuar, tendrás un tiempo limitado para completar el pago."
+    : restanteMs > 0
+      ? `Tenés ${formatoRestante(restanteMs)} para completar el pago. Si no lo hacés, el lugar se libera automáticamente.`
+      : "La retención venció: el lugar se libera automáticamente. Volvé a crear la reserva.";
 
   return (
     <ModalPortal onClose={procesando ? undefined : onClose} overlayClassName="reserva-paga-overlay">
@@ -34,7 +63,10 @@ export default function ConfirmacionReservaPaga({ abierto, reserva, precioFormat
 
         <p className="reserva-paga-modal__aviso">
           <AlertCircle size={18} />
-          <span>Al continuar, tendrás un tiempo limitado para completar el pago.</span>
+          <span>
+            {restanteMs !== null && restanteMs > 0 ? <strong>Tiempo restante: {formatoRestante(restanteMs)}</strong> : null}
+            {avisoPago}
+          </span>
         </p>
 
         {error ? <p className="reserva-paga-modal__error" role="alert">{error}</p> : null}

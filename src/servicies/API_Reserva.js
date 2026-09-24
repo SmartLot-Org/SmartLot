@@ -241,6 +241,21 @@ const ReservasCancel = async (id) => {
     }
 };
 
+const ReservasLiberarRetencion = async (id) => {
+    const returnObject = { respuesta: false };
+
+    try {
+        await apiClient.post(`/api/reserva/${id}/liberar-retencion`, {}, { _skipToast: true });
+        returnObject.respuesta = true;
+        invalidateReservasDependencies();
+    } catch (error) {
+        logApiError(error);
+        returnObject.datos = error.response?.data || { message: error.message };
+    }
+
+    return returnObject;
+};
+
 const ReservasCheckIn = async (id, patente) => {
     const returnObject = { respuesta: false, datos: null };
 
@@ -422,6 +437,7 @@ export {
     ReservasUpdate,
     ReservasDelete,
     ReservasCancel,
+    ReservasLiberarRetencion,
     ReservasCheckIn,
     ReservasCheckOut,
     ReservasGetDisponibilidadPorHora,

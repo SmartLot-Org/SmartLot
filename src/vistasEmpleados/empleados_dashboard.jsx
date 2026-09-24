@@ -588,6 +588,9 @@ function EmpleadoDashboard() {
     return reservas
       .map((reserva) => normalizarReserva(reserva, vehiculosPorId, garagesPorId, modelosPorId, marcasPorId))
       .filter((reserva) => {
+        // Retenciones de pago que expiraron sin concretarse: nunca fueron
+        // confirmadas y no deben figurar como reservas activas.
+        if (String(reserva.estado).toLowerCase() === "expirada" && !reserva.entradaRegistrada) return false;
         if (reserva.salidaRegistrada) return false;
         const salidaProgramada = obtenerFechaHoraProgramada(reserva.fecha, reserva.hora_salida);
         if (!reserva.entradaRegistrada && salidaProgramada && salidaProgramada <= new Date()) return false;
