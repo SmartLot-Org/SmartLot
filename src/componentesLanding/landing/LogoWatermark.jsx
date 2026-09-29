@@ -43,8 +43,8 @@ let cachedFrames = null;
 let cachedStartLogo = null;
 let preloadStarted = false;
 
-// Los 120 frames pesan ~8 MB: se piden de a tandas (y recién cuando el
-// usuario scrollea) para no competir con la carga inicial.
+// Solo se calientan el frame de entrada y su fallback. Los otros 119 frames
+// (≈10 MB) se piden por tandas cuando el usuario empieza a scrollear.
 const FRAME_BATCH = 10;
 
 function scheduleBatch(cb) {
@@ -63,21 +63,33 @@ function loadFrameBatch(startIndex = 0) {
   if (end < TOTAL_FRAMES) scheduleBatch(() => loadFrameBatch(end));
 }
 
+function loadImageOnce(img, src) {
+  if (!img || img.src) return;
+  img.src = src;
+  if (typeof img.decode === 'function') img.decode().catch(() => {});
+}
+
+function ensureSwapAssets() {
+  if (!cachedFrames) cachedFrames = [];
+  if (!cachedFrames[0]) cachedFrames[0] = new Image();
+  if (!cachedStartLogo) cachedStartLogo = new Image();
+
+  loadImageOnce(cachedFrames[0], FRAME_PATH(1));
+  loadImageOnce(cachedStartLogo, '/logoEntero.png');
+}
+
 function ensurePreloaded() {
   if (preloadStarted) return;
   preloadStarted = true;
-  cachedFrames = [];
-  // Sin src todavía: cada frame se resuelve cuando le toca su tanda, así el
-  // índice del array sigue mapeando 1:1 con ffoutNNN.png.
-  for (let i = 1; i <= TOTAL_FRAMES; i++) {
-    cachedFrames.push(new Image());
-  }
-  const staticLogo = new Image();
-  staticLogo.src = '/logo.png';
-  cachedFrames.push(staticLogo);
+  ensureSwapAssets();
 
-  cachedStartLogo = new Image();
-  cachedStartLogo.src = '/logoEntero.png';
+  // Conserva el frame0 calentado al montar y completa el array sin src para
+  // mantener el mapeo índice → ffoutNNN.png.
+  for (let i = 1; i < TOTAL_FRAMES; i++) {
+    if (!cachedFrames[i]) cachedFrames[i] = new Image();
+  }
+  if (!cachedFrames[TOTAL_FRAMES]) cachedFrames[TOTAL_FRAMES] = new Image();
+  loadImageOnce(cachedFrames[TOTAL_FRAMES], '/logo.png');
 
   loadFrameBatch();
 }
@@ -100,8 +112,9 @@ export default function LogoWatermark({ heroRef }) {
   const staticImgRef = useRef(null);
   const wrapperRef = useRef(null);
   const canvasSizeRef = useRef({ width: 0, height: 0 });
-  const lastImgRef = useRef(null);
+  const lastDrawRef = useRef(null);
   const swappedInRef = useRef(false);
+  const swapCommittedRef = useRef(false);
   const drawRetryRafRef = useRef(0);
 
 
@@ -113,11 +126,11 @@ export default function LogoWatermark({ heroRef }) {
       if (!reduceMq.matches && !mobileMq.matches) ensurePreloaded();
     };
 
-    // Los frames son el momento de marca del scroll: se piden recién con la
-    // primera señal real de scroll (nada de precarga automática en idle, que
-    // bajaba ~8 MB sin que el usuario hubiera pedido nada). Con reduce no hay
-    // flip-book: no se carga nada.
+    // El frame de entrada (~72KB) y el fallback (~63KB, usado por el Hero)
+    // evitan que el primer scroll tenga que esperar al primer dibujo. El resto
+    // del flip-book sigue descargándose solo ante una señal real de scroll.
     if (!reduceMq.matches && !mobileMq.matches) {
+      ensureSwapAssets();
       if (window.scrollY > 0) {
         kick();
       } else {
@@ -152,11 +165,11 @@ export default function LogoWatermark({ heroRef }) {
   }, []);
 
 
-  const drawImage = useCallback((img) => {
+  const drawImage = useCallback((img, { asFrameStandIn = false } = {}) => {
     const canvas = canvasRef.current;
-    if (!canvas || !isDrawable(img)) return;
+    if (!canvas || !isDrawable(img)) return false;
     const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    if (!ctx) return false;
 
 
     const size = canvasSizeRef.current;
@@ -164,7 +177,7 @@ export default function LogoWatermark({ heroRef }) {
       canvas.width = Math.round(size.width);
       canvas.height = Math.round(size.height);
     }
-    if (!canvas.width || !canvas.height) return;
+    if (!canvas.width || !canvas.height) return false;
 
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -172,7 +185,7 @@ export default function LogoWatermark({ heroRef }) {
 
     const imgAspect = img.naturalWidth / img.naturalHeight;
     const canvasAspect = canvas.width / canvas.height;
-    if (!Number.isFinite(imgAspect) || !Number.isFinite(canvasAspect) || canvasAspect <= 0) return;
+    if (!Number.isFinite(imgAspect) || !Number.isFinite(canvasAspect) || canvasAspect <= 0) return false;
     let drawW, drawH, drawX, drawY;
 
 
@@ -189,8 +202,26 @@ export default function LogoWatermark({ heroRef }) {
     }
 
 
-    ctx.drawImage(img, drawX, drawY, drawW, drawH);
-    lastImgRef.current = img;
+    if (asFrameStandIn) {
+      // frame0 + T0 coincide visualmente con logoEntero + identidad. Al
+      // aplicar T0⁻¹ al fallback, el canvas puede mantener el mismo transform
+      // durante el zoom y el cambio al frame real no produce un salto.
+      const alignX = (FRAME0_ALIGN_X / 100) * canvas.width;
+      const alignY = (FRAME0_ALIGN_Y / 100) * canvas.height;
+      ctx.save();
+      ctx.translate(canvas.width * 0.5, canvas.height * 0.5);
+      ctx.scale(1 / START_FRAME_ZOOM, 1 / START_FRAME_ZOOM);
+      ctx.translate(
+        -canvas.width * 0.5 - alignX,
+        -canvas.height * 0.5 - alignY,
+      );
+      ctx.drawImage(img, drawX, drawY, drawW, drawH);
+      ctx.restore();
+    } else {
+      ctx.drawImage(img, drawX, drawY, drawW, drawH);
+    }
+    lastDrawRef.current = { img, asFrameStandIn };
+    return true;
   }, []);
 
 
@@ -201,8 +232,7 @@ export default function LogoWatermark({ heroRef }) {
     const start = Math.min(Math.max(frameIndex, 0), cachedFrames.length - 1);
     for (let i = start; i >= 0; i--) {
       if (isDrawable(cachedFrames[i])) {
-        drawImage(cachedFrames[i]);
-        return true;
+        return drawImage(cachedFrames[i]);
       }
     }
     return false;
@@ -220,7 +250,10 @@ export default function LogoWatermark({ heroRef }) {
       const { width, height } = entry.contentRect;
       if (width > 10 && height > 10) {
         canvasSizeRef.current = { width: width * 2, height: height * 2 };
-        if (lastImgRef.current) drawImage(lastImgRef.current);
+        const lastDraw = lastDrawRef.current;
+        if (lastDraw) {
+          drawImage(lastDraw.img, { asFrameStandIn: lastDraw.asFrameStandIn });
+        }
       }
     });
 
@@ -272,15 +305,15 @@ export default function LogoWatermark({ heroRef }) {
       // scrolleada fuera de pantalla.
       let swapGeom = { top: 0, left: 0 };
       swappedInRef.current = false;
+      swapCommittedRef.current = false;
 
       if (!heroRef.current) return;
 
 
       const getHeroLogo = () => heroRef.current?.querySelector('.floating-logo');
       const getHeroLogoContainer = () => heroRef.current?.querySelector('.hero-logo-container');
-      // Ancla estable: caja de reposo del logo del hero. No la anima ni la
-      // entrada del Hero ni el float infinito, así que su rect es válido y
-      // definitivo apenas hay layout, sin carreras de timing.
+      // El ancla da tamaño y posición estable; se suma el y actual del logo
+      // para que el pin coincida con el float visible en el momento del swap.
       const getAnchor = () => heroRef.current?.querySelector('.hero-logo-anchor');
 
       // Rect del ancla en coords de viewport, o null si aún no hay layout
@@ -290,7 +323,11 @@ export default function LogoWatermark({ heroRef }) {
         if (!el) return null;
         const r = el.getBoundingClientRect();
         if (!isValidRect(r)) return null;
-        return { left: r.left, top: r.top, width: r.width, height: r.height };
+        const heroLogo = getHeroLogo();
+        const floatY = heroLogo
+          ? Number.parseFloat(gsap.getProperty(heroLogo, 'y')) || 0
+          : 0;
+        return { left: r.left, top: r.top + floatY, width: r.width, height: r.height };
       };
 
       const hideHeroLogo = () => {
@@ -307,6 +344,23 @@ export default function LogoWatermark({ heroRef }) {
         const heroContainer = getHeroLogoContainer();
         if (heroLogo) gsap.set(heroLogo, { visibility: 'visible' });
         if (heroContainer) gsap.set(heroContainer, { opacity: 1 });
+      };
+
+
+      // El canvas se pinta antes de ocultar el logo del Hero. Las dos acciones
+      // ocurren en el mismo ciclo de JS, así el navegador nunca presenta un
+      // frame donde ambos estén invisibles.
+      const commitSwap = (img, asFrameStandIn = false, alreadyDrawn = false) => {
+        if (!swappedInRef.current || swapCommittedRef.current) return false;
+        if (!alreadyDrawn && !drawImage(img, { asFrameStandIn })) return false;
+        if (alreadyDrawn && lastDrawRef.current?.img !== img) return false;
+
+        gsap.set(canvasRef.current, { opacity: 1 });
+        gsap.set(wrapperRef.current, { opacity: 1 });
+        hideHeroLogo();
+        swapCommittedRef.current = true;
+        if (tl) tl.invalidate();
+        return true;
       };
 
 
@@ -336,11 +390,8 @@ export default function LogoWatermark({ heroRef }) {
       gsap.set(staticImgRef.current, { opacity: 0 });
 
 
-      // Swap in: pinea el wrapper sobre la caja de reposo del logo del hero
-      // (el ancla) y oculta el logo real. Se llama desde los callbacks del
-      // ScrollTrigger (onEnter/onToggle/onRefresh), nunca desde timers: si
-      // el ancla aún no tiene layout válido, el próximo refresh (ruta,
-      // fuentes, resize) reintenta solo.
+      // Swap in: pinea el wrapper sobre el ancla del Hero. El logo real solo
+      // se oculta cuando el canvas ya tiene un dibujo listo.
       const swapIn = () => {
         const r = measureAnchor();
         if (!r) return false;
@@ -357,8 +408,12 @@ export default function LogoWatermark({ heroRef }) {
             gsap.set(wrapperRef.current, { top: r.top, left: r.left });
           }
           canvasSizeRef.current = { width: r.width * 2, height: r.height * 2 };
-          if (lastImgRef.current) drawImage(lastImgRef.current);
+          const lastDraw = lastDrawRef.current;
+          if (lastDraw) {
+            drawImage(lastDraw.img, { asFrameStandIn: lastDraw.asFrameStandIn });
+          }
           if (tl) tl.invalidate();
+          if (!swapCommittedRef.current) startDrawRetry();
           return true;
         }
 
@@ -373,7 +428,7 @@ export default function LogoWatermark({ heroRef }) {
           rotationX: 0,
           xPercent: 0,
           yPercent: 0,
-          opacity: 1,
+          opacity: 0,
           transformOrigin: '50% 50%',
           transformPerspective: 1000,
         });
@@ -381,68 +436,92 @@ export default function LogoWatermark({ heroRef }) {
         // The ResizeObserver won't have seen the new wrapper size yet
         // (it fires async), so size the canvas from the rect before drawing
         canvasSizeRef.current = { width: r.width * 2, height: r.height * 2 };
-        if (isDrawable(cachedFrames?.[0])) {
-          // Camino principal: frame0 con zoom + offset calibrados ya
-          // aplicados → el swap es continuo y el scroll solo interpola
-          // (sin el salto 1 → zoom del fromTo anterior).
-          gsap.set(canvasRef.current, {
-            opacity: 1,
-            scale: START_FRAME_ZOOM,
-            xPercent: FRAME0_ALIGN_X,
-            yPercent: FRAME0_ALIGN_Y,
-            transformOrigin: '50% 50%',
-          });
-          drawImage(cachedFrames[0]);
-        } else {
-          // Primera visita (frames aún sin decodificar): dibujo exacto sin
-          // zoom; el retry de dibujo pinta el frame0 apenas esté listo.
-          gsap.set(canvasRef.current, {
-            opacity: 1,
-            scale: 1,
-            xPercent: 0,
-            yPercent: 0,
-            transformOrigin: '50% 50%',
-          });
-          if (isDrawable(cachedStartLogo)) drawImage(cachedStartLogo);
-          // Red de seguridad: si los frames decodifican después del swap,
-          // pinta la posición actual del scrub apenas haya uno real.
-          startDrawRetry();
-        }
-        // Si nada es dibujable aún, no pasa nada: el wrapper ya tiene el
-        // tamaño correcto y los frames del onUpdate lo pintan apenas
-        // decodifican — sin estirar.
-        hideHeroLogo();
+        gsap.set(canvasRef.current, {
+          opacity: 0,
+          scale: START_FRAME_ZOOM,
+          xPercent: FRAME0_ALIGN_X,
+          yPercent: FRAME0_ALIGN_Y,
+          transformOrigin: '50% 50%',
+        });
+        gsap.set(staticImgRef.current, { opacity: 0 });
+
         swappedInRef.current = true;
-        // Re-grabar inicios/fines con el rect fresco: en el caso normal
-        // (onEnter con playhead ~0) alinea el timeline con el swap antes de
-        // que el scrub avance; si el swap llegó tarde (remount con scroll
-        // restaurado), corrige los valores iniciales que el scrub ya grabó.
-        if (tl) tl.invalidate();
+        swapCommittedRef.current = false;
+
+        if (isDrawable(cachedFrames?.[0])) {
+          commitSwap(cachedFrames[0]);
+        } else {
+          const heroLogo = getHeroLogo();
+          const fallback = isDrawable(cachedStartLogo)
+            ? cachedStartLogo
+            : isDrawable(heroLogo)
+              ? heroLogo
+              : null;
+          if (fallback) commitSwap(fallback, true);
+        }
+
+        startDrawRetry();
         return true;
       };
 
 
-      // Reintento acotado de dibujo (≈10s): mientras el frame exacto del
-      // scrub no esté decodificado, mantiene en el canvas el frame real más
-      // cercano disponible y se apaga solo cuando llega el pedido.
-      const startDrawRetry = (attempt = 0) => {
-        cancelAnimationFrame(drawRetryRafRef.current);
-        if (attempt > 600) return;
-        const target = Math.round(state.currentFrame);
-        if (isDrawable(cachedFrames?.[target])) return;
-        drawFrame(target);
-        drawRetryRafRef.current = requestAnimationFrame(() => startDrawRetry(attempt + 1));
+      // Reintento acotado de dibujo (≈10s): pinta primero el frame disponible
+      // y después comprueba si ya llegó el solicitado. Así nunca se detiene
+      // justo antes de dibujar el frame que acaba de decodificarse.
+      const startDrawRetry = () => {
+        if (drawRetryRafRef.current || !swappedInRef.current) return;
+        let attempts = 0;
+
+        const retry = () => {
+          drawRetryRafRef.current = 0;
+          if (!swappedInRef.current || attempts >= 600) return;
+          attempts += 1;
+
+          const target = Math.min(
+            Math.max(Math.round(state.currentFrame), 0),
+            TOTAL_FRAMES - 1,
+          );
+          const targetFrame = cachedFrames?.[target];
+          const targetReady = isDrawable(targetFrame);
+          const painted = targetReady
+            ? drawImage(targetFrame)
+            : drawFrame(target);
+
+          if (!swapCommittedRef.current && painted && lastDrawRef.current) {
+            const { img, asFrameStandIn } = lastDrawRef.current;
+            commitSwap(img, asFrameStandIn, true);
+          }
+
+          if (!swapCommittedRef.current) {
+            const heroLogo = getHeroLogo();
+            const fallback = isDrawable(cachedStartLogo)
+              ? cachedStartLogo
+              : isDrawable(heroLogo)
+                ? heroLogo
+                : null;
+            if (fallback) commitSwap(fallback, true);
+          }
+
+          if (!targetReady) {
+            drawRetryRafRef.current = requestAnimationFrame(retry);
+          }
+        };
+
+        drawRetryRafRef.current = requestAnimationFrame(retry);
       };
 
 
       // Swap out: restore hero logo, hide the wrapper
       const swapOut = () => {
         cancelAnimationFrame(drawRetryRafRef.current);
+        drawRetryRafRef.current = 0;
         swappedInRef.current = false;
+        swapCommittedRef.current = false;
         restoreHeroLogo();
         gsap.set(wrapperRef.current, { opacity: 0 });
         gsap.set(canvasRef.current, { opacity: 0 });
         gsap.set(staticImgRef.current, { opacity: 0 });
+        lastDrawRef.current = null;
       };
 
 
@@ -519,7 +598,9 @@ export default function LogoWatermark({ heroRef }) {
         duration: 0.28,
         ease: "none",
         onUpdate: () => {
-          drawFrame(Math.round(state.currentFrame));
+          const target = Math.round(state.currentFrame);
+          drawFrame(target);
+          if (!isDrawable(cachedFrames?.[target])) startDrawRetry();
         }
       }, 0.02)
 
@@ -581,6 +662,9 @@ export default function LogoWatermark({ heroRef }) {
       // scrolleado) no debe quedar pegado.
       return () => {
         cancelAnimationFrame(drawRetryRafRef.current);
+        drawRetryRafRef.current = 0;
+        swappedInRef.current = false;
+        swapCommittedRef.current = false;
         if (continuousAnim) {
           continuousAnim.kill();
           continuousAnim = null;
