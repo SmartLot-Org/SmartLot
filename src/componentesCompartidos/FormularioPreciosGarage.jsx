@@ -4,7 +4,7 @@ const PRICE_FIELDS = [
   ['precio_pickup', 'Precio por hora - Pickup'],
 ];
 
-export default function FormularioPreciosGarage({ values, onChange, disabled = false }) {
+export default function FormularioPreciosGarage({ values, onChange, disabled = false, integerOnly = false }) {
   return (
     <fieldset className="garage-price-fields" disabled={disabled}>
       <legend>Precios por hora</legend>
@@ -12,7 +12,7 @@ export default function FormularioPreciosGarage({ values, onChange, disabled = f
         {PRICE_FIELDS.map(([name, label]) => (
           <label key={name}>
             <span>{label}</span>
-            <input type="number" min="0" step="0.01" inputMode="decimal" value={values[name] ?? ''}
+            <input type="number" min="0" step={integerOnly ? '1' : '0.01'} inputMode={integerOnly ? 'numeric' : 'decimal'} value={values[name] ?? ''}
               onChange={(event) => onChange(name, event.target.value)} placeholder="Sin definir" />
           </label>
         ))}

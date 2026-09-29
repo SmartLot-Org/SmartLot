@@ -1,0 +1,103 @@
+.garage-propio-page .garage-propio-form {
+  gap: 1.25rem;
+}
+
+.garage-propio-page .garage-propio-sede select:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, .24);
+  outline-offset: 2px;
+  border-color: #2563eb;
+}
+
+.garage-propio-address-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 12px 0 0;
+  color: #475569;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.garage-propio-address-note svg {
+  flex: 0 0 auto;
+  margin-top: 2px;
+  color: #2563eb;
+}
+
+.garage-propio-address-note strong {
+  color: #1e293b;
+  font-weight: 700;
+}
+
+.garage-propio-fields {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.garage-propio-feedback,
+.garage-propio-subtle {
+  margin: 0 0 16px;
+  color: #475569;
+  font-size: 14px;
+}
+
+.garage-propio-empty {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 0 0 20px;
+  padding: 16px;
+  border: 1px solid #bfdbfe;
+  border-radius: 14px;
+  color: #1e3a8a;
+  background: #eff6ff;
+}
+
+.garage-propio-empty > svg {
+  flex: 0 0 auto;
+  margin-top: 2px;
+}
+
+.garage-propio-empty strong {
+  display: block;
+  font-size: 14px;
+}
+
+.garage-propio-empty p {
+  margin: 4px 0 0;
+  color: #475569;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.garage-propio-alert {
+  margin: 0 0 16px;
+  padding: 12px 14px;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  color: #991b1b;
+  background: #fef2f2;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.garage-propio-page .btn-guardar-grande:disabled,
+.garage-propio-page .btn-cancelar-grande:disabled {
+  cursor: not-allowed;
+  opacity: .58;
+  transform: none;
+  box-shadow: none;
+}
+
+@media (max-width: 640px) {
+  .garage-propio-page .acciones-garage {
+    flex-direction: column;
+  }
+
+  .garage-propio-page .btn-guardar-grande,
+  .garage-propio-page .btn-cancelar-grande {
+    width: 100%;
+  }
+}

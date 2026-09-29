@@ -11,7 +11,8 @@ function FormularioZona({
     sedes = [],
     fieldsValidation = {},
     onCoordenadasChange,
-    hideSede = false
+    hideSede = false,
+    ubicacionFija
 }) {
   const { isLoaded, loadError } = useGoogleMaps();
   if (loadError) console.warn('formulario_zona: Google Maps no cargó:', loadError);
@@ -119,7 +120,17 @@ function FormularioZona({
                </section>
               
                 <div className={`input-group ${formData.ubicacion ? 'has-value' : ''}`}>
-                    {isLoaded ? (
+                    {ubicacionFija !== undefined ? (
+                        <input
+                            type="text"
+                            placeholder=" "
+                            value={ubicacionFija || ''}
+                            readOnly
+                            required={Boolean(ubicacionFija)}
+                            autoComplete="off"
+                            aria-readonly="true"
+                        />
+                    ) : isLoaded ? (
                         <Autocomplete
                             onLoad={(autocomplete) => { autocompleteRef.current = autocomplete; }}
                             onPlaceChanged={handlePlaceChanged}

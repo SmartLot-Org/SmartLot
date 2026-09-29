@@ -26,6 +26,7 @@ const PaymentStatus = lazy(() => import("./pages/PaymentStatus"));
 const AdminDashboard = lazy(() => import("./vistasAdmin/admin_dashboard"));
 const GestionEmpleados = lazy(() => import("./vistasAdmin/gestion_de_empleados"));
 const GestionGarages = lazy(() => import("./vistasAdmin/gestion_garages"));
+const AgregarGaragePropio = lazy(() => import("./vistasAdmin/agregar_garage_propio"));
 const EditarZona = lazy(() => import("./vistasAdmin/editar_zona"));
 const AgregarEmpleado = lazy(() => import("./vistasAdmin/agregar_empleado"));
 const AgregarZona = lazy(() => import("./vistasAdmin/agregar_zona"));
@@ -173,6 +174,11 @@ function AppRoutes() {
         <Route path="/gestion_garages" element={
           <ProtectedRoute allowedRoles={[1]} usuario={usuario}>
             <GestionGarages />
+          </ProtectedRoute>
+        } />
+        <Route path="/agregar_garage_propio" element={
+          <ProtectedRoute allowedRoles={[1]} usuario={usuario}>
+            <AgregarGaragePropio />
           </ProtectedRoute>
         } />
         <Route path="/agregar_zona" element={

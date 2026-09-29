@@ -21,10 +21,15 @@
 
 .garage-page-header {
   display: grid;
-  grid-template-columns: 46px minmax(0, 1fr);
+  grid-template-columns: 46px minmax(0, 1fr) auto;
   align-items: start;
   gap: 16px;
   margin-bottom: 24px;
+}
+
+.garage-page-header .garage-add-button {
+  justify-self: end;
+  white-space: nowrap;
 }
 
 .garage-page-header .boton-back {
@@ -207,6 +212,7 @@
 .trato-card > strong { margin: 8px 0 3px; color: #0f172a; font-size: 18px; font-variant-numeric: tabular-nums; }
 .trato-card__header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .trato-sede { width: fit-content; display: inline-flex; align-items: center; gap: 5px; padding: 4px 8px; border-radius: 7px; color: #1d4ed8; background: #eff6ff; font-size: 11px; font-weight: 700; }
+.garage-own-badge { width: fit-content; display: inline-flex; align-items: center; margin-top: 7px; padding: 4px 8px; border-radius: 7px; color: #166534; background: #f0fdf4; font-size: 11px; font-weight: 700; }
 .trato-status { display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; border-radius: 999px; color: #b45309; background: #fffbeb; font-size: 11px; font-weight: 700; }
 .trato-card--pending { border-left: 3px solid #f59e0b; }
 .trato-location { display: flex; align-items: flex-start; gap: 6px; }
@@ -354,6 +360,7 @@
   .garage-page-header { grid-template-columns: 42px minmax(0, 1fr); gap: 12px; }
   .garage-page-header .boton-back { width: 42px; height: 42px; }
   .garage-page-header p { font-size: 12px; }
+  .garage-page-header .garage-add-button { grid-column: 1 / -1; width: 100% !important; justify-content: center; }
   .garage-kpis { grid-template-columns: 1fr; gap: 10px; }
   .garage-kpis article { padding: 14px; }
   .garage-pending-banner { grid-template-columns: auto minmax(0, 1fr); }

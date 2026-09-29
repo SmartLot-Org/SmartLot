@@ -3,9 +3,25 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
 const source = await readFile(new URL('./gestion_garages.jsx', import.meta.url), 'utf8');
+const ownGarageForm = await readFile(new URL('./agregar_garage_propio.jsx', import.meta.url), 'utf8');
 const app = await readFile(new URL('../App.jsx', import.meta.url), 'utf8');
-test('admin no ve acciones de crear o editar garages físicos', () => {
-  assert.doesNotMatch(source, /Nuevo Garage|agregar_zona|editar_zona/);
+test('admin puede crear garage propio sin acceder al alta general de superadmin', () => {
+  assert.match(source, /Agregar garage/);
+  assert.match(source, /\/agregar_garage_propio/);
+  assert.doesNotMatch(source, /agregar_zona|editar_zona/);
+  assert.match(app, /path="\/agregar_garage_propio"[\s\S]*allowedRoles=\{\[1\]\}/);
+});
+test('garage propio usa la dirección de la sede y crea un único garage reservado', () => {
+  const submitStart = ownGarageForm.indexOf('const response = await GaragePropioCreate');
+  const submitEnd = ownGarageForm.indexOf('if (!response.respuesta)', submitStart);
+  const payload = ownGarageForm.slice(submitStart, submitEnd);
+
+  assert.match(ownGarageForm, /ubicacionFija=\{selectedSede\?\.ubicacion \|\| ''\}/);
+  assert.match(ownGarageForm, /id_sede: Number\(selectedSede\.id\)/);
+  assert.match(ownGarageForm, /garage\.id_sede_propia/);
+  assert.doesNotMatch(payload, /\bubicacion\s*:/);
+  assert.match(source, /garagePropio = t\.id_sede_propia/);
+  assert.match(source, /!garagePropio \? <button onClick=\{\(\) => editContract\(t\)\}>Cambiar cantidad/);
 });
 test('cambiar sede dispara nuevamente la consulta de cercanos', () => {
   assert.match(source, /\[tab, sedeId, radio\]/);

@@ -184,6 +184,22 @@ const GaragesCreate = async (garage) => {
     }
 };
 
+const GaragePropioCreate = async (garage) => {
+    try {
+        const response = await apiClient.post('/api/garage/propio', garage);
+        invalidateGaragesDependencies();
+        invalidateByPrefix('tratos:');
+        return { respuesta: true, datos: response.data };
+    } catch (error) {
+        logApiError(error);
+        return {
+            respuesta: false,
+            datos: error.response?.data || { message: error.message },
+            status: error.response?.status || 0,
+        };
+    }
+};
+
 
 
 const GaragesUpdate = async (id, garage) => {
@@ -347,6 +363,7 @@ export {
     GaragesGetById,
     GaragesGetDistanciaSede,
     GaragesCreate,
+    GaragePropioCreate,
     GaragesUpdate,
     GaragesDelete,
     GaragesGetPapelera,

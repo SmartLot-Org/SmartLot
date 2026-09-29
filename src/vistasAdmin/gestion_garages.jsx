@@ -5,6 +5,7 @@ import Swal from 'sweetalert2';
 import { useAuth } from '../contexts/useAuth';
 import Header from '../componentesAdmin/header_admin';
 import FooterAdmin from '../componentesAdmin/footer_admin';
+import BotonGenerico from '../componentesAdmin/boton_generico';
 import { SedesGetAll } from '../servicies/API_Sede';
 import { GaragesGetCercanos } from '../servicies/API_Garage';
 import { TratosCancelar, TratosGetAll, TratosUpdate, TratosUpdatePaymentModality } from '../servicies/API_TratoEmpresaGarage';
@@ -197,7 +198,7 @@ export default function GestionGarages() {
   };
 
   return <div className="gestion-garages"><Header /><main className="gestion-garages-main">
-    <header className="garage-page-header"><button className="boton-back" onClick={() => navigate('/admin_dashboard')} aria-label="Volver al panel"><ArrowLeft size={20} /></button><div><span className="garage-page-eyebrow">GARAGES Y TRATOS</span><h1>Gestión de garages</h1><p>Administrá tus acuerdos, seguí cada solicitud y encontrá nuevas cocheras para tu sede.</p></div></header>
+    <header className="garage-page-header"><button className="boton-back" onClick={() => navigate('/admin_dashboard')} aria-label="Volver al panel"><ArrowLeft size={20} /></button><div><span className="garage-page-eyebrow">GARAGES Y TRATOS</span><h1>Gestión de garages</h1><p>Administrá tus acuerdos, seguí cada solicitud y encontrá nuevas cocheras para tu sede.</p></div><BotonGenerico className="btn-primario garage-add-button" onClick={() => navigate('/agregar_garage_propio')} aria-label="Agregar garage propio de una sede"><ParkingCircle size={20} /><span>Agregar garage</span></BotonGenerico></header>
     <section className="garage-kpis" aria-label="Resumen de garages"><article><span className="garage-kpi-icon"><Building2 size={20}/></span><div><small>Acuerdos activos</small><strong>{tratos.length}</strong></div></article><article><span className="garage-kpi-icon"><Clock3 size={20}/></span><div><small>Solicitudes pendientes</small><strong>{pendingRequests.length}</strong></div></article><article><span className="garage-kpi-icon"><ParkingCircle size={20}/></span><div><small>Cocheras contratadas</small><strong>{contractedSpaces}</strong></div></article></section>
     {pendingRequests.length > 0 && tab !== 'pendientes' ? <button type="button" className="garage-pending-banner" onClick={() => setTab('pendientes')}><span className="garage-pending-banner__icon"><Clock3 size={22}/></span><span><strong>{pendingRequests.length === 1 ? 'Tenés una solicitud esperando respuesta' : `Tenés ${pendingRequests.length} solicitudes esperando respuesta`}</strong><small>El garage todavía no aceptó la propuesta. Consultá su estado acá.</small></span><span className="garage-pending-banner__action">Ver pendientes <ArrowLeft size={16}/></span></button> : null}
     <div className="garage-tabs" role="tablist" aria-label="Secciones de gestión"><button role="tab" aria-selected={tab === 'contratados'} className={tab === 'contratados' ? 'active' : ''} onClick={() => setTab('contratados')}><CheckCircle2 size={17}/>Contratados <span>{tratos.length}</span></button><button role="tab" aria-selected={tab === 'pendientes'} className={tab === 'pendientes' ? 'active' : ''} onClick={() => setTab('pendientes')}><Clock3 size={17}/>Pendientes {pendingRequests.length > 0 ? <span className="pending-count">{pendingRequests.length}</span> : null}</button><button role="tab" aria-selected={tab === 'buscar'} className={tab === 'buscar' ? 'active' : ''} onClick={() => setTab('buscar')}><Search size={17}/>Buscar garages</button></div>
@@ -211,7 +212,27 @@ export default function GestionGarages() {
       {tab === 'buscar' && <><label className="garage-filter-field"><span>Radio de búsqueda</span><select value={radio} onChange={(e) => setRadio(Number(e.target.value))}><option value={5}>5 km</option><option value={15}>15 km</option><option value={50}>50 km</option><option value={100}>100 km</option></select></label><label className="garage-check"><input type="checkbox" checked={availableOnly} onChange={(e) => setAvailableOnly(e.target.checked)}/> Con disponibilidad</label><label className="garage-check"><input type="checkbox" checked={activeOnly} onChange={(e) => setActiveOnly(e.target.checked)}/> Activos/abiertos</label></>}
     </section>
     {loading && <p className="garages-feedback">Cargando garages…</p>}{error && <p className="garages-feedback garages-feedback-error">{error}</p>}
-    {!loading && !error && tab === 'contratados' && <section className="trato-grid">{contracts.length === 0 ? <p className="garages-feedback">No hay garages contratados para esta selección.</p> : contracts.map((t) => <article className="trato-card" key={t.id}><span className="trato-sede">{t.sede_nombre || `Sede ${t.id_sede || 'legacy'}`}</span><h2>{t.garage_nombre}</h2><p>{t.garage_ubicacion}</p><p>{t.hora_apertura || '—'} a {t.hora_cierre || '—'} · {normalizeDays(t.dias).join(', ') || 'Días no informados'}</p><strong>{t.cantidad_cocheras} cocheras</strong><p>Modalidad: {t.modalidad_pago === 'empleado_paga_todo' ? 'Paga el empleado' : 'La empresa cubre el cupo'}</p><p>Desde {t.created_at ? new Date(t.created_at).toLocaleDateString('es-AR') : 'fecha legacy'}</p><p>Auto {money(t.precio_auto)} · Pickup {money(t.precio_pickup)}</p><div className="trato-actions"><button onClick={() => editContract(t)}>Cambiar cantidad</button><button onClick={() => changeModality(t)}>Cambiar modalidad</button><button className="danger" onClick={() => cancelContract(t)}>Cancelar trato</button></div></article>)}</section>}
+    {!loading && !error && tab === 'contratados' && <section className="trato-grid">
+      {contracts.length === 0 ? <p className="garages-feedback">No hay garages contratados para esta selección.</p> : contracts.map((t) => {
+        const garagePropio = t.id_sede_propia !== null && t.id_sede_propia !== undefined;
+        return <article className="trato-card" key={t.id}>
+          <span className="trato-sede">{t.sede_nombre || `Sede ${t.id_sede || 'legacy'}`}</span>
+          {garagePropio ? <span className="garage-own-badge">Garage propio</span> : null}
+          <h2>{t.garage_nombre}</h2>
+          <p>{t.garage_ubicacion}</p>
+          <p>{t.hora_apertura || '—'} a {t.hora_cierre || '—'} · {normalizeDays(t.dias).join(', ') || 'Días no informados'}</p>
+          <strong>{t.cantidad_cocheras} cocheras</strong>
+          <p>Modalidad: {t.modalidad_pago === 'empleado_paga_todo' ? 'Paga el empleado' : 'La empresa cubre el cupo'}</p>
+          <p>Desde {t.created_at ? new Date(t.created_at).toLocaleDateString('es-AR') : 'fecha legacy'}</p>
+          <p>Auto {money(t.precio_auto)} · Pickup {money(t.precio_pickup)}</p>
+          <div className="trato-actions">
+            {!garagePropio ? <button onClick={() => editContract(t)}>Cambiar cantidad</button> : null}
+            <button onClick={() => changeModality(t)}>Cambiar modalidad</button>
+            {!garagePropio ? <button className="danger" onClick={() => cancelContract(t)}>Cancelar trato</button> : null}
+          </div>
+        </article>;
+      })}
+    </section>}
     {!loading && !error && tab === 'pendientes' && <section className="trato-grid">{pendingRequests.length === 0 ? <div className="garage-empty"><CheckCircle2 size={31}/><h2>Estás al día</h2><p>No hay solicitudes esperando respuesta para esta selección.</p><button onClick={() => setTab('buscar')}>Buscar garages</button></div> : pendingRequests.map((s) => <article className="trato-card trato-card--pending" key={s.id}><header className="trato-card__header"><span className="trato-sede"><Building2 size={14}/>{s.sede_nombre || `Sede ${s.id_sede}`}</span><span className="trato-status"><Clock3 size={13}/> Pendiente</span></header><h2>{s.garage_nombre || `Garage ${s.id_garage}`}</h2><p className="trato-location"><MapPin size={16}/>{s.garage_ubicacion || 'Ubicación no informada'}</p>{s.duenio_nombre ? <p className="trato-owner"><Building2 size={14}/> <strong>Dueño:</strong> {s.duenio_nombre}</p> : null}<div className="trato-request-capacity"><Send size={21}/><strong>{s.cantidad_cocheras}</strong><span>cocheras solicitadas</span></div>{s.descripcion ? <p className="trato-request-note">“{s.descripcion}”</p> : null}<div className="trato-waiting"><Clock3 size={18}/><div><strong>Esperando confirmación del garage</strong><span>Si la acepta, aparecerá automáticamente entre tus contratos.</span></div></div><small className="trato-request-date">Enviada el {s.created_at ? new Date(s.created_at).toLocaleDateString('es-AR') : 'fecha no informada'}</small></article>)}</section>}
     {!loading && !error && tab === 'buscar' && !sedeId && <p className="garages-feedback">Seleccioná una sede para buscar garages cercanos.</p>}
     {!loading && !error && tab === 'buscar' && sedeId && <section className="garage-search-results" aria-label="Mapa y garages cercanos">
