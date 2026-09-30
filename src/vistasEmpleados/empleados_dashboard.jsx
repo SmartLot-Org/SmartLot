@@ -152,6 +152,28 @@ const esValorVerdadero = (valor) => {
   return !Number.isNaN(new Date(valor).getTime());
 };
 
+// El endpoint de reservas por usuario devuelve tambien las reservas con
+// borrado logico (soft delete) para el historial: hay que excluirlas aca,
+// sino la reserva cancelada reaparece como tarjeta fantasma en el poll.
+const esReservaCancelada = (reserva) =>
+  [
+    reserva?.borrado,
+    reserva?.Borrado,
+    reserva?.cancelada,
+    reserva?.cancelado,
+    reserva?.eliminada,
+    reserva?.eliminado,
+    reserva?.deleted,
+    reserva?.deleted_at,
+    reserva?.deletedAt,
+  ].some(Boolean) ||
+  ["cancelada", "cancelado", "borrada", "borrado", "eliminada", "eliminado", "canceled", "cancelled"].includes(
+    String(reserva?.estado ?? reserva?.estado_reserva ?? reserva?.status ?? "")
+      .trim().toLowerCase().replace(/[\s-]+/g, "_")
+  );
+
+const esHoraValida = (hora) => /^\d{2}:\d{2}$/.test(String(hora || "").slice(0, 5));
+
 const tieneSalidaRegistrada = (reserva) =>
   [
     obtenerCampo(reserva, ["salida", "egreso", "check_out", "checkOut", "salio"]),
@@ -281,6 +303,12 @@ const normalizarReserva = (reserva, vehiculosPorId, garagesPorId, modelosPorId, 
   const fecha = obtenerCampo(reserva, ["fecha", "fecha_reserva", "fechaReserva"], extraerFechaStr(fechaEntrada));
   const horaInicio = extraerHoraLocal(fechaEntrada);
   const horaFin = extraerHoraLocal(fechaSalida);
+  // El endpoint por usuario mapea fecha_entrada -> fecha/hora_entrada sin
+  // conservar los originales: si faltan, derivar las fechas crudas.
+  const fechaEntradaCruda = fechaEntrada || (fecha && esHoraValida(obtenerCampo(reserva, ["hora_entrada", "horaEntrada"]))
+    ? `${fecha}T${obtenerCampo(reserva, ["hora_entrada", "horaEntrada"])}` : "");
+  const fechaSalidaCruda = fechaSalida || (fecha && esHoraValida(obtenerCampo(reserva, ["hora_salida", "horaSalida"]))
+    ? `${fecha}T${obtenerCampo(reserva, ["hora_salida", "horaSalida"])}` : "");
   const ubicacion = obtenerCampo(reserva, ["ubicacion", "sede", "nombre_sede", "garage_nombre"], "") ||
     obtenerNombreGarage(garageReserva) ||
     "Garage asignado";
@@ -303,6 +331,8 @@ const normalizarReserva = (reserva, vehiculosPorId, garagesPorId, modelosPorId, 
     hora_salida: horaFin,
     entradaRegistrada: tieneEntradaRegistrada(reserva),
     salidaRegistrada: tieneSalidaRegistrada(reserva),
+    fechaEntradaCruda,
+    fechaSalidaCruda,
     estado: obtenerCampo(reserva, ["estado", "status", "estado_reserva", "estadoReserva"], "confirmada"),
     vehiculo: vehiculo ? { patente, marca: marcaNombre, modelo } : null,
     raw: reserva,
@@ -431,6 +461,7 @@ function EmpleadoDashboard() {
 
         const reservasApi = reservasResponse.respuesta ? obtenerListado(reservasResponse.datos) : [];
         const reservasDelUsuario = reservasApi.filter((reserva) => {
+          if (esReservaCancelada(reserva)) return false;
           const reservaUsuarioId = Number(reserva.id_usuario ?? reserva.idUsuario ?? reserva.usuario_id);
           const reservaVehiculoId = Number(reserva.id_vehiculo ?? reserva.idVehiculo ?? reserva.vehiculo_id ?? reserva.vehiculoId);
           return reservaUsuarioId === idUsuario || idsVehiculos.has(reservaVehiculoId);
@@ -493,6 +524,7 @@ function EmpleadoDashboard() {
 
       const idsVehiculos = new Set(vehiculos.map((vehiculo) => Number(obtenerIdVehiculo(vehiculo))));
       const reservasActualizadas = obtenerListado(response.datos).filter((reserva) => {
+        if (esReservaCancelada(reserva)) return false;
         const reservaUsuarioId = Number(reserva.id_usuario ?? reserva.idUsuario ?? reserva.usuario_id);
         const reservaVehiculoId = Number(reserva.id_vehiculo ?? reserva.idVehiculo ?? reserva.vehiculo_id ?? reserva.vehiculoId);
         return reservaUsuarioId === idUsuario || idsVehiculos.has(reservaVehiculoId);
@@ -589,6 +621,9 @@ function EmpleadoDashboard() {
     return reservas
       .map((reserva) => normalizarReserva(reserva, vehiculosPorId, garagesPorId, modelosPorId, marcasPorId))
       .filter((reserva) => {
+        // Reservas con borrado logico: la API por usuario las incluye para el
+        // historial y no deben mostrarse como activas.
+        if (esReservaCancelada(reserva.raw)) return false;
         // Retenciones de pago que expiraron sin concretarse: nunca fueron
         // confirmadas y no deben figurar como reservas activas.
         if (String(reserva.estado).toLowerCase() === "expirada" && !reserva.entradaRegistrada) return false;
@@ -664,8 +699,7 @@ function EmpleadoDashboard() {
     if (!raw) return;
 
     const horaInicio = extraerHoraLocal(obtenerCampo(raw, ["fecha_entrada", "fechaEntrada", "fecha_inicio", "fechaInicio"]));
-    const horaFin = extraerHoraLocal(obtenerCampo(raw, ["fecha_salida", "fechaSalida", "fecha_finalizacion", "fechaFinalizacion", "fecha_fin", "fechaFin"]));
-    const idGarage = Number(obtenerIdGarageAsignado(raw));
+    const horaFin = extraerHoraLocal(obtenerCampo(raw, ["fecha_salida", "fechaSalida", "fecha_finalizacion", "fechaFinalizacion", "fecha_fin", "fechaFin"]));    const idGarage = Number(obtenerIdGarageAsignado(raw));
     const idVehiculo = Number(obtenerCampo(raw, ["id_vehiculo", "idVehiculo", "vehiculo_id", "vehiculoId"]));
 
     navigate("/nueva_reserva", {
