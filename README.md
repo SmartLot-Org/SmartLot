@@ -96,7 +96,6 @@ SmartLot/
 |   +-- pages/               # Paginas auxiliares
 |   +-- servicies/           # Servicios de datos
 |   +-- util/                # Utilidades generales
-|   +-- validators/          # Validaciones
 |   +-- vistasAdmin/         # Vistas del administrador
 |   +-- vistasEmpleados/     # Vistas del empleado
 |   +-- vistasGaragista/     # Vistas del garajista
