@@ -1,86 +1,128 @@
-import React, { useRef } from "react";
+import { useRef } from "react";
 import { Star, CarFront, Minus, Plus } from "lucide-react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import "./formulario_capacidad.css";
 
-// Registrar el hook oficial de GSAP
 gsap.registerPlugin(useGSAP);
+
+const numberFormat = new Intl.NumberFormat("es-AR");
+const prefersReducedMotion = () =>
+  typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+function AnimatedNumber({ value }) {
+  const numberRef = useRef(null);
+  const previousValueRef = useRef(value);
+
+  useGSAP(() => {
+    const previousValue = previousValueRef.current;
+    previousValueRef.current = value;
+
+    if (previousValue === value || prefersReducedMotion()) return;
+
+    gsap.from(numberRef.current, {
+      rotateX: -85,
+      opacity: 0,
+      duration: 0.32,
+      ease: "power2.out",
+      transformPerspective: 420,
+      transformOrigin: "50% 100%",
+    });
+  }, { dependencies: [value], revertOnUpdate: true });
+
+  return <strong ref={numberRef} className="cap-anim-num">{numberFormat.format(value)}</strong>;
+}
 
 function FormularioCapacidad({ formData = {}, onChange }) {
   const containerRef = useRef(null);
 
-  // Extraer las variables mapeadas al estado del formulario padre
   const capacidadReservas = Number(formData.capacidad_reservas) || 0;
   const capacidadNoReservas = Number(formData.capacidad_para_no_reservas) || 0;
   const capacidad = capacidadReservas + capacidadNoReservas;
 
-  // Animación de entrada fluida mediante hardware GPU (staggered cards)
   useGSAP(() => {
-    gsap.from(".plaza-item", {
+    if (prefersReducedMotion()) return;
+    gsap.from(".cap-total, .cap-card", {
       opacity: 0,
       y: 16,
       duration: 0.45,
       stagger: 0.1,
-      ease: "power2.out"
+      ease: "power2.out",
     });
   }, { scope: containerRef });
 
-  // Manejador centralizado y atómico que actualiza el objeto de estado padre
   const handleUpdate = (field, newValue) => {
     if (!onChange) return;
 
     const sanitizedValue = Math.max(0, newValue);
-    
-    // Generar el nuevo set de datos manteniendo la inmutabilidad
-    const updatedFields = {
-      ...formData,
-      [field]: sanitizedValue
-    };
 
-    onChange(updatedFields);
+    onChange({
+      ...formData,
+      [field]: sanitizedValue,
+    });
   };
 
   return (
-    <div className="bloque-formulario" ref={containerRef}>
-      <div className="header-formulario-capacidad">
+    <div className="formulario-capacidad" ref={containerRef}>
+      <div className="cap-header">
         <h3>Capacidad del Establecimiento</h3>
         <p>Configura la distribución de plazas disponibles en tiempo real.</p>
       </div>
 
-      <div className="plazas-resumen">
-        <span>Capacidad total del garage</span>
-        <strong>{capacidad} plazas</strong>
+      <div className="cap-total">
+        <div className="cap-total-row">
+          <span>Capacidad total del garage</span>
+          <ul className="cap-total-chips">
+            <li className="cap-chip">
+              <AnimatedNumber value={capacidadReservas} />
+              <span>con reserva</span>
+            </li>
+            <li className="cap-chip">
+              <AnimatedNumber value={capacidadNoReservas} />
+              <span>sin reserva</span>
+            </li>
+          </ul>
+        </div>
+
+        <p className="cap-total-value" aria-live="polite" aria-atomic="true">
+          <AnimatedNumber value={capacidad} />
+          <span>{capacidad === 1 ? "plaza" : "plazas"}</span>
+        </p>
+
+        <div className="cap-split" aria-hidden="true">
+          <span className="cap-split-seg cap-split-seg--reservas" style={{ flexGrow: capacidadReservas }} />
+          <span className="cap-split-seg cap-split-seg--libres" style={{ flexGrow: capacidadNoReservas }} />
+        </div>
       </div>
-      
-      <div className="plazas-grid">
-        {/* Tarjeta: Reservas */}
-        <div className="plaza-item">
-          <div className="plaza-top">
-            <div className="plaza-icon">
+
+      <div className="cap-grid">
+        <div className="cap-card">
+          <div className="cap-card-top">
+            <div className="cap-card-icon">
               <Star size={18} />
             </div>
-            <span className="plaza-tag">RESERVAS</span>
+            <span className="cap-card-tag">RESERVAS</span>
           </div>
 
           <h4>Capacidad Reservas</h4>
           <p>Ubicaciones para usuarios con reserva.</p>
 
-          <div className="contador">
+          <div className="cap-stepper">
             <button
               type="button"
-              className="btn-contador"
               onClick={() => handleUpdate("capacidad_reservas", capacidadReservas - 1)}
               disabled={capacidadReservas <= 0}
               aria-label="Disminuir capacidad de reservas"
             >
               <Minus size={16} />
             </button>
-            
+
             <input
               type="number"
               min="0"
+              inputMode="numeric"
               value={capacidadReservas}
+              aria-label="Capacidad de reservas"
               onChange={(e) => {
                 const value = parseInt(e.target.value, 10);
                 handleUpdate("capacidad_reservas", Number.isNaN(value) ? 0 : value);
@@ -90,7 +132,6 @@ function FormularioCapacidad({ formData = {}, onChange }) {
 
             <button
               type="button"
-              className="btn-contador"
               onClick={() => handleUpdate("capacidad_reservas", capacidadReservas + 1)}
               aria-label="Aumentar capacidad de reservas"
             >
@@ -99,25 +140,23 @@ function FormularioCapacidad({ formData = {}, onChange }) {
           </div>
         </div>
 
-        {/* Tarjeta: No Reservas */}
-        <div className="plaza-item">
-          <div className="plaza-top">
-            <div className="plaza-icon" style={{ background: "rgba(71, 85, 105, 0.1)", color: "#156fe5" }}>
+        <div className="cap-card">
+          <div className="cap-card-top">
+            <div className="cap-card-icon">
               <CarFront size={18} />
             </div>
-            <span className="plaza-tag tag-no-reservas">NO RESERVAS</span>
+            <span className="cap-card-tag">NO RESERVAS</span>
           </div>
 
           <h4>Capacidad No Reservas</h4>
           <p>Plazas de uso general por llegada.</p>
 
-          <div className="contador">
+          <div className="cap-stepper">
             <button
               type="button"
-              className="btn-contador"
               onClick={() => handleUpdate("capacidad_para_no_reservas", capacidadNoReservas - 1)}
               disabled={capacidadNoReservas <= 0}
-              aria-label="Disminuir capacidad no reservas"
+              aria-label="Disminuir capacidad de no reservas"
             >
               <Minus size={16} />
             </button>
@@ -125,7 +164,9 @@ function FormularioCapacidad({ formData = {}, onChange }) {
             <input
               type="number"
               min="0"
+              inputMode="numeric"
               value={capacidadNoReservas}
+              aria-label="Capacidad de no reservas"
               onChange={(e) => {
                 const value = parseInt(e.target.value, 10);
                 handleUpdate("capacidad_para_no_reservas", Number.isNaN(value) ? 0 : value);
@@ -135,9 +176,8 @@ function FormularioCapacidad({ formData = {}, onChange }) {
 
             <button
               type="button"
-              className="btn-contador"
               onClick={() => handleUpdate("capacidad_para_no_reservas", capacidadNoReservas + 1)}
-              aria-label="Aumentar capacidad no reservas"
+              aria-label="Aumentar capacidad de no reservas"
             >
               <Plus size={16} />
             </button>
