@@ -483,6 +483,13 @@ export default function PaymentStatus() {
             <p style={{ color: "#64748B", fontSize: 13, margin: "6px 0 0", lineHeight: 1.5 }}>
               Llegaste sin <code>payment_id</code>. Si acabas de pagar, usa tu <code>Order ID</code> para buscar el pago o ingresa el <code>payment_id</code> manualmente.
             </p>
+            <button
+              type="button"
+              onClick={() => navigate("/")}
+              style={{ marginTop: 14, background: "#2563EB", color: "#fff", border: "none", borderRadius: 10, padding: "10px 16px", fontWeight: 700, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 8 }}
+            >
+              <ArrowLeft size={16} /> Volver al inicio
+            </button>
           </div>
         )}
 

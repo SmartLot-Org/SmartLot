@@ -766,9 +766,13 @@
   justify-content: center;
   text-align: center;
   padding: 48px 20px;
-  color: #94A3B8;
+  color: #64748b;
   gap: 8px;
   min-height: 180px;
+}
+
+.mpt-empty .mpt-btn {
+  margin-top: 10px;
 }
 
 .mpt-empty strong {

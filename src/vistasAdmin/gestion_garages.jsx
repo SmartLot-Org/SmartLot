@@ -6,6 +6,7 @@ import { useAuth } from '../contexts/useAuth';
 import Header from '../componentesAdmin/header_admin';
 import FooterAdmin from '../componentesAdmin/footer_admin';
 import BotonGenerico from '../componentesAdmin/boton_generico';
+import EmptyState from '../componentesCompartidos/EmptyState';
 import { SedesGetAll } from '../servicies/API_Sede';
 import { GaragesGetCercanos } from '../servicies/API_Garage';
 import { TratosCancelar, TratosGetAll, TratosUpdate, TratosUpdatePaymentModality } from '../servicies/API_TratoEmpresaGarage';
@@ -197,6 +198,8 @@ export default function GestionGarages() {
     await loadContracts();
   };
 
+  const limpiarFiltros = () => { setSearch(''); setRadio(50); setAvailableOnly(false); setActiveOnly(true); };
+
   return <div className="gestion-garages"><Header /><main className="gestion-garages-main">
     <header className="garage-page-header"><button className="boton-back" onClick={() => navigate('/admin_dashboard')} aria-label="Volver al panel"><ArrowLeft size={20} /></button><div><span className="garage-page-eyebrow">GARAGES Y TRATOS</span><h1>Gestión de garages</h1><p>Administrá tus acuerdos, seguí cada solicitud y encontrá nuevas cocheras para tu sede.</p></div><BotonGenerico className="btn-primario garage-add-button" onClick={() => navigate('/agregar_garage_propio')} aria-label="Agregar garage propio de una sede"><ParkingCircle size={20} /><span>Agregar garage</span></BotonGenerico></header>
     <section className="garage-kpis" aria-label="Resumen de garages"><article><span className="garage-kpi-icon"><Building2 size={20}/></span><div><small>Acuerdos activos</small><strong>{tratos.length}</strong></div></article><article><span className="garage-kpi-icon"><Clock3 size={20}/></span><div><small>Solicitudes pendientes</small><strong>{pendingRequests.length}</strong></div></article><article><span className="garage-kpi-icon"><ParkingCircle size={20}/></span><div><small>Cocheras contratadas</small><strong>{contractedSpaces}</strong></div></article></section>
@@ -213,7 +216,7 @@ export default function GestionGarages() {
     </section>
     {loading && <p className="garages-feedback">Cargando garages…</p>}{error && <p className="garages-feedback garages-feedback-error">{error}</p>}
     {!loading && !error && tab === 'contratados' && <section className="trato-grid">
-      {contracts.length === 0 ? <p className="garages-feedback">No hay garages contratados para esta selección.</p> : contracts.map((t) => {
+      {contracts.length === 0 ? <EmptyState icon={CheckCircle2} title="No hay garages contratados para esta selección." description="Buscá garages cercanos a tu sede y enviá una solicitud para sumar cocheras." action={{ label: 'Buscar garages', onClick: () => setTab('buscar') }} /> : contracts.map((t) => {
         const garagePropio = t.id_sede_propia !== null && t.id_sede_propia !== undefined;
         return <article className="trato-card" key={t.id}>
           <span className="trato-sede">{t.sede_nombre || `Sede ${t.id_sede || 'legacy'}`}</span>
@@ -233,8 +236,8 @@ export default function GestionGarages() {
         </article>;
       })}
     </section>}
-    {!loading && !error && tab === 'pendientes' && <section className="trato-grid">{pendingRequests.length === 0 ? <div className="garage-empty"><CheckCircle2 size={31}/><h2>Estás al día</h2><p>No hay solicitudes esperando respuesta para esta selección.</p><button onClick={() => setTab('buscar')}>Buscar garages</button></div> : pendingRequests.map((s) => <article className="trato-card trato-card--pending" key={s.id}><header className="trato-card__header"><span className="trato-sede"><Building2 size={14}/>{s.sede_nombre || `Sede ${s.id_sede}`}</span><span className="trato-status"><Clock3 size={13}/> Pendiente</span></header><h2>{s.garage_nombre || `Garage ${s.id_garage}`}</h2><p className="trato-location"><MapPin size={16}/>{s.garage_ubicacion || 'Ubicación no informada'}</p>{s.duenio_nombre ? <p className="trato-owner"><Building2 size={14}/> <strong>Dueño:</strong> {s.duenio_nombre}</p> : null}<div className="trato-request-capacity"><Send size={21}/><strong>{s.cantidad_cocheras}</strong><span>cocheras solicitadas</span></div>{s.descripcion ? <p className="trato-request-note">“{s.descripcion}”</p> : null}<div className="trato-waiting"><Clock3 size={18}/><div><strong>Esperando confirmación del garage</strong><span>Si la acepta, aparecerá automáticamente entre tus contratos.</span></div></div><small className="trato-request-date">Enviada el {s.created_at ? new Date(s.created_at).toLocaleDateString('es-AR') : 'fecha no informada'}</small></article>)}</section>}
-    {!loading && !error && tab === 'buscar' && !sedeId && <p className="garages-feedback">Seleccioná una sede para buscar garages cercanos.</p>}
+    {!loading && !error && tab === 'pendientes' && <section className="trato-grid">{pendingRequests.length === 0 ? <EmptyState icon={CheckCircle2} tone="success" title="Estás al día" description="No hay solicitudes esperando respuesta para esta selección." action={{ label: 'Buscar garages', onClick: () => setTab('buscar') }} /> : pendingRequests.map((s) => <article className="trato-card trato-card--pending" key={s.id}><header className="trato-card__header"><span className="trato-sede"><Building2 size={14}/>{s.sede_nombre || `Sede ${s.id_sede}`}</span><span className="trato-status"><Clock3 size={13}/> Pendiente</span></header><h2>{s.garage_nombre || `Garage ${s.id_garage}`}</h2><p className="trato-location"><MapPin size={16}/>{s.garage_ubicacion || 'Ubicación no informada'}</p>{s.duenio_nombre ? <p className="trato-owner"><Building2 size={14}/> <strong>Dueño:</strong> {s.duenio_nombre}</p> : null}<div className="trato-request-capacity"><Send size={21}/><strong>{s.cantidad_cocheras}</strong><span>cocheras solicitadas</span></div>{s.descripcion ? <p className="trato-request-note">“{s.descripcion}”</p> : null}<div className="trato-waiting"><Clock3 size={18}/><div><strong>Esperando confirmación del garage</strong><span>Si la acepta, aparecerá automáticamente entre tus contratos.</span></div></div><small className="trato-request-date">Enviada el {s.created_at ? new Date(s.created_at).toLocaleDateString('es-AR') : 'fecha no informada'}</small></article>)}</section>}
+    {!loading && !error && tab === 'buscar' && !sedeId && <EmptyState size="sm" icon={Search} title="Seleccioná una sede para buscar garages cercanos." />}
     {!loading && !error && tab === 'buscar' && sedeId && <section className="garage-search-results" aria-label="Mapa y garages cercanos">
       <aside className="garage-map-panel" aria-label="Mapa de garages cercanos">
         <header><div><span>Ubicaciones cercanas</span><strong>{results.length} {results.length === 1 ? 'garage encontrado' : 'garages encontrados'}</strong></div><small><span className="garage-map-legend garage-map-legend--sede"/>Sede <span className="garage-map-legend"/>Garage</small></header>
@@ -246,7 +249,7 @@ export default function GestionGarages() {
         <p>Seleccioná un marcador para encontrar su tarjeta en el listado.</p>
       </aside>
       <div className="garage-results-list" aria-live="polite">
-        {results.length === 0 ? <p className="garages-feedback">No se encontraron garages con esos filtros.</p> : results.map((g) => {
+        {results.length === 0 ? <EmptyState tone="filtered" icon={Search} title="No se encontraron garages con esos filtros." description="Probá ampliar el radio de búsqueda o quitá los filtros aplicados." action={{ label: 'Limpiar filtros', onClick: limpiarFiltros }} /> : results.map((g) => {
           const pending = pendingGarageKeys.has(`${Number(sedeId)}:${Number(g.id)}`);
           const highlighted = String(visibleMapSelectedId) === String(g.id);
           return <article

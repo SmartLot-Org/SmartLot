@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { MessageCircleQuestion, X } from "lucide-react";
+import { MessageCircleQuestion, X, CalendarPlus } from "lucide-react";
 import "./empleados_dashboard.css";
+import EmptyState from "../componentesCompartidos/EmptyState";
 import HeaderEmpleado from "../componentesEmpleado/header_empleado";
 import TarjetaReserva from "../componentesEmpleado/tarjeta_reserva";
 import ModalEditarReserva from "../componentesEmpleado/modal_editar_reserva";
@@ -836,18 +837,23 @@ function EmpleadoDashboard() {
             </div>
           </>
         ) : (
-          <div className="empleado-dashboard-feedback">
-            No tenes reservas activas.
-          </div>
+          <EmptyState
+            icon={CalendarPlus}
+            title="No tenes reservas activas."
+            description="Reservá un lugar en un garage de tu sede y aparecerá acá para que puedas seguirlo."
+            action={{ label: "Reservar ahora", to: "/nueva_reserva", icon: CalendarPlus }}
+          />
         )}
 
-        <button
-          type="button"
-          className="empleado-nueva-reserva-btn"
-          onClick={() => navigate("/nueva_reserva")}
-        >
-          Nueva reserva
-        </button>
+        {reservasNormalizadas.length > 0 && (
+          <button
+            type="button"
+            className="empleado-nueva-reserva-btn"
+            onClick={() => navigate("/nueva_reserva")}
+          >
+            Nueva reserva
+          </button>
+        )}
 
        <FormularioDetallesVehiculo vehiculos={vehiculos} onVehiculoEliminado={(id) => setVehiculos((prev) => prev.filter((v) => (v.id ?? v.id_vehiculo ?? v._id) !== id))} />
 

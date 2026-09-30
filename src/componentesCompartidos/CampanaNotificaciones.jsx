@@ -4,6 +4,7 @@ import { ArrowRight, Bell, CheckCircle2, Inbox, X, XCircle } from "lucide-react"
 import { useNotificaciones } from "../hooks/useNotificaciones";
 import { useAuth } from "../contexts/useAuth";
 import { ROLE_NAMES, userHasRole } from "../helpers/roles";
+import EmptyState from "./EmptyState";
 import "./campana_notificaciones.css";
 
 const tiempoRelativo = (valor) => {
@@ -117,11 +118,12 @@ function CampanaNotificacionesInterna({ rutaTratos }) {
 
           <div className="cn-lista">
             {notificaciones.length === 0 ? (
-              <div className="cn-vacio">
-                <Bell size={26} />
-                <strong>No tenés notificaciones por ahora</strong>
-                <span>Cuando haya novedades sobre tus garages, aparecerán acá.</span>
-              </div>
+              <EmptyState
+                size="sm"
+                icon={Bell}
+                title="No tenés notificaciones por ahora"
+                description="Cuando haya novedades sobre tus garages, aparecerán acá."
+              />
             ) : (
               notificaciones.map((notificacion) => {
                 const { icono: Icono, tono } = tipoNotificacion(notificacion.tipo);

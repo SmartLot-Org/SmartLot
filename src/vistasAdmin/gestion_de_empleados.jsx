@@ -24,6 +24,7 @@ import Header from "../componentesAdmin/header_admin";
 import FooterAdmin from "../componentesAdmin/footer_admin";
 import BotonGenerico from "../componentesAdmin/boton_generico";
 import ModalPortal from "../componentesCompartidos/ModalPortal";
+import EmptyState from "../componentesCompartidos/EmptyState";
 import { UsuariosGetAll, UsuariosDelete, UsuariosPatchEstado } from "../servicies/API_Usuario";
 import { VehiculosGetAll } from "../servicies/API_Vehiculo";
 import { ModelosGetAll } from "../servicies/API_Modelo";
@@ -592,13 +593,30 @@ const GestionEmpleados = () => {
               : null}
 
             {!loading && !error && empleadosFiltrados.length === 0 && (
-              <div className="no-results">
-                {searchTerm ? (
-                  <p>No se encontraron resultados para "{searchTerm}"</p>
-                ) : (
-                  <p>No hay personal cargado bajo esta categoría</p>
-                )}
-              </div>
+              searchTerm || selectedSede ? (
+                <EmptyState
+                  className="no-results"
+                  size="sm"
+                  icon={Search}
+                  tone="filtered"
+                  title={searchTerm ? `No se encontraron resultados para "${searchTerm}"` : "No se encontraron resultados con estos filtros"}
+                  description="Probá con otros términos o quitá los filtros aplicados."
+                  action={{
+                    label: "Restablecer filtros",
+                    icon: RotateCcw,
+                    onClick: () => { setSearchTerm(""); setSelectedSede(""); },
+                  }}
+                />
+              ) : (
+                <EmptyState
+                  className="no-results"
+                  size="sm"
+                  icon={UserPlus}
+                  title="No hay personal cargado bajo esta categoría"
+                  description="Agregá a tu primer empleado para empezar a gestionar el equipo."
+                  action={{ label: "Agregar empleado", to: "/agregar_empleado", icon: UserPlus }}
+                />
+              )
             )}
           </div>
         )}
@@ -636,17 +654,20 @@ const GestionEmpleados = () => {
 
             <div className="modal-archive-body">
               {totalArchivadosReal === 0 ? (
-                <div className="empty-archived">
-                  <Archive size={48} className="empty-archived-icon" />
-                  <p className="empty-archived-text">No hay empleados archivados</p>
-                  <p className="empty-archived-sub">
-                    Los empleados que archives aparecerán aquí.
-                  </p>
-                </div>
+                <EmptyState
+                  size="sm"
+                  icon={Archive}
+                  title="No hay empleados archivados"
+                  description="Los empleados que archives aparecerán aquí."
+                />
               ) : empleadosArchivados.length === 0 ? (
-                <div className="no-results" style={{ padding: "40px 20px", textAlign: "center" }}>
-                  <p>No se encontraron archivados para "{searchArchivedTerm}"</p>
-                </div>
+                <EmptyState
+                  size="sm"
+                  icon={Search}
+                  tone="filtered"
+                  title={`No se encontraron archivados para "${searchArchivedTerm}"`}
+                  action={{ label: "Limpiar búsqueda", onClick: () => setSearchArchivedTerm(""), variant: "secondary" }}
+                />
               ) : (
                 empleadosArchivados.map((emp) => (
                   <article key={emp.id} className="card-archivado">

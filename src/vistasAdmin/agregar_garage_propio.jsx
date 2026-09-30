@@ -9,10 +9,12 @@ import FormularioZona from '../componentesAdmin/formulario_zona';
 import FormularioCapacidad from '../componentesAdmin/formulario_capacidad';
 import BotonGenerico from '../componentesAdmin/boton_generico';
 import FormularioPreciosGarage from '../componentesCompartidos/FormularioPreciosGarage';
+import EmptyState from '../componentesCompartidos/EmptyState';
 import { GaragePropioCreate, GaragesGetAll } from '../servicies/API_Garage';
 import { SedesGetAll } from '../servicies/API_Sede';
 import { buildGaragePricesPayload } from '../helpers/prices';
 import { normalizeList } from '../helpers/tratos';
+import { isSedeAdmin } from '../helpers/roles';
 import useLiveValidation from '../hooks/useLiveValidation';
 import './agregar_zona.css';
 import './agregar_garage_propio.css';
@@ -235,10 +237,20 @@ export default function AgregarGaragePropio() {
 
         {loadingData ? <p className="garage-propio-feedback" role="status">Cargando sedes y garages…</p> : null}
         {!loadingData && !error && sedes.length === 0 ? (
-          <section className="garage-propio-empty" role="status">
-            <MapPin size={22} />
-            <div><strong>No hay sedes disponibles</strong><p>Necesitás una sede de tu empresa para registrar su garage propio.</p></div>
-          </section>
+          isSedeAdmin(usuario) ? (
+            <EmptyState
+              icon={MapPin}
+              title="No pudimos cargar tu sede"
+              description="Contactá al administrador de tu empresa para continuar con el alta del garage."
+            />
+          ) : (
+            <EmptyState
+              icon={MapPin}
+              title="No hay sedes disponibles"
+              description="Necesitás una sede de tu empresa para registrar su garage propio."
+              action={{ label: "Crear sede", to: "/agregar_sede", icon: CirclePlus }}
+            />
+          )
         ) : null}
 
         <div className="form-garage garage-propio-form">

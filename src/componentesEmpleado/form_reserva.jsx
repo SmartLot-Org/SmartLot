@@ -8,6 +8,7 @@ import { GaragesGetDistanciaSede } from "../servicies/API_Garage";
 import { GoogleMap, Marker } from "@react-google-maps/api";
 import { useAuth } from "../contexts/useAuth";
 import { useGoogleMaps } from "../contexts/useGoogleMaps";
+import EmptyState from "../componentesCompartidos/EmptyState";
 
 const obtenerIdVehiculo = (vehiculo) => vehiculo?.id ?? vehiculo?.id_vehiculo ?? vehiculo?._id;
 const obtenerIdGarage = (garage) => garage?.id_garage ?? garage?.idGarage ?? garage?.id ?? garage?._id;
@@ -564,6 +565,15 @@ const FormularioReserva = forwardRef(function FormularioReserva({
             </select>
           </div>
           <FieldValidation conditions={buildConditions("idVehiculo")} isTouched={touched.idVehiculo} />
+          {vehiculos.length === 0 && (
+            <EmptyState
+              size="sm"
+              icon={Car}
+              title="Sin vehículos registrados"
+              description="Necesitás al menos un vehículo guardado para reservar."
+              action={{ label: "Agregar vehículo", to: "/agregar_vehiculo", icon: Plus }}
+            />
+          )}
         </div>
 
         {error && <p className="form-error-message" role="alert">{error}</p>}

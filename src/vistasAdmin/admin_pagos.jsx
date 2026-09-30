@@ -4,6 +4,7 @@ import { BadgeCheck, Building2, ChevronRight, CircleDollarSign, CreditCard, Down
 import { initMercadoPago } from "@mercadopago/sdk-react";
 import Swal from "sweetalert2";
 import Header from "../componentesAdmin/header_admin";
+import EmptyState from "../componentesCompartidos/EmptyState";
 import FooterAdmin from "../componentesAdmin/footer_admin";
 import { CuentasCorrientesAdminGet, CuentasCorrientesSedesGet } from "../servicies/API_CuentasCorrientes";
 import { PagosBuscar, PagosCrearPreferencia, PagosGetById } from "../servicies/API_Pagos";
@@ -274,7 +275,7 @@ function AdminPagos() {
         const pagando = pagandoKey === key;
         const aCobrar = montoTest(c.importeGenerado);
         return <article className="pagos-account-card" key={key}><div className="pagos-account-card__header"><div><strong>{c.garage}</strong><span>{c.sede} · {nombrePeriodo(c.periodo)}</span></div>{pagada ? <span className="pagos-badge pagos-badge--pagada"><BadgeCheck size={12} /> PAGADA</span> : <span className="pagos-badge pagos-badge--pendiente">PENDIENTE</span>}</div><dl><div><dt>Reservas</dt><dd>{c.reservasUtilizadas}</dd></div><div><dt>Importe generado</dt><dd>{moneda(c.importeGenerado)}<br /><small style={{ fontSize: 11, color: "#64748b" }}>a cobrar {moneda(aCobrar)}</small></dd></div></dl><div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>{pagada ? <span className="pagos-badge pagos-badge--pagada" style={{ height: 36, padding: "0 12px", display: "inline-flex", alignItems: "center", gap: 6 }}><BadgeCheck size={14} /> PAGADA</span> : <button className="pagos-pay-button" type="button" onClick={() => handlePagar(c)} disabled={pagando}>{pagando ? <Loader2 size={14} className="pagos-spin" /> : <CreditCard size={14} />} {pagando ? "Creando..." : `PAGAR ${moneda(aCobrar)}`}</button>}<button className="pagos-detail-button" type="button" onClick={() => setSeleccionada(c)}>Ver detalle <ChevronRight size={16} /></button></div></article>;
-      })}</div></> : <div className="pagos-empty"><Search size={28} /><strong>No hay consumos para estos filtros</strong><span>El período consultado no registra reservas utilizadas.</span><button type="button" onClick={limpiar}>Limpiar filtros</button></div>}
+      })}</div></> : <EmptyState icon={Search} tone="filtered" title="No hay consumos para estos filtros" description="El período consultado no registra reservas utilizadas." action={{ label: "Limpiar filtros", onClick: limpiar }} />}
     </section></main><FooterAdmin /><DetalleCuenta cuenta={seleccionada} onClose={() => setSeleccionada(null)} onPagar={handlePagar} pagando={seleccionada ? pagandoKey === `${seleccionada.idGarage}-${seleccionada.idSede}-${seleccionada.periodo}` : false} /><ExportarModal abierto={exportarAbierto} cantidad={data.items.length} cargando={exportando} onClose={() => setExportarAbierto(false)} onExport={exportar} /></div>;
 }
 

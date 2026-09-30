@@ -17,6 +17,7 @@ import "./superadmin_reservas.css";
 import HeaderSuperadmin from "../componentesSuperadmin/header_superadmin";
 import FooterSuperadmin from "../componentesSuperadmin/footer_superadmin";
 import BotonGenerico from "../componentesAdmin/boton_generico";
+import EmptyState from "../componentesCompartidos/EmptyState";
 import { ReservasGetAll } from "../servicies/API_Reserva";
 import { GaragesGetAll } from "../servicies/API_Garage";
 import { SedesGetAll } from "../servicies/API_Sede";
@@ -686,11 +687,23 @@ export default function SuperadminReservas() {
             )}
 
             {!error && reservasFiltradas.length === 0 ? (
-              <div className="resv-feedback">
-                {hayFiltros
-                  ? "No hay reservas que coincidan con los filtros aplicados."
-                  : "Todavia no hay reservas registradas en el sistema."}
-              </div>
+              hayFiltros ? (
+                <EmptyState
+                  size="sm"
+                  icon={Search}
+                  tone="filtered"
+                  title="No hay reservas que coincidan con los filtros aplicados."
+                  description="Probá con otros criterios o volvé a ver todas las reservas."
+                  action={{ label: "Limpiar filtros", onClick: limpiarFiltros }}
+                />
+              ) : (
+                <EmptyState
+                  size="sm"
+                  icon={CalendarDays}
+                  title="Todavia no hay reservas registradas en el sistema."
+                  description="Cuando los empleados hagan reservas, van a aparecer en este listado."
+                />
+              )
             ) : !error && (
               <div className="resv-table-shell resv-animate-table">
                 <table className="resv-table">

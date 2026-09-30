@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { ChevronDown, History, Clock, UserRound } from "lucide-react";
 import gsap from "gsap";
+import EmptyState from "./EmptyState";
 
 import "./AuditoriaPanel.css";
 
@@ -89,7 +90,12 @@ const AuditoriaPanel = ({
         {loading ? (
           <p className="auditoria-empty-msg">Cargando auditoría...</p>
         ) : eventos.length === 0 ? (
-          <p className="auditoria-empty-msg">Todavía no hay movimientos registrados.</p>
+          <EmptyState
+            size="sm"
+            icon={History}
+            title="Todavía no hay movimientos registrados."
+            description="Las acciones sobre esta sección van a quedar registradas acá."
+          />
         ) : (
           <div className="auditoria-listado">
             {eventos.slice(0, maxItems).map((evento) => (

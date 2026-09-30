@@ -32,6 +32,7 @@ import HeaderSuperadmin from "../componentesSuperadmin/header_superadmin";
 import FooterSuperadmin from "../componentesSuperadmin/footer_superadmin";
 import BotonGenerico from "../componentesAdmin/boton_generico";
 import ModalPortal from "../componentesCompartidos/ModalPortal";
+import EmptyState from "../componentesCompartidos/EmptyState";
 import AuditoriaPanel from "../componentesCompartidos/AuditoriaPanel";
 import {
   UsuariosGetAll,
@@ -1100,27 +1101,34 @@ const GestionUsuarios = () => {
               : null}
 
             {!error && usuariosFiltrados.length === 0 && (
-              <div className="usuarios-no-results">
-                {searchTerm || activeFiltersCount > 0 ? (
-                  <>
-                    <p>No se encontraron resultados para tu búsqueda.</p>
-                    <button 
-                      className="btn-limpiar-dropdown" 
-                      style={{marginTop: '12px', display: 'inline-flex'}}
-                      onClick={() => {
-                        setSearchTerm("");
-                        setSelectedEmpresa("");
-                        setSelectedSede("");
-                        setSelectedGarage("");
-                      }}
-                    >
-                      Restablecer filtros
-                    </button>
-                  </>
-                ) : (
-                  <p>No hay usuarios registrados en esta categoría.</p>
-                )}
-              </div>
+              searchTerm || activeFiltersCount > 0 ? (
+                <EmptyState
+                  className="usuarios-no-results"
+                  size="sm"
+                  icon={Search}
+                  tone="filtered"
+                  title="No se encontraron resultados para tu búsqueda."
+                  description="Probá con otros términos o volvé al listado completo."
+                  action={{
+                    label: "Restablecer filtros",
+                    onClick: () => {
+                      setSearchTerm("");
+                      setSelectedEmpresa("");
+                      setSelectedSede("");
+                      setSelectedGarage("");
+                    },
+                  }}
+                />
+              ) : (
+                <EmptyState
+                  className="usuarios-no-results"
+                  size="sm"
+                  icon={UserPlus}
+                  title="No hay usuarios registrados en esta categoría."
+                  description="Creá el primer usuario para empezar a gestionar tu equipo."
+                  action={{ label: "Agregar usuario", to: "/superadmin/agregar_usuario", icon: UserPlus }}
+                />
+              )
             )}
           </div>
         )}
@@ -1167,17 +1175,20 @@ const GestionUsuarios = () => {
 
             <div className="modal-archivados-body">
               {totalArchivados === 0 ? (
-                <div className="empty-archivados">
-                  <Archive size={48} />
-                  <p className="empty-text">No hay usuarios archivados</p>
-                  <p className="empty-sub">
-                    Los usuarios que archives aparecerán aquí.
-                  </p>
-                </div>
+                <EmptyState
+                  size="sm"
+                  icon={Archive}
+                  title="No hay usuarios archivados"
+                  description="Los usuarios que archives aparecerán aquí."
+                />
               ) : usuariosArchivados.length === 0 ? (
-                <div className="usuarios-no-results" style={{ padding: "40px 20px" }}>
-                  <p>No se encontraron archivados para "{searchArchivedTerm}"</p>
-                </div>
+                <EmptyState
+                  size="sm"
+                  icon={Search}
+                  tone="filtered"
+                  title={`No se encontraron archivados para "${searchArchivedTerm}"`}
+                  action={{ label: "Limpiar búsqueda", onClick: () => setSearchArchivedTerm(""), variant: "secondary" }}
+                />
               ) : (
                 usuariosArchivados.map((u) => (
                   <article key={u.id} className="usuario-archivado-card">
@@ -1269,17 +1280,20 @@ const GestionUsuarios = () => {
 
             <div className="modal-solicitudes-body">
               {totalSolicitudesPendientes === 0 ? (
-                <div className="empty-solicitudes">
-                  <Inbox size={48} />
-                  <p className="empty-text">No hay solicitudes pendientes</p>
-                  <p className="empty-sub">
-                    Los registros de nuevas empresas aparecerán aquí.
-                  </p>
-                </div>
+                <EmptyState
+                  size="sm"
+                  icon={Inbox}
+                  title="No hay solicitudes pendientes"
+                  description="Los registros de nuevas empresas aparecerán aquí."
+                />
               ) : solicitudesFiltradas.length === 0 ? (
-                <div className="usuarios-no-results" style={{ padding: "40px 20px" }}>
-                  <p>No se encontraron solicitudes para "{searchSolicitudesTerm}"</p>
-                </div>
+                <EmptyState
+                  size="sm"
+                  icon={Search}
+                  tone="filtered"
+                  title={`No se encontraron solicitudes para "${searchSolicitudesTerm}"`}
+                  action={{ label: "Limpiar búsqueda", onClick: () => setSearchSolicitudesTerm(""), variant: "secondary" }}
+                />
               ) : (
                 solicitudesFiltradas.map((s) => (
                   <article key={s.id} className={`solicitud-registro-card solicitud-card-id-${s.id}`}>

@@ -4,6 +4,7 @@ import { ArrowLeft, CheckCircle2, Clock3, MessageSquareWarning, RotateCcw, Searc
 
 import "../vistasAdmin/admin_panel_de_control.css";
 import ToastUndo from "../componentesShared/ToastUndo";
+import EmptyState from "../componentesCompartidos/EmptyState";
 import HeaderSuperadmin from "../componentesSuperadmin/header_superadmin";
 import FooterSuperadmin from "../componentesSuperadmin/footer_superadmin";
 import {
@@ -415,7 +416,13 @@ export default function SuperadminConflictos() {
           cargandoPapelera ? (
             <ConflictsTableSkeleton rows={3} />
           ) : papeleraVisible.length === 0 ? (
-            <div className="conflicts-section__feedback">No hay conflictos en la papelera.</div>
+            <EmptyState
+              size="sm"
+              icon={Trash2}
+              title="No hay conflictos en la papelera."
+              description="Los conflictos que elimines van a aparecer acá para que puedas restaurarlos."
+              action={{ label: "Volver a conflictos", onClick: () => setMostrarPapelera(false), variant: "secondary" }}
+            />
           ) : (
             <div className={`conflicts-table-shell ${compactMode ? "conflicts-table-shell--compact" : ""}`}>
               <table className="conflicts-table">
@@ -474,7 +481,22 @@ export default function SuperadminConflictos() {
             </div>
           )
         ) : conflictosVisibles.length === 0 ? (
-          <div className="conflicts-section__feedback">No hay conflictos enviados a superadmin.</div>
+          busquedaConflictos ? (
+            <EmptyState
+              size="sm"
+              icon={Search}
+              tone="filtered"
+              title="No se encontraron conflictos con esa búsqueda."
+              action={{ label: "Limpiar búsqueda", onClick: () => setBusquedaConflictos(""), variant: "secondary" }}
+            />
+          ) : (
+            <EmptyState
+              size="sm"
+              icon={CheckCircle2}
+              title="No hay conflictos enviados a superadmin."
+              description="Cuando un admin escale un conflicto, va a aparecer acá."
+            />
+          )
         ) : (
           <div className={`conflicts-table-shell ${compactMode ? "conflicts-table-shell--compact" : ""}`}>
             <table className="conflicts-table">

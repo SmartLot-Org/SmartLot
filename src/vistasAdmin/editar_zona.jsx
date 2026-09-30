@@ -26,6 +26,7 @@ import Swal from "sweetalert2";
 import { Z_INDEX } from "../helpers/zIndex";
 import { DIAS_SEMANA } from "../helpers/diasSemana";
 import ToastUndo from "../componentesShared/ToastUndo";
+import EmptyState from "../componentesCompartidos/EmptyState";
 import BotonGenerico from "../componentesAdmin/boton_generico";
 import SelectorDiasOperativos from "../componentesAdmin/selector_dias_operativos";
 import { GaragesUpdate } from "../servicies/API_Garage";
@@ -753,10 +754,12 @@ function EditarZona() {
                   })}
                 </div>
               ) : (
-                <div className="gz-no-results" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-                  <ShieldAlert size={32} style={{ color: '#94a3b8' }} />
-                  <p>No hay ningún garajista asignado operando en este garage actualmente.</p>
-                </div>
+                <EmptyState
+                  icon={ShieldAlert}
+                  title="No hay ningún garajista asignado operando en este garage actualmente."
+                  description="Asigná un garajista para que pueda gestionar el ingreso y la salida de vehículos."
+                  action={{ label: "Gestionar personal", to: "/gestion_de_empleados", icon: PersonStanding }}
+                />
               )}
             </div>
           </section>

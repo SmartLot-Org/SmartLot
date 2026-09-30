@@ -5,6 +5,7 @@ import { ArrowLeft, Clock3, Database, RefreshCw, Trash2 } from "lucide-react";
 import "./superadmin_cache.css";
 import HeaderSuperadmin from "../componentesSuperadmin/header_superadmin";
 import FooterSuperadmin from "../componentesSuperadmin/footer_superadmin";
+import EmptyState from "../componentesCompartidos/EmptyState";
 import { clearCache, getCacheEntries, getCacheStats } from "../cache/cacheStore";
 import { UsuariosGetAll } from "../servicies/API_Usuario";
 import { EmpresasGetAll } from "../servicies/API_Empresa";
@@ -147,11 +148,12 @@ export default function SuperadminCache() {
               ))}
             </div>
           ) : (
-            <div className="cache-empty">
-              <Database size={28} />
-              <h3>La caché está vacía</h3>
-              <p>Usá “Actualizar caché” para descargar nuevamente los datos del sistema.</p>
-            </div>
+            <EmptyState
+              icon={Database}
+              title="La caché está vacía"
+              description="Actualizá la caché para descargar nuevamente los datos del sistema."
+              action={{ label: "Actualizar caché", icon: RefreshCw, onClick: actualizarCache, disabled: actualizando }}
+            />
           )}
         </section>
       </main>

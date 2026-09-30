@@ -8,6 +8,7 @@ import { formatARS } from "../helpers/prices";
 import { normalizeList } from "../helpers/tratos";
 import { notifySolicitudesChanged } from "../hooks/useSolicitudesPendientesCount";
 import { SkeletonTratos } from "../componentesDueñoGarage/skeleton_admin_garage";
+import EmptyState from "./EmptyState";
 
 const nombreEmpresa = (item) => item.empresa_nombre || `Empresa #${item.id_empresa}`;
 const nombreGarage = (item) => item.garage_nombre || `Garage #${item.id_garage}`;
@@ -131,7 +132,7 @@ export default function GestionTratosGarage() {
 
     <section className="deal-panel" aria-labelledby="solicitudes-title">
       <header className="deal-section-title"><div><span className="deal-section-icon"><Inbox size={19}/></span><div><h3 id="solicitudes-title">Solicitudes de empresas</h3><p>Propuestas que esperan una decisión de tu garage.</p></div></div><span>{pendientes.length} pendientes</span></header>
-      {!pendientes.length ? <div className="deal-empty"><Inbox size={28}/><strong>No hay solicitudes pendientes</strong><p>Cuando una empresa solicite cocheras en uno de tus garages, aparecerá acá.</p></div> : <div className="deal-request-grid">{pendientes.map((solicitud) => <article className="deal-request-card" key={solicitud.id}>
+      {!pendientes.length ? <EmptyState size="sm" icon={Inbox} title="No hay solicitudes pendientes" description="Cuando una empresa solicite cocheras en uno de tus garages, aparecerá acá." /> : <div className="deal-request-grid">{pendientes.map((solicitud) => <article className="deal-request-card" key={solicitud.id}>
         <header className="deal-request-card__top"><span><Building2 size={16}/>{nombreEmpresa(solicitud)}</span><small>Pendiente</small></header>
         <div className="deal-request-garage"><ParkingCircle size={18}/><div><span>Garage solicitado</span><strong>{nombreGarage(solicitud)}</strong><small>{nombreSede(solicitud)}{solicitud.sede_ubicacion ? ` · ${solicitud.sede_ubicacion}` : ""}</small></div></div>
         <div className="deal-request-amount"><strong>{solicitud.cantidad_cocheras}</strong><span>cocheras solicitadas · {solicitud.modalidad_pago === 'empleado_paga_todo' ? 'paga el empleado' : 'cubre la empresa'}</span></div>
@@ -141,7 +142,7 @@ export default function GestionTratosGarage() {
 
       <div className="deal-subsection-divider" />
       <header className="deal-section-title deal-section-title--sub"><div><span className="deal-section-icon"><RefreshCw size={19}/></span><div><h3>Solicitudes de cambio de cocheras</h3><p>Cambios en la cantidad de cocheras que las empresas solicitan en tus garages.</p></div></div><span>{pendientesModificacion.length} pendientes</span></header>
-      {!pendientesModificacion.length ? <div className="deal-empty"><RefreshCw size={28}/><strong>No hay solicitudes de cambio pendientes</strong><p>Cuando una empresa solicite modificar la cantidad de cocheras de un trato, aparecerá acá.</p></div> : <div className="deal-request-grid">{pendientesModificacion.map((solicitud) => <article className="deal-request-card deal-request-card--modificacion" key={solicitud.id}>
+      {!pendientesModificacion.length ? <EmptyState size="sm" icon={RefreshCw} title="No hay solicitudes de cambio pendientes" description="Cuando una empresa solicite modificar la cantidad de cocheras de un trato, aparecerá acá." /> : <div className="deal-request-grid">{pendientesModificacion.map((solicitud) => <article className="deal-request-card deal-request-card--modificacion" key={solicitud.id}>
         <header className="deal-request-card__top"><span><Building2 size={16}/>{nombreEmpresa(solicitud)}</span><small className="deal-badge--modificacion">Modificación</small></header>
         <div className="deal-request-garage"><ParkingCircle size={18}/><div><span>Garage</span><strong>{nombreGarage(solicitud)}</strong><small>{nombreSede(solicitud)}{solicitud.sede_ubicacion ? ` · ${solicitud.sede_ubicacion}` : ""}</small></div></div>
         <div className="deal-request-amount"><div className="deal-modificacion-cambio"><strong>{solicitud.cantidad_actual_trato || "?"}</strong><span>→</span><strong>{solicitud.cantidad_cocheras}</strong></div><span>cocheras propuestas</span></div>
@@ -152,7 +153,7 @@ export default function GestionTratosGarage() {
 
     <section className="deal-panel" aria-labelledby="vigentes-title">
       <header className="deal-section-title"><div><span className="deal-section-icon"><Handshake size={19}/></span><div><h3 id="vigentes-title">Tratos vigentes</h3><p>Empresas con acuerdos activos en tus garages.</p></div></div><span>{tratos.length} activos</span></header>
-      {!tratos.length ? <div className="deal-empty"><Handshake size={28}/><strong>Todavía no hay tratos vigentes</strong><p>Los acuerdos aceptados de tus garages aparecerán en esta sección.</p></div> : <>
+      {!tratos.length ? <EmptyState size="sm" icon={Handshake} title="Todavía no hay tratos vigentes" description="Los acuerdos aceptados de tus garages aparecerán en esta sección." secondaryAction={{ label: "Ver mis garages", to: "/duenio-garage/dashboard", variant: "secondary" }} /> : <>
         <div className="tratos-table-wrap"><table><thead><tr><th>Empresa asociada</th><th>Sede</th><th>Tu garage</th><th>Inicio</th><th>Cocheras</th><th>Modalidad</th><th>Tarifa auto</th><th>Tarifa pickup</th></tr></thead><tbody>{tratos.map((trato) => <tr key={trato.id}><td><strong>{nombreEmpresa(trato)}</strong><small>Empresa asociada</small></td><td>{nombreSede(trato)}</td><td><strong>{nombreGarage(trato)}</strong></td><td>{formatearFecha(trato.created_at)}</td><td><span className="deal-spaces-badge">{trato.cantidad_cocheras}</span></td><td>{trato.modalidad_pago === 'empleado_paga_todo' ? 'Paga el empleado' : 'Cubre la empresa'}</td><td>{formatARS(trato.precio_auto)}</td><td>{formatARS(trato.precio_pickup)}</td></tr>)}</tbody></table></div>
         <div className="deal-active-cards">{tratos.map((trato) => <article key={trato.id}><header><div><span>Empresa asociada</span><strong>{nombreEmpresa(trato)}</strong></div><span className="deal-spaces-badge">{trato.cantidad_cocheras} cocheras</span></header><div className="deal-active-garage"><ParkingCircle size={17}/><span>{nombreGarage(trato)}</span></div><dl><div><dt>Sede</dt><dd>{nombreSede(trato)}</dd></div><div><dt>Inicio</dt><dd>{formatearFecha(trato.created_at)}</dd></div><div><dt><CarFront size={14}/> Auto</dt><dd>{formatARS(trato.precio_auto)}</dd></div><div><dt><Truck size={14}/> Pickup</dt><dd>{formatARS(trato.precio_pickup)}</dd></div></dl></article>)}</div>
       </>}

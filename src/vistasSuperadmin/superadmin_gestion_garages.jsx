@@ -9,6 +9,7 @@ import "./superadmin_gestion_garages.css";
 import HeaderSuperadmin from "../componentesSuperadmin/header_superadmin";
 import FooterSuperadmin from "../componentesSuperadmin/footer_superadmin";
 import TarjetaGarage from "../componentesAdmin/tarjeta_garages";
+import EmptyState from "../componentesCompartidos/EmptyState";
 import { GaragesGetAll } from "../servicies/API_Garage";
 import { EmpresasGetAll } from "../servicies/API_Empresa";
 import { TratosGetAll } from "../servicies/API_TratoEmpresaGarage";
@@ -307,7 +308,22 @@ function SuperadminGestionGarages() {
               </div>
 
               {garagesFiltrados.length === 0 && (
-                <p className="garages-feedback">No hay garages para la empresa seleccionada.</p>
+                empresaFilter ? (
+                  <EmptyState
+                    icon={MapPinned}
+                    tone="filtered"
+                    title="No hay garages para la empresa seleccionada."
+                    description="Probá con otra empresa o volvé a ver el listado completo."
+                    action={{ label: "Ver todos", variant: "secondary", onClick: () => setEmpresaFilter("") }}
+                  />
+                ) : (
+                  <EmptyState
+                    icon={MapPinned}
+                    title="No hay garages registrados."
+                    description="Creá el primer garage para que las empresas puedan contratar cocheras."
+                    action={{ label: "Crear garage", icon: CirclePlus, onClick: () => navigate("/agregar_zona") }}
+                  />
+                )
               )}
 
               {garagesFiltrados.length > 0 && (

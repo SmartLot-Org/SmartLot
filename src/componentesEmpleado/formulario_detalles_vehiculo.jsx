@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Car, Plus, Trash2 } from "lucide-react";
 import Swal from "sweetalert2";
 import { VehiculosDelete } from "../servicies/API_Vehiculo";
+import EmptyState from "../componentesCompartidos/EmptyState";
 import BotonGenerico from "../componentesAdmin/boton_generico";
 import "./formulario_vehiculo.css";
 
@@ -132,18 +133,13 @@ export default function FormularioDetallesVehiculo({ vehiculos = [], onVehiculoE
       )}
 
       {vehiculos.length === 0 && (
-        <div
-          className="vehiculo-empty-state"
-          style={{
-            textAlign: "center",
-            padding: "1.5rem 0",
-            color: "#64748b",
-            fontWeight: 500,
-            fontSize: "0.9rem",
-          }}
-        >
-          Sin vehículos registrados
-        </div>
+        <EmptyState
+          size="sm"
+          icon={Car}
+          title="Sin vehículos registrados"
+          description="Agregá un vehículo para poder hacer reservas más rápido."
+          action={{ label: "Agregar vehículo", to: "/agregar_vehiculo", icon: Plus }}
+        />
       )}
 
       <div className="access-status-badge">

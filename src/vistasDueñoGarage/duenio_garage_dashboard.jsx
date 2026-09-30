@@ -9,6 +9,7 @@ import { SkeletonGarages, SkeletonValorMetrica } from "../componentesDueñoGarag
 import { GaragesGetAll, GaragesGetPapelera, GaragesMoveToPapelera, GaragesRestore } from "../servicies/API_Garage";
 import { TratosGetAll } from "../servicies/API_TratoEmpresaGarage";
 import { Z_INDEX } from "../helpers/zIndex";
+import EmptyState from "../componentesCompartidos/EmptyState";
 import "./duenio_garage.css";
 
 const obtenerListado = (datos) => {
@@ -271,14 +272,12 @@ function DuenioGarageDashboard() {
         {loading && <SkeletonGarages />}
 
         {!loading && !error && tab === "activos" && garages.length === 0 && (
-          <section className="duenio-empty-state">
-            <h3>Todavia no tenes garages asociados.</h3>
-            <p>Creá tu primer garage para que las empresas puedan solicitar acceso operativo.</p>
-            <button onClick={() => navigate("/duenio-garage/crear-garage")}>
-              <CirclePlus size={18} />
-              Crear primer garage
-            </button>
-          </section>
+          <EmptyState
+            icon={Warehouse}
+            title="Todavia no tenes garages asociados."
+            description="Creá tu primer garage para que las empresas puedan solicitar acceso operativo."
+            action={{ label: "Crear primer garage", to: "/duenio-garage/crear-garage", icon: CirclePlus }}
+          />
         )}
 
         {!loading && !error && tab === "activos" && garages.length > 0 && (
@@ -296,10 +295,12 @@ function DuenioGarageDashboard() {
         )}
 
         {!loading && !error && tab === "borrador" && garagesPapelera.length === 0 && (
-          <section className="duenio-empty-state">
-            <h3>No hay garages en borrador.</h3>
-            <p>Los garages que muevas a borrador aparecerán acá para que puedas restaurarlos cuando quieras.</p>
-          </section>
+          <EmptyState
+            icon={Trash2}
+            title="No hay garages en borrador."
+            description="Los garages que muevas a borrador aparecerán acá para que puedas restaurarlos cuando quieras."
+            action={{ label: "Ver garages activos", onClick: () => setTab("activos"), variant: "secondary" }}
+          />
         )}
 
         {!loading && !error && tab === "borrador" && garagesPapelera.length > 0 && (

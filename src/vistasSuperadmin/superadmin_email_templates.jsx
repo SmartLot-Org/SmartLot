@@ -15,6 +15,7 @@ import {
 
 import "./superadmin_email_templates.css";
 import HeaderSuperadmin from "../componentesSuperadmin/header_superadmin";
+import EmptyState from "../componentesCompartidos/EmptyState";
 import FooterSuperadmin from "../componentesSuperadmin/footer_superadmin";
 import { useAuth } from "../contexts/useAuth";
 import {
@@ -369,11 +370,11 @@ export default function SuperadminEmailTemplates() {
         {cargando ? (
           <div className="tpl-loading"><Loader2 size={26} className="tpl-spin" /> Cargando plantillas…</div>
         ) : plantillas.length === 0 ? (
-          <div className="tpl-empty">
-            <Mail size={30} />
-            <h3>No hay plantillas disponibles</h3>
-            <p>El sistema todavía no tiene plantillas de email configuradas.</p>
-          </div>
+          <EmptyState
+            icon={Mail}
+            title="No hay plantillas disponibles"
+            description="El sistema todavía no tiene plantillas de email configuradas."
+          />
         ) : seccion === "global" ? (
           <div className="tpl-grid">
             <section className="tpl-editor" aria-labelledby="tpl-global-title">
@@ -509,7 +510,13 @@ export default function SuperadminEmailTemplates() {
                       </button>
                     </div>
                     {variables.length === 0 ? (
-                      <p className="tpl-var-empty">Sin variables declaradas. Agregá una para darle datos de ejemplo al preview.</p>
+                      <EmptyState
+                        size="sm"
+                        icon={Braces}
+                        title="Sin variables declaradas"
+                        description="Agregá una variable para darle datos de ejemplo al preview."
+                        action={{ label: "Agregar variable", icon: Plus, onClick: agregarVariable }}
+                      />
                     ) : (
                       <div className="tpl-var-list" id="tpl-vars">
                         {variables.map((v, i) => (

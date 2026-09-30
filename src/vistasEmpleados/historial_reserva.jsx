@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { CalendarPlus } from "lucide-react";
 import TarjetaReserva from "../componentesEmpleado/tarjeta_reserva";
 import ModalDetalleReserva from "../componentesEmpleado/modal_detalle_reserva";
 import HeaderEmpleado from "../componentesEmpleado/header_empleado";
 import FooterEmpleado from "../componentesEmpleado/footer_empleado";
 import { useAuth } from "../contexts/useAuth";
 import { ReservasGetByUsuario } from "../servicies/API_Reserva";
+import EmptyState from "../componentesCompartidos/EmptyState";
 import "./historial_reserva.css";
 
 const obtenerCampo = (item, claves, fallback = "") => {
@@ -320,9 +322,12 @@ function HistorialReserva() {
               </div>
 
               {sinReservas ? (
-                <div className="historial-empty-note">
-                  No tenes reservas en tu historial.
-                </div>
+                <EmptyState
+                  icon={CalendarPlus}
+                  title="No tenes reservas en tu historial."
+                  description="Cuando hagas tu primera reserva, vas a poder verla acá."
+                  action={{ label: "Hacer una reserva", to: "/nueva_reserva", icon: CalendarPlus }}
+                />
               ) : ultimaReserva ? (
                 <TarjetaReserva reserva={ultimaReserva} variant="historyPast" onClick={handleReservaClick} onCopy={handleCopyReserva} />
               ) : null}

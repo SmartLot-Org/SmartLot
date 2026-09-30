@@ -8,6 +8,7 @@ import "./gestion_sedes.css";
 import Header from "../componentesAdmin/header_admin";
 import FooterAdmin from "../componentesAdmin/footer_admin";
 import BotonGenerico from "../componentesAdmin/boton_generico";
+import EmptyState from "../componentesCompartidos/EmptyState";
 import { SedesGetAll } from "../servicies/API_Sede";
 import { useAuth } from "../contexts/useAuth";
 
@@ -121,9 +122,12 @@ function GestionSedesAdmin() {
         ) : error ? (
           <p className="sedes-admin-feedback-error">{error}</p>
         ) : sedes.length === 0 ? (
-          <p className="sedes-admin-feedback">
-            Tu empresa todavía no tiene sedes registradas. Creá la primera con el botón "Nueva sede".
-          </p>
+          <EmptyState
+            icon={MapPin}
+            title="Tu empresa todavía no tiene sedes registradas."
+            description="Creá la primera sede para poder asignar garages y personal."
+            action={{ label: "Crear primera sede", to: "/agregar_sede", icon: CirclePlus }}
+          />
         ) : (
           <div className="sedes-admin-grid">
             {sedes.map((sede) => (

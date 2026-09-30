@@ -11,12 +11,14 @@ import {
   QrCode,
   Search,
   ShieldCheck,
+  Warehouse,
   X,
 } from "lucide-react";
 import { GaragesGetAll, GaragesGetById } from "../servicies/API_Garage";
 import { ReservasCheckIn, ReservasCheckOut, ReservasGetControlAcceso } from "../servicies/API_Reserva";
 import { UsuariosGetById } from "../servicies/API_Usuario";
 import ModalPortal from "../componentesCompartidos/ModalPortal";
+import EmptyState from "../componentesCompartidos/EmptyState";
 import LectorQrReserva from "./LectorQrReserva";
 import HeaderAdmin from "../componentesAdmin/header_admin";
 import FooterAdmin from "../componentesAdmin/footer_admin";
@@ -357,10 +359,6 @@ function BadgeEstado({ estado }) {
       {estado}
     </span>
   );
-}
-
-function EmptyState({ mensaje }) {
-  return <div className="garagista-empty">{mensaje}</div>;
 }
 
 function SkeletonLine({ className = "" }) {
@@ -904,7 +902,18 @@ export default function GaragistaDashboard() {
           {cargandoVista ? (
             <GaragistaDashboardSkeleton />
           ) : errorVista ? (
-            <div className="garagista-empty">{errorVista}</div>
+            errorCarga ? (
+              <div className="garagista-empty" role="alert">{errorVista}</div>
+            ) : (
+              <EmptyState
+                icon={Warehouse}
+                title={errorVista}
+                description={esAdmin
+                  ? "Creá un garage o asigná uno a tu cuenta para ver el control de acceso."
+                  : "Contactá al superadmin para que te asigne un garage."}
+                action={esAdmin ? { label: "Gestionar garages", to: "/gestion_garages" } : undefined}
+              />
+            )
           ) : (
           <>
           <div className="garagista-mobile-tabs" role="group" aria-label="Estado de las reservas">
@@ -983,7 +992,12 @@ export default function GaragistaDashboard() {
                     </article>
                   ))
                 ) : (
-                  <EmptyState mensaje="No hay reservas próximas para mostrar." />
+                  <EmptyState
+                    icon={QrCode}
+                    title="No hay reservas próximas para mostrar."
+                    description="Cuando haya reservas confirmadas, vas a poder registrar el ingreso desde acá."
+                    action={!esAdmin ? { label: "Escanear QR", icon: QrCode, onClick: () => setLectorQrAbierto("ingreso") } : undefined}
+                  />
                 )}
               </div>
             </section>
@@ -1054,7 +1068,12 @@ export default function GaragistaDashboard() {
                     </article>
                   ))
                 ) : (
-                  <EmptyState mensaje="No hay autos dentro con este filtro." />
+                  <EmptyState
+                    icon={CarFront}
+                    title={terminoBusqueda ? "No hay autos dentro con este filtro." : "No hay autos dentro ahora."}
+                    description={terminoBusqueda ? "Probá con otro término o quitá el filtro aplicado." : "Los vehículos que ingresen van a aparecer acá."}
+                    action={terminoBusqueda ? { label: "Limpiar filtro", variant: "secondary", onClick: () => setBusqueda("") } : undefined}
+                  />
                 )}
               </div>
             </section>
@@ -1087,7 +1106,11 @@ export default function GaragistaDashboard() {
                   </article>
                 ))
               ) : (
-                <EmptyState mensaje="Todavía no hay movimientos finalizados." />
+                <EmptyState
+                  icon={Clock3}
+                  title="Todavía no hay movimientos finalizados."
+                  description="Los ingresos y salidas registrados van a aparecer en esta lista."
+                />
               )}
             </div>
           </section>

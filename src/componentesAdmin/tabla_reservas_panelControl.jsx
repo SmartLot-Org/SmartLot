@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useAuth } from '../contexts/useAuth';
 import { Search, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, ClipboardList } from 'lucide-react';
 import { ReservasGetAll } from '../servicies/API_Reserva';
+import EmptyState from '../componentesCompartidos/EmptyState';
 import { UsuariosGetAll } from '../servicies/API_Usuario';
 import { GaragesGetAll } from '../servicies/API_Garage';
 import "./tabla_reservas_panelControl.css";
@@ -396,13 +397,28 @@ export default function TablaReservasPanleControl() {
               ) : reservasNormalizadas.length === 0 ? (
                 <tr>
                   <td colSpan="3" className="reservations-table__empty">
-                    No hay reservas disponibles
+                    <EmptyState
+                      size="sm"
+                      icon={ClipboardList}
+                      title="No hay reservas disponibles"
+                      description="Cuando los empleados hagan reservas, van a aparecer en este panel."
+                    />
                   </td>
                 </tr>
               ) : paginatedData.length === 0 ? (
                 <tr>
                   <td colSpan="3" className="reservations-table__empty">
-                    No se encontraron reservas para &quot;{searchTerm}&quot;
+                    <EmptyState
+                      size="sm"
+                      icon={Search}
+                      tone="filtered"
+                      title={`No se encontraron reservas para "${searchTerm}"`}
+                      action={{
+                        label: "Limpiar búsqueda",
+                        variant: "secondary",
+                        onClick: () => { setSearchTerm(""); setActiveChip("Todas"); },
+                      }}
+                    />
                   </td>
                 </tr>
               ) : (

@@ -102,12 +102,17 @@ function TarjetaVisual({ tarjeta, activa }) {
   );
 }
 
-function EmptyTab({ icono, titulo, detalle }) {
+function EmptyTab({ icono, titulo, detalle, accion }) {
   return (
     <div className="mpt-empty">
       {icono}
       <strong>{titulo}</strong>
       <p>{detalle}</p>
+      {accion ? (
+        <button type="button" className="mpt-btn mpt-btn--primary" onClick={accion.onClick}>
+          {accion.label}
+        </button>
+      ) : null}
     </div>
   );
 }
@@ -828,7 +833,7 @@ function ConsultarPagosTab() {
             </div>
           </>
         ) : (
-          <EmptyTab icono={<Search size={28} />} titulo="Sin resultados" detalle={buscado ? "No se encontraron pagos con esos filtros." : "Busca un pago por ID, referencia o estado."} />
+          <EmptyTab icono={<Search size={28} />} titulo="Sin resultados" detalle={buscado ? "No se encontraron pagos con esos filtros." : "Busca un pago por ID, referencia o estado."} accion={buscado ? { label: "Limpiar filtros", onClick: limpiar } : undefined} />
         )}
       </section>
 

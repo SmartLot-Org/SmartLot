@@ -16,6 +16,7 @@ import "./admin_panel_de_control.css";
 import Header from '../componentesAdmin/header_admin';
 import FooterEmpleado from '../componentesAdmin/footer_admin';
 import BotonReportes from "../componentesAdmin/boton_reportes";
+import EmptyState from "../componentesCompartidos/EmptyState";
 import TablaReservasPanleControl from "../componentesAdmin/tabla_reservas_panelControl";
 import {
   ConflictosCreate,
@@ -638,7 +639,13 @@ export default function AdminPanelControl() {
           cargandoPapelera ? (
             <ConflictsTableSkeleton rows={3} />
           ) : papeleraVisible.length === 0 ? (
-            <div className="conflicts-section__feedback">No hay conflictos en tu papelera.</div>
+            <EmptyState
+              size="sm"
+              icon={Trash2}
+              title="No hay conflictos en tu papelera."
+              description="Los conflictos que elimines van a aparecer acá para que puedas restaurarlos."
+              action={{ label: "Volver a conflictos", onClick: () => setMostrarPapelera(false), variant: "secondary" }}
+            />
           ) : (
             <div className={`conflicts-table-shell ${compactMode ? "conflicts-table-shell--compact" : ""}`}>
               <table className="conflicts-table">
@@ -697,7 +704,23 @@ export default function AdminPanelControl() {
             </div>
           )
         ) : conflictosVisibles.length === 0 ? (
-          <div className="conflicts-section__feedback">No hay conflictos reportados.</div>
+          busquedaConflictos ? (
+            <EmptyState
+              size="sm"
+              icon={Search}
+              tone="filtered"
+              title="No se encontraron conflictos con esa búsqueda."
+              action={{ label: "Limpiar búsqueda", onClick: () => setBusquedaConflictos(""), variant: "secondary" }}
+            />
+          ) : (
+            <EmptyState
+              size="sm"
+              icon={CheckCircle2}
+              tone="success"
+              title="No hay conflictos reportados."
+              description="Cuando un empleado reporte un conflicto, va a aparecer acá."
+            />
+          )
         ) : (
           <div className={`conflicts-table-shell ${compactMode ? "conflicts-table-shell--compact" : ""}`}>
             <table className="conflicts-table">
