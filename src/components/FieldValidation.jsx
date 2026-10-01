@@ -1,7 +1,7 @@
 import './FieldValidation.css';
 
 export default function FieldValidation({ conditions = [], isTouched }) {
-  if (!isTouched) return null;
+  if (!isTouched || conditions.every((condition) => condition.met)) return null;
 
   const hasAnyMet = conditions.some((c) => c.met);
 

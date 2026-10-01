@@ -6,14 +6,16 @@ import HeaderDueñoGarage from '../componentesDueñoGarage/header_dueño_garage'
 import FooterDueñoGarage from '../componentesDueñoGarage/footer_dueño_garage';
 import FormularioPreciosGarage from '../componentesCompartidos/FormularioPreciosGarage';
 import { SkeletonFormularioGarage } from '../componentesDueñoGarage/skeleton_admin_garage';
-import SelectorDiasOperativos from '../componentesAdmin/selector_dias_operativos';
+import FormularioZona from '../componentesAdmin/formulario_zona';
+import FormularioCapacidad from '../componentesAdmin/formulario_capacidad';
+import '../vistasAdmin/agregar_zona.css';
 import { GaragesGetById, GaragesUpdate } from '../servicies/API_Garage';
 import { buildGaragePricesPayload } from '../helpers/prices';
 import { normalizeDays } from '../helpers/tratos';
 import { Z_INDEX } from '../helpers/zIndex';
 import './duenio_garage.css';
 
-const CAMPOS_DIRTY = ['nombre', 'ubicacion', 'hora_apertura', 'hora_cierre', 'estado', 'capacidad', 'precio_pickup', 'precio_auto', 'precio_moto', 'dias'];
+const CAMPOS_DIRTY = ['nombre', 'ubicacion', 'hora_apertura', 'hora_cierre', 'estado', 'piso', 'latitud', 'longitud', 'capacidad_reservas', 'capacidad_para_no_reservas', 'precio_pickup', 'precio_auto', 'precio_moto', 'dias'];
 
 const formHasDirtyChanges = (a, b) => {
   if (!a || !b) return false;
@@ -47,7 +49,11 @@ export default function EditarGarageDueño() {
       } else {
         const nuevoForm = {
           nombre: response.datos.nombre ?? '', ubicacion: response.datos.ubicacion ?? '',
-          hora_apertura: response.datos.hora_apertura ?? '', hora_cierre: response.datos.hora_cierre ?? '',
+          piso: response.datos.piso ?? '',
+          latitud: response.datos.latitud ?? null, longitud: response.datos.longitud ?? null,
+          capacidad_reservas: response.datos.capacidad_reservas ?? Math.max(0, Number(response.datos.capacidad ?? 0) - Number(response.datos.capacidad_para_no_reservas ?? 0)),
+          capacidad_para_no_reservas: response.datos.capacidad_para_no_reservas ?? Math.max(0, Number(response.datos.capacidad ?? 0) - Number(response.datos.capacidad_reservas ?? response.datos.capacidad ?? 0)),
+          hora_apertura: response.datos.hora_apertura?.slice(0, 5) ?? '', hora_cierre: response.datos.hora_cierre?.slice(0, 5) ?? '',
           estado: response.datos.estado ?? true, capacidad: response.datos.capacidad ?? 0,
           precio_pickup: response.datos.precio_pickup ?? '', precio_auto: response.datos.precio_auto ?? '', precio_moto: response.datos.precio_moto ?? '',
           dias: normalizeDays(response.datos.dias),
@@ -60,7 +66,11 @@ export default function EditarGarageDueño() {
     return () => { active = false; };
   }, [id]);
 
-  const change = (name, value) => setForm((current) => ({ ...current, [name]: value }));
+  const change = (name, value) => setForm((current) => {
+    if (typeof name === 'object' && name !== null) return { ...current, ...name };
+    return { ...current, [name]: value, ...(name === 'ubicacion' ? { latitud: null, longitud: null } : {}) };
+  });
+  const changeCoordenadas = ({ lat, lng }) => setForm((current) => ({ ...current, latitud: lat, longitud: lng }));
 
   const isDirty = useMemo(() => formHasDirtyChanges(form, initialForm), [form, initialForm]);
 
@@ -110,15 +120,23 @@ export default function EditarGarageDueño() {
   const save = async () => {
     setError('');
     try {
-      const capacidad = Number(form.capacidad);
+      if (form.nombre.trim().length < 3) throw new Error('El nombre debe tener al menos 3 caracteres.');
+      if (form.piso === '' || !Number.isInteger(Number(form.piso))) throw new Error('El nivel / planta debe ser un número entero.');
+      if (form.ubicacion.trim().length < 5 || form.latitud === null || form.longitud === null) throw new Error('Seleccioná una ubicación válida de las sugerencias.');
+      const horarioValido = /^([01]\d|2[0-3]):[0-5]\d$/;
+      if (!horarioValido.test(form.hora_apertura) || !horarioValido.test(form.hora_cierre) || form.hora_apertura >= form.hora_cierre) throw new Error('Ingresá horarios válidos: la apertura debe ser anterior al cierre.');
+      const capacidad_reservas = Number(form.capacidad_reservas);
+      const capacidad_para_no_reservas = Number(form.capacidad_para_no_reservas);
+      if (![capacidad_reservas, capacidad_para_no_reservas].every((value) => Number.isInteger(value) && value >= 0)) throw new Error('Las capacidades deben ser enteros mayores o iguales a 0.');
+      const capacidad = capacidad_reservas + capacidad_para_no_reservas;
       if (!Number.isInteger(capacidad) || capacidad < 0) throw new Error('La capacidad debe ser un entero mayor o igual a 0.');
       if (!form.dias.length) throw new Error('Seleccioná al menos un día de disponibilidad.');
-      const payload = { nombre: form.nombre.trim(), ubicacion: form.ubicacion.trim(), hora_apertura: form.hora_apertura || null,
+      const payload = { piso: String(form.piso).trim(), latitud: Number(form.latitud), longitud: Number(form.longitud), capacidad_reservas, capacidad_para_no_reservas, nombre: form.nombre.trim(), ubicacion: form.ubicacion.trim(), hora_apertura: form.hora_apertura || null,
         hora_cierre: form.hora_cierre || null, estado: Boolean(form.estado), capacidad, dias: form.dias, ...buildGaragePricesPayload(form) };
       setSaving(true);
       const response = await GaragesUpdate(id, payload);
       if (!response.respuesta) throw new Error(response.datos?.message || 'No se pudo actualizar el garage.');
-      const merged = { ...form, ...response.datos, dias: normalizeDays(response.datos?.dias ?? form.dias) };
+      const merged = { ...form, ...payload, ...response.datos, hora_apertura: (response.datos?.hora_apertura ?? form.hora_apertura).slice(0, 5), hora_cierre: (response.datos?.hora_cierre ?? form.hora_cierre).slice(0, 5), dias: normalizeDays(response.datos?.dias ?? form.dias) };
       setForm(merged);
       setInitialForm({ ...merged });
       showSuccessToast();
@@ -129,12 +147,11 @@ export default function EditarGarageDueño() {
     <button type="button" className="duenio-back-button" onClick={volverADashboard} aria-label="Volver al panel del dueño"><ArrowLeft size={20} /></button>
     <section className="duenio-section-head left"><span>Garage propio</span><h1>Editar garage</h1><p>Las ocupaciones se administran desde los flujos operativos y no pueden editarse aquí.</p></section>
     {loading && <SkeletonFormularioGarage />}{error && <p className="duenio-feedback error">{error}</p>}
-    {form && <div className="duenio-form-card"><label>Nombre<input value={form.nombre} onChange={(e) => change('nombre', e.target.value)} /></label>
-      <label>Ubicación<input value={form.ubicacion} onChange={(e) => change('ubicacion', e.target.value)} /></label>
-      <label>Capacidad total<input type="number" min="0" step="1" value={form.capacidad} onChange={(e) => change('capacidad', e.target.value)} /></label>
-      <SelectorDiasOperativos value={form.dias} onChange={(dias) => change('dias', dias)} />
+    {form && <fieldset className="form-garage" disabled={saving} style={{ border: 0, padding: 0, margin: 0, minWidth: 0 }}>
+      <FormularioZona formData={form} onChange={change} hideSede onCoordenadasChange={changeCoordenadas} />
+      <FormularioCapacidad formData={form} onChange={change} />
       <FormularioPreciosGarage values={form} onChange={change} disabled={saving} />
-    </div>}
+    </fieldset>}
     {form && <div className="duenio-form-actions"><button onClick={save} disabled={saving}>{saving ? 'Guardando...' : 'Guardar cambios'}</button><button className="secondary" onClick={volverADashboard} disabled={saving}>Cancelar</button></div>}
   </div></main><FooterDueñoGarage /></div>;
 }
