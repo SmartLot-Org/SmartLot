@@ -62,6 +62,8 @@ Componente compartido: `src/componentesCompartidos/EmptyState.jsx` (+ `EmptyStat
 | `/admin_panel_de_control` | Conflictos | Sin conflictos reportados | — | Informativo (estado sano) |
 | `/admin_panel_de_control` | Conflictos | Búsqueda sin resultados | **Limpiar búsqueda** | Limpia el término |
 
+
+ANOTACIONES MIAS: NO DEBE NUNCA MOSTRARSE A UN ADMIN CON SEDE QUE NI SIQUIERA EL BOTON DE GESTION DE SEDES Y EN TODO SE DEBE LLENAR AUTOMÁTICAMENTE CON LOS DATOS DE SU SEDE
 ---
 
 ## Dueño de garage
