@@ -88,6 +88,7 @@ Componente compartido: `src/componentesCompartidos/EmptyState.jsx` (+ `EmptyStat
 | `/garagista_dashboard` | Sin garages para consultar | Admin sin garages | **Gestionar garages** | `/gestion_garages` |
 | `/garagista_dashboard` | Sin garage asignado | Garagista sin asignación | — | Informativo: contactar al superadmin |
 
+ANOTACIONES MIAS: NO DEBE MANDAR A INGRESAR CON QR SI ESTAN VACIAS LAS RESERVAS PROXIMAS. ESO SE DEBE HACER SI NO HAY AUTOS DENTRO
 ---
 
 ## Superadmin
