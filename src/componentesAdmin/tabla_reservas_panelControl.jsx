@@ -65,22 +65,31 @@ const extraerHoraLocal = (fechaStr) => {
 };
 
 const obtenerFechaHoraReserva = (reserva, clavesFechaCompleta, clavesHora) => {
-  for (const clave of clavesFechaCompleta) {
-    const valor = reserva[clave];
-    if (valor !== undefined && valor !== null && valor !== "") return valor;
-  }
-
-  const fecha = reserva.fecha ?? reserva.fecha_reserva ?? reserva.fechaReserva;
-  if (!fecha) return "";
-
-  for (const clave of clavesHora) {
-    const hora = reserva[clave];
-    if (hora !== undefined && hora !== null && hora !== "") {
-      return `${String(fecha).split(/[T ]/)[0]}T${String(hora)}`;
+  const origenes = [reserva, reserva?.reserva, reserva?.datos, reserva?.data, reserva?._doc, reserva?.dataValues];
+  const obtener = (claves) => {
+    for (const origen of origenes) {
+      for (const clave of claves) {
+        const valor = origen?.[clave];
+        if (valor !== undefined && valor !== null && String(valor).trim() !== "") return String(valor).trim();
+      }
     }
+    return "";
+  };
+  const fecha = obtener(clavesFechaCompleta) || obtener(["fecha", "fecha_reserva", "fechaReserva"]);
+  if (!fecha) return "";
+  const hora = obtener(clavesHora);
+  if (/^\d{4}-\d{2}-\d{2}$/.test(fecha) && hora) {
+    return `${fecha}T${hora}`;
   }
-
   return fecha;
+};
+
+const formatearFechaHoraCompleta = (valor) => {
+  const fecha = extraerFechaStr(valor);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(fecha)) return "Sin fecha";
+  const [anio, mes, dia] = fecha.split("-");
+  const hora = extraerHoraLocal(valor);
+  return `${dia}/${mes}/${anio}${hora === "--:--" ? " · Sin hora" : ` · ${hora}`}`;
 };
 
 const obtenerOrdenFechaHora = (fechaHora) => {
@@ -230,14 +239,12 @@ export default function TablaReservasPanleControl() {
       );
       const fechaSalida = obtenerFechaHoraReserva(
         r,
-        ["fecha_salida", "fechaSalida", "fecha_fin", "fechaFin"],
-        ["hora_salida", "horaSalida", "hora_fin", "horaFin"]
+        ["fecha_salida", "fechaSalida", "fecha_finalizacion", "fechaFinalizacion", "fecha_fin", "fechaFin"],
+        ["hora_salida", "horaSalida", "hora_fin", "horaFin", "hora_finalizacion", "horaFinalizacion"]
       );
 
       const fechaStr = extraerFechaStr(fechaEntrada);
       const fechaDisplay = formatearFecha(fechaStr);
-      const horaInicio = extraerHoraLocal(fechaEntrada);
-      const horaFin = extraerHoraLocal(fechaSalida);
       const fechaOrden = obtenerOrdenFechaHora(fechaEntrada);
 
       const plaza = r.plaza ?? r.nro_plaza ?? r.numero_plaza ?? r.espacio ?? "—";
@@ -253,7 +260,8 @@ export default function TablaReservasPanleControl() {
         id_garage: idGarage,
         garage_nombre: garageNombre,
         fecha: fechaDisplay,
-        hora: `${horaInicio} - ${horaFin}`,
+        entrada: formatearFechaHoraCompleta(fechaEntrada),
+        salida: formatearFechaHoraCompleta(fechaSalida),
         email: userData.email ?? "",
         telefono: userData.telefono ?? "",
         userId: idUsuario,
@@ -467,8 +475,8 @@ export default function TablaReservasPanleControl() {
                     </td>
                     <td data-label="FECHA / HORA">
                       <div className="cell-block">
-                        <span className="cell-block__title">{item.fecha}</span>
-                        <span className="cell-block__subtitle">{item.hora}</span>
+                        <span className="cell-block__title">Entrada: {item.entrada}</span>
+                        <span className="cell-block__subtitle">Salida: {item.salida}</span>
                       </div>
                     </td>
                   </tr>

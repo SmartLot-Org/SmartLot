@@ -1,15 +1,19 @@
 .agregar-empleado-page {
     background-color: #F7F9FB;
+    min-height: 100vh;
 }
 
 .agregar-empleado-page p {
     font-size: 88%;
 }
 .textoAgregarEmpleado{
-    margin-top: 3%;
+    margin: 32px auto 0;
+    padding: 0 20px;
+    max-width: 548px;
+    box-sizing: border-box;
 }
 
-.form-actions {
+.agregar-empleado-page .form-actions {
     display: flex;
     flex-direction: column; /* Apilados verticalmente */
     justify-content: center;
@@ -20,9 +24,9 @@
 }
 
 /* Estilo común para ambos botones para asegurar igualdad */
-.btn-guardar-grande, 
-.btn-cancelar-grande {
-    width: 320px !important; /* ANCHO FIJO PARA QUE SEAN IGUALES */
+.agregar-empleado-page .btn-guardar-grande,
+.agregar-empleado-page .btn-cancelar-grande {
+    width: min(320px, 100%) !important;
     height: 60px !important; /* Altura fija para consistencia */
     border-radius: 20px !important;
     font-size: 18px !important;
@@ -36,32 +40,32 @@
     transition: all 0.3s ease;
 }
 
-.btn-guardar-grande {
+.agregar-empleado-page .btn-guardar-grande {
     background-color: #2563EB !important;
     color: white !important;
     box-shadow: 0 10px 20px -5px rgba(37, 99, 235, 0.4);
 }
 
-.btn-guardar-grande:hover {
+.agregar-empleado-page .btn-guardar-grande:hover {
     background-color: #1d4ed8 !important;
     transform: translateY(-3px) scale(1.02);
     box-shadow: 0 15px 25px -5px rgba(37, 99, 235, 0.5);
 }
 
-.btn-cancelar-grande {
+.agregar-empleado-page .btn-cancelar-grande {
     background-color: #E6E8EA !important;
     color: #005BBF !important;
     /* Mismo box-shadow pero más sutil para el gris */
     box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.05);
 }
 
-.btn-cancelar-grande:hover {
+.agregar-empleado-page .btn-cancelar-grande:hover {
     background-color: #DDE0E3 !important; /* Un gris un poco más oscuro al pasar el mouse */
     transform: translateY(-3px) scale(1.02);
     box-shadow: 0 15px 25px -5px rgba(0, 0, 0, 0.1);
 }
 
-.btn-cancelar-grande:active, 
-.btn-guardar-grande:active {
+.agregar-empleado-page .btn-cancelar-grande:active,
+.agregar-empleado-page .btn-guardar-grande:active {
     transform: translateY(0) scale(0.98);
 }

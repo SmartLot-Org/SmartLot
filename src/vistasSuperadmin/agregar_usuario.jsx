@@ -252,7 +252,7 @@ function AgregarUsuario() {
       <HeaderSuperadmin />
       <main className="agregar-usuario-main">
         <div className="agregar-usuario-top">
-          <button className="boton-back" onClick={() => navigate("/superadmin/gestion_usuarios")}>
+          <button className="boton-back" aria-label="Volver a gestión de usuarios" onClick={() => navigate("/superadmin/gestion_usuarios")}>
             <ArrowLeft size={20} />
           </button>
           <div>
@@ -266,7 +266,7 @@ function AgregarUsuario() {
         ) : (
         <section className="agregar-usuario-form">
           <div className="agregar-usuario-grid">
-            <div className="input-group-superadmin">
+            <div className="agregar-usuario-field">
               <label>Nombre</label>
               <input
                 type="text"
@@ -279,7 +279,7 @@ function AgregarUsuario() {
               <FieldValidation conditions={buildConditions("nombre")} isTouched={touched.nombre} />
             </div>
 
-            <div className="input-group-superadmin">
+            <div className="agregar-usuario-field">
               <label>Apellido</label>
               <input
                 type="text"
@@ -292,7 +292,7 @@ function AgregarUsuario() {
               <FieldValidation conditions={buildConditions("apellido")} isTouched={touched.apellido} />
             </div>
 
-            <div className="input-group-superadmin">
+            <div className="agregar-usuario-field">
               <label>Email</label>
               <input
                 type="email"
@@ -305,7 +305,7 @@ function AgregarUsuario() {
               <FieldValidation conditions={buildConditions("email")} isTouched={touched.email} />
             </div>
 
-            <div className="input-group-superadmin">
+            <div className="agregar-usuario-field">
               <label>Teléfono</label>
               <input
                 type="tel"
@@ -318,20 +318,25 @@ function AgregarUsuario() {
               <FieldValidation conditions={buildConditions("telefono")} isTouched={touched.telefono} />
             </div>
 
-            <div className="input-group-superadmin">
-              <label>Contraseña</label>
+            <div className="agregar-usuario-field">
+              <label htmlFor="agregar-usuario-password">Contraseña</label>
               <input
+                id="agregar-usuario-password"
                 type="password"
-                placeholder="8 caracteres, 2 especiales, 2 números y 2 mayúsculas"
+                placeholder="Ingresar contraseña"
+                aria-describedby="agregar-usuario-password-hint"
                 value={formData.contraseña}
                 onChange={(e) => handleChange("contraseña", e.target.value)}
                 autoComplete="new-password"
                 required
               />
+              <p id="agregar-usuario-password-hint" className="agregar-usuario-field-hint">
+                8 caracteres, 2 especiales, 2 números y 2 mayúsculas.
+              </p>
               <FieldValidation conditions={buildConditions("contraseña")} isTouched={touched.contraseña} />
             </div>
 
-            <div className="input-group-superadmin">
+            <div className="agregar-usuario-field">
               <label>Rol</label>
               <select
                 value={formData.id_rol}
@@ -349,7 +354,7 @@ function AgregarUsuario() {
             </div>
 
             {needsEmpresa && (
-              <div className="input-group-superadmin">
+              <div className="agregar-usuario-field">
                 <label>Empresa</label>
                 <select
                   value={formData.id_empresa}
@@ -368,7 +373,7 @@ function AgregarUsuario() {
             )}
 
             {needsSede && (
-              <div className="input-group-superadmin">
+              <div className="agregar-usuario-field">
                 <label>Sede</label>
                 <select
                   value={formData.id_sede}
@@ -393,7 +398,7 @@ function AgregarUsuario() {
             )}
 
             {needsGarage && (
-              <div className="input-group-superadmin">
+              <div className="agregar-usuario-field">
                 <label>Garage</label>
                 <select
                   value={formData.id_garage}
@@ -416,7 +421,7 @@ function AgregarUsuario() {
 
           <div className="agregar-usuario-actions">
             <BotonGenerico
-              className="btn-guardar-grande"
+              className="agregar-usuario-button"
               onClick={handleGuardar}
               disabled={loading}
             >
@@ -425,8 +430,7 @@ function AgregarUsuario() {
             </BotonGenerico>
 
             <BotonGenerico
-              style={{ backgroundColor: "grey" }}
-              className="btn-cancelar-grande"
+              className="agregar-usuario-button agregar-usuario-button--cancel"
               onClick={() => navigate("/superadmin/gestion_usuarios", { replace: true })}
             >
               <span>Cancelar</span>
