@@ -5,8 +5,9 @@
 }
 
 .agregar-empresa-main {
-  padding: 20px 4%;
-  padding-bottom: 120px;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 28px 24px 64px;
   max-width: 700px;
   margin: 0 auto;
 }
@@ -19,6 +20,7 @@
 }
 
 .agregar-empresa-top .boton-back {
+  flex-shrink: 0;
   width: 40px;
   height: 40px;
   border-radius: 12px;
@@ -29,12 +31,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #0F1A2E;
-  transition: all 0.2s;
+  color: #0f1a2e;
+  transition: background-color 0.2s, color 0.2s;
 }
 
 .agregar-empresa-top .boton-back:hover {
-  background: #1A2744;
+  background: #1a2744;
   color: #ffffff;
 }
 
@@ -42,19 +44,21 @@
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 1px;
-  color: #F59E0B;
+  color: #f59e0b;
   margin: 0 0 2px;
 }
 
 .agregar-empresa-top h1 {
   font-size: 24px;
   font-weight: 700;
-  color: #0F1A2E;
+  color: #0f1a2e;
   margin: 0;
+  line-height: 1.2;
 }
 
 .agregar-empresa-form {
   background: #ffffff;
+  border: 1px solid #e2e8f0;
   border-radius: 16px;
   padding: 28px;
   box-shadow: 0 1px 4px rgba(15, 23, 42, 0.06);
@@ -63,57 +67,84 @@
   gap: 20px;
 }
 
-.input-group-superadmin {
+.agregar-empresa-form .input-group-superadmin {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  min-width: 0;
 }
 
-.input-group-superadmin label {
+.agregar-empresa-form .input-group-superadmin label {
   font-size: 13px;
   font-weight: 600;
   color: #475569;
+  line-height: 1.5;
 }
 
-.input-group-superadmin input,
-.input-group-superadmin textarea,
-.input-group-superadmin select {
+.agregar-empresa-form .input-group-superadmin label.label-optional::after {
+  content: none;
+}
+
+.agregar-empresa-form .input-group-superadmin input,
+.agregar-empresa-form .input-group-superadmin textarea {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  min-height: 44px;
   padding: 12px 16px;
-  border: 1px solid #E2E8F0;
+  border: 1px solid #e2e8f0;
   border-radius: 10px;
   font-size: 14px;
   font-family: inherit;
-  color: #1E293B;
+  line-height: 1.5;
+  color: #1e293b;
   background: #ffffff;
   outline: none;
+  caret-color: #2563eb;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-.input-group-superadmin input:focus,
-.input-group-superadmin textarea:focus,
-.input-group-superadmin select:focus {
-  border-color: #F59E0B;
-  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+.agregar-empresa-form .input-group-superadmin input::placeholder,
+.agregar-empresa-form .input-group-superadmin textarea::placeholder {
+  color: #94a3b8;
 }
 
-.input-group-superadmin textarea {
+.agregar-empresa-form .input-group-superadmin input:focus,
+.agregar-empresa-form .input-group-superadmin textarea:focus {
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15);
+}
+
+.agregar-empresa-form .input-group-superadmin textarea {
   resize: vertical;
-  min-height: 80px;
+  min-height: 96px;
 }
 
-.input-group-superadmin select {
-  cursor: pointer;
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  padding-right: 40px;
+.agregar-empresa-field-hint {
+  margin: 2px 0 0;
+  color: #475569;
+  font-size: 12px;
+  line-height: 1.5;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
 }
 
-.form-error-superadmin {
-  color: #EF4444;
+.agregar-empresa-field-hint span:last-child {
+  color: #94a3b8;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.agregar-empresa-form .form-error-superadmin {
+  color: #b91c1c;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  padding: 10px 14px;
   font-size: 14px;
   font-weight: 500;
+  line-height: 1.5;
   margin: 0;
 }
 
@@ -122,4 +153,89 @@
   gap: 12px;
   flex-wrap: wrap;
   margin-top: 4px;
+  padding-top: 24px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.agregar-empresa-actions .btn-guardar-grande,
+.agregar-empresa-actions .btn-cancelar-grande {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.agregar-empresa-actions .btn-guardar-grande {
+  background-color: #2563eb;
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.25);
+}
+
+.agregar-empresa-actions .btn-guardar-grande:hover:not(:disabled) {
+  background-color: #1d4ed8;
+}
+
+.agregar-empresa-actions .btn-cancelar-grande {
+  background-color: #e2e8f0;
+  color: #1e293b;
+}
+
+.agregar-empresa-actions .btn-cancelar-grande:hover:not(:disabled) {
+  background-color: #cbd5e1;
+}
+
+.agregar-empresa-actions .btn-guardar-grande:disabled,
+.agregar-empresa-actions .btn-cancelar-grande:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.agregar-empresa-top .boton-back:focus-visible,
+.agregar-empresa-actions .btn-guardar-grande:focus-visible,
+.agregar-empresa-actions .btn-cancelar-grande:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 3px;
+}
+
+.agregar-empresa-form ::selection {
+  background: rgba(37, 99, 235, 0.18);
+}
+
+@media (max-width: 639px) {
+  .agregar-empresa-main {
+    padding: 24px 16px 40px;
+  }
+
+  .agregar-empresa-form {
+    padding: 20px;
+  }
+
+  .agregar-empresa-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .agregar-empresa-actions .btn-guardar-grande,
+  .agregar-empresa-actions .btn-cancelar-grande {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .agregar-empresa-top .boton-back,
+  .agregar-empresa-actions .btn-guardar-grande,
+  .agregar-empresa-actions .btn-cancelar-grande {
+    transition: none;
+  }
 }

@@ -11,7 +11,10 @@ import FieldValidation from "../components/FieldValidation";
 const validationSchema = {
   nombre: [
     { rule: (v) => v?.trim().length > 0, message: "Requerido" },
-    { rule: (v) => v?.trim().length >= 2, message: "Minimo 2 caracteres" },
+    { rule: (v) => v?.trim().length >= 2, message: "Mínimo 2 caracteres" },
+  ],
+  descripcion: [
+    { rule: (v) => !v || v.trim().length <= 500, message: "Máximo 500 caracteres" },
   ],
 };
 
@@ -37,7 +40,10 @@ function AgregarEmpresa() {
   const handleGuardar = async () => {
     setError("");
 
-    if (!isValid) return;
+    if (!isValid) {
+      setError("Corrige los errores antes de guardar.");
+      return;
+    }
 
     setLoading(true);
 
@@ -59,7 +65,12 @@ function AgregarEmpresa() {
       <HeaderSuperadmin />
       <main className="agregar-empresa-main">
         <div className="agregar-empresa-top">
-          <button className="boton-back" onClick={() => navigate("/superadmin/gestion_empresas")}>
+          <button
+            className="boton-back"
+            type="button"
+            aria-label="Volver a gestión de empresas"
+            onClick={() => navigate("/superadmin/gestion_empresas")}
+          >
             <ArrowLeft size={20} />
           </button>
           <div>
@@ -70,10 +81,12 @@ function AgregarEmpresa() {
 
         <section className="agregar-empresa-form">
           <div className="input-group-superadmin">
-            <label>Nombre de la empresa</label>
+            <label htmlFor="agregar-empresa-nombre">Nombre de la empresa</label>
             <input
+              id="agregar-empresa-nombre"
               type="text"
               placeholder="Ej: SmartLot Corp"
+              maxLength={100}
               {...field("nombre")}
               autoComplete="off"
               required
@@ -82,18 +95,27 @@ function AgregarEmpresa() {
           </div>
 
           <div className="input-group-superadmin">
-            <label>Descripción</label>
+            <label htmlFor="agregar-empresa-descripcion" className="label-optional">Descripción</label>
             <textarea
+              id="agregar-empresa-descripcion"
               placeholder="Descripción de la empresa (opcional)"
               value={formData.descripcion}
               onChange={(e) => setFormData((prev) => ({ ...prev, descripcion: e.target.value }))}
               rows={4}
+              maxLength={500}
               autoComplete="off"
-              required
             />
+            <p className="agregar-empresa-field-hint">
+              <span>Opcional</span>
+              <span>{formData.descripcion.length}/500</span>
+            </p>
           </div>
 
-          {error && <p className="form-error-superadmin">{error}</p>}
+          {error && (
+            <p className="form-error-superadmin" role="alert">
+              {error}
+            </p>
+          )}
 
           <div className="agregar-empresa-actions">
             <BotonGenerico
@@ -106,7 +128,6 @@ function AgregarEmpresa() {
             </BotonGenerico>
 
             <BotonGenerico
-              style={{ backgroundColor: "grey" }}
               className="btn-cancelar-grande"
               onClick={() => navigate("/superadmin/gestion_empresas", { replace: true })}
             >

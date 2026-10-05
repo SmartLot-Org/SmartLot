@@ -996,7 +996,6 @@ export default function GaragistaDashboard() {
                     icon={QrCode}
                     title="No hay reservas próximas para mostrar."
                     description="Cuando haya reservas confirmadas, vas a poder registrar el ingreso desde acá."
-                    action={!esAdmin ? { label: "Escanear QR", icon: QrCode, onClick: () => setLectorQrAbierto("ingreso") } : undefined}
                   />
                 )}
               </div>
@@ -1072,7 +1071,7 @@ export default function GaragistaDashboard() {
                     icon={CarFront}
                     title={terminoBusqueda ? "No hay autos dentro con este filtro." : "No hay autos dentro ahora."}
                     description={terminoBusqueda ? "Probá con otro término o quitá el filtro aplicado." : "Los vehículos que ingresen van a aparecer acá."}
-                    action={terminoBusqueda ? { label: "Limpiar filtro", variant: "secondary", onClick: () => setBusqueda("") } : undefined}
+                    action={terminoBusqueda ? { label: "Limpiar filtro", variant: "secondary", onClick: () => setBusqueda("") } : (!esAdmin ? { label: "Escanear QR", icon: QrCode, onClick: () => setLectorQrAbierto("ingreso") } : undefined)}
                   />
                 )}
               </div>
