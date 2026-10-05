@@ -1,3 +1,5 @@
+import { normalizeReservaDateTime, formatReservaDate, formatReservaMonth, formatReservaHorario, toReservaInstant } from '../helpers/reservaDateTime';
+import { createReservaRefresh, bindReservaPolling } from '../helpers/reservaRefresh';
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { MessageCircleQuestion, X, CalendarPlus } from "lucide-react";
@@ -6,7 +8,7 @@ import EmptyState from "../componentesCompartidos/EmptyState";
 import HeaderEmpleado from "../componentesEmpleado/header_empleado";
 import TarjetaReserva from "../componentesEmpleado/tarjeta_reserva";
 import ModalEditarReserva from "../componentesEmpleado/modal_editar_reserva";
-import { ReservasGetAll, ReservasGetByUsuario, ReservasGetDisponibilidadPorHora } from "../servicies/API_Reserva";
+import { ReservasGetByUsuario, ReservasGetDisponibilidadPorHora } from "../servicies/API_Reserva";
 import { VehiculosGetAll } from "../servicies/API_Vehiculo";
 import { GaragesGetAll } from "../servicies/API_Garage";
 import { UsuariosGetById } from "../servicies/API_Usuario";
@@ -172,7 +174,7 @@ const esReservaCancelada = (reserva) =>
       .trim().toLowerCase().replace(/[\s-]+/g, "_")
   );
 
-const esHoraValida = (hora) => /^\d{2}:\d{2}$/.test(String(hora || "").slice(0, 5));
+
 
 const tieneSalidaRegistrada = (reserva) =>
   [
@@ -197,96 +199,10 @@ const tieneEntradaRegistrada = (reserva) =>
       .trim().toLowerCase().replace(/[\s-]+/g, "_")
   );
 
-const obtenerFechaHoraProgramada = (fecha, hora) => {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(fecha)) || !/^\d{2}:\d{2}$/.test(String(hora))) {
-    return null;
-  }
-
-  const [anio, mes, dia] = fecha.split("-").map(Number);
-  const [horas, minutos] = hora.split(":").map(Number);
-  const fechaHora = new Date(anio, mes - 1, dia, horas, minutos);
-
-  return Number.isNaN(fechaHora.getTime()) ? null : fechaHora;
-};
-
 const obtenerNombreGarage = (garage) =>
   garage
     ? obtenerCampo(garage, ["nombre", "name", "descripcion", "ubicacion", "nombre_garage", "garage_nombre", "nombre_zona", "direccion"], "Garage")
     : "";
-
-const esMismaFecha = (fechaA, fechaB) =>
-  fechaA.getFullYear() === fechaB.getFullYear() &&
-  fechaA.getMonth() === fechaB.getMonth() &&
-  fechaA.getDate() === fechaB.getDate();
-
-const formatearFecha = (fecha) => {
-  if (!fecha) return "Sin fecha";
-  const fechaReserva = new Date(`${fecha}T00:00:00`);
-  if (Number.isNaN(fechaReserva.getTime())) return fecha;
-
-  const hoy = new Date();
-  const manana = new Date();
-  manana.setDate(hoy.getDate() + 1);
-
-  if (esMismaFecha(fechaReserva, hoy)) return "Hoy";
-  if (esMismaFecha(fechaReserva, manana)) return "Manana";
-
-  return new Intl.DateTimeFormat("es-AR", {
-    day: "2-digit",
-    month: "short",
-  }).format(fechaReserva);
-};
-
-const extraerFechaStr = (datetime) => {
-  if (!datetime) return "";
-  const valor = String(datetime).trim();
-  if (/(?:Z|[+-]\d{2}:?\d{2})$/.test(valor)) {
-    const fecha = new Date(valor);
-    if (!Number.isNaN(fecha.getTime())) {
-      return new Intl.DateTimeFormat("en-CA", {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-        timeZone: TZ_ARG,
-      }).format(fecha);
-    }
-  }
-  const conEspacio = valor.split(" ");
-  if (conEspacio.length > 1) return conEspacio[0];
-  return valor.split("T")[0];
-};
-
-const TZ_ARG = "America/Argentina/Buenos_Aires";
-
-const extraerHoraLocal = (fechaStr) => {
-  if (!fechaStr) return "--:--";
-  const valor = String(fechaStr).trim();
-  if (/^\d{2}:\d{2}/.test(valor) && !valor.includes("T") && !valor.includes(" ")) return valor.slice(0, 5);
-
-  // La API devuelve instante con offset (Z/+00:00): convertir a hora local AR.
-  // getHours() usa la zona del navegador y corria los horarios fuera de UTC-3.
-  if (/(?:Z|[+-]\d{2}:?\d{2})$/.test(valor)) {
-    const fecha = new Date(valor);
-    if (!Number.isNaN(fecha.getTime())) {
-      return new Intl.DateTimeFormat("es-AR", {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
-        timeZone: TZ_ARG,
-      }).format(fecha);
-    }
-  }
-
-  if (valor.includes("T")) {
-    const hora = valor.split("T")[1]?.slice(0, 5);
-    return hora || "--:--";
-  }
-
-  const partes = valor.split(" ");
-  if (partes.length > 1) return partes[1].slice(0, 5);
-
-  return "--:--";
-};
 
 const normalizarReserva = (reserva, vehiculosPorId, garagesPorId, modelosPorId, marcasPorId) => {
   const idVehiculo = obtenerCampo(reserva, ["id_vehiculo", "idVehiculo", "vehiculo_id", "vehiculoId"]);
@@ -298,18 +214,11 @@ const normalizarReserva = (reserva, vehiculosPorId, garagesPorId, modelosPorId, 
   const modeloObj = modelosPorId.get(idModelo);
   const modelo = modeloObj?.nombre || "";
   const marcaNombre = marcasPorId.get(Number(modeloObj?.id_marca))?.nombre || "";
-  const fechaEntrada = obtenerCampo(reserva, ["fecha_entrada", "fechaEntrada", "fecha_inicio", "fechaInicio"]);
-  const fechaSalida = obtenerCampo(reserva, ["fecha_salida", "fechaSalida", "fecha_finalizacion", "fechaFinalizacion", "fecha_fin", "fechaFin"]);
-  const fecha = obtenerCampo(reserva, ["fecha", "fecha_reserva", "fechaReserva"], extraerFechaStr(fechaEntrada));
-  const horaInicio = extraerHoraLocal(fechaEntrada);
-  const horaFin = extraerHoraLocal(fechaSalida);
-  // El endpoint por usuario mapea fecha_entrada -> fecha/hora_entrada sin
-  // conservar los originales: si faltan, derivar las fechas crudas.
-  const fechaEntradaCruda = fechaEntrada || (fecha && esHoraValida(obtenerCampo(reserva, ["hora_entrada", "horaEntrada"]))
-    ? `${fecha}T${obtenerCampo(reserva, ["hora_entrada", "horaEntrada"])}` : "");
-  const fechaSalidaCruda = fechaSalida || (fecha && esHoraValida(obtenerCampo(reserva, ["hora_salida", "horaSalida"]))
-    ? `${fecha}T${obtenerCampo(reserva, ["hora_salida", "horaSalida"])}` : "");
-  const ubicacion = obtenerCampo(reserva, ["ubicacion", "sede", "nombre_sede", "garage_nombre"], "") ||
+  const dateTime = normalizeReservaDateTime(reserva);
+  const { fecha, hora_entrada: horaInicio, hora_salida: horaFin } = dateTime;
+  const fechaEntradaCruda = dateTime.fecha_entrada;
+  const fechaSalidaCruda = dateTime.fecha_salida;
+  const ubicacion = obtenerCampo(reserva, ["ubicacion", "sede", "nombre_sede", "nombre_garage", "garage_nombre"], "") ||
     obtenerNombreGarage(garageReserva) ||
     "Garage asignado";
 
@@ -319,14 +228,14 @@ const normalizarReserva = (reserva, vehiculosPorId, garagesPorId, modelosPorId, 
   return {
     id: reserva.id ?? reserva.id_reserva ?? `${fecha}-${idVehiculo}-${horaInicio}`,
     fecha,
-    fechaLabel: formatearFecha(fecha),
-    horario: `${horaInicio} - ${horaFin}`,
+    fechaLabel: formatReservaDate(fecha),
+    horario: formatReservaHorario(dateTime),
     ubicacion,
     plaza,
     nivel: zona,
     nombre_garage: ubicacion,
     nro_plaza: fecha ? fecha.slice(8, 10) : "-",
-    nombre_zona: fecha ? new Intl.DateTimeFormat("es-AR", { month: "long", timeZone: "UTC" }).format(new Date(`${fecha}T00:00:00Z`)) : "Mes",
+    nombre_zona: formatReservaMonth(fecha),
     hora_entrada: horaInicio,
     hora_salida: horaFin,
     entradaRegistrada: tieneEntradaRegistrada(reserva),
@@ -334,7 +243,7 @@ const normalizarReserva = (reserva, vehiculosPorId, garagesPorId, modelosPorId, 
     fechaEntradaCruda,
     fechaSalidaCruda,
     estado: obtenerCampo(reserva, ["estado", "status", "estado_reserva", "estadoReserva"], "confirmada"),
-    vehiculo: vehiculo ? { patente, marca: marcaNombre, modelo } : null,
+    vehiculo: vehiculo ? { patente, marca: marcaNombre, modelo } : reserva.vehiculo ?? null,
     raw: reserva,
   };
 };
@@ -388,7 +297,10 @@ function EmpleadoDashboard() {
   const { usuario } = useAuth();
   const [perfilUsuario, setPerfilUsuario] = useState(null);
   const [reservas, setReservas] = useState([]);
-  const [todasReservas, setTodasReservas] = useState([]);
+  const reservaRefreshRef = useRef(null);
+  const [loadingReservas, setLoadingReservas] = useState(true);
+  const [refreshError, setRefreshError] = useState("");
+  const idUsuario = Number(obtenerIdUsuario(usuario));
   const [vehiculos, setVehiculos] = useState([]);
   const [garages, setGarages] = useState([]);
   const [garagesSede, setGaragesSede] = useState([]);
@@ -425,8 +337,7 @@ function EmpleadoDashboard() {
 
       try {
         const idUsuario = Number(obtenerIdUsuario(usuario));
-        const [reservasResponse, vehiculosResponse, garagesResponse, usuarioResponse, modelosResponse, marcasResponse] = await Promise.all([
-          ReservasGetAll(),
+        const [vehiculosResponse, garagesResponse, usuarioResponse, modelosResponse, marcasResponse] = await Promise.all([
           VehiculosGetAll(),
           GaragesGetAll(),
           Number.isFinite(idUsuario) ? UsuariosGetById(idUsuario) : Promise.resolve({ respuesta: false, datos: null }),
@@ -457,16 +368,6 @@ function EmpleadoDashboard() {
             const marcaNombre = marcasPorIdMap.get(Number(modeloObj?.id_marca ?? modeloObj?.idMarca))?.nombre || "";
             return { ...vehiculo, marca_nombre: marcaNombre, modelo_nombre: modelo };
           });
-        const idsVehiculos = new Set(vehiculosDelUsuario.map((vehiculo) => Number(obtenerIdVehiculo(vehiculo))));
-
-        const reservasApi = reservasResponse.respuesta ? obtenerListado(reservasResponse.datos) : [];
-        const reservasDelUsuario = reservasApi.filter((reserva) => {
-          if (esReservaCancelada(reserva)) return false;
-          const reservaUsuarioId = Number(reserva.id_usuario ?? reserva.idUsuario ?? reserva.usuario_id);
-          const reservaVehiculoId = Number(reserva.id_vehiculo ?? reserva.idVehiculo ?? reserva.vehiculo_id ?? reserva.vehiculoId);
-          return reservaUsuarioId === idUsuario || idsVehiculos.has(reservaVehiculoId);
-        });
-
         const garages = garagesResponse.respuesta ? obtenerListado(garagesResponse.datos) : [];
         const idSedeEmpleado = Number(obtenerIdSedeUsuario(perfilEmpleado));
         // GaragesGetAll ya aplica el alcance por tratos para la sede autenticada.
@@ -486,12 +387,10 @@ function EmpleadoDashboard() {
         setGaragesSede(garagesDeSede);
         setGarageUsuario(garageEncontrado);
         setGarageSeleccionadoId(garageEncontrado ? String(obtenerIdGarage(garageEncontrado)) : "");
-        setReservas(reservasDelUsuario);
-        setTodasReservas(reservasApi);
         setModelos(modelosResponse.respuesta ? obtenerListado(modelosResponse.datos) : []);
         setMarcas(marcasResponse.respuesta ? obtenerListado(marcasResponse.datos) : []);
 
-        if (!reservasResponse.respuesta || !vehiculosResponse.respuesta) {
+        if (!vehiculosResponse.respuesta) {
           setError("No se pudieron cargar todos tus datos.");
         } else if (!Number.isFinite(idSedeEmpleado)) {
           setError("No se pudo identificar tu sede.");
@@ -514,38 +413,40 @@ function EmpleadoDashboard() {
   }, [usuario]);
 
   useEffect(() => {
-    const idUsuario = Number(obtenerIdUsuario(usuario));
-    if (!Number.isFinite(idUsuario)) return undefined;
-
-    let activo = true;
-    const recargarReservas = async () => {
-      const response = await ReservasGetByUsuario(idUsuario, { force: true });
-      if (!activo || !response.respuesta) return;
-
-      const idsVehiculos = new Set(vehiculos.map((vehiculo) => Number(obtenerIdVehiculo(vehiculo))));
-      const reservasActualizadas = obtenerListado(response.datos).filter((reserva) => {
-        if (esReservaCancelada(reserva)) return false;
-        const reservaUsuarioId = Number(reserva.id_usuario ?? reserva.idUsuario ?? reserva.usuario_id);
-        const reservaVehiculoId = Number(reserva.id_vehiculo ?? reserva.idVehiculo ?? reserva.vehiculo_id ?? reserva.vehiculoId);
-        return reservaUsuarioId === idUsuario || idsVehiculos.has(reservaVehiculoId);
-      });
-      setReservas(reservasActualizadas);
-    };
-
-    const alRecuperarVisibilidad = () => {
-      if (document.visibilityState === "visible") void recargarReservas();
-    };
-    const intervalo = window.setInterval(() => { void recargarReservas(); }, 15_000);
-    window.addEventListener("focus", recargarReservas);
-    document.addEventListener("visibilitychange", alRecuperarVisibilidad);
-
+    if (!Number.isInteger(idUsuario) || idUsuario <= 0) {
+      return undefined;
+    }
+    const refresh = createReservaRefresh({
+      fetchReservations: (options) => {
+        if (reservaRefreshRef.current === refresh && !options.signal.aborted) {
+          // El skeleton sólo se muestra durante la primera carga, no el polling.
+          return ReservasGetByUsuario(idUsuario, options);
+        }
+        return { respuesta: false };
+      },
+      onData: (rows, reason) => {
+        setReservas(rows.filter((row) => !esReservaCancelada(row)));
+        setRefreshError("");
+        if (import.meta.env.DEV) {
+          console.debug('[Reservas dashboard]', { reason, cantidad: rows.length,
+            horariosIncompletos: rows.filter((row) => {
+              const time = normalizeReservaDateTime(row);
+              return !time.fecha || !time.hora_entrada || !time.hora_salida;
+            }).length });
+        }
+      },
+      onError: () => setRefreshError("No se pudieron actualizar tus reservas. Conservamos la información anterior."),
+      onSettled: () => setLoadingReservas(false),
+    });
+    reservaRefreshRef.current = refresh;
+    void refresh.refresh('initial');
+    const cleanup = bindReservaPolling((reason) => refresh.refresh(reason), window, document);
     return () => {
-      activo = false;
-      window.clearInterval(intervalo);
-      window.removeEventListener("focus", recargarReservas);
-      document.removeEventListener("visibilitychange", alRecuperarVisibilidad);
+      cleanup();
+      refresh.dispose();
+      if (reservaRefreshRef.current === refresh) reservaRefreshRef.current = null;
     };
-  }, [usuario, vehiculos]);
+  }, [idUsuario]);
 
   useEffect(() => {
     let montado = true;
@@ -615,8 +516,6 @@ function EmpleadoDashboard() {
   );
 
   const reservasNormalizadas = useMemo(() => {
-    const hoy = new Date();
-    hoy.setHours(0, 0, 0, 0);
 
     return reservas
       .map((reserva) => normalizarReserva(reserva, vehiculosPorId, garagesPorId, modelosPorId, marcasPorId))
@@ -628,11 +527,10 @@ function EmpleadoDashboard() {
         // confirmadas y no deben figurar como reservas activas.
         if (String(reserva.estado).toLowerCase() === "expirada" && !reserva.entradaRegistrada) return false;
         if (reserva.salidaRegistrada) return false;
-        const salidaProgramada = obtenerFechaHoraProgramada(reserva.fecha, reserva.hora_salida);
+        const salidaProgramada = toReservaInstant(reserva.fechaSalidaCruda);
         if (!reserva.entradaRegistrada && salidaProgramada && salidaProgramada <= new Date()) return false;
         if (!reserva.fecha) return true;
-        const fecha = new Date(`${reserva.fecha}T00:00:00`);
-        return Number.isNaN(fecha.getTime()) || fecha >= hoy;
+        return true;
       })
       .sort((a, b) => `${a.fecha} ${a.horario}`.localeCompare(`${b.fecha} ${b.horario}`));
   }, [reservas, vehiculosPorId, garagesPorId, modelosPorId, marcasPorId]);
@@ -641,24 +539,6 @@ function EmpleadoDashboard() {
   const restoReservas = reservasNormalizadas.slice(1);
   const reservaQrActiva = reservasNormalizadas.find((reserva) => Number(reserva.id) === Number(reservaQrId)) ?? null;
   const tieneResto = restoReservas.length > 0;
-  const capacidadReservas = Number(garageUsuario?.capacidad_reservas || 0);
-  const capacidadNoReservas = Number(garageUsuario?.capacidad_para_no_reservas || 0);
-  const ocupacionReservas = Number(garageUsuario?.ocupacion_reservas || 0);
-  const ocupacionNoReservas = Number(garageUsuario?.ocupacion_no_reservas || 0);
-  const totalCapacidad = capacidadReservas + capacidadNoReservas;
-  const ocupacion = ocupacionReservas + ocupacionNoReservas;
-  const porcentajeOcupacion = totalCapacidad > 0 ? Math.round((ocupacion / totalCapacidad) * 100) : null;
-  const pctReservas = capacidadReservas > 0 ? Math.round((ocupacionReservas / capacidadReservas) * 100) : 0;
-  const pctNoReservas = capacidadNoReservas > 0 ? Math.round((ocupacionNoReservas / capacidadNoReservas) * 100) : 0;
-  const libresNoReservas = capacidadNoReservas > 0 ? Math.max(capacidadNoReservas - ocupacionNoReservas, 0) : null;
-
-  const reservasDelGarage = useMemo(() => {
-    if (!garageSeleccionadoId) return 0;
-    const idGarageNum = Number(garageSeleccionadoId);
-    return todasReservas.filter((r) => Number(obtenerIdGarageAsignado(r)) === idGarageNum).length;
-  }, [todasReservas, garageSeleccionadoId]);
-  const capacidadReservasDisponible = Math.max(capacidadReservas - reservasDelGarage, 0);
-
   const horaDataActual = useMemo(() => {
     if (!horaSeleccionada || disponibilidadHoras.length === 0) return null;
     return disponibilidadHoras.find((h) => h.hora === horaSeleccionada) || null;
@@ -698,8 +578,10 @@ function EmpleadoDashboard() {
     const raw = reservasRawPorId.get(reservaNorm.id);
     if (!raw) return;
 
-    const horaInicio = extraerHoraLocal(obtenerCampo(raw, ["fecha_entrada", "fechaEntrada", "fecha_inicio", "fechaInicio"]));
-    const horaFin = extraerHoraLocal(obtenerCampo(raw, ["fecha_salida", "fechaSalida", "fecha_finalizacion", "fechaFinalizacion", "fecha_fin", "fechaFin"]));    const idGarage = Number(obtenerIdGarageAsignado(raw));
+    const time = normalizeReservaDateTime(raw);
+    const horaInicio = time.hora_entrada ?? '';
+    const horaFin = time.hora_salida ?? '';
+    const idGarage = Number(obtenerIdGarageAsignado(raw));
     const idVehiculo = Number(obtenerCampo(raw, ["id_vehiculo", "idVehiculo", "vehiculo_id", "vehiculoId"]));
 
     navigate("/nueva_reserva", {
@@ -710,6 +592,7 @@ function EmpleadoDashboard() {
   };
 
   const handleReservaActualizada = (reservaActualizada) => {
+    reservaRefreshRef.current?.invalidate();
     setReservas((prev) =>
       prev.map((r) => {
         const id = r.id ?? r.id_reserva;
@@ -720,9 +603,11 @@ function EmpleadoDashboard() {
     );
     setReservaEditando(null);
     setReservaNormEditando(null);
+    void reservaRefreshRef.current?.refresh("edit");
   };
 
   const handleReservaEliminada = (idReserva) => {
+    reservaRefreshRef.current?.invalidate();
     setReservas((prev) =>
       prev.filter((r) => {
         const id = r.id ?? r.id_reserva;
@@ -832,13 +717,14 @@ function EmpleadoDashboard() {
           </button>
         </div>
 
+        {refreshError && <div className="empleado-dashboard-feedback" role="status">{refreshError}</div>}
         {error && (
           <div className="empleado-dashboard-feedback empleado-dashboard-feedback-error" role="alert">
             {error}
           </div>
         )}
 
-        {loading ? (
+        {loading || (loadingReservas && idUsuario > 0) ? (
           <EmpleadoReservasSkeleton />
         ) : reservasNormalizadas.length > 0 ? (
           <>

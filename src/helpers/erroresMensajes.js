@@ -1,3 +1,5 @@
+import { reservationLimitError } from './reservationPolicy.js';
+
 const patrones = [
   { patron: /\b(cerrad[ao]?|no\s*abre|no\s*opera|descanso|feriado|fin\s*de)\b/, texto: "Ese garage no est\u00e1 operativo el d\u00eda seleccionado. Revis\u00e1 los d\u00edas y horarios de atenci\u00f3n." },
   { patron: /\b(domingo|s[aá]bado|lunes|martes|mi[eé]rcoles|jueves|viernes)\b.*\b(cerrad[ao]?|no\s*abre|no\s*opera|descanso)\b/, texto: "Ese garage no abre los d\u00edas seleccionados. Revis\u00e1 el calendario de atenci\u00f3n." },
@@ -12,7 +14,6 @@ const patrones = [
   { patron: /(veh[ií]culo.*no.*encontrad|no.*existe.*veh[ií]culo|veh[ií]culo.*inva[lí]lid)/, texto: "El veh\u00edculo seleccionado no fue encontrado." },
   { patron: /(usuario.*no.*encontrad|no.*existe.*usuario|usuario.*inva[lí]lid)/, texto: "No se pudo identificar al usuario. Inici\u00e1 sesi\u00f3n nuevamente." },
   { patron: /(garage.*disponible|garage.*ocupad)/, texto: "El garage seleccionado no est\u00e1 disponible en este momento. Eleg\u00ed otro o intent\u00e1 de nuevo." },
-  { patron: /(m[a\u00e1]ximo.*reservas|l[i\u00ed]mite.*reservas|2.*reservas.*d[i\u00ed]a)/, texto: "Ya alcanzaste el l\u00edmite de 2 reservas para ese d\u00eda. Finaliz\u00e1 una reserva existente o eleg\u00ed otra fecha." },
 ];
 
 function textoLimpio(texto) {
@@ -20,6 +21,8 @@ function textoLimpio(texto) {
 }
 
 function mensajeAmigable(datosError, nombreGarage) {
+  const limitError = reservationLimitError(datosError);
+  if (limitError) return limitError;
   const raw = datosError?.message || datosError?.error || datosError?.mensaje || "";
   const msg = (Array.isArray(raw) ? raw.join(". ") : String(raw)).toLowerCase();
   const match = patrones.find((e) => e.patron.test(msg));

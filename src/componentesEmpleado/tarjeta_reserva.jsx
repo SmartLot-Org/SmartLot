@@ -1,3 +1,4 @@
+import { normalizeReservaDateTime, formatReservaDate, formatReservaHorario } from '../helpers/reservaDateTime';
 // src/componentesEmpleado/tarjeta_reserva.jsx
 import { Car, Check, Copy, QrCode, X } from "lucide-react";
 import "./tarjeta_reserva.css";
@@ -82,9 +83,9 @@ function TarjetaReserva({ reserva, onClick, onCopy, onShowQr, mostrarQr = false,
 
   const esHistorialPasado = variant === "historyPast";
   const estadoHistorial = esHistorialPasado ? obtenerEstadoHistorial(reserva) : null;
-  const fechaFormateada = reserva.fecha
-    ? new Date(reserva.fecha).toLocaleDateString("es-AR", { timeZone: "UTC" })
-    : "";
+  const time = normalizeReservaDateTime(reserva);
+  const fechaFormateada = formatReservaDate(time.fecha);
+
 
   const vehiculo = reserva.vehiculo;
   const tieneVehiculo = vehiculo && (vehiculo.patente || vehiculo.marca || vehiculo.modelo);
@@ -133,7 +134,7 @@ function TarjetaReserva({ reserva, onClick, onCopy, onShowQr, mostrarQr = false,
             </div>
           )}
           <p>
-            {reserva.hora_entrada?.substring(0, 5) || "00:00"} a {reserva.hora_salida?.substring(0, 5) || "00:00"} | {fechaFormateada}
+            {formatReservaHorario(time)} | {fechaFormateada}
           </p>
 
           {tieneVehiculo && (

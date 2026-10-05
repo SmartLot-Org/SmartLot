@@ -13,6 +13,7 @@ import { useAuth } from "../contexts/useAuth";
 import "./nueva_reserva.css";
 import FooterEmpleado from "../componentesEmpleado/footer_empleado";
 import { mensajeAmigable } from "../helpers/erroresMensajes";
+import { reservationPolicyMessage } from "../helpers/reservationPolicy";
 import ConfirmacionReservaPaga from "../componentesEmpleado/confirmacion_reserva_paga";
 
 const disponibilidadInicial = {
@@ -190,6 +191,7 @@ const NuevaReserva = () => {
   const [reservaPendientePago, setReservaPendientePago] = useState(null);
   const [procesandoPago, setProcesandoPago] = useState(false);
   const [errorPago, setErrorPago] = useState("");
+  const [politicaReservas, setPoliticaReservas] = useState(null);
   const procesandoPagoRef = useRef(false);
   const formularioRef = useRef(null);
   const resultadoRef = useRef(null);
@@ -355,6 +357,7 @@ const NuevaReserva = () => {
     setConsultandoDisponibilidad(true);
     setMensaje({ tipo: "", texto: "" });
     setDisponibilidad(null);
+    setPoliticaReservas(null);
 
     disponibilidadTimerRef.current = window.setTimeout(async () => {
       const reservaBase = {
@@ -376,10 +379,11 @@ const NuevaReserva = () => {
 
       if (!quoteRes.respuesta) {
         setConsultandoDisponibilidad(false);
-        setMensaje({ tipo: "error", texto: quoteRes.datos?.message || "No se pudo verificar la disponibilidad en este momento." });
+        setMensaje({ tipo: "error", texto: mensajeAmigable(quoteRes.datos) });
         return;
       }
       const quote = quoteRes.datos;
+      setPoliticaReservas(quote.politicaReservas ?? null);
 
       // El cupo corporativo no requiere una segunda confirmacion: la reserva
       // se crea al completar el primer envio del formulario.
@@ -402,6 +406,7 @@ const NuevaReserva = () => {
   };
 
   const limpiarResultado = () => {
+    setPoliticaReservas(null);
     reservaSolicitudRef.current += 1;
     window.clearTimeout(disponibilidadTimerRef.current);
     disponibilidadTimerRef.current = null;
@@ -496,7 +501,7 @@ const NuevaReserva = () => {
         } else {
           const reutilizada = await buscarRetencionVigente();
           if (!reutilizada) {
-            setErrorPago(creada.datos?.message || "No se pudo retener el lugar. Volvé a verificar la disponibilidad.");
+            setErrorPago(mensajeAmigable(creada.datos));
             return;
           }
           reserva = reutilizada;
@@ -575,6 +580,7 @@ const NuevaReserva = () => {
             <p>Reserva tu plaza de estacionamiento para tu proxima jornada.</p>
           </header>
 
+          {politicaReservas && <p className="form-feedback" role="status">{reservationPolicyMessage(politicaReservas)}</p>}
           {mensaje.texto && (
             <div className={`form-feedback alert-${mensaje.tipo}`} role="alert">
               <p>{mensaje.texto}</p>

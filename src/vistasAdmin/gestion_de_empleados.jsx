@@ -25,7 +25,10 @@ import FooterAdmin from "../componentesAdmin/footer_admin";
 import BotonGenerico from "../componentesAdmin/boton_generico";
 import ModalPortal from "../componentesCompartidos/ModalPortal";
 import EmptyState from "../componentesCompartidos/EmptyState";
-import { UsuariosGetAll, UsuariosDelete, UsuariosPatchEstado } from "../servicies/API_Usuario";
+import { UsuariosGetAll, UsuariosDelete, UsuariosPatchEstado, UsuariosPatchLimiteReservas } from "../servicies/API_Usuario";
+import ReservationLimitFields from "../componentesAdmin/ReservationLimitFields";
+import "../componentesAdmin/ReservationLimitFields.css";
+import { parseReservationLimit, reservationLimitLabel } from "../helpers/reservationPolicy";
 import { VehiculosGetAll } from "../servicies/API_Vehiculo";
 import { ModelosGetAll } from "../servicies/API_Modelo";
 import { SedesGetAll } from "../servicies/API_Sede";
@@ -105,6 +108,7 @@ const normalizarEmpleado = (usuario, vehiculo = null, modeloNombre = null, sedes
     garage: obtenerGarage(usuario, garagesMap),
     vehicleModel: modeloLabel,
     activo: usuario.activo !== false,
+    limiteReservasActivas: usuario.limiteReservasActivas ?? usuario.limite_reservas_activas ?? null,
   };
 };
 
@@ -159,11 +163,51 @@ const GestionEmpleados = () => {
   const [error, setError] = useState("");
   const [showArchived, setShowArchived] = useState(false);
   const [toast, setToast] = useState(null);
+  const [limitEmployee, setLimitEmployee] = useState(null);
+  const [limited, setLimited] = useState(false);
+  const [limitValue, setLimitValue] = useState('');
+  const [savingLimit, setSavingLimit] = useState(false);
+  const [limitError, setLimitError] = useState('');
+  const savingLimitRef = useRef(false);
   const toastKeyRef = useRef(0);
 
   const mostrarToast = (mensaje, onDeshacer) => {
     toastKeyRef.current += 1;
     setToast({ id: toastKeyRef.current, mensaje, onDeshacer });
+  };
+
+  const openLimit = (employee) => {
+    setLimitEmployee(employee);
+    setLimited(employee.limiteReservasActivas != null);
+    setLimitValue(employee.limiteReservasActivas ?? '');
+    setLimitError('');
+  };
+  const closeLimit = () => {
+    if (!savingLimitRef.current) setLimitEmployee(null);
+  };
+  const saveLimit = async (event) => {
+    event.preventDefault();
+    if (savingLimitRef.current) return;
+    let limit;
+    try { limit = parseReservationLimit(limited, limitValue); }
+    catch (error) { setLimitError(error.message); return; }
+    savingLimitRef.current = true;
+    setSavingLimit(true);
+    setLimitError('');
+    try {
+      const response = await UsuariosPatchLimiteReservas(limitEmployee.id, limit);
+      if (!response.respuesta) {
+        setLimitError(response.datos?.message || 'No se pudo guardar el límite.');
+        return;
+      }
+      setEmpleados((current) => current.map((employee) => employee.id === limitEmployee.id
+        ? { ...employee, limiteReservasActivas: response.datos.limiteReservasActivas } : employee));
+      setLimitEmployee(null);
+      Swal.fire({ title: 'Límite actualizado', text: reservationLimitLabel(response.datos.limiteReservasActivas), icon: 'success', timer: 1800, showConfirmButton: false });
+    } finally {
+      savingLimitRef.current = false;
+      setSavingLimit(false);
+    }
   };
 
   useEffect(() => {
@@ -555,6 +599,8 @@ const GestionEmpleados = () => {
                       <MapPin size={14} />
                       <span>{emp.sede}</span>
                     </div>
+                    <p className="reservation-limit-indicator">{reservationLimitLabel(emp.limiteReservasActivas)}</p>
+                    <button type="button" className="reservation-limit-action" onClick={() => openLimit(emp)}>Configurar límite de reservas</button>
                   </div>
 
                   {(
@@ -621,6 +667,21 @@ const GestionEmpleados = () => {
           </div>
         )}
       </main>
+
+      {limitEmployee && (
+        <ModalPortal onClose={closeLimit}>
+          <form className="reservation-limit-panel" role="dialog" aria-modal="true" aria-labelledby="reservation-limit-title" onClick={(event) => event.stopPropagation()} onSubmit={saveLimit}>
+            <h2 id="reservation-limit-title">Límite de reservas</h2>
+            <p>{limitEmployee.name}</p>
+            <ReservationLimitFields limited={limited} value={limitValue} onLimitedChange={setLimited} onValueChange={setLimitValue} disabled={savingLimit} />
+            {limitError && <p className="reservation-limit-error" role="alert">{limitError}</p>}
+            <div className="reservation-limit-actions">
+              <BotonGenerico type="button" onClick={closeLimit} disabled={savingLimit}>Cancelar</BotonGenerico>
+              <BotonGenerico type="submit" disabled={savingLimit}>{savingLimit ? 'Guardando...' : 'Guardar'}</BotonGenerico>
+            </div>
+          </form>
+        </ModalPortal>
+      )}
 
       {showArchived && (
         <ModalPortal onClose={() => setShowArchived(false)}>

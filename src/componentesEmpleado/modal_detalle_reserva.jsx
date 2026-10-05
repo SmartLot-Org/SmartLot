@@ -1,3 +1,4 @@
+import { normalizeReservaDateTime, formatReservaDate, formatReservaHorario } from '../helpers/reservaDateTime';
 import { Car, Check, Copy, X } from "lucide-react";
 import ModalPortal from "../componentesCompartidos/ModalPortal";
 import "./modal_editar_reserva.css";
@@ -66,9 +67,9 @@ function ModalDetalleReserva({ reserva, onClose, onCopy }) {
   if (!reserva) return null;
 
   const estado = obtenerEstadoHistorial(reserva);
-  const fechaFormateada = reserva.fecha
-    ? new Date(reserva.fecha).toLocaleDateString("es-AR", { timeZone: "UTC" })
-    : "";
+  const time = normalizeReservaDateTime(reserva);
+  const fechaFormateada = formatReservaDate(time.fecha);
+
 
   const vehiculo = reserva.vehiculo;
   const infoVehiculo = vehiculo
@@ -111,7 +112,7 @@ function ModalDetalleReserva({ reserva, onClose, onCopy }) {
           <div className="modal-reserva-field">
             <span className="modal-reserva-field-label">Horario</span>
             <span className="modal-reserva-field-value">
-              {reserva.hora_entrada?.substring(0, 5) || "00:00"} a {reserva.hora_salida?.substring(0, 5) || "00:00"}
+              {formatReservaHorario(time)}
             </span>
           </div>
 

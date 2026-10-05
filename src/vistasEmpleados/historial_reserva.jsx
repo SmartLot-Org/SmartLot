@@ -1,3 +1,4 @@
+import { normalizeReservaDateTime, toReservaInstant } from '../helpers/reservaDateTime';
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { CalendarPlus } from "lucide-react";
@@ -19,52 +20,7 @@ const obtenerCampo = (item, claves, fallback = "") => {
   return fallback;
 };
 
-const normalizarFechaHora = (valor) => {
-  if (!valor) return null;
-  const texto = String(valor).trim().replace(" ", "T");
-  const fecha = new Date(texto);
-  return Number.isNaN(fecha.getTime()) ? null : fecha;
-};
-
-// La API devuelve instantes con offset (ej. "...T14:00:00.000Z"): convertir a
-// hora local AR en vez de recortar el string, que mostraba la hora UTC.
-const tieneZonaHoraria = (valor) => /(?:Z|[+-]\d{2}:?\d{2})$/.test(String(valor).trim());
-
-const extraerFecha = (valor) => {
-  if (!valor) return "";
-  const texto = String(valor).trim();
-  if (tieneZonaHoraria(texto)) {
-    const fecha = new Date(texto);
-    if (!Number.isNaN(fecha.getTime())) {
-      return new Intl.DateTimeFormat("en-CA", {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-        timeZone: "America/Argentina/Buenos_Aires",
-      }).format(fecha);
-    }
-  }
-  return texto.split(/[T ]/)[0] || "";
-};
-
-const extraerHora = (valor) => {
-  if (!valor) return "";
-  const texto = String(valor).trim();
-  if (tieneZonaHoraria(texto)) {
-    const fecha = new Date(texto);
-    if (!Number.isNaN(fecha.getTime())) {
-      return new Intl.DateTimeFormat("es-AR", {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
-        timeZone: "America/Argentina/Buenos_Aires",
-      }).format(fecha);
-    }
-  }
-  const partes = texto.split(/[T ]/);
-  const hora = partes.length > 1 ? partes[1] : partes[0];
-  return hora ? hora.substring(0, 5) : "";
-};
+const normalizarFechaHora = toReservaInstant;
 
 const esValorVerdadero = (valor) => {
   if (valor === true || valor === 1) return true;
@@ -157,29 +113,7 @@ const obtenerSalidaReserva = (reserva) => {
   return null;
 };
 
-const normalizarReservaHistorial = (reserva) => {
-  const fechaEntrada = obtenerCampo(reserva, ["fecha_entrada", "fechaEntrada", "fecha_inicio", "fechaInicio"]);
-  const fechaSalida = obtenerCampo(reserva, [
-    "fecha_salida",
-    "fechaSalida",
-    "fecha_finalizacion",
-    "fechaFinalizacion",
-    "fecha_fin",
-    "fechaFin",
-  ]);
-  const fechaEntradaReal = obtenerCampo(reserva, ["fecha_entrada_real", "fechaEntradaReal"]);
-  const fechaSalidaReal = obtenerCampo(reserva, ["fecha_salida_real", "fechaSalidaReal"]);
-  const fecha = obtenerCampo(reserva, ["fecha", "fecha_reserva", "fechaReserva"], extraerFecha(fechaEntrada || fechaSalida));
-
-  return {
-    ...reserva,
-    fecha,
-    hora_entrada: obtenerCampo(reserva, ["hora_entrada_real", "horaEntradaReal"], "") ||
-      obtenerCampo(reserva, ["hora_entrada", "horaEntrada", "hora_inicio", "horaInicio"], extraerHora(fechaEntradaReal || fechaEntrada)),
-    hora_salida: obtenerCampo(reserva, ["hora_salida_real", "horaSalidaReal"], "") ||
-      obtenerCampo(reserva, ["hora_salida", "horaSalida", "hora_fin", "horaFin"], extraerHora(fechaSalidaReal || fechaSalida)),
-  };
-};
+const normalizarReservaHistorial = (reserva) => ({ ...reserva, ...normalizeReservaDateTime(reserva) });
 
 function HistorialReservaSkeleton() {
   return (

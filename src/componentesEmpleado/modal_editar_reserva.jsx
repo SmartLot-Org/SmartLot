@@ -1,3 +1,4 @@
+import { normalizeReservaDateTime, formatReservaDate, mergeReservaEdit } from '../helpers/reservaDateTime';
 import { useState, useCallback } from "react";
 import Swal from "sweetalert2";
 import { Z_INDEX } from "../helpers/zIndex";
@@ -13,9 +14,10 @@ const obtenerCampo = (item, claves, fallback = "") => {
 };
 
 function ModalEditarReserva({ reservaRaw, reservaNorm, onClose, onActualizada, onEliminada }) {
-  const fechaBase = reservaNorm?.fecha || "";
-  const [horaInicio, setHoraInicio] = useState(() => reservaNorm?.hora_entrada || "");
-  const [horaFin, setHoraFin] = useState(() => reservaNorm?.hora_salida || "");
+  const time = normalizeReservaDateTime({ ...reservaRaw, ...reservaNorm });
+  const fechaBase = time.fecha || "";
+  const [horaInicio, setHoraInicio] = useState(() => time.hora_entrada || "");
+  const [horaFin, setHoraFin] = useState(() => time.hora_salida || "");
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState("");
 
@@ -61,11 +63,10 @@ function ModalEditarReserva({ reservaRaw, reservaNorm, onClose, onActualizada, o
     const idVehiculo = Number(obtenerCampo(reservaRaw, ["id_vehiculo", "idVehiculo", "vehiculo_id", "vehiculoId"]));
     const idGarage = Number(obtenerCampo(reservaRaw, ["id_garage", "idGarage", "garage_id", "garageId"]));
 
-    // Offset explicito -03:00: el servidor puede correr en UTC (Render) y sin
-    // offset interpretaria la hora local AR como UTC, corrida 3 horas.
+    // Timestamps locales sin offset: conservar literalmente la hora almacenada.
     const payload = {
-      fecha_entrada: `${fechaBase}T${horaInicio}:00-03:00`,
-      fecha_salida: `${fechaBase}T${horaFin}:00-03:00`,
+      fecha_entrada: `${fechaBase}T${horaInicio}:00`,
+      fecha_salida: `${time.fecha_salida?.slice(0, 10) || fechaBase}T${horaFin}:00`,
       id_usuario: idUsuario,
       id_vehiculo: idVehiculo,
       id_garage: idGarage,
@@ -79,17 +80,15 @@ function ModalEditarReserva({ reservaRaw, reservaNorm, onClose, onActualizada, o
     setGuardando(false);
 
     if (resultado.respuesta) {
-      const actualizada = {
-        ...reservaRaw,
-        ...resultado.datos,
+      const actualizada = mergeReservaEdit(reservaRaw, resultado.datos, {
         fecha_entrada: payload.fecha_entrada,
         fecha_salida: payload.fecha_salida,
-      };
+      });
       onActualizada(actualizada);
     } else {
-      setError("No se pudo actualizar la reserva. Intenta de nuevo.");
+      setError(resultado.datos?.message || "No se pudo actualizar la reserva. Intenta de nuevo.");
     }
-  }, [horaInicio, horaFin, fechaBase, reservaRaw, onActualizada]);
+  }, [horaInicio, horaFin, fechaBase, time.fecha_salida, reservaRaw, onActualizada, isValid]);
 
   const handleEliminar = useCallback(async () => {
     onClose();
@@ -124,11 +123,10 @@ function ModalEditarReserva({ reservaRaw, reservaNorm, onClose, onActualizada, o
     } else {
       setError("No se pudo cancelar la reserva. Intenta de nuevo.");
     }
-  }, [reservaRaw, onEliminada]);
+  }, [reservaRaw, onEliminada, onClose]);
 
-  const fechaFormateada = reservaNorm?.fecha
-    ? new Date(reservaNorm.fecha).toLocaleDateString("es-AR", { timeZone: "UTC" })
-    : fechaBase;
+  const fechaFormateada = formatReservaDate(fechaBase);
+
 
   return (
     <ModalPortal onClose={onClose}>

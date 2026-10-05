@@ -181,6 +181,16 @@ const UsuariosUpdate = async (id, usuario) => {
     }
 };
 
+const UsuariosPatchLimiteReservas = async (id, limiteReservasActivas) => {
+    try {
+        const response = await apiClient.patch(`/api/usuario/${id}/limite-reservas`, { limiteReservasActivas });
+        invalidateByPrefix('usuarios:');
+        return { respuesta: true, datos: response.data };
+    } catch (error) {
+        return { respuesta: false, datos: error.response?.data || { message: 'No se pudo conectar con el servidor.' } };
+    }
+};
+
 const UsuariosPatchEstado = async (id, activo) => {
     let returnObject = { respuesta: false, datos: null };
     let url = '/api/usuario/' + id + '/estado';
@@ -288,6 +298,7 @@ export {
     UsuariosUpdate,
     UsuariosDelete,
     UsuariosPatchEstado,
+    UsuariosPatchLimiteReservas,
     UsuariosLogin,
     UsuariosImpersonate,
     UsuariosStopImpersonate

@@ -298,7 +298,7 @@ const ReservasCheckOut = async (id, patente) => {
 
 
 
-const ReservasGetByUsuario = async (idUsuario, { force = false } = {}) => {
+const ReservasGetByUsuario = async (idUsuario, { force = false, signal } = {}) => {
 
     let returnObject = { respuesta: false, datos: [] };
 
@@ -309,7 +309,7 @@ const ReservasGetByUsuario = async (idUsuario, { force = false } = {}) => {
         return await getFromCache(
             'reservas:usuario:' + idUsuario,
             async () => {
-                const response = await apiClient.get(url, { validateStatus: () => true });
+                const response = await apiClient.get(url, { validateStatus: () => true, signal, _skipToast: true });
 
                 if (response.status >= 200 && response.status < 300) {
                     returnObject.respuesta = true;

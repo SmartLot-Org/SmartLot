@@ -11,6 +11,9 @@ import { VehiculosCreate } from "../servicies/API_Vehiculo";
 import { ModelosGetAll } from "../servicies/API_Modelo";
 import { SedesGetAll } from "../servicies/API_Sede";
 import useLiveValidation from "../hooks/useLiveValidation";
+import ReservationLimitFields from "../componentesAdmin/ReservationLimitFields";
+import "../componentesAdmin/ReservationLimitFields.css";
+import { parseReservationLimit } from "../helpers/reservationPolicy";
 
 const obtenerListado = (datos) => {
   if (Array.isArray(datos)) return datos;
@@ -37,6 +40,8 @@ function AgregarEmpleado() {
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [limited, setLimited] = useState(false);
+  const [limitValue, setLimitValue] = useState('');
   const [, setModelos] = useState([]);
   const [sedes, setSedes] = useState([]);
 
@@ -138,6 +143,9 @@ function AgregarEmpleado() {
 
   const handleGuardarEmpleado = async () => {
     setError('');
+    let limiteReservasActivas;
+    try { limiteReservasActivas = parseReservationLimit(limited, limitValue); }
+    catch (error) { setError(error.message); return; }
 
     if (!isValid) {
       setError('❌ Corrige los errores antes de guardar.');
@@ -160,6 +168,7 @@ function AgregarEmpleado() {
     setLoading(true);
 
     const payload = {
+      limiteReservasActivas,
       id_rol: 2,
       nombre: formData.nombre.trim(),
       apellido: formData.apellido.trim(),
@@ -241,6 +250,7 @@ function AgregarEmpleado() {
           />
 
         
+        <ReservationLimitFields limited={limited} value={limitValue} onLimitedChange={setLimited} onValueChange={setLimitValue} disabled={loading} />
         {error && <p className="form-error">{error}</p>}
 
         <div className="form-actions">
