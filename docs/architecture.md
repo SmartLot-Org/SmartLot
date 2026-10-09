@@ -35,7 +35,7 @@ La sesión vive en una **cookie gestionada por el backend** (`withCredentials: t
 
 | Pieza | Archivo | Rol |
 |---|---|---|
-| Bootstrap de sesión | `src/contexts/AuthProvider.jsx` | `GET /api/usuario/me` con timeout de 10 s y `AbortController`; setea `usuario` o lo deja en `null`. |
+| Bootstrap de sesión | `src/contexts/AuthProvider.jsx` | `GET /api/usuario/me` con `AbortController`, timeout ampliado (45 s) y un reintento vía `src/helpers/arranqueApi.js` para tolerar el cold start del backend; setea `usuario` o lo deja en `null`. |
 | Cliente HTTP | `src/api/client.js` | Interceptor de 401: `POST /api/usuario/refresh` una sola vez; las requests concurrentes esperan en cola (`failedQueue`) y se reintentan. |
 | Expiración definitiva | `src/api/client.js` | Si el refresh falla: `clearCache()`, evento `smartlot:session-expired` y navegación a `/login`. `AuthProvider` escucha el evento y limpia el estado. |
 | Logout | `src/api/token.js` | `POST /api/usuario/logout`; el interceptor limpia la caché en login/logout/impersonate. |
@@ -46,6 +46,8 @@ Flags por request entendidos por el interceptor:
 
 - `_skipAuthRedirect`: no redirige a login ante 401 (usado por el arranque de sesión).
 - `_skipToast`: silencia el toast de error, pero **no** impide el refresh ni el reintento.
+
+> **Gotcha:** el backend de producción corre en Render (plan free) y se apaga tras ~15 min sin tráfico; el primer request queda esperando el arranque y puede superar el timeout por defecto de 15 s. `src/helpers/arranqueApi.js` clasifica esos errores (sin respuesta, o 502/503/504) y reintenta una vez con timeout ampliado; lo usan el bootstrap de sesión y el inicio de Google OAuth (`LoginForm.jsx`).
 
 ## Autorización por roles
 

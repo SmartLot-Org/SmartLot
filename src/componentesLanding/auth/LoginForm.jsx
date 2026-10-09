@@ -4,6 +4,7 @@ import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import apiClient from "../../api/client";
 import { getUserHomeRoute } from "../../helpers/roles";
+import { TIMEOUT_ARRANQUE_MS, conReintentoDeArranque, esErrorDeArranque } from "../../helpers/arranqueApi";
 import "./LoginForm.css";   
 
 gsap.registerPlugin(useGSAP);
@@ -98,10 +99,18 @@ export default function LoginForm() {
     setGoogleLoading(true);
     setGoogleError("");
     try {
-      const res = await apiClient.get("/api/auth/google", { _skipAuthRedirect: true });
+      // GET idempotente: si el backend free está despertando se reintenta,
+      // en lugar de fallar en el primer clic con un error genérico.
+      const res = await conReintentoDeArranque(() => apiClient.get("/api/auth/google", {
+        _skipAuthRedirect: true,
+        timeout: TIMEOUT_ARRANQUE_MS,
+      }));
       window.location.href = res.data.url;
     } catch (error) {
-      setGoogleError(error.response?.data?.message || "Hubo un error al conectar con Google.");
+      const msg = esErrorDeArranque(error)
+        ? "El servidor está iniciando. Esperá unos segundos y volvé a intentar."
+        : error.response?.data?.message || "Hubo un error al conectar con Google.";
+      setGoogleError(msg);
       setGoogleLoading(false);
     }
   };

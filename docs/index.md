@@ -20,6 +20,7 @@ Este repositorio es el frontend SPA de SmartLot y consume la API del backend `Sm
 | [`estados-vacios.md`](./estados-vacios.md) | Inventario de estados vacíos por pantalla y su acción | Frontend, QA |
 | [`reservation-limit.md`](./reservation-limit.md) | Informe del límite de reservas activas por empleado (frontend + backend revisado) | Producto, backend |
 | [`pendientes-audit-ui.md`](./pendientes-audit-ui.md) | Auditoría UI en curso: inventario de vistas y plan de trabajo | Frontend |
+| [`cold-start-login-google.md`](./cold-start-login-google.md) | Bug de cold start del backend en el primer login con Google: causa, fix implementado y pendientes (handoff) | Frontend, backend |
 
 ## Fuentes de verdad
 

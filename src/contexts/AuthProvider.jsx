@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import apiClient, { SESSION_EXPIRED_EVENT } from '../api/client';
 import { AuthContext } from './authContext';
 import { haySuperadminBackup, obtenerUsuarioImpersonado, eliminarUsuarioImpersonado, eliminarSuperadminBackup } from '../helpers/superadminSession';
+import { TIMEOUT_ARRANQUE_MS, conReintentoDeArranque } from '../helpers/arranqueApi';
 
 export function AuthProvider({ children }) {
   const [usuario, setUsuario] = useState(null);
@@ -14,9 +15,14 @@ export function AuthProvider({ children }) {
     // las cookies de impersonación ni el estado.
     let cancelado = false;
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 10000);
 
-    apiClient.get('/api/usuario/me', { _skipAuthRedirect: true, signal: controller.signal })
+    // El backend free puede estar arrancando: timeout ampliado y un reintento
+    // evitan marcar como deslogueado a un usuario con sesión válida.
+    conReintentoDeArranque(() => apiClient.get('/api/usuario/me', {
+      _skipAuthRedirect: true,
+      signal: controller.signal,
+      timeout: TIMEOUT_ARRANQUE_MS,
+    }))
       .then((res) => {
         if (cancelado) return;
         const impersonado = obtenerUsuarioImpersonado();
@@ -35,11 +41,10 @@ export function AuthProvider({ children }) {
         eliminarSuperadminBackup();
       })
       .finally(() => {
-        clearTimeout(timeout);
         if (!cancelado) setLoading(false);
       });
 
-    return () => { cancelado = true; controller.abort(); clearTimeout(timeout); };
+    return () => { cancelado = true; controller.abort(); };
   }, []);
 
   // Cuando el interceptor confirma que ni siquiera el refresh puede recuperar
