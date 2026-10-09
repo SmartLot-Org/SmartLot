@@ -13,13 +13,13 @@
 ## 1. Qué ya está hecho (NO repetir)
 
 1. **Orientación del proyecto (completada):**
-   - Estructura leída: `README.md`, `package.json`, `design.md` (raíz), `src/`, `docs/`.
+   - Estructura leída: `README.md`, `package.json`, `DESIGN.md` (raíz), `src/`, `docs/`.
    - Stack confirmado: React 19, Vite 8, Tailwind CSS v4 (tokens en `@theme` en `src/index.css`),
      react-router-dom v7, lucide-react + react-icons, recharts, GSAP, SweetAlert2.
    - Especificación de estados vacíos: `docs/estados-vacios.md` (referencia para auditoría).
 2. **Mapa de rutas completo (completado)** desde `src/App.jsx` — **48 vistas routeadas** en 6 áreas de
    rol + shell global (lista completa en la sección 3).
-3. **Contexto de diseño (completado):** `design.md` — sistema *"Azul Señal"*:
+3. **Contexto de diseño (completado):** `DESIGN.md` — sistema *"Azul Señal"*:
    - Tipografías: Archivo (display landing), DM Sans (producto), JetBrains Mono (datos).
    - Tokens de color (`--color-brand-*`, `--accent*`, semánticos), radios (6/10/14/full),
      sombras (`--shadow-sm/md/lg/accent`), botones 40px/48px, inputs con floating label, badges.
@@ -36,7 +36,7 @@
 - **El launcher de impeccable NO se corrió** (`impeccable context`) porque en plan mode puede escribir
   un binario a disco. Antes de trabajo de edición con el skill, correr una sola vez:
   `.agents/skills/impeccable/scripts/impeccable.cmd context` (Windows, sin `sh`) desde la raíz del
-  proyecto. Si falla, seguir con fallback: leer `design.md` directamente (ya hecho).
+  proyecto. Si falla, seguir con fallback: leer `DESIGN.md` directamente (ya hecho).
 
 ---
 
@@ -178,7 +178,7 @@ PROJECT CONTEXT
 - Stack: React 19, Vite 8, Tailwind CSS v4 (brand tokens in @theme in src\index.css),
   react-router-dom v7, lucide-react and react-icons, recharts, GSAP, SweetAlert2.
 - All UI copy is Spanish. Quote Spanish strings verbatim. Write your report in English.
-- Design system: design.md at the project root ("Azul Señal": color tokens, font roles
+- Design system: DESIGN.md at the project root ("Azul Señal": color tokens, font roles
   DM Sans / Archivo / JetBrains Mono, radii, shadows, button heights 40/48px, floating-label
   inputs, badge rules). Judge against it.
 - Empty-state spec: docs\estados-vacios.md (read it if your views show empty states).
@@ -196,10 +196,10 @@ Components used beyond your scope go in section C.
 CHECKS (apply to every view)
 1. Hierarchy and layout: no clear primary action; competing focal points; weak grouping; uneven
    spacing; tables or cards hard to scan; misalignment.
-2. Typography: font roles vs design.md; too many sizes or weights; small or low-contrast text;
+2. Typography: font roles vs DESIGN.md; too many sizes or weights; small or low-contrast text;
    truncation without title or tooltip.
 3. Color and contrast: hardcoded hex/rgb/arbitrary values (text-[#...], bg-[...]) bypassing
-   design.md tokens; text below WCAG AA (4.5:1 body, 3:1 large text, 3:1 UI components/focus);
+   DESIGN.md tokens; text below WCAG AA (4.5:1 body, 3:1 large text, 3:1 UI components/focus);
    status by color alone; wrong semantic color. State computed ratios when you calculate them.
 4. Accessibility: inputs without accessible name (floating label still needs real label
    association); icon-only buttons without aria-label; img without alt; outline-none without
@@ -215,7 +215,7 @@ CHECKS (apply to every view)
    label; errors that do not say how to fix; inconsistent terms (reserva vs reservación,
    garaje vs garage, empleado vs usuario).
 8. System consistency: re-implemented buttons/inputs/badges/cards instead of shared components;
-   radii/shadows/heights differing from design.md; same concept styled differently across roles;
+   radii/shadows/heights differing from DESIGN.md; same concept styled differently across roles;
    two icon libraries for the same icon kind.
 9. Visual craft and anti-patterns (impeccable absolute bans): colored side-stripe borders;
    gradient text; default glassmorphism; identical icon+heading+text card grids; hero-metric
@@ -231,7 +231,7 @@ overflow-x, min-w-, <table. Confirm every hit by reading the surrounding code.
 SEVERITY
 - H: blocks or misleads the task; WCAG A or AA failure; broken/overflowing mobile layout;
   destructive action without confirmation; wrong state shown.
-- M: hierarchy, consistency, or clarity problem; design.md violation; missing empty/loading/error
+- M: hierarchy, consistency, or clarity problem; DESIGN.md violation; missing empty/loading/error
   state; inconsistent terminology.
 - L: polish (micro-spacing, copy tone, decorative excess).
 
@@ -383,7 +383,7 @@ YOUR SCOPE (group N of 7: <nombre>). Route in brackets, file after the arrow:
 9. **[ ] Aplicar por tandas,** en este orden sugerido:
    1. **H — accesibilidad y bloqueos:** labels/aria, focus styles, confirmaciones destructivas,
       tablas sin overflow en móvil, contraste AA.
-   2. **M — consistencia con `design.md`:** tokens vs hex hardcodeados, alturas de botón 40/48,
+   2. **M — consistencia con `DESIGN.md`:** tokens vs hex hardcodeados, alturas de botón 40/48,
       radios/sombras, floating labels, systema de alertas (SweetAlert2 vs alert() nativo),
       unificar término de copy (reserva/reservación, garaje/garage, empleado/usuario).
    3. **M — estados faltantes:** empty (seguir `docs/estados-vacios.md`), loading, error, inline
