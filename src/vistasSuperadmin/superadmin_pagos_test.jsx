@@ -56,6 +56,9 @@ const TARJETAS_PRUEBA = [
 ];
 
 const PRECIOS_RAPIDOS = [500, 1000, 2000, 5000, 10000];
+const POLLING_INTERVALO_MS = 5000;
+const POLLING_DURACION_MAXIMA_MS = 3 * 60 * 1000;
+const POLLING_INTENTOS_MAXIMOS = 36;
 
 const formatearImporte = (importe) =>
   new Intl.NumberFormat("es-AR", {
@@ -130,7 +133,11 @@ function CrearPagoTab({ onPagoVerificado }) {
   const [polling, setPolling] = useState(false);
   const [pollingIntento, setPollingIntento] = useState(0);
   const pollingRef = useRef(null);
+  const pollingTimeoutRef = useRef(null);
   const pollingOrderRef = useRef("");
+  const pollingGenerationRef = useRef(0);
+  // El pedido anterior puede seguir pendiente después de detenerse; el bloqueo se comparte entre generaciones.
+  const pollingInFlightRef = useRef(false);
   const [searchParams, setSearchParams] = useSearchParams();
 
   useEffect(() => {
@@ -153,7 +160,11 @@ function CrearPagoTab({ onPagoVerificado }) {
   }, []);
 
   useEffect(() => () => {
+    pollingGenerationRef.current += 1;
     if (pollingRef.current) clearInterval(pollingRef.current);
+    if (pollingTimeoutRef.current) clearTimeout(pollingTimeoutRef.current);
+    pollingRef.current = null;
+    pollingTimeoutRef.current = null;
   }, []);
 
   const sedesFiltradas = useMemo(
@@ -182,9 +193,14 @@ function CrearPagoTab({ onPagoVerificado }) {
   };
 
   const detenerPolling = () => {
+    pollingGenerationRef.current += 1;
     if (pollingRef.current) {
       clearInterval(pollingRef.current);
       pollingRef.current = null;
+    }
+    if (pollingTimeoutRef.current) {
+      clearTimeout(pollingTimeoutRef.current);
+      pollingTimeoutRef.current = null;
     }
     setPolling(false);
     setPollingIntento(0);
@@ -195,21 +211,33 @@ function CrearPagoTab({ onPagoVerificado }) {
     const oid = String(orderIdParaPolling || "").trim();
     if (!oid) return;
     detenerPolling();
+    const generacion = pollingGenerationRef.current;
+    const pollingVigente = () => pollingGenerationRef.current === generacion;
     pollingOrderRef.current = oid;
     setPolling(true);
     setPollingIntento(0);
     let intentos = 0;
+    const detenerPorLimite = () => {
+      if (!pollingVigente()) return;
+      detenerPolling();
+      Swal.fire({ toast: true, position: "top-end", icon: "info", title: "Polling detenido: no se detectó pago en 3 min. Usá Buscar por Order ID manual.", showConfirmButton: false, timer: 4000 });
+    };
     pollingRef.current = setInterval(async () => {
+      if (!pollingVigente()) return;
+      if (intentos >= POLLING_INTENTOS_MAXIMOS) return;
+      if (pollingInFlightRef.current) return;
+
+      pollingInFlightRef.current = true;
       intentos += 1;
       setPollingIntento(intentos);
-      // máximo 3 min (36 intentos x 5s)
-      if (intentos > 36) {
-        detenerPolling();
-        Swal.fire({ toast: true, position: "top-end", icon: "info", title: "Polling detenido: no se detectó pago en 3 min. Usa Buscar por Order ID manual.", showConfirmButton: false, timer: 4000 });
-        return;
+      if (intentos === 1) {
+        // El primer tick llega a los 5s; la ventana de 3 min empieza con el primer intento.
+        pollingTimeoutRef.current = setTimeout(detenerPorLimite, POLLING_DURACION_MAXIMA_MS);
       }
+
       try {
         const res = await PagosBuscar({ external_reference: oid });
+        if (!pollingVigente()) return;
         const lista = res.datos?.results || res.datos?.pagos || [];
         const arr = Array.isArray(lista) ? lista : [];
         if (res.respuesta && arr.length > 0) {
@@ -218,17 +246,23 @@ function CrearPagoTab({ onPagoVerificado }) {
           if (!pid) return;
           // Verificación completa que además hace savePaymentRecord en backend y actualiza mp_payment_status
           const verif = await PagosGetById(pid);
+          if (!pollingVigente()) return;
           if (verif.respuesta) {
-            detenerPolling();
             const pago = verif.datos?.payment || verif.datos;
+            detenerPolling();
             setPaymentIdVerificar(pid);
             setPagoVerificado(pago);
             onPagoVerificado?.(pago);
             Swal.fire({ toast: true, position: "top-end", icon: "success", title: `¡Pago detectado automáticamente! ${pid} (${pago.status})`, showConfirmButton: false, timer: 3500 });
           }
         }
-      } catch {}
-    }, 5000);
+      } catch {
+        // Se reintenta en el próximo intervalo ante errores transitorios.
+      } finally {
+        pollingInFlightRef.current = false;
+        if (pollingVigente() && intentos >= POLLING_INTENTOS_MAXIMOS) detenerPorLimite();
+      }
+    }, POLLING_INTERVALO_MS);
   };
 
   const crearPreferencia = async () => {

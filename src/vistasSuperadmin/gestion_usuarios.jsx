@@ -700,51 +700,69 @@ const GestionUsuarios = () => {
   // Animaciones iniciales
   useGSAP(
     () => {
-      const header = containerRef.current?.querySelector(".usuarios-animate-header");
-      const toolbar = containerRef.current?.querySelector(".usuarios-animate-toolbar");
-      if (!header) return;
+      const mm = gsap.matchMedia();
+      mm.add("(prefers-reduced-motion: no-preference)", () => {
+        const header = containerRef.current?.querySelector(".usuarios-animate-header");
+        const toolbar = containerRef.current?.querySelector(".usuarios-animate-toolbar");
+        if (!header) return;
 
-      const tl = gsap.timeline({ defaults: { ease: "power3.out", duration: 0.8 } });
-      tl.from(header, { y: 30, opacity: 0 });
-      if (toolbar) tl.from(toolbar, { y: 20, opacity: 0 }, "-=0.5");
+        const tl = gsap.timeline({ defaults: { ease: "power3.out", duration: 0.8 } });
+        tl.from(header, { y: 30, opacity: 0 });
+        if (toolbar) tl.from(toolbar, { y: 20, opacity: 0 }, "-=0.5");
+      });
+      return () => mm.revert();
     },
     { scope: containerRef }
   );
 
   // Animación de lista de tarjetas
-  useGSAP(() => {
-    const cards = containerRef.current?.querySelectorAll(".usuario-card") ?? [];
-    if (cards.length > 0) {
-      gsap.fromTo(
-        cards,
-        { y: 16, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          stagger: 0.04,
-          duration: 0.35,
-          ease: "power2.out",
-          overwrite: "auto",
+  useGSAP(
+    () => {
+      const mm = gsap.matchMedia();
+      mm.add("(prefers-reduced-motion: no-preference)", () => {
+        const cards = containerRef.current?.querySelectorAll(".usuario-card") ?? [];
+        if (cards.length > 0) {
+          gsap.fromTo(
+            cards,
+            { y: 16, opacity: 0 },
+            {
+              y: 0,
+              opacity: 1,
+              stagger: 0.04,
+              duration: 0.35,
+              ease: "power2.out",
+              overwrite: "auto",
+            }
+          );
         }
-      );
-    }
-  }, [usuariosFiltrados]);
+      });
+      return () => mm.revert();
+    },
+    { dependencies: [usuariosFiltrados], revertOnUpdate: true }
+  );
 
   // Animación del modal de archivados
-  useGSAP(() => {
-    if (showArchived) {
-      gsap.fromTo(
-        ".modal-portal-overlay",
-        { opacity: 0 },
-        { opacity: 1, duration: 0.25, ease: "power2.out" }
-      );
-      gsap.fromTo(
-        ".modal-archivados-panel",
-        { y: 30, opacity: 0, scale: 0.97 },
-        { y: 0, opacity: 1, scale: 1, duration: 0.35, ease: "power3.out", delay: 0.05 }
-      );
-    }
-  }, [showArchived]);
+  useGSAP(
+    () => {
+      const mm = gsap.matchMedia();
+      mm.add("(prefers-reduced-motion: no-preference)", () => {
+        if (showArchived) {
+          gsap.fromTo(
+            ".modal-portal-overlay",
+            { opacity: 0 },
+            { opacity: 1, duration: 0.25, ease: "power2.out" }
+          );
+          gsap.fromTo(
+            ".modal-archivados-panel",
+            { y: 30, opacity: 0, scale: 0.97 },
+            { y: 0, opacity: 1, scale: 1, duration: 0.35, ease: "power3.out", delay: 0.05 }
+          );
+        }
+      });
+      return () => mm.revert();
+    },
+    { dependencies: [showArchived], revertOnUpdate: true }
+  );
 
   // Bloqueo de scroll + Escape para la bandeja de solicitudes
   const cerrarSolicitudes = () => {
@@ -770,36 +788,59 @@ const GestionUsuarios = () => {
   }, [showSolicitudes]);
 
   // Animación de la bandeja de solicitudes
-  useGSAP(() => {
-    if (showSolicitudes) {
-      gsap.fromTo(
-        ".modal-portal-overlay",
-        { opacity: 0 },
-        { opacity: 1, duration: 0.25, ease: "power2.out" }
-      );
-      gsap.fromTo(
-        ".modal-solicitudes-panel",
-        { y: 30, opacity: 0, scale: 0.97 },
-        { y: 0, opacity: 1, scale: 1, duration: 0.35, ease: "power3.out", delay: 0.05 }
-      );
-    }
-  }, [showSolicitudes]);
+  useGSAP(
+    () => {
+      const mm = gsap.matchMedia();
+      mm.add("(prefers-reduced-motion: no-preference)", () => {
+        if (showSolicitudes) {
+          gsap.fromTo(
+            ".modal-portal-overlay",
+            { opacity: 0 },
+            { opacity: 1, duration: 0.25, ease: "power2.out" }
+          );
+          gsap.fromTo(
+            ".modal-solicitudes-panel",
+            { y: 30, opacity: 0, scale: 0.97 },
+            { y: 0, opacity: 1, scale: 1, duration: 0.35, ease: "power3.out", delay: 0.05 }
+          );
+        }
+      });
+      return () => mm.revert();
+    },
+    { dependencies: [showSolicitudes], revertOnUpdate: true }
+  );
 
   // Animación del Dropdown de Filtros (AutoAlpha para mejor Performance)
-  useGSAP(() => {
-    if (!dropdownRef.current) return;
-    if (showFilters) {
-      gsap.fromTo(
-        dropdownRef.current,
-        { y: -10, autoAlpha: 0, scale: 0.98 },
-        { y: 0, autoAlpha: 1, scale: 1, duration: 0.25, ease: "power2.out", display: "flex" }
-      );
-    } else {
-      gsap.to(dropdownRef.current, {
-        y: -10, autoAlpha: 0, scale: 0.98, duration: 0.2, ease: "power2.in", display: "none"
+  useGSAP(
+    () => {
+      const mm = gsap.matchMedia();
+      mm.add("(prefers-reduced-motion: no-preference)", () => {
+        if (!dropdownRef.current) return;
+        if (showFilters) {
+          gsap.fromTo(
+            dropdownRef.current,
+            { y: -10, autoAlpha: 0, scale: 0.98 },
+            { y: 0, autoAlpha: 1, scale: 1, duration: 0.25, ease: "power2.out", display: "flex" }
+          );
+        } else {
+          gsap.to(dropdownRef.current, {
+            y: -10, autoAlpha: 0, scale: 0.98, duration: 0.2, ease: "power2.in", display: "none"
+          });
+        }
       });
-    }
-  }, [showFilters]);
+      mm.add("(prefers-reduced-motion: reduce)", () => {
+        if (!dropdownRef.current) return;
+        gsap.set(dropdownRef.current, {
+          y: 0,
+          autoAlpha: 1,
+          scale: 1,
+          display: showFilters ? "flex" : "none",
+        });
+      });
+      return () => mm.revert();
+    },
+    { dependencies: [showFilters], revertOnUpdate: true }
+  );
 
 
   return (

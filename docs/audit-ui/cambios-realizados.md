@@ -315,3 +315,69 @@ Comando: `.agents\skills\impeccable\scripts\impeccable.cmd detect --json <archiv
 | `npm run build` | OK, built in 1.56s (solo warning preexistente de chunks >500 kB) |
 | `impeccable detect --json` | 2 warnings `layout-transition` preexistentes + advisories de drift (ver arriba) |
 | Commit | Hecho en la rama `audit-ui` el 2026-10-12, a pedido explícito |
+
+## 9. Sesión 2026-10-13 — revisión P5/P6 (parcial)
+
+Tres subagentes hicieron en paralelo una revisión estática de los 8 checks P5, en modo solo lectura;
+después se implementaron los fixes de código para los riesgos verificables de QR, checkout/polling y
+movimiento reducido. Los checks runtime siguen abiertos hasta poder ejecutar navegador, cámara, lector
+de pantalla y sandbox de Mercado Pago; no se atribuyen resultados runtime que no se observaron.
+
+### P5 #5 — Guardar el lector QR mientras el POST está en curso
+
+- `src/vistasGaragista/LectorQrReserva.jsx`: agrega un ref de operación en curso; el cierre por X,
+  Escape y overlay queda bloqueado durante la verificación para no desmontar el lector y descartar el
+  callback. El X se deshabilita mientras muestra “Verificando…”. `finally` libera el guard y las
+  lecturas; éxito conserva callbacks+cierre y error permite reintentar. El desmontaje marca cancelado
+  el import/inicio; si `start()` resuelve tarde, se detiene y limpia la instancia local aunque se haya
+  limpiado el ref. Limpiezas repetidas se coalescen. El cliente HTTP tiene timeout de 15 s, sin cambios
+  en `src/api/client.js`.
+- `src/vistasGaragista/LectorQrReserva.source.test.js`: contratos fuente del guard, cierre, estados y
+  cancelación del inicio.
+- **Pendiente runtime:** probar cámara real, ingreso/egreso rápido y conceder permiso después de cerrar;
+  confirmar con `html5-qrcode` que la transmisión se detenga en el dispositivo.
+
+### P5 #6 — Checkout de Mercado Pago y polling sin solapamientos
+
+- `src/vistasAdmin/admin_pagos.jsx`: reserva `about:blank` sincrónicamente desde el click y antes del
+  primer `await`; anula `opener`; si el popup está bloqueado, da instrucciones y no crea preferencia.
+  Cierra la ventana ante error o URL ausente, navega al checkout validado antes de iniciar el polling y
+  muestra éxito después de iniciar la navegación. El payload, orderId, metadata y servicios no cambian.
+- `src/vistasAdmin/admin_pagos.source.test.js`: verifica reserva previa, popup bloqueado, cierres por
+  error y navegación.
+- `src/vistasSuperadmin/superadmin_pagos_test.jsx`: single-flight para que `PagosBuscar`/`PagosGetById`
+  no se solapen; el intento solo cuenta al adquirir el lock. Una generación invalida respuestas viejas
+  tras detener, reiniciar o desmontar; se mantienen 5 s nominales, 36 intentos y límite de 3 min. El
+  catch vacío ahora explica el reintento transitorio (se elimina una infracción `no-empty` preexistente).
+- `src/vistasSuperadmin/superadmin_pagos_test.source.test.js`: cubre lock, generaciones, límites y
+  endpoints.
+- **Pendiente runtime:** sandbox de Mercado Pago, popups permitidos/bloqueados, retornos aprobado,
+  pendiente y rechazado; verificar latencia >5 s y detención con una petición en curso.
+
+### P5 #7 — guardas de movimiento reducido (código implementado)
+
+- `src/index.css`: la media query `prefers-reduced-motion: reduce` ahora reduce globalmente la duración,
+  demora e iteraciones de animaciones y transiciones CSS. Alcanza `animate-spin`, `urgentPulse` y los
+  spinners CSS sin depender de nombres locales; conserva el estado final para no dejar elementos de
+  entrada ocultos.
+- `src/vistasSuperadmin/superadmin_reservas.jsx`, `superadmin_gestion_garages.jsx`,
+  `gestion_empresas.jsx` y `gestion_usuarios.jsx`: los **8 hooks GSAP revisados** corren solo con
+  `(prefers-reduced-motion: no-preference)`; los contextos se revierten ante cambios/desmontaje. En
+  `gestion_usuarios`, el dropdown usa `gsap.set` para conservar su estado `display` sin movimiento.
+- `src/vistasSuperadmin/reduced-motion.source.test.js`: contrato fuente para la regla CSS, los guards y
+  el estado del dropdown.
+- **Pendiente:** verificar en navegador que el SO active la media query y recorrer landing + paneles;
+  por eso P5 #7 aún no queda cerrado como check runtime.
+
+### Verificación de esta sesión
+
+| Comando / herramienta | Resultado |
+|---|---|
+| `npm ci` | Instaló el lockfile existente (361 paquetes); no se modificaron `package.json` ni `package-lock.json`. |
+| `npm test` | **130 pass / 0 fail**. |
+| ESLint dirigido | Reduced-motion JSX/tests, lector QR/tests y tests de pagos/polling: **limpios**. `admin_pagos.jsx`: 3 errores/1 warning idénticos a HEAD; `gestion_usuarios.jsx`: 12 errores idénticos a HEAD; `superadmin_pagos_test.jsx`: 5 errores/1 warning vs. 6/1 en HEAD (un `no-empty` corregido). `src/index.css` se ignora por ser CSS. |
+| `npm run lint` | **99 errores / 4 warnings** (103 problemas). Incluye errores del bundle `modern-screenshot.umd.js` dentro de `.agents/` y deuda en `src/`; el lint global no está verde. No hay errores nuevos en los archivos dirigidos. |
+| `npm run build` | **OK, built in 1.83s con Vite 8.2.2**; warning de chunks >500 kB. |
+| `.agents/skills/impeccable/scripts/impeccable.cmd context` | No pudo descargar el engine 0.1.5 desde GitHub por falta de acceso/permiso de red. Se aplicó el fallback leyendo `PRODUCT.md` y `DESIGN.md`; no se corrió `detect`. |
+| Browser/MCP | `list_mcp_resources` no devolvió recursos ni hay runner en el lockfile; se usó Edge headless/CDP contra `dist/`. Smoke: `/para-garages` a 360px con `scrollWidth=360`; reduced motion emulado antes del mount mantiene ticker estático en landing; flipbook pasó de 1 request antes del scroll a 120 después y transfirió 10.456.063 bytes en ~60s a 4G emulado. Capturas de `/`, `/para-garages`, `/login` y `/recuperar-clave` quedaron en Temp, no en el repo. API `localhost:3000` no disponible; sin pruebas de rutas protegidas, cámara ni sandbox. |
+| Working tree | Limpio al iniciar. Cambios intencionales: tres documentos de `docs/audit-ui/`; `src/index.css`; vistas de reduced-motion, lector QR, pagos admin y polling superadmin; cuatro tests fuente; sin commit. |

@@ -321,16 +321,93 @@ decisión en una ADR nueva que superseda parcialmente la 007.
 
 ## P5 — Runtime checks (verificar con la app corriendo)
 
-| # | Check | Cómo |
-|---|---|---|
-| 1 | Sin scroll horizontal a 360-390px en `/nueva_reserva` (márgenes negativos ya corregidos) | `npm run dev` + DevTools responsive 360px |
-| 2 | Contraste de texto sobre vidrio (landing/auth) y sobre `.panel-stats-card` con gradiente (píxeles compuestos) | Inspección visual + DevTools |
-| 3 | Tabla de conflictos entre 769-956px (ya tiene `overflow-x:auto` — verificar) | `/superadmin/conflictos` + responsive |
-| 4 | Nombres accesibles del autocomplete de Google Maps (agregar/editar zonas y sedes) | Teclado + lector de pantalla (NVDA/VoiceOver) o Accessibility Inspector |
-| 5 | Carreras de cámara de `html5-qrcode` (doble ingreso/egreso rápido) | `/garagista_dashboard` con cámara real |
-| 6 | Polling de Mercado Pago + flujo `window.open` de checkout | `/payment/*` completo |
-| 7 | GSAP/CSS con reduce-motion del SO activo (Windows: Configuración → Accesibilidad → Efectos) | Recorrer landing + paneles |
-| 8 | Costura del marquee de `StatsTicker` y flipbook `LogoWatermark` (~10MB en 4G) | Throttling de red en DevTools |
+| # | Check | Cómo | Estado |
+|---|---|---|---|
+| 1 | Sin scroll horizontal a 360-390px en `/nueva_reserva` (márgenes negativos ya corregidos) | `npm run dev` + DevTools responsive 360/375/390px | ⏳ Ruta protegida; smoke extra `/para-garages` a 360px sin overflow |
+| 2 | Contraste de texto sobre vidrio (landing/auth) y sobre `.panel-stats-card` con gradiente (píxeles compuestos) | Inspección visual + DevTools | ◐ Capturas públicas; falta medir píxeles y panel de estadísticas |
+| 3 | Tabla de conflictos entre 769-956px (ya tiene `overflow-x:auto` — verificar) | `/superadmin/conflictos` + responsive | ⏳ API/sesión superadmin |
+| 4 | Nombres accesibles del autocomplete de Google Maps (agregar/editar zonas y sedes) | Teclado + lector de pantalla (NVDA/VoiceOver) o Accessibility Inspector | ⏳ Places/lector de pantalla |
+| 5 | Carreras de cámara de `html5-qrcode` (doble ingreso/egreso rápido) | `/garagista_dashboard` con cámara real | ✅ Fixes de código; ⏳ cámara real |
+| 6 | Polling de Mercado Pago + flujo `window.open` de checkout | `/payment/*` completo + superadmin test | ✅ Fixes de código; ⏳ sandbox/API |
+| 7 | GSAP/CSS con reduce-motion del SO activo (Windows: Configuración → Accesibilidad → Efectos) | Recorrer landing + paneles | ◐ Landing Edge emulada antes del mount; falta sistema real y vistas superadmin |
+| 8 | Costura del marquee de `StatsTicker` y flipbook `LogoWatermark` (~10MB en 4G) | Throttling de red en DevTools | ◐ 10.456.063 bytes transferidos; falta revisar la costura visual |
+
+### P5.1 — Revisión estática de los 8 checks (2026-10-13)
+
+> Se inspeccionaron los ocho puntos con tres subagentes en paralelo, solo lectura. **Esta revisión no
+> cierra ningún check runtime**: falta el navegador/dispositivo/API indicado en la tabla anterior.
+> Estado detallado y riesgos que deben comprobarse antes del cierre:
+
+1. **360–390 px, `/nueva_reserva`:** el formulario usa `box-sizing:border-box`, padding móvil y no
+   conserva los márgenes horizontales negativos ya corregidos. Aun así, `body` oculta overflow-x, lo
+   que podría disimular contenido recortado. Edge headless confirmó `scrollWidth=360` en
+   `/para-garages` a 360px, pero eso **no sustituye** la ruta protegida. Probar `/nueva_reserva` a 360,
+   375 y 390 px con datos, skeleton y garage/mapa; revisar clipping, no solo la barra.
+2. **Contraste sobre vidrio y `.panel-stats-card`:** Edge headless capturó `/`, `/para-garages`, `/login`
+   y `/recuperar-clave`; en `.glass-card`, el texto calculado es `#475569` sobre fondo translúcido
+   `rgba(253,252,249,.65)`. La inspección visual pública no mostró texto ilegible, pero no se midió el
+   pixel compuesto detrás de los glifos. No se pudo abrir la ruta con `.panel-stats-card` (requiere
+   sesión/API); el check AA sigue abierto.
+3. **Tabla de conflictos, 769–956 px:** ambas tablas usan `.conflicts-table-shell { overflow-x:auto }`
+   y un `min-width` de 860 px. Falta confirmar con datos que el desplazamiento queda dentro del shell
+   y que la página no se ensancha; probar 769 px, un ancho intermedio y 956 px.
+4. **Autocomplete de Maps:** los inputs de agregar/editar zona y alta de sede tienen labels/IDs o
+   `aria-label`. El nombre de las sugerencias que genera Google y su interacción con lector de pantalla
+   no se determina desde el JSX. Probar Tab, flechas, Enter, Escape y anuncios en NVDA/VoiceOver o
+   Accessibility Inspector.
+5. **Cámara QR:** fixes de código aplicados el 2026-10-13 en `LectorQrReserva.jsx`: X, Escape y overlay
+   no desmontan el lector durante el POST; el ref se libera en `finally`, éxito conserva callback+cierre
+   y error permite reintentar. El desmontaje cancela imports/inicios pendientes y, si `start()` resuelve
+   tarde, se detiene/limpia esa instancia local; las limpiezas repetidas se coalescen. La API limita cada
+   petición a 15 s. **Runtime pendiente:** con cámara real y red demorada, verificar ingreso/egreso
+   rápido, permiso concedido después de cerrar y actualización del tablero. Esto no confirma duplicación
+   en backend.
+6. **Mercado Pago:** fixes de código aplicados el 2026-10-13. En `vistasAdmin/admin_pagos.jsx` se
+   reserva `about:blank` sincrónicamente antes de crear preferencia, se anula `opener`, el bloqueo de
+   popup informa cómo habilitarlo sin crear la preferencia, y errores/URL ausente cierran la ventana.
+   En `superadmin_pagos_test.jsx` el polling es single-flight; detener/reiniciar/desmontar invalida
+   resultados viejos, con límite de 36 intentos y 3 min. **Runtime pendiente:** verificar popup
+   permitido/bloqueado, sandbox y retornos aprobado/pendiente/rechazado; probar latencia >5 s y que
+   detener/reiniciar no procese un resultado viejo. Requiere backend y credenciales sandbox.
+7. **`prefers-reduced-motion`:** se corrigió la parte estática del hallazgo el 2026-10-13. `index.css`
+   ahora reduce globalmente duración/demoras e iteraciones CSS (cubre `animate-spin`, `urgentPulse` y
+   spinners CSS); `StatsTicker` y `LogoWatermark` ya tenían ramas GSAP; las entradas GSAP revisadas
+   ahora corren solo con `no-preference` en `superadmin_reservas.jsx`,
+   `superadmin_gestion_garages.jsx`, `gestion_empresas.jsx` y los cinco hooks de
+   `gestion_usuarios.jsx`. El dropdown conserva `display` correcto con `reduce`. Se agregó
+   `reduced-motion.source.test.js`. Edge headless con la emulación `reduce` aplicada **antes de navegar**
+   confirmó `matchMedia=true`, ticker estático (`matrix(...,0,0)`) y `scroll-behavior:auto` en landing.
+   **Sigue pendiente** probar el ajuste real del SO y recorrer las vistas superadmin antes de cerrar #7.
+8. **Marquee y flipbook:** `StatsTicker` duplica el grupo (track `3703.56px`, grupos `1851.78px` cada
+   uno) y anima `xPercent: -50`; las anchuras coinciden, pero falta inspeccionar visualmente el instante
+   de costura al final de un ciclo. En Edge headless a 1440px/caché fría se pidió **1 frame antes del
+   primer scroll** y **120 URLs después**; con 4G emulado se transfirieron **10.456.063 bytes en ~60s**.
+   `LogoWatermark` suma 10.432.663 bytes en disco. Falta decidir si ese coste tras el primer scroll es
+   aceptable y mirar varios ciclos del marquee/canvas.
+
+**Entorno de esta sesión:** no hay recursos MCP ni runner declarado en el lockfile. Se usó Edge headless
+por CDP contra el build local para smoke checks/capturas de rutas públicas; las capturas quedaron en Temp,
+no en el repo. `/para-garages` a 360px dio `scrollWidth=360`; con `reduce` aplicado antes de navegar,
+landing reportó `matchMedia=true` y ticker estático. `localhost:3000` no está levantado (requests
+rechazadas; aviso `VITE_API_URL debe usar HTTPS` por el fallback del preview local), así que no se pudieron
+abrir rutas protegidas ni probar Maps, cámara o Mercado Pago. Ver §P6.
+
+### TODO de continuidad (actualizado 2026-10-13)
+
+- [x] Revisión estática paralela de P5 #1–#8 y registro de riesgos/evidencia.
+- [x] Fixes de código P5 #5 (QR), #6 (checkout/polling) y #7 (reduced-motion), con tests fuente.
+- [x] `npm test` **130/130**, `npm run build` **OK 1.83s** y `npm run lint` ejecutado (**99 errores / 4 warnings**, deuda global registrada).
+- [x] Smoke parcial Edge headless/CDP de rutas públicas, 360px, `reduce` antes del mount y precarga de frames bajo 4G. Evidencia/capturas temporales; no cierra P5.
+- [ ] P5 #1/#3: volver a probar `/nueva_reserva` y `/superadmin/conflictos` con API, sesión y datos reales a los anchos de la tabla.
+- [ ] P5 #2: medir contraste compuesto de glass/auth y `.panel-stats-card` con muestras de píxel y contenido real.
+- [ ] P5 #4: recorrer sugerencias de Maps con teclado y lector de pantalla/Accessibility Inspector.
+- [ ] P5 #5: probar cámara real, cierre con `start()` pendiente, ingreso/egreso y actualización del tablero.
+- [ ] P5 #6: probar checkout/polling contra sandbox con popup bloqueado/permitido, retornos y latencia >5 s.
+- [ ] P5 #7: repetir con ajuste real del SO y recorrer landing + superadmin; Edge solo cubrió landing emulada.
+- [ ] P5 #8: observar costura varios ciclos y transferencia total del flipbook con caché fría/4G.
+- [ ] Hacer la revisión visual P6 (máximo dos rondas: desktop + 360px).
+- [ ] Correr `impeccable detect --json` cuando el engine esté disponible; el intento de contexto del 2026-10-13 quedó bloqueado por la descarga desde GitHub.
+- [ ] Cerrar la auditoría y actualizar este tracking; commit solo si el usuario lo pide.
 
 ---
 
@@ -338,21 +415,30 @@ decisión en una ADR nueva que superseda parcialmente la 007.
 
 1. **Comandos finales (en orden):**
    ```
-   npm test                                   # baseline: 117/117 ✅ (2026-10-10)
-   npm run lint                               # deuda preexistente documentada; validar solo lo tocado
-   npm run build                              # ✅ corrido 2026-10-10 (1.55s); re-correr si hay cambios nuevos
-   ```
-2. **Detector de impeccable** (lo pidió el skill al cargar contexto; correr una sola vez al final):
-   ```
-   .agents\skills\impeccable\scripts\impeccable.cmd detect --json <archivos tocados>
-   ```
+    npm test                                   # ✅ 130/130 (2026-10-13, tras npm ci)
+    npm run lint                               # ⚠️ ejecutado: 99 errores / 4 warnings (deuda global)
+    npm run build                              # ✅ Vite 8.2.2, 1.83s (2026-10-13; warning de chunks)
+    ```
+   - ESLint dirigido: `superadmin_reservas.jsx`, `superadmin_gestion_garages.jsx`,
+     `gestion_empresas.jsx`, `reduced-motion.source.test.js`, `LectorQrReserva.jsx`, los nuevos tests
+     fuente de QR/pagos/polling: limpios. `gestion_usuarios.jsx` conserva 12 errores y `admin_pagos.jsx`
+     3 errores/1 warning, idénticos a HEAD. `superadmin_pagos_test.jsx` queda en 5 errores/1 warning
+     (HEAD tenía 6/1; se corrigió un `no-empty`). El CSS global no aplica al parser de ESLint.
+2. **Detector de impeccable** (correr una sola vez al final, cuando el engine esté disponible):
+    ```
+    .agents\skills\impeccable\scripts\impeccable.cmd detect --json <archivos tocados>
+    ```
+   - Intento de `context` del 2026-10-13 bloqueado: el launcher no pudo descargar el engine 0.1.5 desde
+     GitHub (red/permiso de descarga). No se ejecutó `detect` en esta sesión.
 3. **Revisión visual acotada (máx. 2 rondas):** desktop + mobile 360px de las vistas tocadas; anotar
    defectos; corregir todo en un batch; una ronda de confirmación; parar.
-4. **Documentación:** actualizar `README.md` (tabla de estado/métricas), `cambios-realizados.md` y
-   este `pendientes.md` (tildar lo hecho).
+4. **Documentación:** ✅ actualizada el 2026-10-13 en `README.md`, `cambios-realizados.md` y este
+    `pendientes.md`. Mantener esos tres documentos sincronizados al cerrar cada tanda.
 5. **Commit:** **solo si el usuario lo pide.** Si lo pide: revisar `git status`/`git diff` archivo por
    archivo (hay cambios previos mezclados de otras sesiones), separar lo del audit, y usar el estilo
    de mensajes del repo (español, descriptivo, ej. commits recientes `e8fc400`, `70a3683`).
 6. **Avisos del skill impeccable registrados:** (a) `CONTEXT_STALE` de PRODUCT.md (sin schema stamp)
-   → ofrecer `init` al usuario, correr solo si lo pide; (b) hay Impeccable v4.5.2 disponible →
-   mencionar una vez ("Update now? It runs `npx impeccable update`"); no correrlo en la misma sesión.
+    → ofrecer `init` al usuario, correr solo si lo pide; (b) hay Impeccable v4.5.2 disponible → no correr
+    `npx impeccable update` en esta sesión; (c) el intento de contexto del 2026-10-13 falló por la
+    descarga del engine. En una sesión futura, ejecutar el launcher una vez y repetir `detect` solo si
+    el engine queda disponible.

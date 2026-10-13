@@ -200,13 +200,17 @@ function SuperadminGestionGarages() {
       : 0;
 
   useGSAP(() => {
-    if (!loading) {
-      const tl = gsap.timeline({ defaults: { ease: "power3.out", duration: 0.6 } });
-      tl.from(".superadmin-stagger-title", { y: 24, opacity: 0 })
-        .from(".superadmin-stagger-stat", { y: 18, opacity: 0, stagger: 0.08 }, "-=0.3")
-        .from(".superadmin-stagger-card", { y: 24, opacity: 0, stagger: 0.1 }, "-=0.3");
-    }
-  }, { dependencies: [loading] });
+    const mm = gsap.matchMedia();
+    mm.add("(prefers-reduced-motion: no-preference)", () => {
+      if (!loading) {
+        const tl = gsap.timeline({ defaults: { ease: "power3.out", duration: 0.6 } });
+        tl.from(".superadmin-stagger-title", { y: 24, opacity: 0 })
+          .from(".superadmin-stagger-stat", { y: 18, opacity: 0, stagger: 0.08 }, "-=0.3")
+          .from(".superadmin-stagger-card", { y: 24, opacity: 0, stagger: 0.1 }, "-=0.3");
+      }
+    });
+    return () => mm.revert();
+  }, { dependencies: [loading], revertOnUpdate: true });
 
   return (
     <>

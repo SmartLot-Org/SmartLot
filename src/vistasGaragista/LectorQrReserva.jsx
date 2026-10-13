@@ -23,8 +23,11 @@ export default function LectorQrReserva({ tipo = "ingreso", onClose, onIngresoEx
   const [estado, setEstado] = useState("iniciando");
   const [error, setError] = useState("");
   const lectorRef = useRef(null);
+  const inicioRef = useRef(null);
+  const limpiezasRef = useRef(new WeakMap());
   const montadoRef = useRef(false);
   const iniciandoRef = useRef(false);
+  const operacionEnCursoRef = useRef(false);
   const onCloseRef = useRef(onClose);
   const onIngresoExitosoRef = useRef(onIngresoExitoso);
   const onSalidaExitosaRef = useRef(onSalidaExitosa);
@@ -36,70 +39,109 @@ export default function LectorQrReserva({ tipo = "ingreso", onClose, onIngresoEx
     onSalidaExitosaRef.current = onSalidaExitosa;
   }, [onClose, onIngresoExitoso, onSalidaExitosa]);
 
-  const detenerCamara = useCallback(async () => {
-    const lector = lectorRef.current;
-    lectorRef.current = null;
+  const cerrar = useCallback(() => {
+    if (operacionEnCursoRef.current) return;
+    onCloseRef.current?.();
+  }, []);
+
+  const detenerCamara = useCallback(async (lectorSolicitado) => {
+    const lector = lectorSolicitado ?? lectorRef.current;
     if (!lector) return;
-    try { await lector.stop(); } catch { /* El lector puede seguir iniciándose o ya estar detenido. */ }
-    try { lector.clear(); } catch { /* El contenedor puede haberse desmontado. */ }
+
+    if (lectorRef.current === lector) lectorRef.current = null;
+
+    const inicio = inicioRef.current;
+    if (inicio?.lector === lector && inicio.startPendiente) {
+      inicio.detenerAlResolver = true;
+      return;
+    }
+
+    const limpiezaExistente = limpiezasRef.current.get(lector);
+    if (limpiezaExistente) {
+      await limpiezaExistente;
+      return;
+    }
+
+    const limpieza = Promise.resolve().then(async () => {
+      try { await lector.stop(); } catch { /* El lector puede estar detenido o haber rechazado el inicio. */ }
+      try { lector.clear(); } catch { /* El contenedor puede haberse desmontado. */ }
+    });
+    limpiezasRef.current.set(lector, limpieza);
+    await limpieza;
   }, []);
 
   const procesarContenido = useCallback(async (contenido) => {
     const qr = String(contenido || "").trim();
     if (!controlRef.current.intentar(qr)) return;
 
+    operacionEnCursoRef.current = true;
     setEstado("verificando");
     setError("");
-    await detenerCamara();
-    if (!montadoRef.current) return;
 
-    const esSalida = tipo === "salida";
-    const resultado = await (esSalida ? ReservasCheckOutQr(qr) : ReservasCheckInQr(qr));
-    if (!montadoRef.current) return;
+    try {
+      await detenerCamara();
+      if (!montadoRef.current) return;
 
-    if (resultado.respuesta) {
-      showToast(resultado.datos?.message || `${esSalida ? "Salida" : "Ingreso"} verificado correctamente.`, "success");
-      if (esSalida) onSalidaExitosaRef.current?.(resultado.datos);
-      else onIngresoExitosoRef.current?.(resultado.datos);
-      onCloseRef.current();
-      return;
+      const esSalida = tipo === "salida";
+      const resultado = await (esSalida ? ReservasCheckOutQr(qr) : ReservasCheckInQr(qr));
+      if (!montadoRef.current) return;
+
+      if (resultado.respuesta) {
+        showToast(resultado.datos?.message || `${esSalida ? "Salida" : "Ingreso"} verificado correctamente.`, "success");
+        if (esSalida) onSalidaExitosaRef.current?.(resultado.datos);
+        else onIngresoExitosoRef.current?.(resultado.datos);
+        onCloseRef.current?.();
+        return;
+      }
+
+      setError(resultado.datos?.message || `No se pudo registrar ${esSalida ? "la salida" : "el ingreso"} con este código.`);
+      setEstado("error");
+    } finally {
+      operacionEnCursoRef.current = false;
+      controlRef.current.habilitarReintento();
     }
-
-    setError(resultado.datos?.message || `No se pudo registrar ${esSalida ? "la salida" : "el ingreso"} con este código.`);
-    setEstado("error");
-    controlRef.current.habilitarReintento();
   }, [detenerCamara, tipo]);
 
   const iniciarCamara = useCallback(async () => {
     if (!montadoRef.current || iniciandoRef.current || lectorRef.current) return;
     iniciandoRef.current = true;
+    const inicio = { cancelado: false, lector: null, startPendiente: false, detenerAlResolver: false };
+    inicioRef.current = inicio;
     setEstado("iniciando");
     setError("");
 
+    let lector = null;
     try {
       const { Html5Qrcode } = await import("html5-qrcode");
-      if (!montadoRef.current) return;
+      if (inicio.cancelado || !montadoRef.current) return;
 
-      const lector = new Html5Qrcode(READER_ID, false);
+      lector = new Html5Qrcode(READER_ID, false);
+      inicio.lector = lector;
       lectorRef.current = lector;
+      inicio.startPendiente = true;
       await lector.start(
         { facingMode: "environment" },
         { fps: 10, qrbox: { width: 250, height: 250 }, aspectRatio: 1 },
         (contenido) => { void procesarContenido(contenido); },
         () => {}
       );
+      inicio.startPendiente = false;
 
-      if (!montadoRef.current) await detenerCamara();
+      if (inicio.cancelado || inicio.detenerAlResolver || !montadoRef.current) await detenerCamara(lector);
       else setEstado("escaneando");
     } catch (cameraError) {
-      await detenerCamara();
-      if (montadoRef.current) {
+      inicio.startPendiente = false;
+      await detenerCamara(lector);
+      if (montadoRef.current && !inicio.cancelado) {
         setError(mensajeCamara(cameraError));
         setEstado("error");
         controlRef.current.habilitarReintento();
       }
     } finally {
-      iniciandoRef.current = false;
+      if (inicioRef.current === inicio) {
+        inicioRef.current = null;
+        iniciandoRef.current = false;
+      }
     }
   }, [detenerCamara, procesarContenido]);
 
@@ -108,6 +150,14 @@ export default function LectorQrReserva({ tipo = "ingreso", onClose, onIngresoEx
     queueMicrotask(() => { if (montadoRef.current) void iniciarCamara(); });
     return () => {
       montadoRef.current = false;
+      const inicio = inicioRef.current;
+      if (inicio) {
+        inicio.cancelado = true;
+        if (!inicio.lector && inicioRef.current === inicio) {
+          inicioRef.current = null;
+          iniciandoRef.current = false;
+        }
+      }
       void detenerCamara();
     };
   }, [detenerCamara, iniciarCamara]);
@@ -118,11 +168,11 @@ export default function LectorQrReserva({ tipo = "ingreso", onClose, onIngresoEx
   };
 
   return (
-    <ModalPortal onClose={onClose} overlayClassName="lector-qr-overlay">
+    <ModalPortal onClose={cerrar} overlayClassName="lector-qr-overlay">
       <section className="lector-qr-modal" role="dialog" aria-modal="true" aria-labelledby="lector-qr-title" onClick={(event) => event.stopPropagation()}>
         <div className="lector-qr-header">
           <div><h2 id="lector-qr-title">Escanear QR de {tipo}</h2></div>
-          <button type="button" className="lector-qr-close" onClick={onClose} aria-label="Cerrar lector QR"><X size={20} /></button>
+          <button type="button" className="lector-qr-close disabled:opacity-50 disabled:cursor-not-allowed" onClick={cerrar} disabled={estado === "verificando"} aria-label="Cerrar lector QR"><X size={20} /></button>
         </div>
         <p className="lector-qr-help">Apuntá la cámara al código que muestra el empleado para registrar {tipo === "salida" ? "su salida" : "su ingreso"}.</p>
 

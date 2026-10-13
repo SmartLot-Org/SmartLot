@@ -72,8 +72,12 @@ function GestionEmpresas() {
   }, [sedes]);
 
   useGSAP(() => {
-    if (!loading && empresas.length) gsap.fromTo(".empresa-panel", { y: 14, opacity: 0 }, { y: 0, opacity: 1, stagger: 0.05, duration: 0.35, ease: "power2.out" });
-  }, [loading, empresas.length]);
+    const mm = gsap.matchMedia();
+    mm.add("(prefers-reduced-motion: no-preference)", () => {
+      if (!loading && empresas.length) gsap.fromTo(".empresa-panel", { y: 14, opacity: 0 }, { y: 0, opacity: 1, stagger: 0.05, duration: 0.35, ease: "power2.out" });
+    });
+    return () => mm.revert();
+  }, { dependencies: [loading, empresas.length], revertOnUpdate: true });
 
   const recargarAuditoria = async () => {
     setLoadingAuditoria(true);

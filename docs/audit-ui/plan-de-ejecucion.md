@@ -141,3 +141,26 @@ REPORTÁ: archivos tocados + qué cambiaste, dejado fuera y por qué, tests.
 | Working tree con cambios previos mezclados | No commitear sin pedido; si se commitea, revisar `git diff` por archivo y separar lo del audit. |
 | Efectos colaterales en vistas no auditadas | Los componentes compartidos (formularios, headers, footers, ModalPortal) se tocan solo desde el coordinador; los agentes de scope no los editan. Verificar con `grep` los usos antes de cambiar un componente compartido. |
 | Regresión visual no detectada | Revisión humana con `npm run dev` (desktop + 360px) sobre el checklist de `pendientes.md` §6; build al cierre. |
+
+## 6. Plan de continuación — P5 runtime y P6 cierre (2026-10-13)
+
+> Continúa el plan ya aprobado: P1–P3 no se reabren; P4 sigue diferido por ADR-007. Los fixes de código
+> P5 #5, #6 y #7 ya están aplicados, pero no equivalen a pasar sus checks runtime. No se agregan
+> dependencias, rutas ni decisiones de arquitectura.
+
+| Orden | Check | Ejecución | Aceptación / bloqueo |
+|---|---|---|---|
+| 1 | P5 #1 y #3 — responsive | Navegador con sesión/datos: `/nueva_reserva` a 360/375/390px y `/superadmin/conflictos` a 769/intermedio/956px. | Sin clipping ni scroll de página; scroll horizontal contenido en el shell de tabla. |
+| 2 | P5 #2 — contraste | Capturar landing/auth y `.panel-stats-card`; medir los píxeles compuestos detrás de texto. | Texto AA (4.5:1, grande 3:1); corregir solo tras confirmar valores renderizados. |
+| 3 | P5 #4 — Maps | API Places activa; teclado + NVDA/VoiceOver o Accessibility Inspector en agregar/editar zona y sede. | Input y sugerencias con nombre y navegación operables; guardar evidencia/runtime. |
+| 4 | P5 #5 — QR | Cámara real; ingreso/egreso rápido, red demorada, cerrar mientras `start()` está pendiente y conceder permiso tras cerrar. | No quedan streams vivos; callbacks y tablero coinciden con el resultado; requiere dispositivo. |
+| 5 | P5 #6 — Mercado Pago | Backend SmartLot_API + credenciales sandbox; popup permitido/bloqueado, aprobado/pendiente/rechazado, latencia >5s y detener/reiniciar polling. | Checkout abre o explica el bloqueo sin crear preferencia; polling sin cadenas solapadas ni resultados obsoletos. |
+| 6 | P5 #7 — movimiento reducido | Activar la preferencia del SO antes de abrir landing y vistas superadmin; comparar con `no-preference`. | Sin movimiento CSS/GSAP cuando se reduce; contenido, dropdown y acciones siguen visibles/operables. |
+| 7 | P5 #8 — marquee/flipbook | Desktop, caché fría y throttling 4G; observar varios ciclos y requests antes/después de scroll. | Costura visual limpia y carga de frames dentro del presupuesto observado. |
+| 8 | P6 — cierre | Máximo dos rondas visuales; correr detector cuando el engine esté disponible; actualizar `pendientes.md`, `cambios-realizados.md` y README. | Build/tests registrados; deudas de lint separadas de errores nuevos; commit solo con pedido explícito. |
+
+**Dependencias para continuar:** Edge headless/CDP local ya permitió smoke checks de las rutas públicas
+(sin tomar eso como revisión visual formal). Para rutas protegidas: API en `localhost:3000`, datos y sesión
+de admin/superadmin. También se necesita Google Maps Places, lector de pantalla, cámara física y sandbox
+de Mercado Pago. Si falta algo, registrar evidencia parcial/bloqueo y seguir; no marcar el check completo
+por inspección estática.

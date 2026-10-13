@@ -210,6 +210,21 @@ function AdminPagos() {
       Swal.fire({ toast: true, position: "top-end", icon: "info", title: "Este consumo ya está pagado (PAGADA)", showConfirmButton: false, timer: 2500 });
       return;
     }
+    let checkoutWindow;
+    try {
+      checkoutWindow = window.open("about:blank", "_blank");
+      if (checkoutWindow) checkoutWindow.opener = null;
+    } catch {
+      if (checkoutWindow && !checkoutWindow.closed) checkoutWindow.close();
+      checkoutWindow = null;
+    }
+    if (!checkoutWindow) {
+      Swal.fire({ toast: true, position: "top-end", icon: "warning", title: "El navegador bloqueó el checkout. Habilitá las ventanas emergentes y volvé a intentar.", showConfirmButton: false, timer: 5000 });
+      return;
+    }
+    const cerrarCheckout = () => {
+      if (!checkoutWindow.closed) checkoutWindow.close();
+    };
     setPagandoKey(key);
     try {
       const aCobrar = montoTest(cuenta.importeGenerado);
@@ -239,6 +254,7 @@ function AdminPagos() {
         },
       });
       if (!res.respuesta) {
+        cerrarCheckout();
         Swal.fire({ toast: true, position: "top-end", icon: "error", title: res.datos?.message || "No se pudo crear la preferencia de pago", showConfirmButton: false, timer: 4000 });
         return;
       }
@@ -247,7 +263,12 @@ function AdminPagos() {
       const initUrl = pref.initPoint || pref.init_point;
       const url = sandboxUrl || initUrl;
       if (!url) {
+        cerrarCheckout();
         Swal.fire({ toast: true, position: "top-end", icon: "error", title: "Preferencia creada pero sin URL de checkout", showConfirmButton: false, timer: 3500 });
+        return;
+      }
+      if (checkoutWindow.closed) {
+        Swal.fire({ toast: true, position: "top-end", icon: "warning", title: "La ventana de checkout se cerró. Volvé a intentar el pago.", showConfirmButton: false, timer: 4000 });
         return;
       }
       try {
@@ -255,10 +276,11 @@ function AdminPagos() {
         localStorage.setItem("mp_last_preferenceId", String(pref.preferenceId || pref.preference_id || ""));
         sessionStorage.setItem("mp_pending_orderId", orderId);
       } catch {}
+      checkoutWindow.location.href = url;
       iniciarPolling(orderId);
       Swal.fire({ toast: true, position: "top-end", icon: "success", title: `Checkout abierto · ${moneda(aCobrar)} (cap $0.10)`, showConfirmButton: false, timer: 3000 });
-      window.open(url, "_blank", "noopener,noreferrer");
     } catch (e) {
+      cerrarCheckout();
       Swal.fire({ toast: true, position: "top-end", icon: "error", title: e?.message || "Error al iniciar el pago", showConfirmButton: false, timer: 3500 });
     } finally {
       setPagandoKey(null);

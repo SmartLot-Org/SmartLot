@@ -430,14 +430,18 @@ export default function SuperadminReservas() {
   };
 
   useGSAP(() => {
-    if (!loading) {
-      const tl = gsap.timeline({ defaults: { ease: "power3.out", duration: 0.5 } });
-      tl.from(".resv-animate-header", { y: 24, opacity: 0 })
-        .from(".resv-animate-stat", { y: 16, opacity: 0, stagger: 0.06 }, "-=0.25")
-        .from(".resv-animate-toolbar", { y: 16, opacity: 0 }, "-=0.2")
-        .from(".resv-animate-table", { y: 20, opacity: 0 }, "-=0.2");
-    }
-  }, { dependencies: [loading], scope: containerRef });
+    const mm = gsap.matchMedia();
+    mm.add("(prefers-reduced-motion: no-preference)", () => {
+      if (!loading) {
+        const tl = gsap.timeline({ defaults: { ease: "power3.out", duration: 0.5 } });
+        tl.from(".resv-animate-header", { y: 24, opacity: 0 })
+          .from(".resv-animate-stat", { y: 16, opacity: 0, stagger: 0.06 }, "-=0.25")
+          .from(".resv-animate-toolbar", { y: 16, opacity: 0 }, "-=0.2")
+          .from(".resv-animate-table", { y: 20, opacity: 0 }, "-=0.2");
+      }
+    });
+    return () => mm.revert();
+  }, { dependencies: [loading], scope: containerRef, revertOnUpdate: true });
 
   return (
     <div className="superadmin-reservas-page" ref={containerRef}>
