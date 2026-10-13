@@ -258,9 +258,12 @@ en modales, fuente mono, combobox de sede) — ver P6.
 
 ---
 
-## P3 — Barridos finales (coordinar con P1/P2)
+## P3 — Barridos finales (coordinar con P1/P2) — COMPLETO (2026-10-12)
 
-### P3.1 — Purge de eyebrows/kickers restantes
+> **Cierre 2026-10-12:** P3.1 métrica `eyebrow|kicker` 18 → 0 (detalle archivo por archivo en `cambios-realizados.md` §8); P3.2 unificado a "plazas" en la UI de producto según decisión del dueño, registrada en `docs/decisions/ADR-008-terminologia-plazas-ui-producto.md` (campos de API intactos; landing y registro intencionalmente fuera); P3.3 métricas re-corridas y registradas en README §1.
+> **Verificación:** `npm test` 117/117; ESLint 0 issues nuevos (22 idénticos a HEAD); `npm run build` OK 1.56s; detector de impeccable corrido (2 warnings `layout-transition` preexistentes en `empleados_dashboard.css:500,997` → ver P6/P5; el resto son advisories de drift).
+
+### P3.1 — Purge de eyebrows/kickers restantes — COMPLETO (2026-10-12)
 - **Qué:** las vistas de empleado tienen ~9 instancias + skeletons ("Agenda", "Resumen",
   "Operación diaria"…) que el agente de scope dejó al coordinador por precaución.
   **Landing/paraGarages ya quedó purgado en P1** (8 eyebrows borrados; `tracking-[0.2em]` = 0).
@@ -269,7 +272,7 @@ en modales, fuente mono, combobox de sede) — ver P6.
 - **Aceptación:** 0 kickers decorativos sobre headings (craft floor: "ban, no default").
 - **Verificación:** grep + revisión visual de las vistas tocadas.
 
-### P3.2 — Copy "cocheras" → "plazas" (unificación terminológica)
+### P3.2 — Copy "cocheras" a "plazas" (unificación terminológica) — COMPLETO (2026-10-12)
 - **Qué:** PRODUCT.md define **Plaza** como término canónico del glosario; quedan usos de "cocheras"
   en UI: `tratos_empresa_garage.jsx:15` ("Empresas → solicitan cocheras → tus garages"),
   `GestionTratosGarage.jsx:152` ("Solicitudes de cambio de cocheras"), y revisar `estados-vacios.md`
@@ -280,7 +283,7 @@ en modales, fuente mono, combobox de sede) — ver P6.
 - **Archivos:** `src/vistasDueñoGarage/tratos_empresa_garage.jsx`,
   `src/componentesCompartidos/GestionTratosGarage.jsx`, otros resultados del grep.
 
-### P3.3 — Barrido final de métricas
+### P3.3 — Barrido final de métricas — COMPLETO (2026-10-12)
 - **Qué:** al terminar P1–P3, repetir los greps de progreso del README §1 y registrar el resultado:
   ```
   $css = Get-ChildItem src -Recurse -Include *.css,*.jsx

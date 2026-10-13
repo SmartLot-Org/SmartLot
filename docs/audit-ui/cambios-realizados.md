@@ -1,11 +1,13 @@
 # Cambios realizados — ejecución de fixes de la auditoría UI
 
 > Detalle de lo aplicado el 2026-10-10 en los 4 scopes completados (empleado/garagista, admin,
-> superadmin y dueño de garage), con verificación. **Todo está sin commitear.**
+> superadmin y dueño de garage), con verificación. **Commiteado en la rama `audit-ui` el 2026-10-12.**
 > El scope público/auth/payment se ejecutó **en sesión** el 2026-10-10 y quedó **completo** (17/17,
 > §6); el trabajo central del coordinador (P2) también quedó **completo** (§7). Ver `pendientes.md`.
 
-## 0. Estado del working tree (importante antes de commitear)
+## 0. Estado del working tree (histórico, 2026-10-10)
+
+> **Resuelto 2026-10-12:** la auditoría quedó commiteada en la rama `audit-ui` (sobre `main`). `main` tiene solo la documentación general (`0d0e2cf`, `30be227`). El borrado de `docs/cold-start-login-google.md` fue intencional (cold start terminado).
 
 - `git status` al cierre de esta sesión (2026-10-10, tras P1+P2): **159 líneas de status** (≈154
   archivos modificados/eliminados + `docs/audit-ui/`, `ADR-007` y `superadmin_conflictos.css` sin
@@ -251,3 +253,65 @@ Verificación P2: `npx eslint` de los 9 JSX — **limpio**; `npm test` — **117
 `npm run build` — **✅ built in 1.55s** (solo warning preexistente de chunks >500 kB).
 Pendiente: **revisión visual** (P6) — logo con teclado, asterisco en `agregar_sede`, focus trap de
 modales, fuente mono, combobox de sede.
+
+## 8. Sesión 2026-10-12 — P3 barridos finales (COMPLETO)
+
+Ejecutado con 5 subagentes en 2 tandas (3 para P3.1 + 2 para P3.2) y coordinador en sesión. Verificación global: `npm test` **117/117**; ESLint de lo tocado **0 issues nuevos** (22 problemas en 3 archivos, idénticos a HEAD); `npm run build` **OK 1.56s**; detector de impeccable corrido.
+
+### P3.1 — Purga de eyebrows/kickers (métrica 18 → 0)
+
+Regla aplicada: craft floor "ban, no default": kickers decorativos sobre headings **borrados**. Donde el kicker contenía dato real (fecha del dashboard del empleado), el dato se reubicó como subtítulo bajo el h1 (clase `empleado-dashboard-subtitle`, que estaba sin uso). Los skeletons dejaron de renderizar la línea placeholder del kicker. En el hero de garagista, "Vista de solo lectura" (admin) se eliminó junto al kicker: el estado de solo lectura ya lo comunican "Garage consultado", el botón "Volver al dashboard de admin" y las acciones mutantes ocultas o deshabilitadas.
+
+| Archivo | Cambios |
+|---|---|
+| `vistasEmpleados/empleados_dashboard.jsx/.css` | Fecha del intro: kicker → `<p class="empleado-dashboard-subtitle">` bajo el h1. Borrados spans "Agenda" (header reservas) y "Soporte" (header modal reporte) + reglas CSS. Skeleton intro: sin línea kicker. `.empleado-dashboard-intro-skeleton` min-height 91 → 66px (el kicker aportaba 25px; evita salto de layout). Regla muerta `.empleado-dashboard-kicker`. |
+| `vistasEmpleados/historial_reserva.jsx/.css` | Borrados spans "Resumen" y "Actividad" de los headers de sección + regla `.historial-section-header span`. Skeleton: sin las 2 líneas `historial-skeleton-kicker`. |
+| `vistasGaragista/garagista_dashboard.jsx/.css` | Borrado el eyebrow del hero ("Operación diaria" / "Vista de solo lectura") + regla y entrada en el selector flex. Borrados los 3 kickers de sección ("Ingresos pendientes", "Ocupación actual", "Actividad reciente") + regla. Skeleton: sin las 2 líneas `--eyebrow`. Import `Eye` sin uso eliminado. |
+| `vistasGaragista/LectorQrReserva.jsx` + `lector_qr_reserva.css` | Borrado span "Control de acceso" del header del modal + regla. |
+| `componentesEmpleado/confirmacion_reserva_paga.jsx/.css` | Borrado eyebrow "Reserva con cargo" + regla; h2 margin 5px → 0. |
+| `vistasAdmin/gestion_garages.jsx/.css` | Borrado eyebrow "GARAGES Y TRATOS" + regla. |
+| `vistasAdmin/admin_pagos.css` | Regla muerta `.pagos-eyebrow` eliminada. |
+| `vistasSuperadmin/gestion_usuarios.jsx/.css` | Borrado span "Dueño de garage" (kicker del modal garages-owner) + su regla en la línea minificada (0 cambios de color, ADR-007 respetado). |
+
+### P3.2 — Terminología "cocheras" → "plazas" en UI de producto
+
+Decisión del dueño (2026-10-12): **solo UI de producto**. Registrada en `docs/decisions/ADR-008-terminologia-plazas-ui-producto.md`. Campos de API intactos (`cantidad_cocheras`, `cocheras_disponibles`).
+
+| Archivo | Literales cambiados |
+|---|---|
+| `componentesCompartidos/GestionTratosGarage.jsx` | ~15 literales: Swals de aceptar/autorizar/rechazar, "Plazas comprometidas", "Solicitudes de cambio de plazas", "plazas solicitadas", "plazas propuestas", th "Plazas", badges "{n} plazas", EmptyStates. |
+| `vistasDueñoGarage/tratos_empresa_garage.jsx` | Chip "Empresas → solicitan plazas → tus garages". |
+| `helpers/tratos.js` | Labels de error de validación "Cantidad de plazas" (2×). |
+| `vistasAdmin/gestion_garages.jsx` | 13 literales: KPI "Plazas contratadas", "Solicitar plazas" (botón/modal/aria-label), "Cantidad de plazas", copy de modalidades ("una plaza dentro del cupo" / "una plaza extra"), Swals, "{n} plazas", "plazas solicitadas". |
+| `vistasSuperadmin/superadmin_gestion_garages.jsx` | "...puedan contratar plazas." |
+| `vistasAdmin/agregar_garage_propio.jsx` | "Ingresá entre 1 y 32.767 plazas reservables". |
+| `componentesAdmin/MapaGaragesCercanos.jsx` | "plazas disponibles" (componente usado solo desde `gestion_garages`). |
+
+**Intencionalmente fuera de scope** (8 instancias de "cochera" visibles en `src/`): copy de marketing del landing (`componentesLanding/paraGarages/*`: Bento, CTA, Pains, Security, Steps) y textos de registro (`Register.jsx`, `RegisterBrandPanel.jsx`, `RegisterRoleToggle.jsx`). La variable JS `cocherasComprometidas` tampoco se renombra: es un identificador, no copy. Ver ADR-008.
+
+### P3.3 — Métricas re-corridas (2026-10-12)
+
+| Métrica (grep en `src/**/*.{css,jsx}`) | Post-P2 (2026-10-10) | Post-P3 (2026-10-12) | Meta |
+|---|---|---|---|
+| `outline:none` | 45 | 45 | 0 con `:focus-visible` de reemplazo (revisar en P6) |
+| `#94a3b8` | 49 | 49 | solo `:disabled`/placeholder decorativo |
+| `border-left: ≥3px` (side-stripes) | 2 | 2 | 0 (los 2 restantes: `admin_panel_de_control.css:811,1077`: conflict-card y toast) |
+| eyebrow/kicker | 18 | **0** | 0 |
+| `Espere` (tuteo) | 0 | 0 | 0 |
+| "cochera" visible (sin campos de API) | ~30 | **8** (todos landing/registro, intencional) | decisión ADR-008 |
+
+### Detector de impeccable (P6, corrido 2026-10-12)
+
+Comando: `.agents\skills\impeccable\scripts\impeccable.cmd detect --json <archivos>`.
+- Lote 1 (fixes de empleado, garagista y admin): **limpio** (`[]`).
+- Lote 2 (gestion_usuarios, GestionTratosGarage, tratos_empresa_garage, tratos.js, agregar_garage_propio, superadmin_gestion_garages, MapaGaragesCercanos + 2 CSS): **2 warnings `layout-transition`** en `empleados_dashboard.css:500` (`transition: width`) y `:997` (`transition: max-height, margin`). Son **preexistentes, no tocados por P3**; quedaron anotados en pendientes. El resto son advisories `design-system-color`/`design-system-radius` (drift de tokens en CSS de empleado y garagista, preexistente y masivo), de la misma naturaleza que los hexes diferidos ya registrados.
+
+### Verificación de cierre (2026-10-12)
+
+| Comando | Resultado |
+|---|---|
+| `npm test` | 117 pass / 0 fail |
+| `npx eslint` (13 archivos tocados) | 0 issues nuevos; 22 problemas en 3 archivos idénticos a HEAD |
+| `npm run build` | OK, built in 1.56s (solo warning preexistente de chunks >500 kB) |
+| `impeccable detect --json` | 2 warnings `layout-transition` preexistentes + advisories de drift (ver arriba) |
+| Commit | Hecho en la rama `audit-ui` el 2026-10-12, a pedido explícito |
