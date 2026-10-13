@@ -101,7 +101,7 @@ Detalle de rutas y autorización: `docs/architecture.md`. Flujos por rol: `docs/
 
 ## Claims de marketing vigentes
 
-Usados en la landing; **no inventar nuevos ni alterarlos sin pedido** (regla de `docs/pendientes-audit-ui.md`):
+Usados en la landing; **no inventar nuevos ni alterarlos sin pedido** (regla registrada en `docs/audit-ui/plan-de-ejecucion.md`):
 
 - Landing general: satisfacción 4.9/5, tiempo de respuesta 2 min, calificación 4.8★, soporte 24/7 (`StatsTicker.jsx`).
 - Para garages: 24 meses de historial, 3 tarifas por vehículo, 100% online sin hardware, exportación PDF+XLS (`ParaGarages.jsx`).

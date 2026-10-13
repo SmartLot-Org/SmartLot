@@ -154,7 +154,7 @@ Un solo acento cromático sobre una base neutra fría; los estados usan semánti
 
 ### Named Rules
 
-**La Regla del Token.** Ningún componente define sus propios colores: todo sale del frontmatter y de `src/index.css`. Las únicas excepciones son datos internos de exportables (Excel/PDF), previews de email y pantallas de depuración; si aparecen, se documentan aquí.
+**La Regla del Token.** Ningún componente define sus propios colores: todo sale del frontmatter y de `src/index.css`. Las únicas excepciones son datos internos de exportables (Excel/PDF), previews de email, pantallas de depuración y el **panel superadmin**, que conserva una paleta oscura propia por decisión de producto (ver `docs/decisions/ADR-007-paleta-propia-superadmin.md`); si aparecen, se documentan aquí.
 
 **La Regla AA.** Texto de cuerpo ≥ 4.5:1; texto grande y componentes de UI ≥ 3:1. El texto secundario ya está calibrado a 7.07:1 sobre el fondo.
 
@@ -180,7 +180,7 @@ Un solo acento cromático sobre una base neutra fría; los estados usan semánti
 
 **La Regla de la Jerarquía.** La fuerza tipográfica sale de la jerarquía y el peso, no de la variedad de fuentes. Máximo dos familias visibles por pantalla.
 
-**La Regla del Mono Dato.** La monoespaciada se reserva para datos, códigos y depuración; nunca para UI general. Hoy JetBrains Mono no se carga desde Google Fonts: aplica el fallback Consolas hasta que se incorpore.
+**La Regla del Mono Dato.** La monoespaciada se reserva para datos, códigos y depuración; nunca para UI general. JetBrains Mono se carga desde Google Fonts (`index.html`); el fallback es Consolas.
 
 ## Layout
 

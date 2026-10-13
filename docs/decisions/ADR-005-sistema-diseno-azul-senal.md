@@ -43,5 +43,5 @@ Regla: la UI usa las utilidades y tokens del sistema; evitar valores hex/rgb har
 
 - `DESIGN.md` y `src/index.css` son la fuente del sistema; se actualizan juntos.
 - Nuevos componentes deben reutilizar los patrones existentes (botones 40/48 px, inputs con floating label, badges).
-- La auditoría UI pendiente (`docs/pendientes-audit-ui.md`) tiene como criterio estos tokens.
+- La auditoría UI (documentada en `docs/audit-ui/`) tiene como criterio estos tokens.
 - Cambiar un token impacta todas las vistas: la validación visual es obligatoria en cambios de paleta.

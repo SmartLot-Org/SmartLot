@@ -2,7 +2,7 @@
 
 Este repositorio es el frontend SPA de SmartLot y consume la API del backend `SmartLot_API` bajo `/api`. La documentación se organiza en cuatro niveles: orientación, arquitectura, desarrollo y evolución.
 
-Última revisión de este índice: 2026-10-09.
+Última revisión de este índice: 2026-10-10.
 
 ## Mapa de documentos
 
@@ -19,7 +19,7 @@ Este repositorio es el frontend SPA de SmartLot y consume la API del backend `Sm
 | [`specs/README.md`](./specs/README.md) | Cómo se especifican features antes de codificar | Producto, frontend, agentes |
 | [`estados-vacios.md`](./estados-vacios.md) | Inventario de estados vacíos por pantalla y su acción | Frontend, QA |
 | [`reservation-limit.md`](./reservation-limit.md) | Informe del límite de reservas activas por empleado (frontend + backend revisado) | Producto, backend |
-| [`pendientes-audit-ui.md`](./pendientes-audit-ui.md) | Auditoría UI en curso: inventario de vistas y plan de trabajo | Frontend |
+| [`audit-ui/README.md`](./audit-ui/README.md) | Auditoría UI: estado, hallazgos, plan de ejecución, cambios realizados y pendientes (handoff para continuar en otra sesión) | Frontend, agentes |
 
 ## Fuentes de verdad
 
@@ -40,8 +40,8 @@ Ante contradicción entre documentos, prevalece en este orden:
 - **Cambian comandos, variables de entorno o estrategia de pruebas** → actualizar `README.md` y `development.md`.
 - **Cambia un flujo de negocio** → actualizar `domain-flows.md` y, si aplica, el documento funcional específico.
 - **Cambia el alcance del producto, una regla de negocio o el tono** → actualizar `PRODUCT.md`.
-- **Se cierra la auditoría UI** → actualizar `pendientes-audit-ui.md` y quitar el estado "en curso" de este índice.
+- **Se cierra la auditoría UI** → actualizar `audit-ui/README.md` y `audit-ui/pendientes.md`, y quitar el estado "en curso" de este índice.
 
 ## Documentos funcionales existentes
 
-- `estados-vacios.md`, `reservation-limit.md` y `pendientes-audit-ui.md` son documentos de trabajo previos con valor histórico. **No se reescriben ni se mueven sin aprobación explícita** (regla en `AGENTS.md`).
+- `estados-vacios.md` y `reservation-limit.md` son documentos de trabajo previos con valor histórico. **No se reescriben ni se mueven sin aprobación explícita** (regla en `AGENTS.md`).

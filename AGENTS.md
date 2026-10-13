@@ -34,7 +34,7 @@ Frontend SPA de gestión de estacionamientos: empresas, garages, reservas, pagos
 ## Límites
 
 - **Siempre:** respetar `DESIGN.md` como fuente del sistema visual; reutilizar componentes compartidos antes de crear nuevos; correr `npm test` y lint de lo tocado al cerrar una tarea; actualizar la documentación cuando cambie una decisión.
-- **Preguntar antes de:** agregar dependencias, modificar el cliente HTTP o la caché, cambiar roles/rutas protegidas, reescribir la documentación funcional existente (`docs/reservation-limit.md`, `docs/estados-vacios.md`, `docs/pendientes-audit-ui.md`).
+- **Preguntar antes de:** agregar dependencias, modificar el cliente HTTP o la caché, cambiar roles/rutas protegidas, reescribir la documentación funcional existente (`docs/reservation-limit.md`, `docs/estados-vacios.md`).
 - **Nunca:** commitear `.env` ni secretos; asumir endpoints del backend no verificados en `src/servicies/`; borrar ADRs (se reemplazan, no se eliminan); commitear sin pedido explícito.
 
 ## Contexto del proyecto
@@ -45,6 +45,7 @@ Frontend SPA de gestión de estacionamientos: empresas, garages, reservas, pagos
 - Flujos de dominio: `docs/domain-flows.md`.
 - Guía de desarrollo y pruebas: `docs/development.md`.
 - Decisiones arquitectónicas: `docs/decisions/` (leer antes de proponer cambios estructurales).
+- Auditoría UI (en ejecución): `docs/audit-ui/` — estado, hallazgos, plan, cambios y pendientes (el README es el índice).
 - Sistema de diseño: `DESIGN.md` (raíz).
 - Gotchas: los roles se identifican por número **y** por nombre (`src/helpers/roles.js`); la sesión usa cookies + refresh automático con cola (`src/api/client.js`); la caché se invalida por prefijos en cada mutación; `npm run lint` arrastra errores preexistentes documentados en `docs/reservation-limit.md`.
 

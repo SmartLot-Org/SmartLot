@@ -98,4 +98,4 @@ Vistas: `vistasGaragista/garagista_dashboard.jsx` (rutas `/garagista_dashboard` 
 - `docs/architecture.md` — capas, sesión, caché, mapa de rutas.
 - `docs/reservation-limit.md` — regla completa del límite de reservas.
 - `docs/estados-vacios.md` — comportamiento de contenedores vacíos.
-- `docs/pendientes-audit-ui.md` — inventario de las 48 vistas routeadas y auditoría UI en curso.
+- `docs/audit-ui/README.md` — auditoría UI (48 vistas routeadas): estado, hallazgos, plan de ejecución y pendientes.
