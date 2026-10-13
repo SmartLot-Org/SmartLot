@@ -107,6 +107,8 @@ Usados en la landing; **no inventar nuevos ni alterarlos sin pedido** (regla de 
 - Para garages: 24 meses de historial, 3 tarifas por vehículo, 100% online sin hardware, exportación PDF+XLS (`ParaGarages.jsx`).
 - Testimonios y casos: sección "Dueños que ya aparecen en el mapa" (`ParaGaragesSocial.jsx`).
 
+> Decisión (2026-10-10): estas métricas y testimonios se presentan en la UI como **datos de ejemplo** (no como hechos verificados). Implementación en curso.
+
 ## Alcance actual (lo que el producto NO es)
 
 - **No requiere hardware** ni instalaciones físicas: todo el acceso se opera con QR.

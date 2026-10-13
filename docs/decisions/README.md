@@ -18,7 +18,7 @@ Los ADRs registran decisiones técnicas significativas: contexto, decisión, alt
 
 ## Nota sobre ADRs retrospectivos
 
-Los ADRs de esta carpeta son **retrospectivos**: documentan decisiones ya implementadas, reconstruidas a partir del código y de los documentos del repositorio (2026-10-09). El contexto refleja lo verificable; las alternativas listadas son las razonables en el momento de la decisión, no un registro literal de la discusión original.
+Los ADRs de esta carpeta son **retrospectivos**: documentan decisiones ya implementadas, reconstruidas a partir del código y de los documentos del repositorio (2026-10-09) — excepto **ADR-007** (2026-10-10), que registra una decisión viva del dueño del producto tomada durante la ejecución de la auditoría UI. El contexto refleja lo verificable; las alternativas listadas son las razonables en el momento de la decisión, no un registro literal de la discusión original.
 
 ## Índice
 
@@ -30,3 +30,4 @@ Los ADRs de esta carpeta son **retrospectivos**: documentan decisiones ya implem
 | [ADR-004](./ADR-004-cliente-http-unico-cache-prefijos.md) | Cliente HTTP único y caché en memoria con invalidación por prefijos | Aceptado |
 | [ADR-005](./ADR-005-sistema-diseno-azul-senal.md) | Sistema de diseño "Azul Señal" con tokens de Tailwind v4 | Aceptado |
 | [ADR-006](./ADR-006-code-splitting-por-ruta.md) | Code splitting por ruta e imports diferidos de dependencias pesadas | Aceptado |
+| [ADR-007](./ADR-007-paleta-propia-superadmin.md) | Paleta propia del panel superadmin (excepción deliberada a la Regla del Token) | Aceptado |
