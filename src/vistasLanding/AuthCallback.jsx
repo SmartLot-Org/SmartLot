@@ -18,7 +18,10 @@ export default function AuthCallback() {
     const accessToken = params.get('access_token');
 
     if (!accessToken) {
-      navigate('/login', { replace: true });
+      navigate('/login', {
+        replace: true,
+        state: { error: 'No se pudo iniciar sesión con Google. Volvé a intentarlo.' },
+      });
       return;
     }
 
@@ -47,7 +50,7 @@ export default function AuthCallback() {
           className="h-8 w-8 animate-spin rounded-full border-2 border-brand-blue border-t-transparent"
           aria-hidden="true"
         />
-        <p className="text-brand-muted text-lg">Iniciando sesión...</p>
+        <p className="text-brand-muted text-lg">Ingresando…</p>
       </div>
     </div>
   );

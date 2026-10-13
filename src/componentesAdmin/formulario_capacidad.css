@@ -269,12 +269,18 @@
   font-family: inherit;
   font-size: 1.25rem;
   font-weight: 800;
-  color: #191c1e;
+  color: #1E293B;
   font-variant-numeric: tabular-nums;
   caret-color: #156fe5;
   outline: none;
   appearance: textfield;
   -moz-appearance: textfield;
+}
+
+.cap-stepper input:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.35);
+  outline-offset: 2px;
+  border-radius: 6px;
 }
 
 .cap-stepper input::-webkit-outer-spin-button,

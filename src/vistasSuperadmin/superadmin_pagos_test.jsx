@@ -25,6 +25,8 @@ import { initMercadoPago } from "@mercadopago/sdk-react";
 import Swal from "sweetalert2";
 
 import "./superadmin_pagos_test.css";
+import EmptyState from "../componentesCompartidos/EmptyState";
+import { Z_INDEX } from "../helpers/zIndex";
 import HeaderSuperadmin from "../componentesSuperadmin/header_superadmin";
 import FooterSuperadmin from "../componentesSuperadmin/footer_superadmin";
 import { EmpresasGetAll } from "../servicies/API_Empresa";
@@ -76,7 +78,7 @@ const formatearFecha = (iso) => {
 };
 
 const estadoClase = (estado) =>
-  String(estado || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replaceAll(" ", "-");
+  String(estado || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[\s_.]+/g, "-");
 
 function EstadoBadge({ estado }) {
   const texto = estado || "desconocido";
@@ -98,21 +100,6 @@ function TarjetaVisual({ tarjeta, activa }) {
       <div className="mpt-card-sample__chip" />
       <strong>{tarjeta.numero}</strong>
       <div><span>CVV {tarjeta.cvv}</span><span>{tarjeta.tipo}</span></div>
-    </div>
-  );
-}
-
-function EmptyTab({ icono, titulo, detalle, accion }) {
-  return (
-    <div className="mpt-empty">
-      {icono}
-      <strong>{titulo}</strong>
-      <p>{detalle}</p>
-      {accion ? (
-        <button type="button" className="mpt-btn mpt-btn--primary" onClick={accion.onClick}>
-          {accion.label}
-        </button>
-      ) : null}
     </div>
   );
 }
@@ -629,6 +616,7 @@ function CrearPagoTab({ onPagoVerificado }) {
             value={paymentIdVerificar}
             onChange={(e) => setPaymentIdVerificar(e.target.value)}
             placeholder="payment_id (ej: 123456789)"
+            aria-label="Payment ID a verificar"
           />
           <button type="button" className="mpt-btn mpt-btn--primary" onClick={verificarPago} disabled={verificando || !paymentIdVerificar.trim()}>
             {verificando ? <Loader2 className="mpt-spin" size={17} /> : <Search size={17} />}
@@ -701,7 +689,6 @@ function DetallePagoDrawer({ pago, onClose }) {
       <aside className="mpt-drawer" role="dialog" aria-modal="true" aria-labelledby="mpt-drawer-titulo" onMouseDown={(e) => e.stopPropagation()}>
         <div className="mpt-drawer__header">
           <div>
-            <span className="mpt-eyebrow">Detalle de pago</span>
             <h2 id="mpt-drawer-titulo">Pago {pago.id || pago.mp_payment_id}</h2>
           </div>
           <button className="mpt-icon-btn" type="button" onClick={onClose} aria-label="Cerrar detalle"><X size={19} /></button>
@@ -833,7 +820,7 @@ function ConsultarPagosTab() {
             </div>
           </>
         ) : (
-          <EmptyTab icono={<Search size={28} />} titulo="Sin resultados" detalle={buscado ? "No se encontraron pagos con esos filtros." : "Busca un pago por ID, referencia o estado."} accion={buscado ? { label: "Limpiar filtros", onClick: limpiar } : undefined} />
+          <EmptyState icon={Search} tone={buscado ? "filtered" : "neutral"} title="Sin resultados" description={buscado ? "No se encontraron pagos con esos filtros." : "Buscá un pago por ID, referencia o estado."} action={buscado ? { label: "Limpiar filtros", onClick: limpiar, variant: "secondary" } : undefined} />
         )}
       </section>
 
@@ -936,7 +923,7 @@ function WebhooksTab() {
             </div>
           </>
         ) : (
-          <EmptyTab icono={<CalendarClock size={28} />} titulo="No hay eventos todavía" detalle={cargado ? "Cuando Mercado Pago envíe avisos, aparecerán acá." : "Cargando…"} />
+          <EmptyState icon={CalendarClock} title="No hay eventos todavía" description={cargado ? "Cuando Mercado Pago envíe avisos, van a aparecer acá." : "Cargando…"} />
         )}
       </section>
     </div>
@@ -955,6 +942,21 @@ function ReembolsosTab({ onVerificarPago }) {
       Swal.fire({ toast: true, position: "top-end", icon: "warning", title: "Ingresá el payment_id", showConfirmButton: false, timer: 2500 });
       return;
     }
+
+    const confirmacion = await Swal.fire({
+      title: "¿Ejecutar el reembolso?",
+      text: amount
+        ? `Reembolso de ${formatearImporte(Number(amount))} sobre el pago ${paymentId.trim()}. Esta acción no se puede deshacer.`
+        : `Reembolso total del pago ${paymentId.trim()}. Esta acción no se puede deshacer.`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#EF4444",
+      confirmButtonText: "Sí, ejecutar reembolso",
+      cancelButtonText: "Cancelar",
+      reverseButtons: true,
+      zIndex: Z_INDEX.SWAL_DIALOG,
+    });
+    if (!confirmacion.isConfirmed) return;
 
     setReembolsando(true);
     setResultado(null);
@@ -1043,7 +1045,6 @@ export default function SuperadminPagosTest() {
               <ArrowLeft size={19} />
             </button>
             <div>
-              <span className="mpt-eyebrow">Sandbox de pagos</span>
               <h1>Testing Mercado Pago</h1>
               <p>Creá preferencias, pagá con Checkout Pro, verificá estados, webhooks y reembolsos.</p>
             </div>

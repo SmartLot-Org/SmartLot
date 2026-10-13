@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, CheckCircle2, Clock3, MessageSquareWarning, RotateCcw, Search, Trash2 } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Clock3, MessageSquareWarning, RotateCcw, Rows2, Search, Trash2 } from "lucide-react";
+import Swal from "sweetalert2";
 
 import "../vistasAdmin/admin_panel_de_control.css";
+import "./superadmin_conflictos.css";
 import ToastUndo from "../componentesShared/ToastUndo";
 import EmptyState from "../componentesCompartidos/EmptyState";
 import HeaderSuperadmin from "../componentesSuperadmin/header_superadmin";
@@ -15,6 +17,7 @@ import {
   ConflictosUpdate
 } from "../servicies/API_Conflicto";
 import { UsuariosGetAll } from "../servicies/API_Usuario";
+import { Z_INDEX } from "../helpers/zIndex";
 
 const obtenerListado = (datos) => {
   if (Array.isArray(datos)) return datos;
@@ -294,6 +297,8 @@ export default function SuperadminConflictos() {
   };
 
   const handleEliminar = async (id) => {
+    const result = await Swal.fire({ title: "¿Eliminar conflicto?", text: "El conflicto se va a enviar a la papelera. Podés restaurarlo desde ahí.", icon: "warning", showCancelButton: true, confirmButtonColor: "#EF4444", confirmButtonText: "Sí, eliminar", cancelButtonText: "Cancelar", reverseButtons: true, zIndex: Z_INDEX.SWAL_DIALOG });
+    if (!result.isConfirmed) return;
     setActualizandoId(id);
     const resultado = await ConflictosDelete(id);
     if (resultado.respuesta) {
@@ -403,10 +408,7 @@ export default function SuperadminConflictos() {
             aria-label={compactMode ? "Modo expandido" : "Modo compacto"}
             title={compactMode ? "Modo expandido" : "Modo compacto"}
           >
-            <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="1" y="1" width="13" height="5" rx="1.5" stroke="currentColor" strokeWidth="1.2" />
-              <rect x="1" y="9" width="13" height="5" rx="1.5" stroke="currentColor" strokeWidth="1.2" />
-            </svg>
+            <Rows2 size={15} aria-hidden="true" focusable="false" />
           </button>
         </div>
 
@@ -537,6 +539,7 @@ export default function SuperadminConflictos() {
                           value={conflicto.estado || "Pendiente"}
                           onChange={(event) => handleCambiarEstado(conflicto, event.target.value)}
                           disabled={deshabilitado || resolviendo}
+                          aria-label="Estado del conflicto"
                         >
                           <option value="Pendiente">Pendiente</option>
                           <option value="En Proceso">En Proceso</option>
@@ -556,7 +559,7 @@ export default function SuperadminConflictos() {
                           disabled={deshabilitado || resolviendo}
                           aria-label="Eliminar conflicto"
                         >
-                          {conflicto.estado === "Resuelto" ? <CheckCircle2 size={15} /> : <Trash2 size={15} />}
+                          <Trash2 size={15} aria-hidden="true" focusable="false" />
                         </button>
                       </td>
                     </tr>

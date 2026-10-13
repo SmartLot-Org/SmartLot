@@ -30,7 +30,7 @@ const obtenerEstadoHistorial = (reserva) => {
   ].some(Boolean) || ["borrada", "borrado", "eliminada", "eliminado", "cancelada", "cancelado"].includes(estado);
 
   if (estaBorrada) {
-    return { tipo: "deleted", texto: "Borrada", icono: <X size={20} strokeWidth={3.2} />, color: "#dc2626" };
+    return { tipo: "deleted", texto: "Borrada", icono: <X size={20} strokeWidth={3.2} />, color: "#B91C1C" };
   }
 
   const entradaCompleta = [
@@ -57,10 +57,10 @@ const obtenerEstadoHistorial = (reserva) => {
   ].some(esValorVerdadero);
 
   if (entradaCompleta && salidaCompleta) {
-    return { tipo: "completed", texto: "Completada", icono: <Check size={20} strokeWidth={3.2} />, color: "#16a34a" };
+    return { tipo: "completed", texto: "Completada", icono: <Check size={20} strokeWidth={3.2} />, color: "#15803D" };
   }
 
-  return { tipo: "missed", texto: "Sin registro", icono: <X size={20} strokeWidth={3.2} />, color: "#dc2626" };
+  return { tipo: "missed", texto: "Sin registro", icono: <X size={20} strokeWidth={3.2} />, color: "#B91C1C" };
 };
 
 function ModalDetalleReserva({ reserva, onClose, onCopy }) {
@@ -78,11 +78,17 @@ function ModalDetalleReserva({ reserva, onClose, onCopy }) {
 
   return (
     <ModalPortal onClose={onClose}>
-      <div className="modal-reserva-panel" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="modal-reserva-panel"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Detalle de reserva"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="modal-reserva-header">
           <h2>Detalle de reserva</h2>
           <button type="button" className="modal-reserva-close" onClick={onClose} aria-label="Cerrar">
-            &#x2715;
+            <X size={20} aria-hidden="true" />
           </button>
         </div>
 
@@ -122,14 +128,14 @@ function ModalDetalleReserva({ reserva, onClose, onCopy }) {
           </div>
 
           <div className="modal-reserva-field">
-            <span className="modal-reserva-field-label">Ubicacion</span>
+            <span className="modal-reserva-field-label">Ubicación</span>
             <span className="modal-reserva-field-value">
-              {reserva.nro_plaza || "—"} &middot; {reserva.nombre_zona || "Sector"}
+              {reserva.nro_plaza || "—"} &middot; {reserva.nombre_zona || "—"}
             </span>
           </div>
 
           <div className="modal-reserva-field">
-            <span className="modal-reserva-field-label">Vehiculo</span>
+            <span className="modal-reserva-field-label">Vehículo</span>
             <span className="modal-reserva-field-value">
               <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <Car size={16} />

@@ -17,7 +17,7 @@ export default function ToastUndo({ message, onUndo, onClose }) {
 
   return (
     <div className="toast-container">
-      <div className="toast">
+      <div className="toast" role="status" aria-live="polite">
         <span className="toast__message">{message}</span>
         <button className="toast__undo" onClick={handleUndo}>Deshacer</button>
         <div className="toast__progress" />

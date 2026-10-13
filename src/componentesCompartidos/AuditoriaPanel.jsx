@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { ChevronDown, History, Clock, UserRound } from "lucide-react";
 import gsap from "gsap";
 import EmptyState from "./EmptyState";
@@ -29,12 +29,18 @@ const AuditoriaPanel = ({
   const toggleOpen = () => {
     if (animatingRef.current || !contentRef.current) return;
 
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
     if (isOpen) {
+      if (reduced) {
+        setIsOpen(false);
+        return;
+      }
       animatingRef.current = true;
       gsap.to(contentRef.current, {
-        height: 0,
         opacity: 0,
-        duration: 0.25,
+        y: -8,
+        duration: 0.18,
         ease: "power2.in",
         onComplete: () => {
           setIsOpen(false);
@@ -42,24 +48,28 @@ const AuditoriaPanel = ({
         },
       });
     } else {
-      animatingRef.current = true;
-      const el = contentRef.current;
-      gsap.set(el, { height: "auto", opacity: 0, display: "block" });
-      const h = el.scrollHeight;
-      gsap.set(el, { height: 0, opacity: 0 });
-      gsap.to(el, {
-        height: h,
-        opacity: 1,
-        duration: 0.3,
-        ease: "power2.out",
-        onComplete: () => {
-          gsap.set(el, { height: "auto" });
-          setIsOpen(true);
-          animatingRef.current = false;
-        },
-      });
+      setIsOpen(true);
     }
   };
+
+  useEffect(() => {
+    if (!isOpen || !contentRef.current) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    animatingRef.current = true;
+    gsap.fromTo(
+      contentRef.current,
+      { opacity: 0, y: -8 },
+      {
+        opacity: 1,
+        y: 0,
+        duration: 0.22,
+        ease: "power2.out",
+        onComplete: () => {
+          animatingRef.current = false;
+        },
+      }
+    );
+  }, [isOpen]);
 
   return (
     <section className="auditoria-panel-compartido">
@@ -85,7 +95,7 @@ const AuditoriaPanel = ({
       <div
         ref={contentRef}
         className="auditoria-collapse-content"
-        style={{ overflow: "hidden", height: 0, opacity: 0 }}
+        style={{ display: isOpen ? "block" : "none" }}
       >
         {loading ? (
           <p className="auditoria-empty-msg">Cargando auditoría...</p>

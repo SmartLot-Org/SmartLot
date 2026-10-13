@@ -23,7 +23,7 @@ export default function RegisterRoleToggle({ modo, onChange, disabled = false })
   return (
     <div className="auth-stagger">
       <div
-        role="tablist"
+        role="radiogroup"
         aria-label="Tipo de cuenta"
         onKeyDown={handleKeyDown}
         className="relative grid grid-cols-2 rounded-2xl border border-brand-deep/10 bg-brand-bg p-1.5"
@@ -41,8 +41,9 @@ export default function RegisterRoleToggle({ modo, onChange, disabled = false })
             <button
               key={opcion.id}
               id={`register-tab-${opcion.id}`}
-              role="tab"
-              aria-selected={activo}
+              role="radio"
+              aria-checked={activo}
+              tabIndex={activo ? 0 : -1}
               type="button"
               disabled={disabled}
               onClick={() => onChange(opcion.id)}

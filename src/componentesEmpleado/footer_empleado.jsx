@@ -68,7 +68,7 @@ function FooterEmpleado() {
     <footer
       className={`footer-empleado${compacto ? " footer-compacto" : ""}`}
       style={{ "--footer-active-offset": activeOffset }}
-      aria-label="Navegacion principal del empleado"
+      aria-label="Navegación principal del empleado"
     >
       <span className="footer-active-indicator" aria-hidden="true" />
       {FOOTER_ITEMS.map((item) => (

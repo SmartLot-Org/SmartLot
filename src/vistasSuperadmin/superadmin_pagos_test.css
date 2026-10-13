@@ -62,15 +62,6 @@
   transform: translateX(-2px);
 }
 
-.mpt-eyebrow {
-  display: inline-block;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.6px;
-  text-transform: uppercase;
-  color: #2563EB;
-  margin-bottom: 4px;
-}
 
 .mpt-tabs {
   display: flex;

@@ -809,8 +809,8 @@ const GestionUsuarios = () => {
       <main className="gestion-usuarios-main">
         <header className="gestion-usuarios-header">
           <div className="usuarios-header-left usuarios-animate-header">
-            <button className="boton-back" onClick={() => navigate("/superadmin_dashboard")}>
-              <ArrowLeft size={24} />
+            <button type="button" className="boton-back" onClick={() => navigate("/superadmin_dashboard")} aria-label="Volver">
+              <ArrowLeft size={24} aria-hidden="true" focusable="false" />
             </button>
             <div className="usuarios-titulos">
               <h1>Gestión de Usuarios</h1>
@@ -872,6 +872,7 @@ const GestionUsuarios = () => {
                 <input
                   type="text"
                   placeholder="Buscar por nombre, email o rol..."
+                  aria-label="Buscar por nombre, email o rol"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
@@ -901,9 +902,10 @@ const GestionUsuarios = () => {
 
                   <div className="filtros-dropdown-body">
                     <div className="form-group-filter">
-                      <label>Empresa</label>
+                      <label htmlFor="filtro-empresa">Empresa</label>
                       <div className="select-wrapper">
                         <select
+                          id="filtro-empresa"
                           value={selectedEmpresa}
                           onChange={(e) => {
                             setSelectedEmpresa(e.target.value);
@@ -923,9 +925,10 @@ const GestionUsuarios = () => {
                     </div>
 
                     <div className="form-group-filter">
-                      <label>Sede</label>
+                      <label htmlFor="filtro-sede">Sede</label>
                       <div className="select-wrapper">
                         <select
+                          id="filtro-sede"
                           value={selectedSede}
                           onChange={(e) => {
                             setSelectedSede(e.target.value);
@@ -944,9 +947,10 @@ const GestionUsuarios = () => {
                     </div>
 
                     <div className="form-group-filter">
-                      <label>Garage</label>
+                      <label htmlFor="filtro-garage">Garage</label>
                       <div className="select-wrapper">
                         <select
+                          id="filtro-garage"
                           value={selectedGarage}
                           onChange={(e) => setSelectedGarage(e.target.value)}
                         >
@@ -1136,7 +1140,7 @@ const GestionUsuarios = () => {
 
       {garagesModalUsuario && <ModalPortal onClose={() => setGaragesModalUsuario(null)} overlayClassName="garages-owner-overlay">
         <section className="garages-owner-modal" role="dialog" aria-modal="true" aria-labelledby="garages-owner-title" onClick={(event) => event.stopPropagation()}>
-          <header><div className="garages-owner-modal__icon"><Car size={21}/></div><div><span>Dueño de garage</span><h2 id="garages-owner-title">Garages de {garagesModalUsuario.nombre}</h2><p>{garagesModalUsuario.garages.length} garages asociados</p></div><button type="button" onClick={() => setGaragesModalUsuario(null)} aria-label="Cerrar listado de garages"><X size={20}/></button></header>
+          <header><div className="garages-owner-modal__icon"><Car size={21}/></div><div><h2 id="garages-owner-title">Garages de {garagesModalUsuario.nombre}</h2><p>{garagesModalUsuario.garages.length} garages asociados</p></div><button type="button" onClick={() => setGaragesModalUsuario(null)} aria-label="Cerrar listado de garages"><X size={20}/></button></header>
           <ul>{garagesModalUsuario.garages.map((garage, index) => <li key={`${garage}-${index}`}><span>{index + 1}</span><div><strong>{garage}</strong><small>Garage administrado</small></div></li>)}</ul>
         </section>
       </ModalPortal>}
@@ -1154,10 +1158,12 @@ const GestionUsuarios = () => {
                 <h2>Usuarios Archivados</h2>
               </div>
               <button
+                type="button"
                 className="modal-archivados-close"
                 onClick={() => setShowArchived(false)}
+                aria-label="Cerrar"
               >
-                <X size={22} />
+                <X size={22} aria-hidden="true" focusable="false" />
               </button>
             </div>
 
@@ -1167,6 +1173,7 @@ const GestionUsuarios = () => {
                 <input
                   type="text"
                   placeholder="Buscar archivados..."
+                  aria-label="Buscar usuarios archivados"
                   value={searchArchivedTerm}
                   onChange={(e) => setSearchArchivedTerm(e.target.value)}
                 />
@@ -1228,8 +1235,9 @@ const GestionUsuarios = () => {
                           <BotonGenerico
                             className="btn-eliminar-archivado"
                             onClick={() => handleEliminar(u.id, u.nombre)}
+                            aria-label="Eliminar"
                           >
-                            <Trash2 size={16} />
+                            <Trash2 size={16} aria-hidden="true" focusable="false" />
                           </BotonGenerico>
                         </>
                       )}
@@ -1272,6 +1280,7 @@ const GestionUsuarios = () => {
                 <input
                   type="text"
                   placeholder="Buscar por nombre, email o empresa..."
+                  aria-label="Buscar por nombre, email o empresa"
                   value={searchSolicitudesTerm}
                   onChange={(e) => setSearchSolicitudesTerm(e.target.value)}
                 />

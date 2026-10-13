@@ -43,9 +43,9 @@
 }
 
 .pg-page .garage-hero-title {
-  font-size: clamp(2.6rem, 11.5vw, 8.25rem);
+  font-size: clamp(2.6rem, 11.5vw, 6rem);
   line-height: 0.82;
-  letter-spacing: -0.05em;
+  letter-spacing: -0.03em;
 }
 
 .garage-map-pin-ring {

@@ -73,8 +73,8 @@ const GaragistaDashboard = lazy(() => import("./vistasGaragista/garagista_dashbo
 
 function RouteFallback() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50">
-      <div className="h-8 w-8 animate-spin rounded-full border-2 border-brand-blue border-t-transparent" />
+    <div role="status" className="min-h-screen flex items-center justify-center bg-brand-bg">
+      <div className="h-8 w-8 animate-spin rounded-full border-2 border-brand-blue border-t-transparent" aria-hidden="true" />
     </div>
   );
 }
@@ -168,7 +168,7 @@ function AppRoutes() {
         } />
         <Route path="/agregar_garajista" element={
           <ProtectedRoute allowedRoles={[1]} usuario={usuario}>
-            <Navigate to="/gestion_de_empleados" replace />
+            <GestionEmpleados />
           </ProtectedRoute>
         } />
         <Route path="/gestion_garages" element={

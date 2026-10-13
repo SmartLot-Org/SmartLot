@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { ArrowLeft, Building2, Check, ChevronDown, CirclePlus, MapPin, Pencil, Trash2, X } from "lucide-react";
+import { ArrowLeft, Building2, Check, ChevronDown, CirclePlus, MapPin, Pencil, RefreshCw, Trash2, X } from "lucide-react";
 import Swal from "sweetalert2";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
@@ -41,6 +41,8 @@ function GestionEmpresas() {
   const [editEmpresa, setEditEmpresa] = useState({ nombre: "", descripcion: "" });
   const [editingSedeId, setEditingSedeId] = useState(null);
   const [editSede, setEditSede] = useState({ nombre: "", descripcion: "", ubicacion: "" });
+  const [guardando, setGuardando] = useState(false);
+  const [reintento, setReintento] = useState(0);
 
   useEffect(() => {
     let mounted = true;
@@ -51,9 +53,14 @@ function GestionEmpresas() {
       if (auditRes.respuesta) setAuditoria(crearAuditoria(obtenerListado(auditRes.datos)));
       setLoading(false);
       setLoadingAuditoria(false);
+    }).catch(() => {
+      if (!mounted) return;
+      setError("No se pudieron cargar las empresas y sedes. Reintentá más tarde.");
+      setLoading(false);
+      setLoadingAuditoria(false);
     });
     return () => { mounted = false; };
-  }, []);
+  }, [reintento]);
 
   const sedesPorEmpresa = useMemo(() => {
     const mapa = new Map();
@@ -76,55 +83,81 @@ function GestionEmpresas() {
   };
 
   const guardarEmpresa = async () => {
+    if (guardando) return;
     if (!editEmpresa.nombre.trim()) return Swal.fire("Error", "El nombre es requerido.", "error");
-    const res = await EmpresasUpdate(editingEmpresaId, { nombre: editEmpresa.nombre.trim(), descripcion: editEmpresa.descripcion.trim() });
-    if (!res.respuesta) return Swal.fire("Error", res.datos?.message || "No se pudo actualizar.", "error");
-    setEmpresas((prev) => prev.map((e) => e.id === editingEmpresaId ? { ...e, ...res.datos, nombre: editEmpresa.nombre.trim(), descripcion: editEmpresa.descripcion.trim() } : e));
-    setEditingEmpresaId(null);
-    await recargarAuditoria();
-    Swal.fire({ title: "Actualizada", text: "Empresa actualizada correctamente.", icon: "success", timer: 1200, showConfirmButton: false, zIndex: Z_INDEX.SWAL_DIALOG });
+    setGuardando(true);
+    try {
+      const res = await EmpresasUpdate(editingEmpresaId, { nombre: editEmpresa.nombre.trim(), descripcion: editEmpresa.descripcion.trim() });
+      if (!res.respuesta) return Swal.fire("Error", res.datos?.message || "No se pudo actualizar.", "error");
+      setEmpresas((prev) => prev.map((e) => e.id === editingEmpresaId ? { ...e, ...res.datos, nombre: editEmpresa.nombre.trim(), descripcion: editEmpresa.descripcion.trim() } : e));
+      setEditingEmpresaId(null);
+      await recargarAuditoria();
+      Swal.fire({ title: "Actualizada", text: "Empresa actualizada correctamente.", icon: "success", timer: 1200, showConfirmButton: false, zIndex: Z_INDEX.SWAL_DIALOG });
+    } finally {
+      setGuardando(false);
+    }
   };
 
   const eliminarEmpresa = async (empresa) => {
+    if (guardando) return;
     const result = await Swal.fire({ title: "¿Eliminar empresa?", text: `${empresa.nombre} será eliminada del sistema.`, icon: "warning", showCancelButton: true, confirmButtonColor: "#EF4444", confirmButtonText: "Sí, eliminar", cancelButtonText: "Cancelar", reverseButtons: true, zIndex: Z_INDEX.SWAL_DIALOG });
     if (!result.isConfirmed) return;
-    const res = await EmpresasDelete(empresa.id);
-    if (!res.respuesta) return Swal.fire("Error", "No se pudo eliminar.", "error");
-    setEmpresas((prev) => prev.filter((e) => e.id !== empresa.id));
-    await recargarAuditoria();
+    setGuardando(true);
+    try {
+      const res = await EmpresasDelete(empresa.id);
+      if (!res.respuesta) return Swal.fire("Error", "No se pudo eliminar.", "error");
+      setEmpresas((prev) => prev.filter((e) => e.id !== empresa.id));
+      await recargarAuditoria();
+      Swal.fire({ title: "Eliminada", text: "Empresa eliminada correctamente.", icon: "success", timer: 1200, showConfirmButton: false, zIndex: Z_INDEX.SWAL_DIALOG });
+    } finally {
+      setGuardando(false);
+    }
   };
 
   const guardarSede = async () => {
+    if (guardando) return;
     if (!editSede.nombre.trim()) return Swal.fire("Error", "El nombre es requerido.", "error");
     const sede = sedes.find((item) => item.id === editingSedeId);
     const payload = { ...sede, ...editSede, nombre: editSede.nombre.trim(), descripcion: editSede.descripcion.trim(), ubicacion: editSede.ubicacion.trim() };
-    const res = await SedesUpdate(editingSedeId, payload);
-    if (!res.respuesta) return Swal.fire("Error", res.datos?.message || "No se pudo actualizar.", "error");
-    setSedes((prev) => prev.map((item) => item.id === editingSedeId ? payload : item));
-    setEditingSedeId(null);
-    Swal.fire({ title: "Actualizada", text: "Sede actualizada correctamente.", icon: "success", timer: 1200, showConfirmButton: false });
+    setGuardando(true);
+    try {
+      const res = await SedesUpdate(editingSedeId, payload);
+      if (!res.respuesta) return Swal.fire("Error", res.datos?.message || "No se pudo actualizar.", "error");
+      setSedes((prev) => prev.map((item) => item.id === editingSedeId ? payload : item));
+      setEditingSedeId(null);
+      Swal.fire({ title: "Actualizada", text: "Sede actualizada correctamente.", icon: "success", timer: 1200, showConfirmButton: false });
+    } finally {
+      setGuardando(false);
+    }
   };
 
   const eliminarSede = async (sede) => {
+    if (guardando) return;
     const result = await Swal.fire({ title: "¿Eliminar sede?", text: `${sede.nombre} será eliminada del sistema.`, icon: "warning", showCancelButton: true, confirmButtonColor: "#EF4444", confirmButtonText: "Sí, eliminar", cancelButtonText: "Cancelar", reverseButtons: true, zIndex: Z_INDEX.SWAL_DIALOG });
     if (!result.isConfirmed) return;
-    const res = await SedesDelete(sede.id);
-    if (!res.respuesta) return Swal.fire("Error", "No se pudo eliminar.", "error");
-    setSedes((prev) => prev.filter((item) => item.id !== sede.id));
+    setGuardando(true);
+    try {
+      const res = await SedesDelete(sede.id);
+      if (!res.respuesta) return Swal.fire("Error", "No se pudo eliminar.", "error");
+      setSedes((prev) => prev.filter((item) => item.id !== sede.id));
+      Swal.fire({ title: "Eliminada", text: "Sede eliminada correctamente.", icon: "success", timer: 1200, showConfirmButton: false, zIndex: Z_INDEX.SWAL_DIALOG });
+    } finally {
+      setGuardando(false);
+    }
   };
 
   return <div className="gestion-empresas-page"><HeaderSuperadmin /><main className="gestion-empresas-main">
     <div className="gestion-empresas-top"><button className="boton-back" onClick={() => navigate("/superadmin_dashboard")} aria-label="Volver"><ArrowLeft size={20} /></button><div><p>SUPERADMIN</p><h1>Empresas y sedes</h1><span className="gestion-subtitulo">Seleccioná una empresa para administrar sus sedes</span></div></div>
-    <section className="empresas-resumen" aria-label="Resumen"><div className="stats-card-empresa"><div className="stats-header-empresa"><h4>Empresas</h4><Building2 size={22} /></div><h2>{loading ? "—" : empresas.length}</h2><p>Registradas</p></div><div className="stats-card-empresa stats-card-sedes"><div className="stats-header-empresa"><h4>Sedes</h4><MapPin size={22} /></div><h2>{loading ? "—" : sedes.length}</h2><p>En todas las empresas</p></div></section>
+    <section className="empresas-resumen" aria-label="Resumen"><div className="stats-card-empresa"><div className="stats-header-empresa"><span className="stats-label">Empresas</span><Building2 size={22} aria-hidden="true" focusable="false" /></div><strong className="stats-valor">{loading ? "—" : empresas.length}</strong><p>Registradas</p></div><div className="stats-card-empresa stats-card-sedes"><div className="stats-header-empresa"><span className="stats-label">Sedes</span><MapPin size={22} aria-hidden="true" focusable="false" /></div><strong className="stats-valor">{loading ? "—" : sedes.length}</strong><p>En todas las empresas</p></div></section>
     <div className="empresas-actions"><BotonGenerico className="btn-nueva-empresa" onClick={() => navigate("/superadmin/agregar_empresa")}><CirclePlus size={20} /><span>Nueva empresa</span></BotonGenerico></div>
     <AuditoriaPanel titulo="Auditoría de empresas" descripcion="Últimas ediciones y borrados registrados." eventos={auditoria} loading={loadingAuditoria} maxItems={8} />
-    {loading ? <div className="empresas-grid">{Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} />)}</div> : error ? <p className="empresas-feedback-error">{error}</p> : empresas.length === 0 ? <EmptyState icon={Building2} title="No hay empresas registradas." description="Creá la primera empresa para empezar a gestionar sus sedes y garages." action={{ label: "Agregar empresa", to: "/superadmin/agregar_empresa", icon: CirclePlus }} /> : <div className="empresas-lista">{empresas.map((empresa) => {
+    {loading ? <div className="empresas-grid">{Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} />)}</div> : error ? <div className="empresas-feedback-error"><p>{error}</p><BotonGenerico className="btn-reintentar" onClick={() => { setLoading(true); setError(""); setReintento((n) => n + 1); }}><RefreshCw size={18} aria-hidden="true" focusable="false" /><span>Reintentar</span></BotonGenerico></div> : empresas.length === 0 ? <EmptyState icon={Building2} title="No hay empresas registradas." description="Creá la primera empresa para empezar a gestionar sus sedes y garages." action={{ label: "Agregar empresa", to: "/superadmin/agregar_empresa", icon: CirclePlus }} /> : <div className="empresas-lista">{empresas.map((empresa) => {
       const abierta = Number(empresaAbierta) === Number(empresa.id);
       const sedesEmpresa = sedesPorEmpresa.get(Number(empresa.id)) || [];
       return <article className={`empresa-panel${abierta ? " abierta" : ""}`} key={empresa.id}><div className="empresa-card">
-        {editingEmpresaId === empresa.id ? <><div className="empresa-card-edit"><input value={editEmpresa.nombre} onChange={(e) => setEditEmpresa((p) => ({ ...p, nombre: e.target.value }))} placeholder="Nombre" /><textarea value={editEmpresa.descripcion} onChange={(e) => setEditEmpresa((p) => ({ ...p, descripcion: e.target.value }))} placeholder="Descripción" rows={2} /></div><div className="empresa-card-edit-actions"><button className="edit-btn save" onClick={guardarEmpresa}><Check size={18} /></button><button className="edit-btn cancel" onClick={() => setEditingEmpresaId(null)}><X size={18} /></button></div></> : <><button className="empresa-selector" onClick={() => setEmpresaAbierta(abierta ? null : empresa.id)} aria-expanded={abierta}><span className="empresa-card-icon"><Building2 size={22} /></span><span className="empresa-card-info"><strong>{empresa.nombre}</strong><small>{empresa.descripcion || "Sin descripción"}</small><span className="empresa-sedes-count"><MapPin size={13} /> {sedesEmpresa.length} {sedesEmpresa.length === 1 ? "sede" : "sedes"}</span></span><ChevronDown className="empresa-chevron" size={20} /></button><div className="empresa-card-actions"><button className="empresa-action-btn edit" onClick={() => { setEditingEmpresaId(empresa.id); setEditEmpresa({ nombre: empresa.nombre || "", descripcion: empresa.descripcion || "" }); }} aria-label="Editar empresa"><Pencil size={16} /></button><button className="empresa-action-btn delete" onClick={() => eliminarEmpresa(empresa)} aria-label="Eliminar empresa"><Trash2 size={16} /></button></div></>}
-      </div>{abierta ? <div className="sedes-desplegable"><div className="sedes-desplegable-header"><div><span>SEDES DE LA EMPRESA</span><h3>{empresa.nombre}</h3></div><BotonGenerico className="btn-nueva-sede-inline" onClick={() => navigate("/superadmin/agregar_sede", { state: { empresaId: empresa.id } })}><CirclePlus size={18} /><span>Nueva sede</span></BotonGenerico></div>
-        {sedesEmpresa.length === 0 ? <EmptyState size="sm" icon={MapPin} title="Esta empresa todavía no tiene sedes." description="Agregá la primera sede para poder asignar garages y personal." action={{ label: "Agregar sede", icon: CirclePlus, onClick: () => navigate("/superadmin/agregar_sede", { state: { empresaId: empresa.id } }) }} /> : <div className="sedes-inline-grid">{sedesEmpresa.map((sede) => <div className="sede-inline-card" key={sede.id}>{editingSedeId === sede.id ? <><div className="sede-inline-edit"><input value={editSede.nombre} onChange={(e) => setEditSede((p) => ({ ...p, nombre: e.target.value }))} placeholder="Nombre" /><textarea value={editSede.descripcion} onChange={(e) => setEditSede((p) => ({ ...p, descripcion: e.target.value }))} placeholder="Descripción" rows={2} /><input value={editSede.ubicacion} onChange={(e) => setEditSede((p) => ({ ...p, ubicacion: e.target.value }))} placeholder="Ubicación" /></div><div className="sede-inline-actions"><button className="edit-btn save" onClick={guardarSede}><Check size={18} /></button><button className="edit-btn cancel" onClick={() => setEditingSedeId(null)}><X size={18} /></button></div></> : <><span className="sede-inline-icon"><MapPin size={19} /></span><div className="sede-inline-info"><h4>{sede.nombre}</h4><p>{sede.descripcion || "Sin descripción"}</p>{sede.ubicacion ? <small>{sede.ubicacion}</small> : null}</div><div className="sede-inline-actions"><button className="empresa-action-btn edit" onClick={() => { setEditingSedeId(sede.id); setEditSede({ nombre: sede.nombre || "", descripcion: sede.descripcion || "", ubicacion: sede.ubicacion || "" }); }} aria-label="Editar sede"><Pencil size={15} /></button><button className="empresa-action-btn delete" onClick={() => eliminarSede(sede)} aria-label="Eliminar sede"><Trash2 size={15} /></button></div></>}</div>)}</div>}
+        {editingEmpresaId === empresa.id ? <><div className="empresa-card-edit"><input value={editEmpresa.nombre} onChange={(e) => setEditEmpresa((p) => ({ ...p, nombre: e.target.value }))} placeholder="Nombre" aria-label="Nombre de la empresa" /><textarea value={editEmpresa.descripcion} onChange={(e) => setEditEmpresa((p) => ({ ...p, descripcion: e.target.value }))} placeholder="Descripción" aria-label="Descripción de la empresa" rows={2} /></div><div className="empresa-card-edit-actions"><button type="button" className="edit-btn save" onClick={guardarEmpresa} aria-label="Guardar" disabled={guardando}><Check size={18} aria-hidden="true" focusable="false" /></button><button type="button" className="edit-btn cancel" onClick={() => setEditingEmpresaId(null)} aria-label="Cancelar"><X size={18} aria-hidden="true" focusable="false" /></button></div></> : <><button className="empresa-selector" onClick={() => setEmpresaAbierta(abierta ? null : empresa.id)} aria-expanded={abierta}><span className="empresa-card-icon"><Building2 size={22} /></span><span className="empresa-card-info"><strong>{empresa.nombre}</strong><small>{empresa.descripcion || "Sin descripción"}</small><span className="empresa-sedes-count"><MapPin size={13} /> {sedesEmpresa.length} {sedesEmpresa.length === 1 ? "sede" : "sedes"}</span></span><ChevronDown className="empresa-chevron" size={20} /></button><div className="empresa-card-actions"><button className="empresa-action-btn edit" onClick={() => { setEditingEmpresaId(empresa.id); setEditEmpresa({ nombre: empresa.nombre || "", descripcion: empresa.descripcion || "" }); }} aria-label="Editar empresa"><Pencil size={16} /></button><button type="button" className="empresa-action-btn delete" onClick={() => eliminarEmpresa(empresa)} aria-label="Eliminar empresa" disabled={guardando}><Trash2 size={16} aria-hidden="true" focusable="false" /></button></div></>}
+      </div>{abierta ? <div className="sedes-desplegable"><div className="sedes-desplegable-header"><div><span>SEDES DE LA EMPRESA</span><h2>{empresa.nombre}</h2></div><BotonGenerico className="btn-nueva-sede-inline" onClick={() => navigate("/superadmin/agregar_sede", { state: { empresaId: empresa.id } })}><CirclePlus size={18} /><span>Nueva sede</span></BotonGenerico></div>
+        {sedesEmpresa.length === 0 ? <EmptyState size="sm" icon={MapPin} title="Esta empresa todavía no tiene sedes." description="Agregá la primera sede para poder asignar garages y personal." action={{ label: "Agregar sede", icon: CirclePlus, onClick: () => navigate("/superadmin/agregar_sede", { state: { empresaId: empresa.id } }) }} /> : <div className="sedes-inline-grid">{sedesEmpresa.map((sede) => <div className="sede-inline-card" key={sede.id}>{editingSedeId === sede.id ? <><div className="sede-inline-edit"><input value={editSede.nombre} onChange={(e) => setEditSede((p) => ({ ...p, nombre: e.target.value }))} placeholder="Nombre" aria-label="Nombre de la sede" /><textarea value={editSede.descripcion} onChange={(e) => setEditSede((p) => ({ ...p, descripcion: e.target.value }))} placeholder="Descripción" aria-label="Descripción de la sede" rows={2} /><input value={editSede.ubicacion} onChange={(e) => setEditSede((p) => ({ ...p, ubicacion: e.target.value }))} placeholder="Ubicación" aria-label="Ubicación de la sede" /></div><div className="sede-inline-actions"><button type="button" className="edit-btn save" onClick={guardarSede} aria-label="Guardar" disabled={guardando}><Check size={18} aria-hidden="true" focusable="false" /></button><button type="button" className="edit-btn cancel" onClick={() => setEditingSedeId(null)} aria-label="Cancelar"><X size={18} aria-hidden="true" focusable="false" /></button></div></> : <><span className="sede-inline-icon"><MapPin size={19} /></span><div className="sede-inline-info"><h3>{sede.nombre}</h3><p>{sede.descripcion || "Sin descripción"}</p>{sede.ubicacion ? <small>{sede.ubicacion}</small> : null}</div><div className="sede-inline-actions"><button className="empresa-action-btn edit" onClick={() => { setEditingSedeId(sede.id); setEditSede({ nombre: sede.nombre || "", descripcion: sede.descripcion || "", ubicacion: sede.ubicacion || "" }); }} aria-label="Editar sede"><Pencil size={15} /></button><button type="button" className="empresa-action-btn delete" onClick={() => eliminarSede(sede)} aria-label="Eliminar sede" disabled={guardando}><Trash2 size={15} aria-hidden="true" focusable="false" /></button></div></>}</div>)}</div>}
       </div> : null}</article>;
     })}</div>}
   </main><FooterSuperadmin /></div>;

@@ -4,7 +4,6 @@
 .tpl-title-row { display: flex; align-items: flex-start; gap: 14px; }
 .tpl-back { display: grid; place-items: center; flex: 0 0 auto; width: 40px; height: 40px; border: 1px solid #e2e8f0; border-radius: 12px; color: #0f1a2e; background: #fff; cursor: pointer; transition: .2s ease; }
 .tpl-back:hover { color: #fff; background: #1a2744; transform: translateX(-2px); }
-.tpl-eyebrow { display: block; margin-bottom: 4px; color: #2563eb; font-size: 11px; font-weight: 800; letter-spacing: .7px; text-transform: uppercase; }
 .tpl-header h1 { margin: 0; color: #0f1a2e; font-size: 28px; line-height: 1.2; }
 .tpl-header p { margin: 5px 0 0; color: #64748b; font-size: 14px; }
 .tpl-action { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 42px; padding: 0 15px; border-radius: 12px; font-family: inherit; font-size: 13px; font-weight: 750; cursor: pointer; transition: .2s ease; }

@@ -2,7 +2,7 @@ import { useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
-import { LayoutGrid, Cpu, Users, Smartphone, ShieldCheck } from 'lucide-react';
+import { LayoutGrid, Cpu, Smartphone, ShieldCheck } from 'lucide-react';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -81,9 +81,6 @@ export default function BentoGrid() {
       <div className="max-w-6xl mx-auto px-6">
         
         <div className="mb-12 text-center relative z-20 flex flex-col items-center">
-          <span className="bento-header-text text-brand-navy font-semibold tracking-[0.2em] uppercase text-sm mb-3 block">
-            Ecosistema Integral
-          </span>
           <h2 className="bento-header-text text-brand-warm mb-6">
             Todo el control en un <br className="hidden md:block" /> solo lugar.
           </h2>
@@ -100,7 +97,7 @@ export default function BentoGrid() {
                 bento-card group relative ${f.size} 
                 overflow-hidden glass-card
                 p-6 rounded-[1.5rem] flex flex-col justify-between text-left
-                shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_16px_40px_rgba(12,30,63,0.08)] 
+                hover:shadow-[0_16px_40px_rgba(12,30,63,0.08)] 
                 transition-all duration-500 hover:-translate-y-1
               `}
             >

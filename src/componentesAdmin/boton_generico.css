@@ -1,8 +1,8 @@
 /* ESTILO BASE (Desktop) */
 .btn-primario {
-  background-color: #1A73E8 !important;
-  border-radius: 12px !important;
-  height: 42px;
+  background-color: #2563EB;
+  border-radius: 10px;
+  height: 40px;
   padding: 0 18px;
   display: flex;
   align-items: center;
@@ -12,13 +12,17 @@
   font-size: 14px;
   border: none;
   cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 12px rgba(26, 115, 232, 0.2);
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
 }
 
 .btn-primario:hover {
-  background-color: #1557b0 !important;
-  transform: scale(1.02);
+  background-color: #156FE5;
+}
+
+.btn-primario:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.35);
+  outline-offset: 2px;
 }
 
 /* CONTENEDOR PARA MÓVIL */
@@ -26,27 +30,26 @@
   width: auto;
 }
 
-/* MEDIA QUERY PARA MÓVIL (FOTO 2) */
+/* MEDIA QUERY PARA MÓVIL */
 @media (max-width: 768px) {
   .header-seccion {
     flex-direction: column;
     align-items: flex-start;
-    gap: 24px; /* Espaciado entre títulos y botón */
+    gap: 24px;
   }
 
   .btn-container-mobile {
-    width: 100%; /* El contenedor ocupa todo el ancho */
+    width: 100%;
   }
 
   .btn-primario {
-    width: 100% !important; 
-    height: 40px; 
+    width: 100%;
+    height: 40px;
     justify-content: center;
-    border-radius: 12px !important;
+    border-radius: 10px;
     font-size: 14px;
     margin-top: 0;
   }
-  
 
   /* Ajuste para que el icono y texto no se peguen a los bordes */
   .btn-primario span {

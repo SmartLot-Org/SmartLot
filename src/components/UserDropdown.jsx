@@ -54,6 +54,7 @@ export default function UserDropdown() {
 
   useGSAP(() => {
     if (!panelRef.current) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     if (isOpen) {
       gsap.fromTo(
@@ -83,12 +84,61 @@ export default function UserDropdown() {
     setIsOpen((prev) => !prev);
   }, []);
 
+  const focusMenuItem = useCallback((position) => {
+    const panel = panelRef.current;
+    if (!panel) return;
+    const items = Array.from(panel.querySelectorAll('.dropdown-item'));
+    if (!items.length) return;
+    const target = position === 'last' ? items[items.length - 1] : items[0];
+    target?.focus();
+  }, []);
+
   const handleKeyDown = useCallback((e) => {
     if (e.key === 'Escape') {
       setIsOpen(false);
       triggerRef.current?.focus();
+      return;
     }
-  }, []);
+
+    const panel = panelRef.current;
+    const items = panel ? Array.from(panel.querySelectorAll('.dropdown-item')) : [];
+    const activeIndex = items.indexOf(document.activeElement);
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      if (!isOpen) {
+        setIsOpen(true);
+        requestAnimationFrame(() => focusMenuItem('first'));
+        return;
+      }
+      if (activeIndex === -1) {
+        focusMenuItem('first');
+        return;
+      }
+      items[(activeIndex + 1) % items.length].focus();
+      return;
+    }
+
+    if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (!isOpen) {
+        setIsOpen(true);
+        requestAnimationFrame(() => focusMenuItem('last'));
+        return;
+      }
+      if (activeIndex === -1) {
+        focusMenuItem('last');
+        return;
+      }
+      items[(activeIndex - 1 + items.length) % items.length].focus();
+      return;
+    }
+
+    if (isOpen && (e.key === 'Home' || e.key === 'End')) {
+      e.preventDefault();
+      focusMenuItem(e.key === 'Home' ? 'first' : 'last');
+    }
+  }, [focusMenuItem, isOpen]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -134,7 +184,7 @@ export default function UserDropdown() {
       toast: true,
       position: 'top-end',
       icon: 'info',
-      title: 'Cerrando sesion de forma segura...',
+      title: 'Cerrando sesión de forma segura...',
       showConfirmButton: false,
       timer: 3000,
       timerProgressBar: true,
@@ -162,7 +212,7 @@ export default function UserDropdown() {
           }`}
         aria-haspopup="menu"
         aria-expanded={isOpen}
-        aria-label={`Menu de usuario: ${displayName}`}
+        aria-label={`Menú de usuario: ${displayName}`}
       >
         <div
           className={`flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br ${gradient} text-[11px] font-bold text-white shadow-sm ring-1 ring-white/60`}
@@ -243,7 +293,7 @@ export default function UserDropdown() {
                 <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-rose-50 text-rose-600">
                   <LogOut size={14} />
                 </span>
-                <span>Cerrar sesion</span>
+                <span>Cerrar sesión</span>
               </button>
             </div>
           </div>

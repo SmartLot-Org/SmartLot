@@ -6,6 +6,9 @@ import { getUserHomeRoute } from '../helpers/roles';
 import './Login.css';
 import usePageMeta from '../hooks/usePageMeta';
 
+// Misma regla de caracteres especiales que el registro, para unificar la validación de contraseñas.
+const ESPECIALES_REGEX = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?`~]/g;
+
 export default function ForgotPassword() {
   const [paso, setPaso] = useState('email');
   const [email, setEmail] = useState('');
@@ -39,7 +42,7 @@ export default function ForgotPassword() {
     setError('');
 
     if (!email.trim()) { setError('El email es requerido.'); return; }
-    if (cooldown > 0) { setError(`Espere ${cooldown}s antes de reintentar.`); return; }
+    if (cooldown > 0) { setError(`Esperá ${cooldown}s antes de reintentar.`); return; }
 
     setLoading(true);
     try {
@@ -64,7 +67,7 @@ export default function ForgotPassword() {
     if (!email.trim()) { setError('El email es requerido.'); return false; }
     if (!codigo.trim()) { setError('El código es requerido.'); return false; }
     if (!/^\d{6}$/.test(codigo)) { setError('El código debe ser de 6 dígitos.'); return false; }
-    if (cooldown > 0) { setError(`Espere ${cooldown}s antes de reintentar.`); return false; }
+    if (cooldown > 0) { setError(`Esperá ${cooldown}s antes de reintentar.`); return false; }
     return true;
   };
 
@@ -100,8 +103,13 @@ export default function ForgotPassword() {
 
     if (!validarCodigoBase()) return;
     if (!password) { setError('La contraseña es requerida.'); return; }
-    if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(password)) {
-      setError('La contraseña debe tener al menos 8 caracteres, mayúsculas, minúsculas y números.');
+    const cumpleReglas =
+      password.length >= 8 &&
+      (password.match(ESPECIALES_REGEX) || []).length >= 2 &&
+      (password.match(/\d/g) || []).length >= 2 &&
+      (password.match(/[A-Z]/g) || []).length >= 2;
+    if (!cumpleReglas) {
+      setError('La contraseña debe tener al menos 8 caracteres, 2 caracteres especiales, 2 números y 2 mayúsculas.');
       return;
     }
     if (password !== confirmPassword) { setError('Las contraseñas no coinciden.'); return; }
@@ -132,7 +140,7 @@ export default function ForgotPassword() {
       <label className="login-campo">
         <span className="login-campo-label">Correo electrónico</span>
         <div className="login-input-wrapper">
-          <Mail size={18} className="login-input-icon" />
+          <Mail size={18} className="login-input-icon" aria-hidden="true" />
           <input
             type="email"
             value={email}
@@ -155,9 +163,9 @@ export default function ForgotPassword() {
         className="login-boton"
         disabled={loading || cooldown > 0}
       >
-        <Key size={18} />
+        <Key size={18} aria-hidden="true" />
         {cooldown > 0
-          ? `Espere ${cooldown}s`
+          ? `Esperá ${cooldown}s`
           : loading ? 'Enviando...' : 'Enviar código'}
       </button>
     </form>
@@ -168,7 +176,7 @@ export default function ForgotPassword() {
       <label className="login-campo">
         <span className="login-campo-label">Correo electrónico</span>
         <div className="login-input-wrapper">
-          <Mail size={18} className="login-input-icon" />
+          <Mail size={18} className="login-input-icon" aria-hidden="true" />
           <input
             type="email"
             value={email}
@@ -183,7 +191,7 @@ export default function ForgotPassword() {
       <label className="login-campo">
         <span className="login-campo-label">Código de verificación</span>
         <div className="login-input-wrapper">
-          <Key size={18} className="login-input-icon" />
+          <Key size={18} className="login-input-icon" aria-hidden="true" />
           <input
             type="text"
             value={codigo}
@@ -209,10 +217,10 @@ export default function ForgotPassword() {
         className="login-boton"
         disabled={loading || cooldown > 0}
       >
-        <LogIn size={18} />
+        <LogIn size={18} aria-hidden="true" />
         {cooldown > 0
-          ? `Espere ${cooldown}s`
-          : loading ? 'Ingresando...' : 'Ingresar con código'}
+          ? `Esperá ${cooldown}s`
+          : loading ? 'Ingresando…' : 'Ingresar con código'}
       </button>
 
       <div className="login-separador">
@@ -225,7 +233,7 @@ export default function ForgotPassword() {
           className="login-boton login-boton--secundario"
           onClick={() => setMostrarCambio(true)}
         >
-          <Lock size={18} />
+          <Lock size={18} aria-hidden="true" />
           Cambiar contraseña
         </button>
       ) : (
@@ -233,7 +241,7 @@ export default function ForgotPassword() {
           <label className="login-campo">
             <span className="login-campo-label">Nueva contraseña</span>
             <div className="login-input-wrapper">
-              <Lock size={18} className="login-input-icon" />
+              <Lock size={18} className="login-input-icon" aria-hidden="true" />
               <input
                 type={verPassword ? 'text' : 'password'}
                 value={password}
@@ -248,7 +256,7 @@ export default function ForgotPassword() {
                 onClick={() => setVerPassword((prev) => !prev)}
                 aria-label={verPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
               >
-                {verPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                {verPassword ? <EyeOff size={18} aria-hidden="true" /> : <Eye size={18} aria-hidden="true" />}
               </button>
             </div>
           </label>
@@ -256,7 +264,7 @@ export default function ForgotPassword() {
           <label className="login-campo">
             <span className="login-campo-label">Confirmar contraseña</span>
             <div className="login-input-wrapper">
-              <Lock size={18} className="login-input-icon" />
+              <Lock size={18} className="login-input-icon" aria-hidden="true" />
               <input
                 type={verPassword ? 'text' : 'password'}
                 value={confirmPassword}
@@ -273,9 +281,9 @@ export default function ForgotPassword() {
             className="login-boton"
             disabled={loading || cooldown > 0}
           >
-            <Lock size={18} />
+            <Lock size={18} aria-hidden="true" />
             {cooldown > 0
-              ? `Espere ${cooldown}s`
+              ? `Esperá ${cooldown}s`
               : loading ? 'Restableciendo...' : 'Restablecer contraseña'}
           </button>
 
@@ -294,14 +302,14 @@ export default function ForgotPassword() {
   const renderExitoStep = () => (
     <div className="login-form">
       <div className="login-ok">
-        <CheckCircle size={48} className="login-ok-icon" />
-        <h3 className="login-ok-titulo">¡Contraseña restablecida!</h3>
+        <CheckCircle size={48} className="login-ok-icon" aria-hidden="true" />
+        <h2 className="login-ok-titulo">¡Contraseña restablecida!</h2>
         <p className="login-ok-mensaje">
           Tu contraseña ha sido actualizada exitosamente.
           Ya podés iniciar sesión con tu nueva contraseña.
         </p>
         <Link to="/login" className="login-boton">
-          <ArrowLeft size={18} />
+          <ArrowLeft size={18} aria-hidden="true" />
           Volver al inicio de sesión
         </Link>
       </div>
@@ -316,7 +324,7 @@ export default function ForgotPassword() {
       <main className="login-card">
         <div className="login-brand">
           <span className="login-brand-icon">
-            <Key size={26} />
+            <Key size={26} aria-hidden="true" />
           </span>
           <span className="login-brand-nombre">SmartLot</span>
         </div>

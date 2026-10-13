@@ -29,6 +29,7 @@ import { GaragesGetAll } from "../servicies/API_Garage";
 import { UsuariosGetAll } from "../servicies/API_Usuario";
 import { ReservasGetAll } from "../servicies/API_Reserva";
 import { exportarReportePDF } from "../util/exportar_reporte_pdf";
+import { showToast } from "../helpers/toast";
 import logoSmartLot from "../Imagenes/Logo_SmartLot-removebg-preview.png";
 
 const REPORTES_MIN_LOADING_MS = 650;
@@ -318,7 +319,7 @@ const ReportesSkeleton = () => (
   <>
     <section className="reportes-section">
       <div className="export-actions">
-        <article className="report-btn-skeleton" aria-label="Cargando accion de exportacion">
+        <article className="report-btn-skeleton" aria-label="Cargando acción de exportación">
           <span className="reportes-skeleton-icon" />
           <div className="report-btn__content">
             <span className="reportes-skeleton-line reportes-skeleton-title" />
@@ -340,7 +341,7 @@ const ReportesSkeleton = () => (
       ))}
     </section>
 
-    <section className="reportes-section" aria-label="Cargando grafico de tendencia">
+    <section className="reportes-section" aria-label="Cargando gráfico de tendencia">
       <div className="reportes-section__title-container">
         <span className="reportes-skeleton-small-icon" />
         <span className="reportes-skeleton-line reportes-skeleton-section-title" />
@@ -391,9 +392,7 @@ const ReportesSkeleton = () => (
               ].map((d, i) => (
                 <g key={i} className="skel-dot-group" style={{ animationDelay: `${0.25 + i * 0.1}s` }}>
                   <circle cx={d.x} cy={d.y} r="10" fill="#94a3b8" className="skel-dot-glow" />
-                  <circle cx={d.x} cy={d.y} r="0" fill="#cbd5e1" stroke="#ffffff" strokeWidth="2.5" className="skel-dot">
-                    <animate attributeName="r" values="0;5;3.5;4.5;4" dur="0.45s" begin={`${0.25 + i * 0.1}s`} fill="freeze" />
-                  </circle>
+                  <circle cx={d.x} cy={d.y} r="4" fill="#cbd5e1" stroke="#ffffff" strokeWidth="2.5" className="skel-dot" />
                 </g>
               ))}
             </svg>
@@ -559,8 +558,12 @@ const AnimatedNumber = ({ value, suffix = "", duration = 1800, startDelay = 0 })
   const rafRef = useRef(null);
   const timerRef = useRef(null);
 
+  // Respetamos prefers-reduced-motion: sin conteo animado
+  const prefersReducedMotion = typeof window !== "undefined"
+    && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
   useEffect(() => {
-    if (typeof value !== "number") return;
+    if (typeof value !== "number" || prefersReducedMotion) return;
 
     timerRef.current = setTimeout(() => {
       setHighlight(true);
@@ -583,9 +586,10 @@ const AnimatedNumber = ({ value, suffix = "", duration = 1800, startDelay = 0 })
       clearTimeout(timerRef.current);
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
-  }, [value, duration, startDelay]);
+  }, [value, duration, startDelay, prefersReducedMotion]);
 
   if (typeof value !== "number") return <>{value}</>;
+  if (prefersReducedMotion) return <span>{Math.max(0, value).toLocaleString()}{suffix}</span>;
   return <span className={highlight ? "kpi-counter--highlight" : ""}>{display.toLocaleString()}{suffix}</span>;
 };
 
@@ -925,8 +929,10 @@ export default function AdminReportesAnalisis() {
       setExportando(true);
       const graficoTendencia = generarGraficoTendenciaPng(datosReporteVisible.tendencia);
       await exportarReporteExcel(datosReporteVisible, { graficoTendencia });
+      showToast("Reporte exportado a Excel", "success");
     } catch (errorExportacion) {
       console.error("No se pudo exportar el reporte a Excel:", errorExportacion);
+      showToast("No pudimos exportar el reporte a Excel. Intentá de nuevo.", "error");
     } finally {
       setExportando(false);
     }
@@ -941,44 +947,46 @@ export default function AdminReportesAnalisis() {
         graficoTendencia,
         logoBase64,
       });
+      showToast("Reporte exportado a PDF", "success");
     } catch (errorExportacion) {
       console.error("No se pudo exportar el reporte a PDF:", errorExportacion);
+      showToast("No pudimos exportar el reporte a PDF. Intentá de nuevo.", "error");
     } finally {
       setExportando(false);
     }
   };
   const kpis = [
     {
-      label: "Ocupacion Media",
+      label: "Ocupación media",
       value: loading ? "—" : `${datosReporte.ocupacionMedia}%`,
       raw: loading ? null : datosReporte.ocupacionMedia,
       suffix: "%",
       icon: BarChart3,
-      color: "#1d4ed8",
-      bg: "#eff6ff",
+      color: "#2563EB",
+      bg: "#DBEAFE",
     },
     {
-      label: "Usuarios Activos",
+      label: "Usuarios activos",
       value: loading ? "—" : datosReporte.usuariosActivos.toLocaleString(),
       raw: loading ? null : datosReporte.usuariosActivos,
       suffix: "",
       icon: Users,
-      color: "#059669",
-      bg: "#ecfdf5",
+      color: "#166534",
+      bg: "#F0FDF4",
     },
     {
-      label: "Tiempo Promedio",
+      label: "Tiempo promedio",
       value: loading ? "—" : datosReporte.tiempoPromedio,
       icon: Clock,
-      color: "#d97706",
-      bg: "#fffbeb",
+      color: "#92400e",
+      bg: "#FEFCE8",
     },
     {
-      label: "Horas Pico",
+      label: "Horas pico",
       value: loading ? "—" : datosReporteVisible.horasPico,
       icon: Zap,
-      color: "#dc2626",
-      bg: "#fef2f2",
+      color: "#B91C1C",
+      bg: "#FEF2F2",
     },
   ];
 
@@ -989,13 +997,14 @@ export default function AdminReportesAnalisis() {
         <button
           className="admin-panel__back-btn"
           onClick={() => navegarConTransicion("/admin_panel_de_control")}
+          aria-label="Volver"
         >
-          <ArrowLeft size={24} />
+          <ArrowLeft size={24} aria-hidden="true" />
         </button>
         <div>
-          <h1 className="admin-panel__title">Reportes y Analisis</h1>
+          <h1 className="admin-panel__title">Reportes y análisis</h1>
           <p className="admin-panel__subtitle">
-            Visualiza el rendimiento general y las auditorias del sistema.
+            Visualizá el rendimiento general y las auditorías del sistema.
           </p>
         </div>
       </header>
@@ -1028,17 +1037,21 @@ export default function AdminReportesAnalisis() {
           </section>
 
           {error && (
-            <p style={{ color: "#dc2626", padding: "12px 0", fontWeight: 600 }} role="alert">
+            <p className="reportes-error" role="alert">
               {error}
             </p>
           )}
 
           <section className="kpi-grid">
             {kpis.map((kpi, i) => (
-              <article className="kpi-card" key={kpi.label} style={{ animationDelay: `${0.15 + i * 0.08}s` }}>
+              <article
+                className={`kpi-card ${i === 0 ? "kpi-card--featured" : "kpi-card--secondary"}`}
+                key={kpi.label}
+                style={{ animationDelay: `${0.15 + i * 0.08}s` }}
+              >
                 <div className="kpi-card__header">
                   <div className="kpi-card__icon-wrapper" style={{ backgroundColor: kpi.bg, color: kpi.color }}>
-                    <kpi.icon size={22} />
+                    <kpi.icon size={22} aria-hidden="true" />
                   </div>
                   <span className="kpi-card__label">{kpi.label}</span>
                 </div>
@@ -1056,7 +1069,7 @@ export default function AdminReportesAnalisis() {
           <section className="reportes-section">
             <div className="reportes-section__title-container">
               <TrendingUp size={20} className="reportes-section__icon" />
-              <h2 className="reportes-section__title">Tendencia de Ocupacion</h2>
+              <h2 className="reportes-section__title">Tendencia de ocupación</h2>
             </div>
             <div className="trend-controls">
               <div className="trend-granularidad">

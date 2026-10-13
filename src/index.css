@@ -18,6 +18,10 @@
   --color-brand-muted:   #475569;
   --color-brand-cream:   #F5F7FB;
 
+  /* ── Semantic Colors (aligned with DESIGN.md) ── */
+  --color-error:         #EF4444;
+  --color-error-strong:  #B91C1C;
+
   /* ── Font Families ── */
   --font-display: 'Archivo', system-ui, sans-serif;
   --font-body:    'DM Sans', system-ui, sans-serif;
@@ -68,7 +72,7 @@ html:has(.landing-page) {
 
   --sans: 'DM Sans', system-ui, 'Segoe UI', Roboto, sans-serif;
   --heading: 'Archivo', system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
+  --mono: 'JetBrains Mono', Consolas, monospace;
 
   font: 18px/145% var(--sans);
   letter-spacing: 0.18px;
@@ -231,15 +235,16 @@ body[style*="padding-right"] {
 }
 
 /* ═══════════════════════════════════════════════════════════════════
-   Required field indicator — red asterisk (excluye auth forms)
+   Required field indicator — red asterisk (solo campos requeridos; excluye auth forms)
    ═══════════════════════════════════════════════════════════════════ */
-.input-group label::after,
-.input-group-superadmin label::after,
-.formulario-grupo label::after,
-.form-field-label::after,
-.campo-formulario label::after,
-.vehiculo-input-grupo label::after,
-.modal-reserva-time-group label::after {
+.input-group:has(:is(input, select, textarea)[required], [role="combobox"]) label::after,
+.input-group-superadmin:has(:is(input, select, textarea)[required], [role="combobox"]) label::after,
+.formulario-grupo:has(:is(input, select, textarea)[required], [role="combobox"]) label::after,
+.campo-formulario:has(:is(input, select, textarea)[required], [role="combobox"]) label::after,
+.vehiculo-input-grupo:has(:is(input, select, textarea)[required], [role="combobox"]) label::after,
+.modal-reserva-time-group:has(:is(input, select, textarea)[required], [role="combobox"]) label::after,
+.form-field-group:has(:is(input, select, textarea)[required]) .form-field-label::after,
+.form-field-label:has(~ :is(input, select, textarea)[required], ~ * :is(input, select, textarea)[required])::after {
   content: " *";
   color: #ef4444;
   font-size: 0.75em;

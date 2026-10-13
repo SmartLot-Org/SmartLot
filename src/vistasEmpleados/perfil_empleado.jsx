@@ -53,7 +53,7 @@ export default function PerfilEmpleado() {
   const [cargandoVehiculos, setCargandoVehiculos] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
 
-  const { isValid, touched, getFieldProps } = useLiveValidation(personalData, validationSchema);
+  const { isValid, touched, touchAll, getFieldProps } = useLiveValidation(personalData, validationSchema);
   const telefonoField = getFieldProps("telefono", setPersonalData);
   const contraseñaField = getFieldProps("contraseña", setPersonalData);
 
@@ -84,7 +84,7 @@ export default function PerfilEmpleado() {
     if (isDirty) {
       Swal.fire({
         title: "¿Descartar cambios?",
-        text: "Tienes modificaciones en tu perfil que no has guardado. Si sales perderás los cambios.",
+        text: "Tenés modificaciones en tu perfil que no guardaste. Si salís, perdés los cambios.",
         icon: "warning",
         showCancelButton: true,
         confirmButtonColor: "#e11d48",
@@ -227,19 +227,28 @@ export default function PerfilEmpleado() {
 
   useGSAP(() => {
     if (loading || !usuario) return;
-    const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+    // Respetamos prefers-reduced-motion: sin entradas animadas
+    const mm = gsap.matchMedia();
+    mm.add("(prefers-reduced-motion: no-preference)", () => {
+      const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
 
-    tl.fromTo(".animate-back", { opacity: 0, x: -15 }, { opacity: 1, x: 0, duration: 0.4 })
-      .fromTo(".textosTitulosPerfil", { opacity: 0, y: -20 }, { opacity: 1, y: 0, duration: 0.5 }, "-=0.2")
-      .fromTo(".formulario-seccion", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.6, stagger: 0.15 }, "-=0.3")
-      .fromTo(".action-buttons-group", { opacity: 0, y: 15 }, { opacity: 1, y: 0, duration: 0.4 }, "-=0.2");
+      tl.fromTo(".animate-back", { opacity: 0, x: -15 }, { opacity: 1, x: 0, duration: 0.4 })
+        .fromTo(".textosTitulosPerfil", { opacity: 0, y: -20 }, { opacity: 1, y: 0, duration: 0.5 }, "-=0.2")
+        .fromTo(".formulario-seccion", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.6, stagger: 0.15 }, "-=0.3")
+        .fromTo(".action-buttons-group", { opacity: 0, y: 15 }, { opacity: 1, y: 0, duration: 0.4 }, "-=0.2");
+    });
+    return () => mm.revert();
   }, { dependencies: [loading, usuario], scope: mainScopeRef });
 
   const handleGuardarCambios = async (e) => {
     e.preventDefault();
     if (guardando) return;
 
-    if (!isValid) return;
+    if (!isValid) {
+      // Sin return silencioso: se marcan los campos tocados para mostrar los errores.
+      touchAll();
+      return;
+    }
 
     const telefonoLimpio = personalData.telefono?.replace(/\D/g, "") || "";
     const nuevaContraseña = personalData.contraseña?.trim() || "";
@@ -281,7 +290,7 @@ export default function PerfilEmpleado() {
         await Swal.fire({
           icon: 'success',
           title: 'Contraseña actualizada',
-          text: 'Tu contraseña se actualizó correctamente. Por seguridad, vuelve a iniciar sesión.',
+          text: 'Tu contraseña se actualizó correctamente. Por seguridad, volvé a iniciar sesión.',
           confirmButtonColor: '#3b82f6',
           zIndex: Z_INDEX.SWAL_DIALOG,
         });
@@ -335,9 +344,14 @@ export default function PerfilEmpleado() {
   };
 
   if (loading) {
+    // Se mantiene el layout (header/footer) y la voz tipográfica del producto.
     return (
-      <div className="perfilUsuario-Contenedor" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <p style={{ color: "#64748b", fontWeight: 600, fontFamily: "sans-serif" }}>Cargando sesión segura...</p>
+      <div className="Perfil-contenedor">
+        <Header />
+        <div className="perfilUsuario-Contenedor" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <p style={{ color: "#475569", fontWeight: 600, fontFamily: "var(--font-body)" }}>Cargando sesión segura...</p>
+        </div>
+        <Footer />
       </div>
     );
   }
@@ -386,9 +400,9 @@ export default function PerfilEmpleado() {
                 <div className="icon-badge-box" style={{ width: "36px", height: "36px", background: "#fff1f2", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center" }}>
                   <Lock size={20} style={{ color: "#e11d48" }} />
                 </div>
-                <h3 className="formulario-subtitulo" style={{ margin: 0, borderBottom: "none", paddingBottom: 0 }}>
+                <h2 className="formulario-subtitulo" style={{ margin: 0, borderBottom: "none", paddingBottom: 0 }}>
                   Cambiar Contraseña
-                </h3>
+                </h2>
               </div>
               <div className="formulario-grid">
                 <div className="formulario-grupo">

@@ -17,6 +17,7 @@ import Header from '../componentesAdmin/header_admin';
 import FooterEmpleado from '../componentesAdmin/footer_admin';
 import BotonReportes from "../componentesAdmin/boton_reportes";
 import EmptyState from "../componentesCompartidos/EmptyState";
+import ModalPortal from "../componentesCompartidos/ModalPortal";
 import TablaReservasPanleControl from "../componentesAdmin/tabla_reservas_panelControl";
 import {
   ConflictosCreate,
@@ -445,7 +446,7 @@ export default function AdminPanelControl() {
     }
 
     if (contarPalabras(descripcion) > MAX_PALABRAS) {
-      setMensajeSoporte({ tipo: "error", texto: `La descripcion no puede tener mas de ${MAX_PALABRAS} palabras.` });
+      setMensajeSoporte({ tipo: "error", texto: `La descripción no puede tener más de ${MAX_PALABRAS} palabras.` });
       return;
     }
 
@@ -820,7 +821,7 @@ export default function AdminPanelControl() {
       )}
 
       {modalSoporteOpen && (
-        <div className="admin-support-overlay" role="presentation" onMouseDown={cerrarModalSoporte}>
+        <ModalPortal onClose={cerrarModalSoporte}>
           <section
             className="admin-support-modal"
             role="dialog"
@@ -830,11 +831,10 @@ export default function AdminPanelControl() {
           >
             <div className="admin-support-header">
               <div>
-                <span>Soporte</span>
                 <h2 id="admin-support-title">Enviar mensaje a soporte</h2>
               </div>
               <button type="button" className="admin-support-close" onClick={cerrarModalSoporte} aria-label="Cerrar soporte">
-                <X size={20} />
+                <X size={20} aria-hidden="true" />
               </button>
             </div>
 
@@ -852,11 +852,11 @@ export default function AdminPanelControl() {
               </label>
 
               <label className="admin-support-field">
-                <span>Descripcion</span>
+                <span>Descripción</span>
                 <textarea
                   value={nuevoConflicto.descripcion}
                   onChange={(event) => setNuevoConflicto((prev) => ({ ...prev, descripcion: event.target.value }))}
-                  placeholder="Contanos que paso"
+                  placeholder="Contanos qué pasó"
                   rows={5}
                   maxLength={3000}
                 />
@@ -876,7 +876,7 @@ export default function AdminPanelControl() {
               </button>
             </form>
           </section>
-        </div>
+        </ModalPortal>
       )}
     </div>
   );

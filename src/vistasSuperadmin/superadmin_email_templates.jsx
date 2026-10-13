@@ -14,10 +14,12 @@ import {
 } from "lucide-react";
 
 import "./superadmin_email_templates.css";
+import Swal from "sweetalert2";
 import HeaderSuperadmin from "../componentesSuperadmin/header_superadmin";
 import EmptyState from "../componentesCompartidos/EmptyState";
 import FooterSuperadmin from "../componentesSuperadmin/footer_superadmin";
 import { useAuth } from "../contexts/useAuth";
+import { Z_INDEX } from "../helpers/zIndex";
 import {
   EmailTemplatesGetAll,
   EmailTemplateGet,
@@ -192,7 +194,7 @@ export default function SuperadminEmailTemplates() {
   const previewGlobalHtml = useMemo(
     () =>
       construirPreviewHtml(
-        { asunto: "Vista previa del header y footer", header_html: globalHeader, cuerpo_html: GLOBAL_BODY_EJEMPLO, footer_html: globalFooter },
+        { asunto: "Vista previa del encabezado y pie", header_html: globalHeader, cuerpo_html: GLOBAL_BODY_EJEMPLO, footer_html: globalFooter },
         mapaPreview
       ),
     [globalHeader, globalFooter, mapaPreview]
@@ -243,6 +245,18 @@ export default function SuperadminEmailTemplates() {
 
   const guardarGlobal = async () => {
     if (plantillas.length === 0) return;
+    const confirmacion = await Swal.fire({
+      title: "¿Guardar en todas las plantillas?",
+      text: `Se va a sobrescribir el encabezado y el pie de ${plantillas.length} plantilla${plantillas.length === 1 ? "" : "s"}.`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#EF4444",
+      confirmButtonText: "Sí, sobrescribir",
+      cancelButtonText: "Cancelar",
+      reverseButtons: true,
+      zIndex: Z_INDEX.SWAL_DIALOG,
+    });
+    if (!confirmacion.isConfirmed) return;
     setGuardando(true);
     setMensaje(null);
     let ok = 0;
@@ -273,7 +287,7 @@ export default function SuperadminEmailTemplates() {
     setGuardando(false);
     setPlantilla((prev) => (prev ? { ...prev, header_html: globalHeader, footer_html: globalFooter } : prev));
     if (errores === 0) {
-      setMensaje({ tipo: "ok", texto: `Header y footer actualizados en ${ok} plantilla${ok === 1 ? "" : "s"}.` });
+      setMensaje({ tipo: "ok", texto: `Encabezado y pie actualizados en ${ok} plantilla${ok === 1 ? "" : "s"}.` });
     } else {
       setMensaje({ tipo: "error", texto: `Se actualizaron ${ok} plantilla${ok === 1 ? "" : "s"} y fallaron ${errores}.` });
     }
@@ -319,9 +333,8 @@ export default function SuperadminEmailTemplates() {
               <ArrowLeft size={19} />
             </button>
             <div>
-              <span className="tpl-eyebrow">Personalización</span>
               <h1>Plantillas de email</h1>
-              <p>Editá los correos del sistema, mirá el preview en vivo y enviá pruebas.</p>
+              <p>Editá los correos del sistema, mirá la vista previa en vivo y enviá pruebas.</p>
             </div>
           </div>
           <button
@@ -356,7 +369,7 @@ export default function SuperadminEmailTemplates() {
             className={`tpl-sections-btn ${seccion === "global" ? "tpl-sections-btn--active" : ""}`}
             onClick={irAlGlobal}
           >
-            Header y Footer (global)
+            Encabezado y pie (global)
           </button>
         </nav>
 
@@ -380,13 +393,13 @@ export default function SuperadminEmailTemplates() {
             <section className="tpl-editor" aria-labelledby="tpl-global-title">
               <div className="tpl-section-heading">
                 <div>
-                  <h2 id="tpl-global-title">Header y Footer globales</h2>
+                  <h2 id="tpl-global-title">Encabezado y pie globales</h2>
                   <p>Se usan en todos los correos del sistema. Guardá para aplicarlos a todas las plantillas.</p>
                 </div>
               </div>
 
               <div className="tpl-field">
-                <label htmlFor="tpl-global-header">Header (encabezado de marca)</label>
+                <label htmlFor="tpl-global-header">Encabezado de marca</label>
                 <textarea
                   id="tpl-global-header"
                   value={globalHeader}
@@ -397,7 +410,7 @@ export default function SuperadminEmailTemplates() {
               </div>
 
               <div className="tpl-field">
-                <label htmlFor="tpl-global-footer">Footer (pie de marca)</label>
+                <label htmlFor="tpl-global-footer">Pie de marca</label>
                 <textarea
                   id="tpl-global-footer"
                   value={globalFooter}
@@ -411,20 +424,20 @@ export default function SuperadminEmailTemplates() {
             <section className="tpl-preview" aria-labelledby="tpl-global-preview-title">
               <div className="tpl-section-heading">
                 <div>
-                  <h2 id="tpl-global-preview-title">Preview en vivo</h2>
-                  <p>Header y footer tal como se verán en cualquier correo.</p>
+                  <h2 id="tpl-global-preview-title">Vista previa</h2>
+                  <p>Encabezado y pie tal como se van a ver en cualquier correo.</p>
                 </div>
                 <button
                   type="button"
                   className="tpl-preview-open"
                   onClick={() => abrirPreviewNuevaPestana(previewGlobalHtml)}
-                  title="Abrir preview en pestaña nueva"
+                  title="Abrir vista previa en pestaña nueva"
                 >
                   <ExternalLink size={16} />
                 </button>
               </div>
               <div className="tpl-iframe-wrap">
-                <iframe title="Preview del header y footer" srcDoc={previewGlobalHtml} sandbox="" />
+                <iframe title="Vista previa del encabezado y pie" srcDoc={previewGlobalHtml} sandbox="" />
               </div>
             </section>
           </div>
@@ -463,8 +476,8 @@ export default function SuperadminEmailTemplates() {
                   </div>
 
                   <p className="tpl-global-hint">
-                    El <strong>header</strong> y el <strong>footer</strong> son globales: se editan en la sección
-                    “Header y Footer (global)” y aplican a todos los correos.
+                    El <strong>encabezado</strong> y el <strong>pie</strong> son globales: se editan en la sección
+                    “Encabezado y pie (global)” y aplican a todos los correos.
                   </p>
 
                   <div className="tpl-field tpl-field--half">
@@ -504,7 +517,7 @@ export default function SuperadminEmailTemplates() {
 
                   <div className="tpl-field">
                     <div className="tpl-var-head">
-                      <label htmlFor="tpl-vars">Variables de ejemplo (para el preview)</label>
+                      <label htmlFor="tpl-vars">Variables de ejemplo (para la vista previa)</label>
                       <button type="button" className="tpl-var-add" onClick={agregarVariable}>
                         <Plus size={14} /> Agregar
                       </button>
@@ -514,7 +527,7 @@ export default function SuperadminEmailTemplates() {
                         size="sm"
                         icon={Braces}
                         title="Sin variables declaradas"
-                        description="Agregá una variable para darle datos de ejemplo al preview."
+                        description="Agregá una variable para darle datos de ejemplo a la vista previa."
                         action={{ label: "Agregar variable", icon: Plus, onClick: agregarVariable }}
                       />
                     ) : (
@@ -533,7 +546,7 @@ export default function SuperadminEmailTemplates() {
                               value={v.ejemplo}
                               onChange={(e) => actualizarVariable(i, "ejemplo", e.target.value)}
                               placeholder="Ejemplo: Juan Pérez"
-                              aria-label="Ejemplo para el preview"
+                              aria-label="Ejemplo para la vista previa"
                             />
                             <button type="button" className="tpl-var-del" onClick={() => eliminarVariable(i)} aria-label="Eliminar variable">
                               <Trash2 size={15} />
@@ -553,7 +566,7 @@ export default function SuperadminEmailTemplates() {
                         </span>
                       ))}
                       {variablesFaltantes.length > 0 ? (
-                        <p className="tpl-placeholders-hint">Los chips marcados no tienen dato de ejemplo: se mostrarán sin reemplazar en el preview.</p>
+                        <p className="tpl-placeholders-hint">Los chips marcados no tienen dato de ejemplo: se mostrarán sin reemplazar en la vista previa.</p>
                       ) : null}
                     </div>
                   ) : null}
@@ -562,10 +575,10 @@ export default function SuperadminEmailTemplates() {
                 <section className="tpl-preview" aria-labelledby="tpl-preview-title">
                   <div className="tpl-section-heading">
                     <div>
-                      <h2 id="tpl-preview-title">Preview en vivo</h2>
+                      <h2 id="tpl-preview-title">Vista previa</h2>
                       <p>Asunto: {plantilla.asunto || "(sin asunto)"}</p>
                     </div>
-                    <button type="button" className="tpl-preview-open" onClick={abrirPreviewNuevaPestana} title="Abrir preview en pestaña nueva">
+                    <button type="button" className="tpl-preview-open" onClick={abrirPreviewNuevaPestana} title="Abrir vista previa en pestaña nueva">
                       <ExternalLink size={16} />
                     </button>
                   </div>
@@ -579,7 +592,8 @@ export default function SuperadminEmailTemplates() {
                             type="text"
                             value={mapaPreview[p] ?? ""}
                             onChange={(e) => setOverrides((prev) => ({ ...prev, [p]: e.target.value }))}
-                            placeholder="Valor para el preview"
+                            placeholder="Valor para la vista previa"
+                            aria-label={`Valor de ejemplo para ${p}`}
                           />
                         </div>
                       ))}
@@ -587,7 +601,7 @@ export default function SuperadminEmailTemplates() {
                   ) : null}
 
                   <div className="tpl-iframe-wrap">
-                    <iframe title="Preview del email" srcDoc={previewHtml} sandbox="" />
+                    <iframe title="Vista previa del email" srcDoc={previewHtml} sandbox="" />
                   </div>
 
                   <div className="tpl-test">
@@ -603,7 +617,7 @@ export default function SuperadminEmailTemplates() {
                       {enviando ? "Enviando..." : "Enviar prueba"}
                     </button>
                   </div>
-                  <p className="tpl-test-hint">El correo de prueba se renderiza con los valores del preview actual.</p>
+                  <p className="tpl-test-hint">El correo de prueba se renderiza con los valores de la vista previa actual.</p>
                 </section>
               </div>
             ) : null}

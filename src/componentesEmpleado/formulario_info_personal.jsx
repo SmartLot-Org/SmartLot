@@ -9,12 +9,12 @@ export default function FormularioInfoPersonal({ data = {}, onChange, telefonoFi
       style={{ border: "none", padding: 0, margin: 0 }}
     >
       <div className="form-card-header" style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "1.5rem" }}>
-        <div className="icon-badge-box" style={{ width: "36px", height: "36px", background: "#eff6ff", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <User size={20} style={{ color: "#3b82f6" }} />
+        <div className="icon-badge-box" style={{ width: "36px", height: "36px", background: "#DBEAFE", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <User size={20} style={{ color: "#2563EB" }} />
         </div>
-        <h3 className="formulario-subtitulo" style={{ margin: 0, borderBottom: "none", paddingBottom: 0 }}>
+        <h2 className="formulario-subtitulo" style={{ margin: 0, borderBottom: "none", paddingBottom: 0 }}>
           Información Personal
-        </h3>
+        </h2>
       </div>
 
       <div className="formulario-grid">
@@ -29,7 +29,7 @@ export default function FormularioInfoPersonal({ data = {}, onChange, telefonoFi
               readOnly
               tabIndex={-1}
               autoComplete="off"
-              style={{ cursor: "default", opacity: 1, backgroundColor: "#f1f5f9", color: "#0f172a", borderColor: "#e2e8f0" }}
+              style={{ cursor: "default", opacity: 1, backgroundColor: "#f1f5f9", color: "#1E293B", borderColor: "#e2e8f0" }}
             />
           </div>
 
@@ -43,7 +43,7 @@ export default function FormularioInfoPersonal({ data = {}, onChange, telefonoFi
               readOnly
               tabIndex={-1}
               autoComplete="off"
-              style={{ cursor: "default", opacity: 1, backgroundColor: "#f1f5f9", color: "#0f172a", borderColor: "#e2e8f0" }}
+              style={{ cursor: "default", opacity: 1, backgroundColor: "#f1f5f9", color: "#1E293B", borderColor: "#e2e8f0" }}
             />
           </div>
         </div>
@@ -58,7 +58,7 @@ export default function FormularioInfoPersonal({ data = {}, onChange, telefonoFi
               readOnly
               tabIndex={-1}
               autoComplete="off"
-              style={{ cursor: "default", opacity: 1, backgroundColor: "#f1f5f9", color: "#0f172a", borderColor: "#e2e8f0" }}
+              style={{ cursor: "default", opacity: 1, backgroundColor: "#f1f5f9", color: "#1E293B", borderColor: "#e2e8f0" }}
             />
           </div>
 

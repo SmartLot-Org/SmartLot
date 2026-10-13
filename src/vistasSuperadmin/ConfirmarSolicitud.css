@@ -95,3 +95,17 @@
     transition: filter 0.2s ease, transform 0.1s ease;
   }
 }
+
+/* Estado de error del flujo: reutiliza el rojo de error que ya define
+   .login-error en Login.css (mismo color, sin inventar paleta nueva). */
+.login-error-icono {
+  color: #B91C1C;
+  margin-bottom: 16px;
+}
+
+/* Sin glass en esta página: la tarjeta se muestra sin blur (los colores
+   de fondo definidos en Login.css se conservan). */
+.confirmar-solicitud-page .login-card {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}

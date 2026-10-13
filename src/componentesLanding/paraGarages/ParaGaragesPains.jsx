@@ -33,33 +33,32 @@ export default function ParaGaragesPains() {
     <section ref={container} className="relative z-10 bg-transparent px-6 py-20 content-visibility-auto">
       <div className="mx-auto max-w-6xl">
         <div className="mb-12 flex flex-col items-center text-center">
-          <span className="pg-header mb-3 block text-sm font-semibold tracking-[0.2em] text-brand-navy uppercase">
-            El problema
-          </span>
           <h2 className="pg-header mb-6 text-brand-warm">
             Lo que hoy te cuesta plata <br className="hidden md:block" /> (y tiempo)
           </h2>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <ul className="pg-item mx-auto max-w-3xl divide-y divide-brand-deep/10">
           {PAINS.map((pain) => {
             const Icon = pain.icon;
             return (
-              <article
+              <li
                 key={pain.title}
-                className="pg-item glass-card rounded-[1.5rem] p-6 text-left shadow-[0_4px_20px_rgba(0,0,0,0.03)]"
+                className="flex items-start gap-4 py-6 first:pt-0 last:pb-0 sm:gap-5"
               >
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-brand-blue/10 text-brand-blue">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand-blue/10 text-brand-blue">
                   <Icon className="h-6 w-6" aria-hidden="true" />
                 </div>
-                <h3 className="mb-2 text-[1.15rem] font-bold tracking-tight text-brand-warm">
-                  {pain.title}
-                </h3>
-                <p className="text-sm leading-relaxed text-brand-muted">{pain.desc}</p>
-              </article>
+                <div>
+                  <h3 className="text-[1.15rem] font-bold tracking-tight text-brand-warm">
+                    {pain.title}
+                  </h3>
+                  <p className="mt-1 text-sm leading-relaxed text-brand-muted">{pain.desc}</p>
+                </div>
+              </li>
             );
           })}
-        </div>
+        </ul>
 
         <div className="mt-10 flex justify-center">
           <p className="pg-item max-w-2xl text-center text-brand-muted">

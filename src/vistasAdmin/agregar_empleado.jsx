@@ -14,6 +14,8 @@ import useLiveValidation from "../hooks/useLiveValidation";
 import ReservationLimitFields from "../componentesAdmin/ReservationLimitFields";
 import "../componentesAdmin/ReservationLimitFields.css";
 import { parseReservationLimit } from "../helpers/reservationPolicy";
+import { mensajeToast } from "../helpers/erroresMensajes";
+import { showToast } from "../helpers/toast";
 
 const obtenerListado = (datos) => {
   if (Array.isArray(datos)) return datos;
@@ -116,7 +118,7 @@ function AgregarEmpleado() {
     ],
   });
 
-  const { isValid, touched, handleChangeWithTouch } = useLiveValidation(formData, getSchema());
+  const { isValid, touched, handleChangeWithTouch, touchAll } = useLiveValidation(formData, getSchema());
 
   const buildConditions = (fieldName) => {
     const schema = getSchema();
@@ -148,7 +150,8 @@ function AgregarEmpleado() {
     catch (error) { setError(error.message); return; }
 
     if (!isValid) {
-      setError('❌ Corrige los errores antes de guardar.');
+      touchAll();
+      setError('Corregí los campos marcados antes de guardar.');
       return;
     }
 
@@ -156,12 +159,12 @@ function AgregarEmpleado() {
     const modeloSeleccionado = formData.id_modelo;
 
     if ((patenteIngresada && !modeloSeleccionado) || (!patenteIngresada && modeloSeleccionado)) {
-      setError('❌ Si ingresas detalles del vehículo, debes completar tanto la patente como seleccionar un modelo.');
+      setError('Completá la patente y seleccioná un modelo, o dejá vacíos los dos campos del vehículo.');
       return;
     }
 
     if (!formData.id_empresa) {
-      setError('❌ No se pudo determinar tu empresa. No puedes crear empleados.');
+      setError('No pudimos determinar tu empresa. Comunicá al administrador de la empresa para continuar.');
       return;
     }
 
@@ -184,7 +187,7 @@ function AgregarEmpleado() {
     if (!response.respuesta) {
       setLoading(false);
       const serverMsg = response.datos?.message || response.datos || 'Error al crear el usuario.';
-      setError(typeof serverMsg === 'string' ? `❌ ${serverMsg}` : '❌ Error al crear el usuario.');
+      setError(mensajeToast(serverMsg));
       return;
     }
 
@@ -204,22 +207,23 @@ function AgregarEmpleado() {
             if (!vehRes.respuesta) {
               setLoading(false);
               const msg = vehRes.datos?.message || vehRes.datos || 'Error al crear el vehículo.';
-              setError(typeof msg === 'string' ? `❌ ${msg}` : '❌ Error al crear el vehículo.');
+              setError(`El empleado se creó, pero no pudimos guardar el vehículo: ${mensajeToast(msg)}`);
               return;
             }
           }
         } catch (vehErr) {
           console.error("Error al guardar el vehículo del empleado:", vehErr);
           setLoading(false);
-          setError('❌ Error inesperado al guardar el vehículo. Revisa la consola.');
+          setError('El empleado se creó, pero no pudimos guardar el vehículo. Cargalo desde la ficha del empleado.');
           return;
         }
       }
       setLoading(false);
+      showToast('Empleado creado correctamente', 'success');
       navigate('/gestion_de_empleados', { replace: true });
     } else {
       setLoading(false);
-      setError('❌ No se pudo guardar el empleado. Verifica los datos e intenta de nuevo.');
+      setError('No pudimos guardar el empleado. Revisá los datos e intentá de nuevo.');
     }
   };
 
@@ -227,8 +231,8 @@ function AgregarEmpleado() {
     <div className="agregar-empleado-page">
       <Header />
       <div className="textoAgregarEmpleado">
-         <h3 style={{ color: "#1D4ED8", fontSize: "24px", fontWeight: "600",  }}>Agregar Empleado</h3>
-      <p>Configuración de nuevos usuarios y sus privilegios</p>
+         <h1 className="titulo-agregar-empleado">Agregar empleado</h1>
+      <p>Completá los datos para dar de alta a una persona del equipo.</p>
       </div>
       
       <main style={{ padding: "20px", paddingBottom: "50px", marginTop: "-10px" }}>
@@ -259,12 +263,11 @@ function AgregarEmpleado() {
             disabled={loading}
             className="btn-guardar-grande"
           >
-            <CircleCheck size={20} color="white" />
+            <CircleCheck size={20} aria-hidden="true" />
             <span>{loading ? 'Guardando...' : 'Guardar empleado'}</span>
           </BotonGenerico>
 
           <BotonGenerico
-            style={{ backgroundColor: "grey" }}
             onClick={() => navigate('/gestion_de_empleados', { replace: true })}
             className="btn-cancelar-grande"
           >

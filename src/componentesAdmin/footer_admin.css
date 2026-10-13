@@ -9,9 +9,7 @@
   width: 90%;
   max-width: 700px;
   height: 90px;
-  background: rgba(255, 255, 255, 0.75);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: #FFFFFF;
   border-radius: 32px;
   display: flex;
   justify-content: center;
@@ -35,7 +33,7 @@
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  border: 1px solid rgba(255, 255, 255, 0.74);
+  border: 1px solid #E2E8F0;
   pointer-events: none;
 }
 
@@ -46,8 +44,7 @@
   width: calc((100% - 20px) / var(--footer-items));
   height: 60px;
   border-radius: 24px;
-  background:
-    linear-gradient(180deg, rgba(239, 246, 255, 0.96), rgba(219, 234, 254, 0.92));
+  background: rgba(219, 234, 254, 0.95);
   box-shadow:
     0 12px 26px rgba(37, 99, 235, 0.16),
     inset 0 1px 0 rgba(255, 255, 255, 0.92);
@@ -84,7 +81,7 @@
 }
 
 .footer-admin .footer-item svg {
-  color: #94a3b8;
+  color: #475569;
   margin-bottom: 6px;
   transition:
     color 260ms ease,
@@ -96,7 +93,7 @@
   font-size: 14px;
   font-weight: 700;
   letter-spacing: 1px;
-  color: #94a3b8;
+  color: #475569;
   text-align: center;
   transition:
     color 260ms ease,
@@ -177,7 +174,7 @@
   }
 
   .footer-admin .footer-item span {
-    font-size: 10px;
+    font-size: 11px;
     letter-spacing: 0.5px;
   }
 
@@ -198,7 +195,8 @@
   }
 
   .footer-admin .footer-item span {
-    font-size: 9px;
+    font-size: 11px;
+    letter-spacing: 0;
   }
 
   .footer-admin .footer-item svg {

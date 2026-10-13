@@ -44,11 +44,14 @@ export default function LoginForm() {
 
   useGSAP(() => {
     if (!pathRef.current) return;
-    gsap.to(pathRef.current, {
-      strokeDashoffset: -150,
-      duration: 4.5,
-      ease: "none",
-      repeat: -1,
+    const mm = gsap.matchMedia();
+    mm.add("(prefers-reduced-motion: no-preference)", () => {
+      gsap.to(pathRef.current, {
+        strokeDashoffset: -150,
+        duration: 4.5,
+        ease: "none",
+        repeat: -1,
+      });
     });
   }, { scope: buttonRef });
 
@@ -61,7 +64,7 @@ export default function LoginForm() {
       return;
     }
     if (cooldown > 0) {
-      setError(`Espere ${cooldown}s antes de reintentar.`);
+      setError(`Esperá ${cooldown}s antes de reintentar.`);
       return;
     }
 
@@ -148,7 +151,7 @@ export default function LoginForm() {
 
         <div className="auth-stagger">
           <div className="flex justify-end pr-1 mb-1.5">
-            <a href="/recuperar-clave" className="text-sm font-semibold text-brand-blue hover:underline">¿Olvidaste tu contraseña?</a>
+            <Link to="/recuperar-clave" className="text-sm font-semibold text-brand-blue hover:underline">¿Olvidaste tu contraseña?</Link>
           </div>
           <div className="relative">
             <input
@@ -224,14 +227,14 @@ export default function LoginForm() {
             </defs>
           </svg>
 
-          <div className="relative m-[2px] rounded-[10px] bg-brand-blue px-8 py-4 text-white font-bold text-lg shadow-lg shadow-brand-blue/20 transition-all duration-300 group-hover:bg-brand-deep group-hover:shadow-brand-deep/25 group-active:scale-[0.97]">
+          <div className="relative m-[2px] flex h-12 items-center justify-center rounded-[10px] bg-brand-blue text-white font-bold text-lg shadow-lg shadow-brand-blue/20 transition-colors duration-300 group-hover:bg-brand-accent-hover group-active:scale-[0.97]">
             {cooldown > 0
-              ? `Espere ${cooldown}s`
-              : loading ? "Ingresando..." : "Ingresar"}
+              ? `Esperá ${cooldown}s`
+              : loading ? "Ingresando…" : "Ingresar"}
           </div>
         </button>
         
-        {error && <p className="text-sm text-red-600 mt-2 text-center" role="alert">{error}</p>}
+        {error && <p className="text-sm text-error-strong mt-2 text-center" role="alert">{error}</p>}
       </form>
 
       <div className="auth-stagger relative my-6">
@@ -243,16 +246,17 @@ export default function LoginForm() {
         </div>
       </div>
 
-      {googleError && <p className="text-sm text-red-600 mb-3 text-center" role="alert">{googleError}</p>}
+      {googleError && <p className="text-sm text-error-strong mb-3 text-center" role="alert">{googleError}</p>}
 
       <button
         type="button"
         onClick={handleGoogleLogin}
         disabled={googleLoading}
+        aria-label="Continuar con Google"
         className="auth-stagger group relative w-full rounded-xl overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2 focus-visible:ring-offset-brand-bg disabled:opacity-60 disabled:cursor-not-allowed"
       >
         <div className="relative flex items-center justify-center gap-3 border border-brand-deep/10 bg-brand-surface/70 px-8 py-3.5 text-brand-warm font-semibold text-base rounded-xl transition-all duration-300 group-hover:bg-brand-surface group-hover:border-brand-deep/20 group-active:scale-[0.97]">
-          <svg className="h-5 w-5 flex-shrink-0" viewBox="0 0 24 24">
+          <svg className="h-5 w-5 flex-shrink-0" viewBox="0 0 24 24" aria-hidden="true">
             <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v3.92h6.61c-.29 1.53-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-8.58z"/>
             <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.11 0-5.74-2.11-6.68-4.96H1.21v3.15C3.18 21.88 7.31 24 12 24z"/>
             <path fill="#FBBC05" d="M5.32 14.24c-.24-.72-.38-1.5-.38-2.31s.14-1.59.38-2.31V6.48H1.21C.44 8.02 0 9.75 0 11.5s.44 3.48 1.21 5.02l4.11-3.28z"/>

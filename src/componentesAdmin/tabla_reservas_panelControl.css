@@ -1,6 +1,6 @@
 /* --- Contenedor Principal --- */
 .reservations-container {
-  font-family: system-ui, -apple-system, sans-serif;
+  font-family: "DM Sans", system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   width: 100%;
   box-sizing: border-box;
@@ -81,7 +81,7 @@
 }
 
 .filter-bar__input::placeholder {
-  color: #94a3b8;
+  color: #475569;
 }
 
 .filter-bar__input:focus {
@@ -96,7 +96,7 @@
   background-color: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 1rem;
-  color: #334155;
+  color: #475569;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -203,6 +203,20 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: inherit;
+  letter-spacing: inherit;
+  cursor: pointer;
+}
+
+.reservations-table__head-toggle:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.35);
+  outline-offset: 2px;
+  border-radius: 6px;
 }
 
 .reservations-table__head tr {
@@ -218,7 +232,7 @@
   padding: 0;
   font-size: 0.8rem;
   font-weight: 700;
-  color: #0f172a;
+  color: #1E293B;
   letter-spacing: 0.05em;
   text-align: left;
   border: none;
@@ -321,7 +335,7 @@
 .user-info__name {
   font-size: 1rem;
   font-weight: 700;
-  color: #0f172a;
+  color: #1E293B;
 }
 
 .user-info__trigger {
@@ -392,7 +406,7 @@
 .user-info__popover-name {
   font-size: 14px;
   font-weight: 700;
-  color: #0f172a;
+  color: #1E293B;
   line-height: 1.2;
 }
 
@@ -482,7 +496,7 @@
   border-radius: 0.5rem;
   font-size: 0.875rem;
   font-weight: 600;
-  color: #334155;
+  color: #475569;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -526,7 +540,7 @@
   }
 
   .filter-bar__title-icon {
-    color: #334155;
+    color: #475569;
   }
 
   .reservations-table__head {
@@ -551,7 +565,7 @@
     padding: 1rem 1.5rem;
     font-size: 0.75rem;
     font-weight: 700;
-    color: #0f172a;
+    color: #1E293B;
     letter-spacing: 0.05em;
     text-align: left;
     border-bottom: 1px solid #e2e8f0;

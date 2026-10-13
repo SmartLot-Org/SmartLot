@@ -26,13 +26,13 @@
 
 .reserva-qr-modal p {
   margin: 0 0 22px;
-  color: #64748b;
+  color: #475569;
 }
 
 .reserva-qr-modal small {
   display: block;
   margin-top: 18px;
-  color: #64748b;
+  color: #475569;
 }
 
 .reserva-qr-close {
@@ -59,7 +59,7 @@
 
 .reserva-qr-loading {
   padding: 60px 20px;
-  color: #64748b;
+  color: #475569;
 }
 
 .reserva-qr-error {

@@ -78,9 +78,14 @@
   box-shadow: 0 12px 26px rgba(21, 111, 229, 0.24);
 }
 
-.btn-nueva-zona:hover {
+.btn-nueva-zona-superAdmin:hover {
   transform: translateY(-2px);
   box-shadow: 0 16px 32px rgba(21, 111, 229, 0.3);
+}
+
+.btn-nueva-zona-superAdmin:focus-visible {
+  outline: 3px solid rgba(59, 130, 246, 0.25);
+  outline-offset: 2px;
 }
 
 .btn-nueva-zona-skeleton {
@@ -572,7 +577,7 @@
     font-size: 1.55rem;
   }
 
-  .btn-nueva-zona {
+  .btn-nueva-zona-superAdmin {
     min-height: 54px;
     border-radius: 12px;
   }

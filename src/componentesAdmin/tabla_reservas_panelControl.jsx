@@ -347,6 +347,7 @@ export default function TablaReservasPanleControl() {
           <input
             type="text"
             placeholder="Buscar usuario, plaza o garage..."
+            aria-label="Buscar reservas por usuario, plaza o garage"
             className="filter-bar__input"
             value={searchTerm}
             onChange={(e) => {
@@ -376,13 +377,19 @@ export default function TablaReservasPanleControl() {
 
       <div className="reservations-table-wrapper">
         <table className="reservations-table">
-          <thead className="reservations-table__head" onClick={() => setIsOpen(o => !o)}>
+          <thead className="reservations-table__head">
             <tr>
               <th>
-                <span className="reservations-table__head-toggle">
-                  {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                <button
+                  type="button"
+                  className="reservations-table__head-toggle"
+                  onClick={() => setIsOpen(o => !o)}
+                  aria-expanded={isOpen}
+                >
+                  {isOpen ? <ChevronUp size={16} aria-hidden="true" /> : <ChevronDown size={16} aria-hidden="true" />}
                   USUARIO
-                </span>
+                  <span className="sr-only">{isOpen ? "Contraer tabla de reservas" : "Expandir tabla de reservas"}</span>
+                </button>
               </th>
               <th>PLAZA / ZONA</th>
               <th>FECHA / HORA</th>
@@ -439,6 +446,16 @@ export default function TablaReservasPanleControl() {
                         </div>
                         <div
                           className="user-info__trigger"
+                          tabIndex={0}
+                          onFocus={(e) => {
+                            const rect = e.currentTarget.getBoundingClientRect();
+                            if (window.innerHeight - rect.bottom < 280) {
+                              e.currentTarget.classList.add("user-info__trigger--up");
+                            }
+                          }}
+                          onBlur={(e) => {
+                            e.currentTarget.classList.remove("user-info__trigger--up");
+                          }}
                           onMouseEnter={(e) => {
                             const rect = e.currentTarget.getBoundingClientRect();
                             if (window.innerHeight - rect.bottom < 280) {

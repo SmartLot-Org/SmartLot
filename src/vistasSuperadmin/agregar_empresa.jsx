@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, CircleCheck } from "lucide-react";
+import Swal from "sweetalert2";
 import "./agregar_empresa.css";
 import HeaderSuperadmin from "../componentesSuperadmin/header_superadmin";
 import BotonGenerico from "../componentesAdmin/boton_generico";
 import { EmpresasCreate } from "../servicies/API_Empresa";
+import { Z_INDEX } from "../helpers/zIndex";
 import useLiveValidation from "../hooks/useLiveValidation";
 import FieldValidation from "../components/FieldValidation";
 
@@ -41,7 +43,7 @@ function AgregarEmpresa() {
     setError("");
 
     if (!isValid) {
-      setError("Corrige los errores antes de guardar.");
+      setError("Corregí los errores antes de guardar.");
       return;
     }
 
@@ -53,6 +55,7 @@ function AgregarEmpresa() {
     });
 
     if (response.respuesta) {
+      await Swal.fire({ title: "Empresa creada", text: "Empresa creada correctamente.", icon: "success", timer: 1400, showConfirmButton: false, zIndex: Z_INDEX.SWAL_DIALOG });
       navigate("/superadmin/gestion_empresas", { replace: true });
     } else {
       setLoading(false);

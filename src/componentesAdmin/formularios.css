@@ -18,7 +18,7 @@
 .formulario-container .form-header h2 {
     font-size: 18px;
     font-weight: 700;
-    color: #1a1c1e;
+    color: #1E293B;
     margin: 0;
 }
 
@@ -71,7 +71,7 @@
 .formulario-container .chevron-arrow-svg {
     width: 20px;
     height: 20px;
-    fill: #94a3b8;
+    fill: #475569;
     transition: transform 0.15s ease;
 }
 
@@ -159,7 +159,7 @@
     top: 16px; 
     font-size: 13px; 
     font-weight: 700;
-    color: #94a3b8;
+    color: #475569;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     transition: all 0.3s ease;
@@ -214,5 +214,10 @@
     top: 16px;
     left: 18px;
     font-size: 13px;
-    color: #94a3b8;
+    color: #475569;
+}
+
+/* Opción resaltada por teclado en los dropdowns de sede (combobox accesible) */
+.submenu-custom-option--activa {
+    background: #DBEAFE;
 }

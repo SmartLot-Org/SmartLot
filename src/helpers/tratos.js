@@ -8,7 +8,7 @@ export function buildTratoPayload(values, { partial = false } = {}) {
   const payload = {};
   if (!partial || values.id_sede !== undefined) payload.id_sede = parsePositiveInteger(values.id_sede, 'Sede');
   if (!partial || values.id_garage !== undefined) payload.id_garage = parsePositiveInteger(values.id_garage, 'Garage');
-  if (!partial || values.cantidad_cocheras !== undefined) payload.cantidad_cocheras = parsePositiveInteger(values.cantidad_cocheras, 'Cantidad de cocheras');
+  if (!partial || values.cantidad_cocheras !== undefined) payload.cantidad_cocheras = parsePositiveInteger(values.cantidad_cocheras, 'Cantidad de plazas');
   return payload;
 }
 
@@ -16,7 +16,7 @@ export function buildSolicitudPayload(values) {
   const payload = {
     id_sede: parsePositiveInteger(values.id_sede, 'Sede'),
     id_garage: parsePositiveInteger(values.id_garage, 'Garage'),
-    cantidad_cocheras: parsePositiveInteger(values.cantidad_cocheras, 'Cantidad de cocheras'),
+    cantidad_cocheras: parsePositiveInteger(values.cantidad_cocheras, 'Cantidad de plazas'),
     modalidad_pago: values.modalidad_pago,
   };
   if (!['empresa_cubre_cupo', 'empleado_paga_todo'].includes(payload.modalidad_pago)) throw new Error('Modalidad de pago invalida.');

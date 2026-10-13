@@ -81,10 +81,6 @@
   line-height: 1.5;
 }
 
-.agregar-empresa-form .input-group-superadmin label.label-optional::after {
-  content: none;
-}
-
 .agregar-empresa-form .input-group-superadmin input,
 .agregar-empresa-form .input-group-superadmin textarea {
   width: 100%;

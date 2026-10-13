@@ -11,6 +11,7 @@ import { ModelosGetAll } from "../servicies/API_Modelo";
 import { MarcasGetAll } from "../servicies/API_Marca";
 import useLiveValidation from "../hooks/useLiveValidation";
 import FieldValidation from "../components/FieldValidation";
+import { mensajeToast } from "../helpers/erroresMensajes";
 import "../componentesEmpleado/formulario_PerfilPersonal.css";
 import "../componentesEmpleado/formulario_vehiculo.css";
 
@@ -34,7 +35,9 @@ export default function AgregarVehiculo() {
   const [marcasLookup, setMarcasLookup] = useState({});
   const [sugerencias, setSugerencias] = useState([]);
   const [mostrarSugerencias, setMostrarSugerencias] = useState(false);
+  const [activoIndex, setActivoIndex] = useState(-1);
   const autocompleteRef = useRef(null);
+  const listaAbierta = mostrarSugerencias && sugerencias.length > 0;
 
   const { touched } = useLiveValidation(formData, validationSchema);
 
@@ -105,6 +108,7 @@ export default function AgregarVehiculo() {
   const handleFiltradoModelo = (e) => {
     const valor = e.target.value;
     setFormData((prev) => ({ ...prev, modelo: valor, idModelo: "" }));
+    setActivoIndex(-1);
 
     if (valor.trim().length > 0 && modelosGlobales.length > 0) {
       const filtrados = modelosGlobales.filter((item) => {
@@ -126,6 +130,27 @@ export default function AgregarVehiculo() {
     }
   };
 
+  // Navegación accesible del listbox: ↑↓ para recorrer, Enter para elegir, Escape para cerrar.
+  const handleModeloKeyDown = (e) => {
+    const total = sugerencias.length;
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      if (!mostrarSugerencias && formData.modelo) setMostrarSugerencias(true);
+      if (total > 0) setActivoIndex((prev) => (prev + 1) % total);
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      if (total > 0) setActivoIndex((prev) => (prev <= 0 ? total - 1 : prev - 1));
+    } else if (e.key === "Enter") {
+      if (activoIndex >= 0 && activoIndex < total) {
+        e.preventDefault();
+        handleSeleccionarItem(sugerencias[activoIndex]);
+      }
+    } else if (e.key === "Escape") {
+      setMostrarSugerencias(false);
+      setActivoIndex(-1);
+    }
+  };
+
   // CORREGIDO: Al seleccionar, traemos la marca asociada mediante el ID y seteamos "Marca Modelo" en el input
   const handleSeleccionarItem = (item) => {
     if (!item) return;
@@ -138,6 +163,7 @@ export default function AgregarVehiculo() {
     
     setFormData((prev) => ({ ...prev, modelo: textoCompleto, idModelo: item.id }));
     setMostrarSugerencias(false);
+    setActivoIndex(-1);
   };
 
   const handleGuardar = async (e) => {
@@ -150,8 +176,8 @@ export default function AgregarVehiculo() {
       Swal.fire({
         icon: "warning",
         title: "Campos incompletos",
-        text: "Debes seleccionar un modelo del catálogo y completar la patente.",
-        confirmButtonColor: "#3b82f6",
+        text: "Tenés que seleccionar un modelo del catálogo y completar la patente.",
+        confirmButtonColor: "#2563EB",
         zIndex: Z_INDEX.SWAL_DIALOG,
       });
       return;
@@ -164,7 +190,7 @@ export default function AgregarVehiculo() {
         icon: "error",
         title: "Error de sesión",
         text: "No se pudo detectar el ID del usuario.",
-        confirmButtonColor: "#3b82f6",
+        confirmButtonColor: "#2563EB",
         zIndex: Z_INDEX.SWAL_DIALOG,
       });
       return;
@@ -182,7 +208,7 @@ export default function AgregarVehiculo() {
           toast: true,
           position: "top-end",
           icon: "success",
-          title: "Vehículo añadido correctamente",
+          title: "Vehículo agregado correctamente",
           showConfirmButton: false,
           timer: 2500,
           timerProgressBar: true,
@@ -190,15 +216,22 @@ export default function AgregarVehiculo() {
         });
         navigate("/empleados_dashboard");
       } else {
-        throw new Error("Error al crear el vehículo");
+        // Se traduce la razón del servidor en vez de descartarla con un error genérico.
+        Swal.fire({
+          icon: "error",
+          title: "No se pudo agregar el vehículo",
+          text: mensajeToast(response?.datos?.message ?? response?.datos?.mensaje ?? response?.datos),
+          confirmButtonColor: "#2563EB",
+          zIndex: Z_INDEX.SWAL_DIALOG,
+        });
       }
     } catch (error) {
-      console.error("Error al añadir vehículo:", error);
+      console.error("Error al agregar vehículo:", error);
       Swal.fire({
         icon: "error",
-        title: "Error al añadir vehículo",
-        text: error.message || error.response?.data?.message || "Ocurrió un problema con el servidor.",
-        confirmButtonColor: "#3b82f6",
+        title: "No se pudo agregar el vehículo",
+        text: mensajeToast(error?.response?.data?.message ?? error?.message),
+        confirmButtonColor: "#2563EB",
         zIndex: Z_INDEX.SWAL_DIALOG,
       });
     } finally {
@@ -221,38 +254,50 @@ export default function AgregarVehiculo() {
               <ArrowLeft size={20} />
             </button>
             <header className="textosTitulosPerfil">
-              <h1>Añadir Vehículo</h1>
+              <h1>Agregar vehículo</h1>
             </header>
           </div>
 
           <form onSubmit={handleGuardar} className="perfil-form-wrapper">
             <section className="vehiculo-card-seccion formulario-seccion animate-section">
               <div className="form-card-header" style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "1.5rem" }}>
-                <div className="icon-badge-box" style={{ width: "36px", height: "36px", background: "rgb(239, 246, 255)", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <Car size={20} style={{ color: "rgb(59, 130, 246)" }} />
+                <div className="icon-badge-box" style={{ width: "36px", height: "36px", background: "#DBEAFE", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <Car size={20} style={{ color: "#2563EB" }} />
                 </div>
-                <h3 className="formulario-subtitulo" style={{ margin: 0, borderBottom: "none", paddingBottom: 0 }}>
-                  Nuevo Vehículo
-                </h3>
+                <h2 className="formulario-subtitulo" style={{ margin: 0, borderBottom: "none", paddingBottom: 0 }}>
+                  Nuevo vehículo
+                </h2>
               </div>
 
               <div className="formulario-grid-vehiculo">
                 <div className="vehiculo-input-grupo" ref={autocompleteRef} style={{ position: "relative" }}>
-                  <label htmlFor="nuevo-modelo">Modelo del Vehículo</label>
+                  <label htmlFor="nuevo-modelo">Modelo del vehículo</label>
                   <input
                     type="text"
                     id="nuevo-modelo"
                     className="formulario-input"
+                    role="combobox"
+                    aria-expanded={listaAbierta}
+                    aria-controls="modelo-sugerencias"
+                    aria-autocomplete="list"
+                    aria-activedescendant={activoIndex >= 0 ? `modelo-opcion-${activoIndex}` : undefined}
                     value={formData.modelo}
                     onChange={handleFiltradoModelo}
                     onFocus={() => formData.modelo && setMostrarSugerencias(true)}
+                    onKeyDown={handleModeloKeyDown}
                     placeholder="Ej. Toyota Corolla"
                     autoComplete="off"
                     required
                   />
                   <FieldValidation conditions={buildConditions("modelo")} isTouched={touched.modelo} />
-                  {mostrarSugerencias && sugerencias.length > 0 && (
-                    <ul className="autocomplete-suggestions-panel" style={{ listStyle: "none", padding: 0, margin: 0, position: "absolute", width: "100%", zIndex: 100, background: "#fff", border: "1px solid #cbd5e1", borderRadius: "8px", maxHeight: "200px", overflowY: "auto" }}>
+                  {listaAbierta && (
+                    <ul
+                      id="modelo-sugerencias"
+                      role="listbox"
+                      aria-label="Sugerencias de modelo"
+                      className="autocomplete-suggestions-panel"
+                      style={{ listStyle: "none", padding: 0, margin: 0, position: "absolute", width: "100%", zIndex: 100, background: "#fff", border: "1px solid #CBD5E1", borderRadius: "8px", maxHeight: "200px", overflowY: "auto" }}
+                    >
                       {sugerencias.map((item, index) => {
                         if (!item) return null;
                         const textoModelo = item.nombre || item.nombre_modelo || item.modelo || String(item);
@@ -264,28 +309,32 @@ export default function AgregarVehiculo() {
                         return (
                           <li
                             key={item.id || index}
+                            id={`modelo-opcion-${index}`}
+                            role="option"
+                            aria-selected={index === activoIndex}
                             className="autocomplete-item"
                             onClick={() => handleSeleccionarItem(item)}
+                            onMouseEnter={() => setActivoIndex(index)}
                             style={{
                               display: "flex",
                               justifyContent: "space-between",
                               alignItems: "center",
                               padding: "0.75rem 1rem",
                               cursor: "pointer",
-                              borderBottom: "1px solid #f1f5f9"
+                              borderBottom: "1px solid #F1F5F9"
                             }}
                           >
                             <div style={{ display: "flex", width: "100%", justifyContent: "space-between", alignItems: "center" }}>
-                              <span style={{ fontWeight: "500", color: "#1e293b" }}>{textoModelo}</span>
+                              <span style={{ fontWeight: "500", color: "#1E293B" }}>{textoModelo}</span>
                               {textoMarca && (
                                 <span style={{
                                   fontSize: "0.75rem",
-                                  backgroundColor: "#eff6ff",
-                                  color: "#3b82f6",
+                                  backgroundColor: "#DBEAFE",
+                                  color: "#2563EB",
                                   padding: "0.25rem 0.6rem",
                                   borderRadius: "6px",
                                   fontWeight: "600",
-                                  border: "1px solid #dbeafe"
+                                  border: "1px solid #DBEAFE"
                                 }}>
                                   {textoMarca}
                                 </span>
@@ -326,9 +375,9 @@ export default function AgregarVehiculo() {
                   width: "100%",
                   height: "44px",
                   borderRadius: "12px",
-                  border: "1px dashed #cbd5e1",
-                  backgroundColor: guardando ? "#f1f5f9" : "transparent",
-                  color: "#3b82f6",
+                  border: "1px dashed #CBD5E1",
+                  backgroundColor: guardando ? "#F1F5F9" : "transparent",
+                  color: "#2563EB",
                   fontWeight: 600,
                   fontSize: "0.875rem",
                   cursor: guardando ? "not-allowed" : "pointer",
@@ -337,7 +386,7 @@ export default function AgregarVehiculo() {
                 }}
               >
                 <Plus size={18} />
-                <span>{guardando ? "Guardando..." : "Añadir Vehículo"}</span>
+                <span>{guardando ? "Guardando..." : "Agregar vehículo"}</span>
               </button>
             </section>
 

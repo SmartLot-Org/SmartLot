@@ -14,7 +14,7 @@
     0 12px 24px -8px rgba(15, 23, 42, 0.06);
   isolation: isolate;
   transition: transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
-  animation: duenio-panel-rise 0.5s ease both;
+  animation: duenio-panel-rise 0.5s ease-out both;
 }
 
 .duenio-garage-card::before {
@@ -86,8 +86,8 @@
 }
 
 .duenio-card-menu-toggle {
-  width: 42px;
-  height: 42px;
+  width: 44px;
+  height: 44px;
 }
 
 .duenio-card-menu-list {
@@ -124,7 +124,7 @@
 
 .duenio-card-menu-list button:hover {
   background: #f1f5f9;
-  color: #0f172a;
+  color: #1e293b;
   transform: none;
 }
 
@@ -139,14 +139,14 @@
 }
 
 .duenio-garage-card-top .duenio-card-trash-btn:hover {
-  background: #dc2626;
+  background: #ef4444;
   color: #ffffff;
-  border-color: #dc2626;
+  border-color: #ef4444;
 }
 
 .duenio-restore-btn {
-  width: 42px;
-  height: 42px;
+  width: 44px;
+  height: 44px;
   border: 1px solid #e2e8f0;
   border-radius: 14px;
   background: #ffffff;
@@ -159,10 +159,9 @@
 }
 
 .duenio-restore-btn:hover {
-  background: #0f172a;
+  background: #1e293b;
   color: #ffffff;
-  border-color: #0f172a;
-  transform: rotate(-8deg) scale(1.05);
+  border-color: #1e293b;
 }
 
 .duenio-garage-card.is-draft {
@@ -209,8 +208,8 @@
 }
 
 .duenio-garage-card-top button {
-  width: 42px;
-  height: 42px;
+  width: 44px;
+  height: 44px;
   border: 1px solid #e2e8f0;
   border-radius: 14px;
   background: #ffffff;
@@ -226,7 +225,13 @@
   background: #2563eb;
   color: #ffffff;
   border-color: #2563eb;
-  transform: rotate(8deg) scale(1.05);
+}
+
+.duenio-garage-card-top button:focus-visible,
+.duenio-restore-btn:focus-visible,
+.duenio-card-restore-cta:focus-visible {
+  outline: 3px solid #2563eb;
+  outline-offset: 2px;
 }
 
 .duenio-garage-prices {
@@ -241,7 +246,7 @@
   padding: 0.55rem;
   border-radius: 12px;
   background: #f5f7fb;
-  color: #64748b;
+  color: #475569;
   font-size: 0.7rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -259,18 +264,9 @@
   margin-top: 0.45rem;
 }
 
-.duenio-garage-index {
-  color: #2563eb;
-  font-family: var(--mono);
-  font-size: 0.72rem;
-  font-weight: 900;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-
 .duenio-garage-title h3 {
-  margin: 0.35rem 0 0;
-  color: #0f172a;
+  margin: 0;
+  color: #1e293b;
   font-family: var(--heading);
   font-size: clamp(1.55rem, 2.7vw, 2.1rem);
   font-weight: 800;
@@ -320,7 +316,7 @@
 }
 
 .duenio-garage-metrics span {
-  color: #64748b;
+  color: #475569;
   font-size: 0.76rem;
 }
 
@@ -370,7 +366,7 @@
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, #2563eb, #60a5fa);
+  background: linear-gradient(90deg, #2563eb, #93c5fd);
 }
 
 @keyframes duenio-panel-rise {
@@ -392,5 +388,14 @@
 
   .duenio-garage-metrics {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .duenio-garage-card,
+  .duenio-garage-card button,
+  .duenio-restore-btn {
+    transition: none;
+    animation: none;
   }
 }

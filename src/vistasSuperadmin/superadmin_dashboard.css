@@ -98,7 +98,47 @@
   height: 146px;
   box-sizing: border-box;
   border: 1px solid rgba(255, 255, 255, 0.06);
-  outline: none;
+}
+
+.superadmin-dashboard-card:focus-visible {
+  outline: 3px solid rgba(59, 130, 246, 0.25);
+  outline-offset: 2px;
+}
+
+.superadmin-stats-error {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 8px;
+  padding: 18px 20px;
+  border: 1px solid rgba(220, 38, 38, 0.3);
+  border-radius: 16px;
+  background: rgba(220, 38, 38, 0.05);
+  color: #B91C1C;
+}
+
+.superadmin-stats-error-icon {
+  flex-shrink: 0;
+  color: #B91C1C;
+}
+
+.superadmin-stats-error-texto {
+  flex: 1;
+  min-width: 200px;
+}
+
+.superadmin-stats-error-titulo {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: #B91C1C;
+}
+
+.superadmin-stats-error-desc {
+  margin: 2px 0 0;
+  font-size: 13px;
+  color: #B91C1C;
 }
 
 .superadmin-dashboard-icon {

@@ -17,7 +17,7 @@ const obtenerEtiquetaVehiculo = (vehiculo) => {
   const marca = vehiculo?.marca?.nombre ?? vehiculo?.marca_nombre ?? vehiculo?.marca;
   const modelo = vehiculo?.modelo?.nombre ?? vehiculo?.modelo_nombre ?? vehiculo?.modelo;
   const patente = vehiculo?.patente ?? vehiculo?.placa ?? vehiculo?.matricula;
-  const nombre = [marca, modelo].filter(Boolean).join(" ").trim() || "Vehiculo";
+  const nombre = [marca, modelo].filter(Boolean).join(" ").trim() || "Vehículo";
   return patente ? `${nombre} (${patente})` : nombre;
 };
 
@@ -85,10 +85,10 @@ const FormularioReserva = forwardRef(function FormularioReserva({
       () => ({ rule: () => !formData.horaInicio || !formData.horaFin || formData.horaInicio < formData.horaFin, message: "Debe ser posterior a inicio" }),
     ],
     idGarage: [
-      { rule: (v) => v !== "", message: "Selecciona un garage" },
+      { rule: (v) => v !== "", message: "Seleccioná un garage" },
     ],
     idVehiculo: [
-      { rule: (v) => v !== "", message: "Selecciona un vehículo" },
+      { rule: (v) => v !== "", message: "Seleccioná un vehículo" },
     ],
   });
 
@@ -199,7 +199,7 @@ const FormularioReserva = forwardRef(function FormularioReserva({
     e.preventDefault();
 
     if (!isValid) {
-      setError("Corrige los errores antes de confirmar.");
+      setError("Corregí los errores antes de confirmar.");
       return;
     }
 
@@ -312,7 +312,7 @@ const FormularioReserva = forwardRef(function FormularioReserva({
               onChange={(e) => { handleChange(e); touch("idGarage"); }}
               required
             >
-              <option value="" disabled hidden>Selecciona un garage</option>
+              <option value="" disabled hidden>Seleccioná un garage</option>
               {garages.map((garage) => {
                 const id = obtenerIdGarage(garage);
                 return (
@@ -341,26 +341,26 @@ const FormularioReserva = forwardRef(function FormularioReserva({
               }}
             >
               <div style={{ display: "flex", gap: "0.35rem" }}>
-                <span style={{ color: "#1164e8", opacity: 0.9 }}>Ubicacion:</span>
+                <span style={{ color: "#2563EB", opacity: 0.9 }}>Ubicación:</span>
                 <a
                   href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(ubicacionGarageActual)}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  style={{ color: "#4481e2", fontWeight: "600", textDecoration: "underline" }}
+                  style={{ color: "#2563EB", fontWeight: "600", textDecoration: "underline" }}
                 >
                   {ubicacionGarageActual}
                 </a>
               </div>
 
               {loadingDistancia && (
-                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "#64748b", fontSize: "0.8rem" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "#475569", fontSize: "0.8rem" }}>
                   <Loader size={14} className="animate-spin" />
                   Calculando distancia...
                 </div>
               )}
 
               {distanciaError && (
-                <div style={{ display: "flex", gap: "0.35rem", color: "#dc2626", fontSize: "0.8rem" }}>
+                <div style={{ display: "flex", gap: "0.35rem", color: "#B91C1C", fontSize: "0.8rem" }}>
                   <MapPin size={14} style={{ marginTop: 1 }} />
                   <span>{distanciaError}</span>
                 </div>
@@ -391,8 +391,8 @@ const FormularioReserva = forwardRef(function FormularioReserva({
                       </div>
                     )}
                     <div style={{ display: "flex", gap: "0.35rem" }}>
-                      <span style={{ color: "#1164e8", opacity: 0.9 }}>Sede:</span>
-                      <span style={{ color: "#4481e2", fontWeight: "600" }}>
+                      <span style={{ color: "#2563EB", opacity: 0.9 }}>Sede:</span>
+                      <span style={{ color: "#2563EB", fontWeight: "600" }}>
                         {distanciaInfo.sede?.nombre || distanciaInfo.sede?.ubicacion || "—"}
                       </span>
                     </div>
@@ -433,7 +433,7 @@ const FormularioReserva = forwardRef(function FormularioReserva({
                     distTexto || durTexto
                   );
                   return mostrarDistancia ? (
-                    <div style={{ marginTop: "0.5rem", padding: "0.75rem", borderRadius: "8px", backgroundColor: "#f8fafc", border: "1px dashed #94a3b8", fontSize: "0.8rem", color: "#64748b", textAlign: "center" }}>
+                    <div style={{ marginTop: "0.5rem", padding: "0.75rem", borderRadius: "8px", backgroundColor: "#f8fafc", border: "1px dashed #94a3b8", fontSize: "0.8rem", color: "#475569", textAlign: "center" }}>
                       <MapPin size={16} style={{ marginBottom: "0.25rem" }} />
                       <div style={{ display: "flex", flexDirection: "column", gap: "0.35rem", alignItems: "center" }}>
                         <div>{puedeMostrarMapa ? "Cargando mapa..." : "No hay coordenadas disponibles para mostrar el mapa."}</div>
@@ -448,7 +448,7 @@ const FormularioReserva = forwardRef(function FormularioReserva({
                       </div>
                     </div>
                   ) : (
-                    <div style={{ marginTop: "0.5rem", padding: "0.75rem", borderRadius: "8px", backgroundColor: "#f8fafc", border: "1px dashed #94a3b8", fontSize: "0.8rem", color: "#64748b", textAlign: "center" }}>
+                    <div style={{ marginTop: "0.5rem", padding: "0.75rem", borderRadius: "8px", backgroundColor: "#f8fafc", border: "1px dashed #94a3b8", fontSize: "0.8rem", color: "#475569", textAlign: "center" }}>
                       <MapPin size={16} style={{ marginBottom: "0.25rem" }} />
                       <div>No hay coordenadas disponibles para mostrar el mapa.</div>
                     </div>
@@ -478,7 +478,7 @@ const FormularioReserva = forwardRef(function FormularioReserva({
                         backdropFilter: "blur(4px)",
                       }}>
                         <div style={{ display: "flex", gap: "0.35rem" }}>
-                          <span style={{ color: "#1164e8", fontWeight: 600 }}>Distancia:</span>
+                          <span style={{ color: "#2563EB", fontWeight: 600 }}>Distancia:</span>
                           <span style={{ color: "#075985", fontWeight: 600 }}>
                             {distTexto || "—"}
                           </span>
@@ -542,7 +542,7 @@ const FormularioReserva = forwardRef(function FormularioReserva({
         )}
 
         <div className="form-field-group">
-          <label className="form-field-label" htmlFor="idVehiculo">Vehiculo</label>
+          <label className="form-field-label" htmlFor="idVehiculo">Vehículo</label>
           <div className="form-input-icon-wrapper">
             <Car className="form-input-icon" size={18} />
             <select
@@ -553,7 +553,7 @@ const FormularioReserva = forwardRef(function FormularioReserva({
               onChange={(e) => { handleChange(e); touch("idVehiculo"); }}
               required
             >
-              <option value="" disabled hidden>Selecciona un vehiculo</option>
+              <option value="" disabled hidden>Seleccioná un vehículo</option>
               {vehiculos.map((vehiculo) => {
                 const id = obtenerIdVehiculo(vehiculo);
                 return (
@@ -589,7 +589,7 @@ const FormularioReserva = forwardRef(function FormularioReserva({
               {loading
                 ? "Procesando..."
                 : vehiculos.length === 0
-                  ? "Sin vehiculos disponibles"
+                  ? "Sin vehículos disponibles"
                   : garages.length === 0
                     ? "Sin garages disponibles"
                     : sinDisponibilidad

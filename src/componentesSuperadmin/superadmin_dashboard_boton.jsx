@@ -10,32 +10,34 @@ function SuperadminDashboardBoton({ icono, titulo, descripcion, onClick }) {
 
   const onMouseEnter = contextSafe(() => {
     if (!cardRef.current) return;
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     gsap.to(cardRef.current, {
-      y: -6,
+      y: reduced ? 0 : -6,
       backgroundColor: "#1E2A45",
       boxShadow: "0 16px 32px rgba(15, 26, 46, 0.2)",
-      duration: 0.3,
+      duration: reduced ? 0 : 0.3,
       ease: "power2.out",
     });
 
     if (bgIconRef.current) {
       gsap.to(bgIconRef.current, {
-        scale: 1.15,
-        rotation: -8,
+        scale: reduced ? 1 : 1.15,
+        rotation: reduced ? 0 : -8,
         opacity: 0.12,
-        duration: 0.4,
-        ease: "back.out(1.4)",
+        duration: reduced ? 0 : 0.4,
+        ease: "power2.out",
       });
     }
   });
 
   const onMouseLeave = contextSafe(() => {
     if (!cardRef.current) return;
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     gsap.to(cardRef.current, {
       y: 0,
       backgroundColor: "#1A2744",
       boxShadow: "0 0px 0px rgba(0, 0, 0, 0)",
-      duration: 0.25,
+      duration: reduced ? 0 : 0.25,
       ease: "power2.inOut",
     });
 
@@ -44,7 +46,7 @@ function SuperadminDashboardBoton({ icono, titulo, descripcion, onClick }) {
         scale: 1,
         rotation: 0,
         opacity: 0.06,
-        duration: 0.3,
+        duration: reduced ? 0 : 0.3,
         ease: "power2.inOut",
       });
     }
@@ -59,7 +61,7 @@ function SuperadminDashboardBoton({ icono, titulo, descripcion, onClick }) {
       onMouseLeave={onMouseLeave}
       role="button"
       tabIndex={0}
-      onKeyDown={(e) => e.key === "Enter" && onClick()}
+      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onClick(); } }}
     >
       {icono && <div className="superadmin-dashboard-icon">{icono}</div>}
 

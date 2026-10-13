@@ -1,7 +1,7 @@
 .agregar-admin-sede-page {
-    background-color: #F7F9FB;
+    background-color: #F5F7FB;
     min-height: 100vh;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-family: "DM Sans", system-ui, sans-serif;
 }
 
 .agregar-admin-sede-page p {
@@ -13,15 +13,15 @@
     padding: 0 20px;
 }
 
-.titulo-agregar-admin-sede h3 {
-    color: #1D4ED8;
+.titulo-agregar-admin-sede h1 {
+    color: #0C1E3F;
     font-size: 24px;
     font-weight: 600;
     margin: 0 0 4px;
 }
 
 .titulo-agregar-admin-sede p {
-    color: #64748B;
+    color: #475569;
     margin: 0;
 }
 
@@ -39,7 +39,7 @@
 }
 
 .form-error-admin-sede {
-    color: #EF4444;
+    color: #B91C1C;
     font-size: 14px;
     margin: 16px 0 0;
     text-align: center;
@@ -57,29 +57,28 @@
 
 .btn-guardar-admin-sede,
 .btn-cancelar-admin-sede {
-    width: 320px !important;
-    max-width: 100%;
-    height: 60px !important;
-    border-radius: 20px !important;
-    font-size: 18px !important;
-    font-weight: 600 !important;
+    width: min(320px, 100%);
+    height: 48px;
+    border-radius: 10px;
+    font-size: 18px;
+    font-weight: 600;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 12px;
-    border: none;
     cursor: pointer;
     transition: all 0.3s ease;
 }
 
 .btn-guardar-admin-sede {
-    background-color: #2563EB !important;
-    color: white !important;
+    background-color: #2563EB;
+    color: #FFFFFF;
+    border: none;
     box-shadow: 0 10px 20px -5px rgba(37, 99, 235, 0.4);
 }
 
 .btn-guardar-admin-sede:hover {
-    background-color: #1d4ed8 !important;
+    background-color: #156FE5;
     transform: translateY(-3px) scale(1.02);
     box-shadow: 0 15px 25px -5px rgba(37, 99, 235, 0.5);
 }
@@ -91,15 +90,21 @@
 }
 
 .btn-cancelar-admin-sede {
-    background-color: #E6E8EA !important;
-    color: #005BBF !important;
-    box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.05);
+    background-color: transparent;
+    color: #1E293B;
+    border: 1px solid #E2E8F0;
 }
 
 .btn-cancelar-admin-sede:hover {
-    background-color: #DDE0E3 !important;
+    border-color: #CBD5E1;
     transform: translateY(-3px) scale(1.02);
     box-shadow: 0 15px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.btn-cancelar-admin-sede:focus-visible,
+.btn-guardar-admin-sede:focus-visible {
+    outline: 3px solid rgba(37, 99, 235, 0.35);
+    outline-offset: 2px;
 }
 
 .btn-cancelar-admin-sede:active,
@@ -110,7 +115,7 @@
 @media (max-width: 480px) {
     .btn-guardar-admin-sede,
     .btn-cancelar-admin-sede {
-        height: 54px !important;
-        font-size: 16px !important;
+        height: 48px;
+        font-size: 16px;
     }
 }

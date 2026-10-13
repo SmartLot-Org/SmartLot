@@ -117,20 +117,20 @@ function TarjetaReserva({ reserva, onClick, onCopy, onShowQr, mostrarQr = false,
         ) : (
           <div className="empleado-reserva-plaza">
             <strong>{reserva.nro_plaza || "-"}</strong>
-            <span>{reserva.nombre_zona || "Sector"}</span>
+            <span>{reserva.nombre_zona || "-"}</span>
             <small>{reserva.entradaRegistrada ? "Dentro" : "Reservado"}</small>
           </div>
         )}
 
         <div className="empleado-reserva-info">
-          <h3>{reserva.nombre_garage || "Ubicacion no especificada"}</h3>
+          <h3>{reserva.nombre_garage || "Ubicación no especificada"}</h3>
           {!esHistorialPasado && String(reserva.estado || "").trim().toLowerCase() === "pendiente_pago" && (
             <span className="empleado-reserva-badge-pago">Pago pendiente</span>
           )}
           {esHistorialPasado && (
             <div className="empleado-reserva-location">
               <span>{reserva.nro_plaza || "-"}</span>
-              <span>{reserva.nombre_zona || "Sector"}</span>
+              <span>{reserva.nombre_zona || "-"}</span>
             </div>
           )}
           <p>
@@ -160,7 +160,7 @@ function TarjetaReserva({ reserva, onClick, onCopy, onShowQr, mostrarQr = false,
               e.stopPropagation();
               onCopy?.(reserva);
             }}
-            aria-label="Copiar reserva para otro dia"
+            aria-label="Copiar reserva para otro día"
           >
             <Copy size={16} />
           </button>

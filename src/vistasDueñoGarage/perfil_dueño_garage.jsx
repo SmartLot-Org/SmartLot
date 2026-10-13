@@ -15,6 +15,7 @@ import { UsuariosGetById } from "../servicies/API_Usuario";
 import { GaragesGetAll } from "../servicies/API_Garage";
 import useLiveValidation from "../hooks/useLiveValidation";
 import FieldValidation from "../components/FieldValidation";
+import "./duenio_garage.css";
 import "./perfil_dueño_garage.css";
 
 gsap.registerPlugin(useGSAP);
@@ -56,7 +57,7 @@ export default function PerfilDueñoGarage() {
   const [cargandoGarages, setCargandoGarages] = useState(true);
   const [guardando, setGuardando] = useState(false);
 
-  const { isValid, touched, getFieldProps } = useLiveValidation(personalData, validationSchema);
+  const { isValid, touched, getFieldProps, touchAll } = useLiveValidation(personalData, validationSchema);
   const telefonoField = getFieldProps("telefono", setPersonalData);
   const contraseñaField = getFieldProps("contraseña", setPersonalData);
 
@@ -143,13 +144,13 @@ export default function PerfilDueñoGarage() {
     if (isDirty) {
       Swal.fire({
         title: "¿Descartar cambios?",
-        text: "Tienes modificaciones en tu perfil que no has guardado. Si sales perderás los cambios.",
+        text: "Tenés modificaciones en tu perfil que no guardaste. Si salís, perdés los cambios.",
         icon: "warning",
         showCancelButton: true,
-        confirmButtonColor: "#e11d48",
-        cancelButtonColor: "#64748b",
+        confirmButtonColor: "#EF4444",
+        cancelButtonColor: "#475569",
         confirmButtonText: "Sí, salir",
-        cancelButtonText: "Permanecer aquí",
+        cancelButtonText: "Permanecer acá",
         zIndex: Z_INDEX.SWAL_DIALOG,
       }).then((result) => {
         if (result.isConfirmed) {
@@ -177,6 +178,9 @@ export default function PerfilDueñoGarage() {
 
   useGSAP(() => {
     if (loading || !usuario) return;
+    const respetaReducedMotion = typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (respetaReducedMotion) return;
+
     const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
 
     tl.fromTo(".animate-dueño-back", { opacity: 0, x: -15 }, { opacity: 1, x: 0, duration: 0.4 })
@@ -190,7 +194,10 @@ export default function PerfilDueñoGarage() {
     e.preventDefault();
     if (guardando) return;
 
-    if (!isValid) return;
+    if (!isValid) {
+      touchAll();
+      return;
+    }
 
     const telefonoLimpio = personalData.telefono?.replace(/\D/g, "") || "";
     const nuevaContraseña = personalData.contraseña?.trim() || "";
@@ -232,7 +239,7 @@ export default function PerfilDueñoGarage() {
         await Swal.fire({
           icon: 'success',
           title: 'Contraseña actualizada',
-          text: 'Tu contraseña se actualizó correctamente. Por seguridad, vuelve a iniciar sesión.',
+          text: 'Tu contraseña se actualizó correctamente. Por seguridad, volvé a iniciar sesión.',
           confirmButtonColor: '#2563eb',
           zIndex: Z_INDEX.SWAL_DIALOG,
         });
@@ -255,7 +262,7 @@ export default function PerfilDueñoGarage() {
       Swal.fire({
         icon: 'error',
         title: 'Error al guardar',
-        text: error.message || error.response?.data?.message || 'Ocurrió un problema con el servidor.',
+        text: error.message || error.response?.data?.message || 'No se pudieron guardar los cambios. Probá de nuevo en unos segundos.',
         confirmButtonColor: '#2563eb',
         zIndex: Z_INDEX.SWAL_DIALOG,
       });
@@ -310,16 +317,15 @@ export default function PerfilDueñoGarage() {
               aria-label="Volver al panel del dueño"
               type="button"
             >
-              <ArrowLeft size={20} />
+              <ArrowLeft size={20} aria-hidden="true" focusable="false" />
             </button>
           </div>
 
           <header className="duenio-perfil-titulos">
-            <span className="duenio-perfil-kicker">Cuenta</span>
-            <h1>{nombreCompleto ? `Perfil de ${nombreCompleto}` : "Mi Perfil"}</h1>
+            <h1>{nombreCompleto ? `Perfil de ${nombreCompleto}` : "Mi perfil"}</h1>
             <span className="duenio-perfil-badge">
-              <Warehouse size={14} />
-              Dueño de Garage
+              <Warehouse size={14} aria-hidden="true" focusable="false" />
+              Dueño de garage
             </span>
           </header>
         </div>
@@ -327,7 +333,7 @@ export default function PerfilDueñoGarage() {
         <div className="duenio-perfil-statusbar" aria-label="Resumen de tu cuenta">
           <div>
             <span>Rol</span>
-            <strong>Dueño de Garage</strong>
+            <strong>Dueño de garage</strong>
           </div>
           <div>
             <span>Garages asociados</span>
@@ -343,9 +349,9 @@ export default function PerfilDueñoGarage() {
           <section className="duenio-perfil-card">
             <div className="duenio-perfil-card-header">
               <div className="duenio-perfil-card-icon">
-                <User size={20} />
+                <User size={20} aria-hidden="true" focusable="false" />
               </div>
-              <h3>Información Personal</h3>
+              <h2>Información personal</h2>
             </div>
 
             <div className="duenio-perfil-grid">
@@ -408,9 +414,9 @@ export default function PerfilDueñoGarage() {
           <section className="duenio-perfil-card">
             <div className="duenio-perfil-card-header">
               <div className="duenio-perfil-card-icon duenio-perfil-card-icon--rose">
-                <Lock size={20} />
+                <Lock size={20} aria-hidden="true" focusable="false" />
               </div>
-              <h3>Cambiar Contraseña</h3>
+              <h2>Cambiar contraseña</h2>
             </div>
 
             <div className="duenio-perfil-grupo">
@@ -432,12 +438,12 @@ export default function PerfilDueñoGarage() {
 
           <div className="duenio-perfil-actions">
             <button type="submit" className="duenio-perfil-btn-primary" disabled={guardando}>
-              {guardando ? 'Guardando...' : 'Guardar Cambios'}
+              {guardando ? 'Guardando…' : 'Guardar cambios'}
             </button>
 
-            <button type="button" className="duenio-perfil-btn-danger" onClick={handleCerrarSesion}>
-              <LogOut size={18} />
-              Cerrar Sesión
+            <button type="button" className="duenio-perfil-btn-secondary" onClick={handleCerrarSesion}>
+              <LogOut size={18} aria-hidden="true" focusable="false" />
+              Cerrar sesión
             </button>
           </div>
         </form>

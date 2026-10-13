@@ -14,12 +14,14 @@ function Header({ homePath = "/admin_dashboard" }) {
       <div className="header">
         <div className="header-left">
           <div className="logo-smartlot">
-            <img
+            <button
+              type="button"
               onClick={() => navigate(homePath)}
-              src={logo}
-              alt="logo SmartLot"
-              style={{ cursor: "pointer" }}
-            />
+              aria-label="Ir al panel principal"
+              className="inline-flex rounded-lg cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue"
+            >
+              <img src={logo} alt="logo SmartLot" />
+            </button>
           </div>
         </div>
 

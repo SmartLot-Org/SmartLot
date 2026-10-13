@@ -76,9 +76,7 @@ export default function ConfirmarSolicitud() {
   const orden = prioridad === 'aprobar' ? ['aprobar', 'rechazar'] : ['rechazar', 'aprobar'];
 
   return (
-    <div className="login-page">
-      <div className="login-glow login-glow--uno" aria-hidden="true" />
-      <div className="login-glow login-glow--dos" aria-hidden="true" />
+    <div className="login-page confirmar-solicitud-page">
 
       <main className="login-card">
         <div className="login-brand">
@@ -98,8 +96,8 @@ export default function ConfirmarSolicitud() {
         {!cargando && errorCarga && (
           <div className="login-form">
             <div className="login-ok">
-              <AlertCircle size={48} className="login-ok-icon" />
-              <h3 className="login-ok-titulo">No se pudo abrir la solicitud</h3>
+              <AlertCircle size={48} className="login-error-icono" />
+              <h1 className="login-ok-titulo">No se pudo abrir la solicitud</h1>
               <p className="login-ok-mensaje">{errorCarga}</p>
               <Link to="/superadmin/gestion_usuarios" className="login-boton">
                 Ir al panel de solicitudes
@@ -112,10 +110,14 @@ export default function ConfirmarSolicitud() {
           <div className="login-form">
             <div className="login-ok">
               <CheckCircle size={48} className="login-ok-icon" />
-              <h3 className="login-ok-titulo">Solicitud {resuelta}</h3>
+              <h1 className="login-ok-titulo">{resuelta === 'aceptada' ? 'Solicitud aceptada' : resuelta === 'rechazada' ? 'Solicitud rechazada' : 'Solicitud resuelta'}</h1>
               <p className="login-ok-mensaje">
-                Esta solicitud ya fue revisada{resuelta === 'aceptada' ? ' y aceptada' : ' y rechazada'}.
-                El administrador de empresa correspondiente ya recibió su notificación.
+                {resuelta === 'aceptada'
+                  ? 'Esta solicitud ya fue revisada y aceptada.'
+                  : resuelta === 'rechazada'
+                    ? 'Esta solicitud ya fue revisada y rechazada.'
+                    : 'Esta solicitud ya fue revisada.'}
+                {' '}El administrador de empresa correspondiente ya recibió su notificación.
               </p>
               <Link to="/superadmin/gestion_usuarios" className="login-boton">
                 Ver solicitudes en el panel

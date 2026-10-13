@@ -1,6 +1,6 @@
 .dops-panel {
   margin-top: 1.4rem;
-  background: #f8fafc;
+  background: #F5F7FB;
   border-radius: 14px;
   padding: 1.25rem;
   border: 1px solid #e2e8f0;
@@ -30,7 +30,7 @@
 .dops-title {
   font-size: 0.76rem;
   font-weight: 800;
-  color: #64748b;
+  color: #475569;
   text-transform: uppercase;
   letter-spacing: 0.6px;
 }
@@ -117,7 +117,7 @@
 .dops-count {
   font-size: 0.7rem;
   font-weight: 700;
-  color: #64748b;
+  color: #475569;
   white-space: nowrap;
 }
 
@@ -126,7 +126,7 @@
 }
 
 .dops-count-den {
-  color: #94a3b8;
+  color: #475569;
 }
 
 .dops-track {

@@ -16,8 +16,8 @@ test('la ruta /register usa la página nueva y redirige con sesión activa', () 
 });
 
 test('el toggle mitad/mitad alterna empresa y garage con roles ARIA', () => {
-  assert.match(toggle, /role="tablist"/);
-  assert.match(toggle, /role="tab"[\s\S]*aria-selected/);
+  assert.match(toggle, /role="radiogroup"/);
+  assert.match(toggle, /role="radio"[\s\S]*aria-checked/);
   assert.match(toggle, /MODO_EMPRESA[\s\S]*MODO_GARAGE/);
   assert.match(toggle, /ArrowRight/);
   assert.match(register, /<RegisterRoleToggle modo=\{modo\} onChange=\{cambiarModo\}/);

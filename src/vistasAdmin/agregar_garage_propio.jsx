@@ -46,6 +46,8 @@ export default function AgregarGaragePropio() {
   const [garageLookupUnavailable, setGarageLookupUnavailable] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [loadError, setLoadError] = useState('');
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     let active = true;
@@ -57,9 +59,10 @@ export default function AgregarGaragePropio() {
           GaragesGetAll({ force: true }),
         ]);
         if (!active) return;
+        setLoadError('');
 
         if (!sedesResponse.respuesta) {
-          setError('No se pudieron cargar las sedes. Volvé a intentar más tarde.');
+          setLoadError('No se pudieron cargar las sedes. Revisá tu conexión y volvé a intentar.');
           setSedes([]);
           setSedeId('');
         } else {
@@ -88,7 +91,7 @@ export default function AgregarGaragePropio() {
         setGarages([]);
         setSedeId('');
         setGarageLookupUnavailable(true);
-        setError('No se pudieron cargar los datos de la sede. Volvé a intentar más tarde.');
+        setLoadError('No se pudieron cargar los datos de la sede. Revisá tu conexión y volvé a intentar.');
       } finally {
         if (active) setLoadingData(false);
       }
@@ -96,7 +99,7 @@ export default function AgregarGaragePropio() {
 
     load();
     return () => { active = false; };
-  }, [usuario?.id_empresa, usuario?.id_sede]);
+  }, [usuario?.id_empresa, usuario?.id_sede, reloadKey]);
 
   const selectedSede = useMemo(
     () => sedes.find((sede) => String(sede.id) === String(sedeId)) || null,
@@ -126,7 +129,7 @@ export default function AgregarGaragePropio() {
       () => ({ rule: () => !formData.hora_apertura || !formData.hora_cierre || formData.hora_apertura < formData.hora_cierre, message: 'La apertura debe ser anterior al cierre' }),
     ],
     capacidad_reservas: [
-      { rule: (value) => value !== '' && value !== null && value !== undefined && Number.isInteger(Number(value)) && Number(value) >= 1 && Number(value) <= 32767, message: 'Ingresá entre 1 y 32.767 cocheras reservables' },
+      { rule: (value) => value !== '' && value !== null && value !== undefined && Number.isInteger(Number(value)) && Number(value) >= 1 && Number(value) <= 32767, message: 'Ingresá entre 1 y 32.767 plazas reservables' },
     ],
     capacidad_para_no_reservas: [
       { rule: (value) => value !== '' && value !== null && value !== undefined && Number.isInteger(Number(value)) && Number(value) >= 0, message: 'Debe ser un entero mayor o igual a 0' },
@@ -230,13 +233,13 @@ export default function AgregarGaragePropio() {
             <ArrowLeft size={24} />
           </button>
           <div className="info-top">
-            <h1>Agregar garage</h1>
+            <h1>Crear garage propio</h1>
             <span>La dirección se toma de la sede seleccionada y el garage queda reservado para esa sede.</span>
           </div>
         </header>
 
         {loadingData ? <p className="garage-propio-feedback" role="status">Cargando sedes y garages…</p> : null}
-        {!loadingData && !error && sedes.length === 0 ? (
+        {!loadingData && !loadError && sedes.length === 0 ? (
           isSedeAdmin(usuario) ? (
             <EmptyState
               icon={MapPin}
@@ -283,6 +286,18 @@ export default function AgregarGaragePropio() {
           <FormularioPreciosGarage values={formData} onChange={handleChange} disabled={loadingData || submitting || !selectedSede || sedeYaTieneGarage} integerOnly />
         </div>
 
+        {loadError ? (
+          <div className="garage-propio-alert" role="alert">
+            <p>{loadError}</p>
+            <button
+              type="button"
+              className="garage-propio-retry"
+              onClick={() => { setLoadError(''); setLoadingData(true); setReloadKey((key) => key + 1); }}
+            >
+              Reintentar
+            </button>
+          </div>
+        ) : null}
         {error ? <p className="garage-propio-alert" role="alert">{error}</p> : null}
         <div className="acciones-garage">
           <BotonGenerico className="btn-guardar-grande" onClick={handleSubmit} disabled={submitDisabled}>

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, CirclePlus, MapPinned, BarChart3 } from "lucide-react";
+import { ArrowLeft, CirclePlus, MapPinned, BarChart3, AlertTriangle, RefreshCw } from "lucide-react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 
@@ -114,6 +114,8 @@ const GarageActionSkeleton = () => (
 function SuperadminGestionGarages() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [reintento, setReintento] = useState(0);
   const [garages, setGarages] = useState([]);
   const [empresas, setEmpresas] = useState([]);
   const [tratos, setTratos] = useState([]);
@@ -124,31 +126,39 @@ function SuperadminGestionGarages() {
 
     const loadData = async () => {
       setLoading(true);
+      setError(false);
 
-      const [garagesRes, empresasRes, tratosRes] = await Promise.all([
-        GaragesGetAll(),
-        EmpresasGetAll(),
-        TratosGetAll(),
-      ]);
+      try {
+        const [garagesRes, empresasRes, tratosRes] = await Promise.all([
+          GaragesGetAll(),
+          EmpresasGetAll(),
+          TratosGetAll(),
+        ]);
 
-      if (!mounted) return;
+        if (!mounted) return;
 
-      if (garagesRes.respuesta) {
-        setGarages(obtenerListado(garagesRes.datos));
+        if (garagesRes.respuesta) {
+          setGarages(obtenerListado(garagesRes.datos));
+        } else {
+          setError(true);
+        }
+        if (empresasRes.respuesta) {
+          setEmpresas(obtenerListado(empresasRes.datos));
+        }
+        if (tratosRes.respuesta) {
+          setTratos(obtenerListado(tratosRes.datos));
+        }
+      } catch (err) {
+        console.error("Error loading garages:", err);
+        if (mounted) setError(true);
+      } finally {
+        if (mounted) setLoading(false);
       }
-      if (empresasRes.respuesta) {
-        setEmpresas(obtenerListado(empresasRes.datos));
-      }
-      if (tratosRes.respuesta) {
-        setTratos(obtenerListado(tratosRes.datos));
-      }
-
-      setLoading(false);
     };
 
     loadData();
     return () => { mounted = false; };
-  }, []);
+  }, [reintento]);
 
   const relacionesPorGarage = new Map();
   tratos.forEach((trato) => {
@@ -215,8 +225,8 @@ function SuperadminGestionGarages() {
         ) : (
           <>
             <div className="gestion-garages-top superadmin-stagger-title">
-              <button className="boton-back" onClick={() => navigate("/superadmin_dashboard")}>
-                <ArrowLeft size={20} />
+              <button type="button" className="boton-back" aria-label="Volver" onClick={() => navigate("/superadmin_dashboard")}>
+                <ArrowLeft size={20} aria-hidden="true" focusable="false" />
               </button>
               <div>
                 <p className="pGarageSuperAdmin">CONTROL DE GARAGES</p>
@@ -224,6 +234,24 @@ function SuperadminGestionGarages() {
               </div>
             </div>
 
+            {error ? (
+              <div className="superadmin-stats-error" role="alert">
+                <AlertTriangle className="superadmin-stats-error-icon" size={22} aria-hidden="true" focusable="false" />
+                <div className="superadmin-stats-error-texto">
+                  <p className="superadmin-stats-error-titulo">No pudimos cargar los garages</p>
+                  <p className="superadmin-stats-error-desc">Revisá tu conexión y volvé a intentar.</p>
+                </div>
+                <button
+                  type="button"
+                  className="superadmin-cache-link"
+                  onClick={() => setReintento((n) => n + 1)}
+                >
+                  <RefreshCw size={16} aria-hidden="true" focusable="false" />
+                  Reintentar
+                </button>
+              </div>
+            ) : (
+            <>
             <section className="garages-actions superadmin-stagger-stat">
               <button
                 className="btn-nueva-zona-superAdmin"
@@ -320,7 +348,7 @@ function SuperadminGestionGarages() {
                   <EmptyState
                     icon={MapPinned}
                     title="No hay garages registrados."
-                    description="Creá el primer garage para que las empresas puedan contratar cocheras."
+                    description="Creá el primer garage para que las empresas puedan contratar plazas."
                     action={{ label: "Crear garage", icon: CirclePlus, onClick: () => navigate("/agregar_zona") }}
                   />
                 )
@@ -336,7 +364,6 @@ function SuperadminGestionGarages() {
                       estado={obtenerEstadoGarage(garage.estado)}
                       capacidad={obtenerCapacidadPorcentaje(garage)}
                       dias={garage.dias}
-                      ultimoReporte={garage.piso ? `Nivel ${garage.piso}` : "Sin nivel"}
                       imagen={imagenesGarage[index % imagenesGarage.length]}
                       relaciones={garage._relaciones}
                       onClick={() => navigate("/editar_zona", { state: { garage } })}
@@ -345,6 +372,8 @@ function SuperadminGestionGarages() {
                 </div>
               )}
             </section>
+            </>
+            )}
           </>
         )}
       </div>

@@ -1,6 +1,7 @@
 import { normalizeReservaDateTime, formatReservaDate, mergeReservaEdit } from '../helpers/reservaDateTime';
 import { useState, useCallback } from "react";
 import Swal from "sweetalert2";
+import { X } from "lucide-react";
 import { Z_INDEX } from "../helpers/zIndex";
 import { ReservasUpdate, ReservasCancel } from "../servicies/API_Reserva";
 import ModalPortal from "../componentesCompartidos/ModalPortal";
@@ -35,7 +36,7 @@ function ModalEditarReserva({ reservaRaw, reservaNorm, onClose, onActualizada, o
 
   const formData = { horaInicio, horaFin };
   const validationSchema = getSchema();
-  const { isValid, touched, touch } = useLiveValidation(formData, validationSchema);
+  const { isValid, touched, touch, touchAll } = useLiveValidation(formData, validationSchema);
 
   const buildConditions = (fieldName) => {
     if (!validationSchema[fieldName]) return [];
@@ -51,7 +52,9 @@ function ModalEditarReserva({ reservaRaw, reservaNorm, onClose, onActualizada, o
 
   const handleGuardar = useCallback(async () => {
     if (!isValid) {
-      setError("Corrige los errores antes de guardar.");
+      // Sin return silencioso: se marcan los campos tocados y se muestra el error.
+      touchAll();
+      setError("Corregí los errores antes de guardar.");
       return;
     }
 
@@ -86,21 +89,21 @@ function ModalEditarReserva({ reservaRaw, reservaNorm, onClose, onActualizada, o
       });
       onActualizada(actualizada);
     } else {
-      setError(resultado.datos?.message || "No se pudo actualizar la reserva. Intenta de nuevo.");
+      setError(resultado.datos?.message || "No se pudo actualizar la reserva. Intentá de nuevo.");
     }
-  }, [horaInicio, horaFin, fechaBase, time.fecha_salida, reservaRaw, onActualizada, isValid]);
+  }, [horaInicio, horaFin, fechaBase, time.fecha_salida, reservaRaw, onActualizada, isValid, touchAll]);
 
   const handleEliminar = useCallback(async () => {
     onClose();
 
     const confirmacion = await Swal.fire({
       title: "Cancelar reserva",
-      text: "Esta accion no se puede deshacer.",
+      text: "Esta acción no se puede deshacer.",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#dc2626",
       cancelButtonColor: "#64748b",
-      confirmButtonText: "Si, cancelar",
+      confirmButtonText: "Sí, cancelar",
       cancelButtonText: "Volver",
       zIndex: Z_INDEX.SWAL_DIALOG,
     });
@@ -121,7 +124,7 @@ function ModalEditarReserva({ reservaRaw, reservaNorm, onClose, onActualizada, o
       });
       onEliminada(idReserva);
     } else {
-      setError("No se pudo cancelar la reserva. Intenta de nuevo.");
+      setError("No se pudo cancelar la reserva. Intentá de nuevo.");
     }
   }, [reservaRaw, onEliminada, onClose]);
 
@@ -130,11 +133,17 @@ function ModalEditarReserva({ reservaRaw, reservaNorm, onClose, onActualizada, o
 
   return (
     <ModalPortal onClose={onClose}>
-      <div className="modal-reserva-panel" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="modal-reserva-panel"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Editar reserva"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="modal-reserva-header">
           <h2>Detalle de reserva</h2>
           <button type="button" className="modal-reserva-close" onClick={onClose} aria-label="Cerrar">
-            &#x2715;
+            <X size={20} aria-hidden="true" />
           </button>
         </div>
 
@@ -150,8 +159,12 @@ function ModalEditarReserva({ reservaRaw, reservaNorm, onClose, onActualizada, o
           </div>
 
           <div className="modal-reserva-field">
-            <span className="modal-reserva-field-label">Vehiculo</span>
-            <span className="modal-reserva-field-value">{reservaNorm?.plaza || "—"}</span>
+            <span className="modal-reserva-field-label">Vehículo</span>
+            <span className="modal-reserva-field-value">
+              {reservaNorm?.vehiculo
+                ? [reservaNorm.vehiculo.marca, reservaNorm.vehiculo.modelo, reservaNorm.vehiculo.patente].filter(Boolean).join(" · ")
+                : "—"}
+            </span>
           </div>
 
           <div className="modal-reserva-divider" />

@@ -13,7 +13,7 @@ import {
   Clock,
   Layers,
   CheckCircle2,
-  WifiOff,
+  PowerOff,
   Save,
   X,
   PersonStanding,
@@ -420,8 +420,9 @@ function EditarZona() {
             </div>
 
             <div className="campo-formulario">
-              <label>Nombre del garage</label>
+              <label htmlFor="editar-zona-nombre">Nombre del garage</label>
               <input
+                id="editar-zona-nombre"
                 type="text"
                 placeholder="Garage B, Exterior Norte"
                 value={nombreGarage}
@@ -433,8 +434,9 @@ function EditarZona() {
             </div>
 
             <div className="campo-formulario">
-              <label>Nivel / Planta</label>
+              <label htmlFor="editar-zona-piso">Nivel / Planta</label>
               <input
+                id="editar-zona-piso"
                 type="text"
                 value={piso}
                 onChange={(e) => { setPiso(e.target.value); touch("piso"); }}
@@ -446,13 +448,14 @@ function EditarZona() {
             </div>
 
             <div className="campo-formulario">
-              <label>Ubicación</label>
+              <label htmlFor="editar-zona-ubicacion">Ubicación</label>
               {isLoaded ? (
                 <Autocomplete
                   onLoad={(autocomplete) => { autocompleteRef.current = autocomplete; }}
                   onPlaceChanged={handlePlaceChanged}
                 >
                   <input
+                    id="editar-zona-ubicacion"
                     type="text"
                     placeholder="Ubicación del garage"
                     value={ubicacion}
@@ -463,6 +466,7 @@ function EditarZona() {
                 </Autocomplete>
               ) : (
                 <input
+                  id="editar-zona-ubicacion"
                   type="text"
                   placeholder="Ubicación del garage"
                   value={ubicacion}
@@ -485,12 +489,13 @@ function EditarZona() {
 
             <div className="horario-grid">
               <div className="horario-field">
-                <label className="horario-label">
-                  <Clock size={14} />
+                <label className="horario-label" htmlFor="editar-zona-apertura">
+                  <Clock size={14} aria-hidden="true" />
                   Hora de apertura
                 </label>
                 <div className={`horario-input-wrap ${es24Horas ? 'horario-input-wrap--disabled' : ''}`}>
                   <input
+                    id="editar-zona-apertura"
                     type="time"
                     value={horaApertura}
                     onChange={(e) => {
@@ -510,12 +515,13 @@ function EditarZona() {
               </div>
 
               <div className="horario-field">
-                <label className="horario-label">
-                  <Clock size={14} />
+                <label className="horario-label" htmlFor="editar-zona-cierre">
+                  <Clock size={14} aria-hidden="true" />
                   Hora de cierre
                 </label>
                 <div className={`horario-input-wrap ${es24Horas ? 'horario-input-wrap--disabled' : ''}`}>
                   <input
+                    id="editar-zona-cierre"
                     type="time"
                     value={horaCierre}
                     onChange={(e) => {
@@ -583,9 +589,9 @@ function EditarZona() {
                 className={`estado-btn estado-desconectado ${!estadoActivo ? "activo" : ""}`}
                 onClick={() => setEstadoActivo(false)}
               >
-                <WifiOff size={21} />
+                <PowerOff size={21} aria-hidden="true" />
                 <strong>Inactivo</strong>
-                <span>Sin conexión</span>
+                <span>Garage cerrado</span>
               </button>
             </div>
           </section>

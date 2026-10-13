@@ -11,6 +11,8 @@ import { GaragesCreate } from "../servicies/API_Garage";
 import useLiveValidation from "../hooks/useLiveValidation";
 import FormularioPreciosGarage from "../componentesCompartidos/FormularioPreciosGarage";
 import { buildGaragePricesPayload } from "../helpers/prices";
+import { mensajeToast } from "../helpers/erroresMensajes";
+import { showToast } from "../helpers/toast";
 
 function AgregarZona() {
   const navigate = useNavigate();
@@ -89,7 +91,7 @@ function AgregarZona() {
     ],
   });
 
-  const { isValid, touched, handleChangeWithTouch } = useLiveValidation(formData, getSchema());
+  const { isValid, touched, handleChangeWithTouch, touchAll } = useLiveValidation(formData, getSchema());
 
   const buildConditions = (fieldName) => {
     const schema = getSchema();
@@ -130,7 +132,8 @@ function AgregarZona() {
     }
 
     if (!isValid) {
-      setError("❌ Corrige los errores antes de guardar.");
+      touchAll();
+      setError("Corregí los campos marcados antes de guardar.");
       return;
     }
 
@@ -169,12 +172,22 @@ function AgregarZona() {
     setLoading(false);
 
     if (response.respuesta) {
+      showToast("Garage creado correctamente", "success");
       navigate("/superadmin/gestion_garages", { replace: true });
     } else {
-      const errorMsg = response.datos?.message || response.datos || 'Error desconocido al conectar con la BD.';
-      setError(`❌ Error al crear garage: ${typeof errorMsg === 'string' ? errorMsg : JSON.stringify(errorMsg)}`);
+      const errorMsg = response.datos?.message || response.datos;
+      setError(`No pudimos crear el garage: ${mensajeToast(errorMsg)}`);
     }
   };
+
+  // Motivo visible cuando la creación todavía no está disponible
+  const motivoDeshabilitado = cargandoUsuarios
+    ? "Estamos cargando los usuarios para que elijas un dueño."
+    : errorUsuarios
+      ? "No pudimos cargar los usuarios. Reintentá para poder elegir un dueño."
+      : !idDueno
+        ? "Seleccioná un dueño antes de crear el garage."
+        : "";
 
   return (
     <div className="agregar-zona">
@@ -182,12 +195,11 @@ function AgregarZona() {
 
       <div className="contenido-agregar-zona">
         <div className="top-garage">
-          <button className="boton-back" onClick={() => navigate("/superadmin/gestion_garages", { replace: true })}>
-            <ArrowLeft size={24} />
+          <button className="boton-back" onClick={() => navigate("/superadmin/gestion_garages", { replace: true })} aria-label="Volver">
+            <ArrowLeft size={24} aria-hidden="true" />
           </button>
 
           <div className="info-top">
-            <p>AGREGAR GARAGE</p>
             <h1>Nuevo Garage</h1>
             <span>Configura los detalles de la nueva zona de estacionamiento.</span>
           </div>
@@ -237,15 +249,15 @@ function AgregarZona() {
           <FormularioPreciosGarage values={formData} onChange={handleChange} disabled={loading} />
         </div>
 
-        {error && <p className="form-error" style={{ color: '#d32f2f', padding: '12px', marginBottom: '16px', backgroundColor: '#ffebee', borderRadius: '4px', fontWeight: 'bold' }}>{error}</p>}
+        {error && <p className="form-error" role="alert">{error}</p>}
 
         <div className="acciones-garage">
           <BotonGenerico
             className="btn-guardar-grande"
             onClick={handleCrearZona}
-            disabled={loading || cargandoUsuarios || Boolean(errorUsuarios) || !idDueno}
+            disabled={loading || cargandoUsuarios}
           >
-            <CirclePlus size={22} />
+            <CirclePlus size={22} aria-hidden="true" />
             <span>{loading ? "Creando..." : "Crear Garage"}</span>
           </BotonGenerico>
 
@@ -256,6 +268,9 @@ function AgregarZona() {
             <span>Cancelar</span>
           </BotonGenerico>
         </div>
+        {motivoDeshabilitado && (
+          <p className="garage-boton-motivo" role="status">{motivoDeshabilitado}</p>
+        )}
       </div>
     </div>
   );

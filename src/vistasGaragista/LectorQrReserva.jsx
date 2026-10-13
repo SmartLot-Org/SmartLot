@@ -121,7 +121,7 @@ export default function LectorQrReserva({ tipo = "ingreso", onClose, onIngresoEx
     <ModalPortal onClose={onClose} overlayClassName="lector-qr-overlay">
       <section className="lector-qr-modal" role="dialog" aria-modal="true" aria-labelledby="lector-qr-title" onClick={(event) => event.stopPropagation()}>
         <div className="lector-qr-header">
-          <div><span>Control de acceso</span><h2 id="lector-qr-title">Escanear QR de {tipo}</h2></div>
+          <div><h2 id="lector-qr-title">Escanear QR de {tipo}</h2></div>
           <button type="button" className="lector-qr-close" onClick={onClose} aria-label="Cerrar lector QR"><X size={20} /></button>
         </div>
         <p className="lector-qr-help">Apuntá la cámara al código que muestra el empleado para registrar {tipo === "salida" ? "su salida" : "su ingreso"}.</p>

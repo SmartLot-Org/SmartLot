@@ -614,3 +614,41 @@
     padding-inline: 11px;
   }
 }
+
+.resv-btn-actualizar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 16px;
+  border: none;
+  border-radius: 12px;
+  background: #1A2744;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.resv-btn-actualizar:hover:not(:disabled) {
+  background: #0F1A2E;
+}
+
+.resv-btn-actualizar:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.resv-btn-actualizar:focus-visible {
+  outline: 3px solid rgba(59, 130, 246, 0.25);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .resv-refresh-girando {
+    animation: none;
+  }
+}

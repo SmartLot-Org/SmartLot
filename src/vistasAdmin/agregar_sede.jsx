@@ -11,6 +11,7 @@ import useLiveValidation from "../hooks/useLiveValidation";
 import FieldValidation from "../components/FieldValidation";
 import { useAuth } from "../contexts/useAuth";
 import { useGoogleMaps } from "../contexts/useGoogleMaps";
+import { showToast } from "../helpers/toast";
 
 const validationSchema = {
   nombre: [
@@ -64,7 +65,7 @@ function AgregarSedeAdmin() {
     }
   };
 
-  const { isValid, touched, getFieldProps } = useLiveValidation(formData, validationSchema);
+  const { isValid, touched, getFieldProps, touchAll } = useLiveValidation(formData, validationSchema);
   const field = (name) => getFieldProps(name, setFormData);
 
   const buildConditions = (fieldName) => {
@@ -102,7 +103,11 @@ function AgregarSedeAdmin() {
   const handleGuardar = async () => {
     setError("");
 
-    if (!isValid) return;
+    if (!isValid) {
+      touchAll();
+      setError("Corregí los campos marcados antes de guardar.");
+      return;
+    }
     if (!usuario?.id_empresa) {
       setError("Tu usuario no tiene una empresa asociada.");
       return;
@@ -120,10 +125,11 @@ function AgregarSedeAdmin() {
     });
 
     if (response.respuesta) {
+      showToast("Sede creada correctamente", "success");
       navigate("/gestion_sedes", { replace: true });
     } else {
       setLoading(false);
-      setError(response.datos?.message || "Error al crear la sede.");
+      setError(response.datos?.message || "No pudimos crear la sede. Revisá los datos e intentá de nuevo.");
     }
   };
 
@@ -136,8 +142,7 @@ function AgregarSedeAdmin() {
             <ArrowLeft size={20} />
           </button>
           <div>
-            <p>PANEL DE ADMINISTRACIÓN</p>
-            <h1>Agregar Sede</h1>
+            <h1>Agregar sede</h1>
           </div>
         </div>
 
@@ -151,8 +156,9 @@ function AgregarSedeAdmin() {
             </div>
 
             <div className="input-group-sede-admin">
-              <label>Nombre de la sede</label>
+              <label htmlFor="agregar-sede-nombre">Nombre de la sede</label>
               <input
+                id="agregar-sede-nombre"
                 type="text"
                 placeholder="Ej: Sede Central"
                 {...field("nombre")}
@@ -163,8 +169,9 @@ function AgregarSedeAdmin() {
             </div>
 
             <div className="input-group-sede-admin">
-              <label>Descripción</label>
+              <label htmlFor="agregar-sede-descripcion">Descripción</label>
               <textarea
+                id="agregar-sede-descripcion"
                 placeholder="Descripción de la sede (opcional)"
                 value={formData.descripcion}
                 onChange={(e) => setFormData((prev) => ({ ...prev, descripcion: e.target.value }))}
@@ -174,13 +181,14 @@ function AgregarSedeAdmin() {
             </div>
 
             <div className="input-group-sede-admin">
-              <label>Ubicación</label>
+              <label htmlFor="agregar-sede-ubicacion">Ubicación</label>
               {isLoaded ? (
                 <Autocomplete
                   onLoad={(autocomplete) => { autocompleteRef.current = autocomplete; }}
                   onPlaceChanged={handlePlaceChanged}
                 >
                   <input
+                    id="agregar-sede-ubicacion"
                     type="text"
                     placeholder="Ej: Av. Corrientes 1234, CABA"
                     value={formData.ubicacion}
@@ -191,6 +199,7 @@ function AgregarSedeAdmin() {
                 </Autocomplete>
               ) : (
                 <input
+                  id="agregar-sede-ubicacion"
                   type="text"
                   placeholder="Ej: Av. Corrientes 1234, CABA"
                   value={formData.ubicacion}
@@ -209,7 +218,7 @@ function AgregarSedeAdmin() {
                 onClick={handleGuardar}
                 disabled={loading}
               >
-                <CircleCheck size={20} color="white" />
+                <CircleCheck size={20} aria-hidden="true" />
                 <span>{loading ? "Guardando..." : "Guardar sede"}</span>
               </BotonGenerico>
 

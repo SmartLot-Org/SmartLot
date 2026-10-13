@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Clock3, Database, RefreshCw, Trash2 } from "lucide-react";
+import { AlertTriangle, ArrowLeft, CheckCircle2, Clock3, Database, RefreshCw, Trash2 } from "lucide-react";
+import Swal from "sweetalert2";
 
 import "./superadmin_cache.css";
 import HeaderSuperadmin from "../componentesSuperadmin/header_superadmin";
@@ -16,6 +17,7 @@ import { VehiculosGetAll } from "../servicies/API_Vehiculo";
 import { MarcasGetAll } from "../servicies/API_Marca";
 import { ModelosGetAll } from "../servicies/API_Modelo";
 import { RolesGetAll } from "../servicies/API_Rol";
+import { Z_INDEX } from "../helpers/zIndex";
 
 const CACHE_LABELS = {
   usuarios: "Usuarios",
@@ -44,13 +46,13 @@ export default function SuperadminCache() {
   const navigate = useNavigate();
   const [entries, setEntries] = useState(() => getCacheEntries());
   const [actualizando, setActualizando] = useState(false);
-  const [mensaje, setMensaje] = useState("");
+  const [mensaje, setMensaje] = useState(null);
 
   const sincronizarVista = () => setEntries(getCacheEntries());
 
   const actualizarCache = async () => {
     setActualizando(true);
-    setMensaje("");
+    setMensaje(null);
     clearCache();
 
     try {
@@ -65,21 +67,22 @@ export default function SuperadminCache() {
         ModelosGetAll({ force: true }),
         RolesGetAll({ force: true }),
       ]);
-      setMensaje("La caché se actualizó correctamente.");
+      setMensaje({ texto: "La caché se actualizó correctamente.", tipo: "exito" });
     } catch (error) {
       console.error("Error updating system cache:", error);
-      setMensaje("Algunos datos no pudieron actualizarse. Intentá nuevamente.");
+      setMensaje({ texto: "Algunos datos no pudieron actualizarse. Intentá nuevamente.", tipo: "error" });
     } finally {
       sincronizarVista();
       setActualizando(false);
     }
   };
 
-  const borrarCache = () => {
-    if (!window.confirm("¿Querés borrar toda la caché de datos? Tu sesión seguirá abierta.")) return;
+  const borrarCache = async () => {
+    const result = await Swal.fire({ title: "¿Querés borrar toda la caché?", text: "Se van a vaciar los datos temporales. Tu sesión va a seguir abierta.", icon: "warning", showCancelButton: true, confirmButtonColor: "#EF4444", confirmButtonText: "Sí, borrar", cancelButtonText: "Cancelar", reverseButtons: true, zIndex: Z_INDEX.SWAL_DIALOG });
+    if (!result.isConfirmed) return;
     clearCache();
     sincronizarVista();
-    setMensaje("Caché borrada correctamente.");
+    setMensaje({ texto: "Caché borrada correctamente.", tipo: "exito" });
   };
 
   const stats = getCacheStats();
@@ -94,7 +97,6 @@ export default function SuperadminCache() {
               <ArrowLeft size={19} />
             </button>
             <div>
-              <span className="cache-eyebrow">Mantenimiento del sistema</span>
               <h1>Administración de caché</h1>
               <p>Consultá y renová los datos temporales utilizados por SmartLot.</p>
             </div>
@@ -117,7 +119,14 @@ export default function SuperadminCache() {
           <div><span>Solicitudes pendientes</span><strong>{stats.pendingRequests}</strong></div>
         </section>
 
-        {mensaje ? <p className="cache-message" role="status" aria-live="polite">{mensaje}</p> : null}
+        {mensaje ? (
+          <p className={`cache-message ${mensaje.tipo === "error" ? "cache-message--error" : ""}`} role={mensaje.tipo === "error" ? "alert" : "status"}>
+            {mensaje.tipo === "error"
+              ? <AlertTriangle size={16} aria-hidden="true" focusable="false" />
+              : <CheckCircle2 size={16} aria-hidden="true" focusable="false" />}
+            <span>{mensaje.texto}</span>
+          </p>
+        ) : null}
 
         <section className="cache-content" aria-labelledby="cache-grid-title">
           <div className="cache-section-heading">
@@ -129,24 +138,25 @@ export default function SuperadminCache() {
           </div>
 
           {entries.length > 0 ? (
-            <div className="cache-grid">
+            <ul className="cache-lista">
               {entries.map((entry) => (
-                <article className="cache-card" key={entry.key}>
-                  <div className="cache-card-top">
-                    <span className="cache-card-icon"><Database size={18} /></span>
+                <li className="cache-item" key={entry.key}>
+                  <div className="cache-item-main">
+                    <h3>{obtenerTipo(entry.key)}</h3>
+                    <code>{entry.key}</code>
+                  </div>
+                  <div className="cache-item-meta">
                     <span className={`cache-status ${entry.expired ? "cache-status--expired" : ""}`}>
                       {entry.expired ? "Vencida" : "Activa"}
                     </span>
+                    <span className="cache-expiry">
+                      <Clock3 size={14} aria-hidden="true" focusable="false" />
+                      <span>Vence en {formatearDuracion(entry.remainingMs)}</span>
+                    </span>
                   </div>
-                  <h3>{obtenerTipo(entry.key)}</h3>
-                  <code>{entry.key}</code>
-                  <div className="cache-expiry">
-                    <Clock3 size={14} />
-                    <span>Vence en {formatearDuracion(entry.remainingMs)}</span>
-                  </div>
-                </article>
+                </li>
               ))}
-            </div>
+            </ul>
           ) : (
             <EmptyState
               icon={Database}

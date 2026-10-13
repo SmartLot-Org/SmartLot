@@ -186,7 +186,7 @@ const ReservasTableSkeleton = ({ rows = 6 }) => (
       <thead>
         <tr>
           <th>Usuario</th>
-          <th>Vehiculo</th>
+          <th>Vehículo</th>
           <th>Garage</th>
           <th>Empresa / Sede</th>
           <th>Fecha</th>
@@ -456,7 +456,7 @@ export default function SuperadminReservas() {
           </div>
           <div className="resv-header-actions">
             <BotonGenerico
-              className="btn-archivados"
+              className="resv-btn-actualizar"
               onClick={handleRefrescar}
               disabled={refrescando}
             >
@@ -468,19 +468,19 @@ export default function SuperadminReservas() {
 
         {!loading && (
           <section className="resv-stats">
-            <div className="resv-stat-card resv-animate-stat" style={{ borderTop: "3px solid #3B82F6" }}>
+            <div className="resv-stat-card resv-animate-stat">
               <span className="resv-stat-label">Reservas mostradas</span>
               <span className="resv-stat-valor">{stats.total}</span>
             </div>
-            <div className="resv-stat-card resv-animate-stat" style={{ borderTop: "3px solid #F59E0B" }}>
+            <div className="resv-stat-card resv-animate-stat">
               <span className="resv-stat-label">Hoy</span>
               <span className="resv-stat-valor">{stats.hoy}</span>
             </div>
-            <div className="resv-stat-card resv-animate-stat" style={{ borderTop: "3px solid #10B981" }}>
+            <div className="resv-stat-card resv-animate-stat">
               <span className="resv-stat-label">Dentro del garage</span>
               <span className="resv-stat-valor">{stats.dentro}</span>
             </div>
-            <div className="resv-stat-card resv-animate-stat" style={{ borderTop: "3px solid #8B5CF6" }}>
+            <div className="resv-stat-card resv-animate-stat">
               <span className="resv-stat-label">Programadas</span>
               <span className="resv-stat-valor">{stats.programadas}</span>
             </div>
@@ -504,17 +504,19 @@ export default function SuperadminReservas() {
                   <input
                     type="text"
                     placeholder="Buscar por usuario, patente, garage, sede o empresa..."
+                    aria-label="Buscar por usuario, patente, garage, sede o empresa"
                     value={busqueda}
                     onChange={(e) => setBusqueda(e.target.value)}
                   />
                 </div>
 
                 <div className="resv-filtro-campo">
-                  <label>
-                    <CalendarDays size={14} />
-                    Dia
+                  <label htmlFor="resv-filtro-fecha">
+                    <CalendarDays size={14} aria-hidden="true" focusable="false" />
+                    Día
                   </label>
                   <input
+                    id="resv-filtro-fecha"
                     type="date"
                     value={filtroFecha}
                     onChange={(e) => setFiltroFecha(e.target.value)}
@@ -522,12 +524,12 @@ export default function SuperadminReservas() {
                 </div>
 
                 <div className="resv-filtro-campo">
-                  <label>
-                    <Clock3 size={14} />
+                  <label htmlFor="resv-filtro-desde">
+                    <Clock3 size={14} aria-hidden="true" focusable="false" />
                     Desde
                   </label>
                   <div className="resv-select-wrapper">
-                    <select value={filtroHoraDesde} onChange={(e) => setFiltroHoraDesde(e.target.value)}>
+                    <select id="resv-filtro-desde" value={filtroHoraDesde} onChange={(e) => setFiltroHoraDesde(e.target.value)}>
                       <option value="">--:--</option>
                       {HORAS.map((hora) => (
                         <option key={hora} value={hora}>{hora}</option>
@@ -538,12 +540,12 @@ export default function SuperadminReservas() {
                 </div>
 
                 <div className="resv-filtro-campo">
-                  <label>
-                    <Clock3 size={14} />
+                  <label htmlFor="resv-filtro-hasta">
+                    <Clock3 size={14} aria-hidden="true" focusable="false" />
                     Hasta
                   </label>
                   <div className="resv-select-wrapper">
-                    <select value={filtroHoraHasta} onChange={(e) => setFiltroHoraHasta(e.target.value)}>
+                    <select id="resv-filtro-hasta" value={filtroHoraHasta} onChange={(e) => setFiltroHoraHasta(e.target.value)}>
                       <option value="">--:--</option>
                       {HORAS.map((hora) => (
                         <option key={hora} value={hora}>{hora}</option>
@@ -554,9 +556,10 @@ export default function SuperadminReservas() {
                 </div>
 
                 <div className="resv-filtro-campo">
-                  <label>Empresa</label>
+                  <label htmlFor="resv-filtro-empresa">Empresa</label>
                   <div className="resv-select-wrapper">
                     <select
+                      id="resv-filtro-empresa"
                       value={filtroEmpresa}
                       onChange={(e) => {
                         setFiltroEmpresa(e.target.value);
@@ -576,9 +579,10 @@ export default function SuperadminReservas() {
                 </div>
 
                 <div className="resv-filtro-campo">
-                  <label>Sede</label>
+                  <label htmlFor="resv-filtro-sede">Sede</label>
                   <div className="resv-select-wrapper">
                     <select
+                      id="resv-filtro-sede"
                       value={filtroSede}
                       onChange={(e) => {
                         setFiltroSede(e.target.value);
@@ -597,9 +601,9 @@ export default function SuperadminReservas() {
                 </div>
 
                 <div className="resv-filtro-campo">
-                  <label>Garage</label>
+                  <label htmlFor="resv-filtro-garage">Garage</label>
                   <div className="resv-select-wrapper">
-                    <select value={filtroGarage} onChange={(e) => setFiltroGarage(e.target.value)}>
+                    <select id="resv-filtro-garage" value={filtroGarage} onChange={(e) => setFiltroGarage(e.target.value)}>
                       <option value="">Todos</option>
                       {garagesDisponibles.map((garage) => {
                         const idGarage = garage.id_garage ?? garage.id ?? garage._id;
@@ -710,7 +714,7 @@ export default function SuperadminReservas() {
                   <thead>
                     <tr>
                       <th>Usuario</th>
-                      <th>Vehiculo</th>
+                      <th>Vehículo</th>
                       <th>Garage</th>
                       <th>Empresa / Sede</th>
                       <th>Fecha</th>

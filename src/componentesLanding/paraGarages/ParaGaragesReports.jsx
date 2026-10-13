@@ -40,9 +40,6 @@ export default function ParaGaragesReports() {
     <section ref={container} className="relative z-10 bg-transparent px-6 py-20 content-visibility-auto">
       <div className="mx-auto max-w-6xl">
         <div className="mb-12 flex flex-col items-center text-center">
-          <span className="pg-header mb-3 block text-sm font-semibold tracking-[0.2em] text-brand-navy uppercase">
-            Transparencia
-          </span>
           <h2 className="pg-header mb-4 text-brand-warm">El detalle, reserva por reserva</h2>
           <p className="pg-header max-w-2xl text-brand-muted">
             Cada consumo queda registrado para que puedas revisar y respaldar lo generado.

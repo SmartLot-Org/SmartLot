@@ -24,6 +24,12 @@ export default function RegisterField({
 }) {
   const [visible, setVisible] = useState(false);
   const isPassword = type === "password";
+  // La lista de validación se referencia con aria-describedby solo cuando se muestra.
+  const hayErrores = isTouched && conditions.length > 0 && conditions.some((c) => !c.met);
+  const validationId = `${id}-validacion`;
+  const hintId = `${id}-pista`;
+  const describedBy =
+    [hayErrores ? validationId : null, hint ? hintId : null].filter(Boolean).join(" ") || undefined;
 
   if (textarea) {
     return (
@@ -37,11 +43,17 @@ export default function RegisterField({
           value={value}
           onChange={onChange}
           onBlur={onBlur}
+          aria-invalid={hayErrores ? true : undefined}
+          aria-describedby={describedBy}
           className="w-full px-5 py-3.5 bg-brand-surface/70 border border-brand-deep/10 rounded-xl text-brand-warm text-base outline-none transition-all duration-300 ease-out focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/20 resize-y"
           {...rest}
         />
-        <FieldValidation conditions={conditions} isTouched={isTouched} />
-        {hint && <p className="text-xs text-brand-muted mt-1">{hint}</p>}
+        {hayErrores && (
+          <div id={validationId}>
+            <FieldValidation conditions={conditions} isTouched={isTouched} />
+          </div>
+        )}
+        {hint && <p id={hintId} className="text-xs text-brand-muted mt-1">{hint}</p>}
       </div>
     );
   }
@@ -57,6 +69,8 @@ export default function RegisterField({
           onBlur={onBlur}
           placeholder=" "
           autoComplete={autoComplete}
+          aria-invalid={hayErrores ? true : undefined}
+          aria-describedby={describedBy}
           className={`${INPUT_CLASS} ${isPassword ? "pr-12" : ""}`}
           {...rest}
         />
@@ -74,8 +88,12 @@ export default function RegisterField({
           </button>
         )}
       </div>
-      <FieldValidation conditions={conditions} isTouched={isTouched} />
-      {hint && <p className="text-xs text-brand-muted mt-1">{hint}</p>}
+      {hayErrores && (
+        <div id={validationId}>
+          <FieldValidation conditions={conditions} isTouched={isTouched} />
+        </div>
+      )}
+      {hint && <p id={hintId} className="text-xs text-brand-muted mt-1">{hint}</p>}
     </div>
   );
 }

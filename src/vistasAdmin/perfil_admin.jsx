@@ -6,6 +6,7 @@ import { useGSAP } from "@gsap/react";
 import Header from "../componentesAdmin/header_admin";
 import FooterAdmin from "../componentesAdmin/footer_admin";
 import { useAuth } from "../contexts/useAuth";
+import { isEmpresaAdmin, isSedeAdmin, getUserRoleLabel } from "../helpers/roles";
 import { obtenerSuperadminBackup, eliminarSuperadminBackup, eliminarUsuarioImpersonado } from "../helpers/superadminSession";
 import { clearCache } from "../cache/cacheStore";
 import apiClient from "../api/client";
@@ -34,8 +35,17 @@ export default function PerfilAdmin() {
     }
   }, [usuario]);
 
+  // El badge refleja el rol real: admin de empresa, admin de sede u otro rol
+  const rolLabel = isEmpresaAdmin(usuario)
+    ? "Administrador de empresa"
+    : isSedeAdmin(usuario)
+      ? "Administrador de sede"
+      : getUserRoleLabel(usuario);
+
   useGSAP(() => {
     if (loading || !usuario) return;
+    // Respetamos prefers-reduced-motion: sin entradas animadas
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
     tl.fromTo(".animate-back-admin", { opacity: 0, x: -15 }, { opacity: 1, x: 0, duration: 0.4 })
       .fromTo(".textosTitulosPerfilAdmin", { opacity: 0, y: -20 }, { opacity: 1, y: 0, duration: 0.5 }, "-=0.2")
@@ -93,8 +103,8 @@ export default function PerfilAdmin() {
               <header className="textosTitulosPerfilAdmin">
                 <h1>Mi Perfil</h1>
                 <div className="admin-role-badge">
-                  <Shield size={13} />
-                  <span>Administrador de Sede</span>
+                  <Shield size={13} aria-hidden="true" />
+                  <span>{rolLabel}</span>
                 </div>
               </header>
             </div>
@@ -109,7 +119,7 @@ export default function PerfilAdmin() {
                   <div className="security-badge-icon">
                     <ShieldAlert size={20} />
                   </div>
-                  <h3>Estado de Credenciales</h3>
+                  <h2>Estado de Credenciales</h2>
                 </div>
 
                 <div className="security-status-indicators">
@@ -158,24 +168,15 @@ function InfoPersonalDisplay({ data }) {
 
   return (
     <div>
-      <h3 style={{ margin: "0 0 1.25rem", color: "#1e293b", textAlign: "left", fontSize: "1.05rem", fontWeight: 700 }}>
+      <h2 className="perfil-info-titulo">
         Información Personal
-      </h3>
+      </h2>
       {fields.map((f) => (
-        <div
-          key={f.label}
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            padding: "0.6rem 0",
-            borderBottom: "1px solid #f1f5f9",
-          }}
-        >
-          <span style={{ color: "#64748b", fontWeight: 600, fontSize: "0.8rem", textTransform: "uppercase" }}>
+        <div key={f.label} className="perfil-info-fila">
+          <span className="perfil-info-label">
             {f.label}
           </span>
-          <span style={{ color: "#1e293b", fontWeight: 600, fontSize: "0.95rem" }}>
+          <span className="perfil-info-valor">
             {f.value || "—"}
           </span>
         </div>

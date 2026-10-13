@@ -12,12 +12,14 @@ function HeaderDueñoGarage() {
       <header className="duenio-header">
         <div className="duenio-header-left">
           <div className="duenio-logo-smartlot">
-            <img
+            <button
+              type="button"
               onClick={() => navigate("/duenio-garage/dashboard")}
-              src={logo}
-              alt="logo SmartLot"
-              style={{ cursor: "pointer" }}
-            />
+              aria-label="Ir al panel principal"
+              className="inline-flex rounded-lg cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue"
+            >
+              <img src={logo} alt="logo SmartLot" />
+            </button>
           </div>
         </div>
 

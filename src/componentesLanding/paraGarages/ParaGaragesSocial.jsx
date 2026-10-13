@@ -33,13 +33,13 @@ export default function ParaGaragesSocial() {
     <section ref={container} className="relative z-10 bg-transparent px-6 py-20 content-visibility-auto">
       <div className="mx-auto max-w-6xl">
         <div className="mb-12 flex flex-col items-center text-center">
-          <span className="pg-header mb-3 block text-sm font-semibold tracking-[0.2em] text-brand-navy uppercase">
-            Casos
-          </span>
           <h2 className="pg-header mb-4 text-brand-warm">Dueños que ya aparecen en el mapa</h2>
           <p className="pg-header max-w-2xl text-brand-muted">
             Relatos de dueños que publicaron sus plazas y empezaron a recibir solicitudes de empresas.
           </p>
+          <span className="mt-4 inline-flex items-center rounded-full border border-brand-deep/10 bg-brand-surface px-2.5 py-1 text-[11px] font-medium uppercase tracking-wider text-brand-muted">
+            Datos de ejemplo
+          </span>
         </div>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">

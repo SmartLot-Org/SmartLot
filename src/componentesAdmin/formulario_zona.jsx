@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import { Autocomplete } from '@react-google-maps/api';
+import { ChevronDown } from 'lucide-react';
 import "./formulario_zona.css";
 import FieldValidation from "../components/FieldValidation";
 import SelectorDiasOperativos from "./selector_dias_operativos";
@@ -33,24 +34,60 @@ function FormularioZona({
   };
 
     const [isOpenSede, setIsOpenSede] = useState(false);
+    const [indiceResaltado, setIndiceResaltado] = useState(-1);
     const [es24Horas, setEs24Horas] = useState(false);
     const aperturaRef = useRef(null);
     const cierreRef = useRef(null);
+    const triggerSedeRef = useRef(null);
+    const LISTBOX_SEDE_ID = 'zona-sede-listbox';
 
     const getDisplayName = (item) => item?.nombre || item?.name || item?.descripcion || item?.tipo || '';
+
+    const seleccionarSede = (sede) => {
+        onChange('id_sede', Number(sede.id));
+        setIsOpenSede(false);
+        setIndiceResaltado(-1);
+        triggerSedeRef.current?.focus();
+    };
+
+    // El foco se queda en el disparador y aria-activedescendant marca la opción activa.
+    const manejarTecladoSede = (e) => {
+        if (e.key === 'Escape') {
+            setIsOpenSede(false);
+            setIndiceResaltado(-1);
+            return;
+        }
+        if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+            e.preventDefault();
+            if (!isOpenSede) {
+                setIsOpenSede(true);
+                setIndiceResaltado(0);
+                return;
+            }
+            if (!sedes.length) return;
+            const delta = e.key === 'ArrowDown' ? 1 : -1;
+            setIndiceResaltado((i) => (i + delta + sedes.length) % sedes.length);
+            return;
+        }
+        if ((e.key === 'Enter' || e.key === ' ') && isOpenSede && indiceResaltado >= 0 && sedes[indiceResaltado]) {
+            e.preventDefault();
+            seleccionarSede(sedes[indiceResaltado]);
+        }
+    };
 
     return (
         <div className="formulario-zona">
             <div className="header-formulario-zona">
-                <h3>Informacion General</h3>
+                <h3>Información general</h3>
                 <p>
-                    Define la identidad y ubicacion del nuevo garage.
+                    Definí la identidad y la ubicación del garage.
                 </p>
             </div>
 
             <div className="bloque-formulario-zona">
                 <div className="input-group">
                 <input
+                    id="zona-nombre"
                     type="text"
                     placeholder=" "
                     value={formData.nombre || ''}
@@ -58,7 +95,7 @@ function FormularioZona({
                     autoComplete="off"
                     required
                 />
-                    <label>Nombre del garage</label>
+                    <label htmlFor="zona-nombre">Nombre del garage</label>
                     {fieldsValidation.nombre && (
                       <FieldValidation conditions={fieldsValidation.nombre.conditions} isTouched={fieldsValidation.nombre.isTouched} />
                     )}
@@ -67,6 +104,7 @@ function FormularioZona({
                      <div className="fila-inputs">
                     <div className="inputNivelPlanta input-group">
                         <input
+                            id="zona-piso"
                             type="number"
                             placeholder=" "
                             value={formData.piso ?? ''}
@@ -74,7 +112,7 @@ function FormularioZona({
                             autoComplete="off"
                             required
                         />
-                        <label>Nivel / Planta</label>
+                        <label htmlFor="zona-piso">Nivel / Planta</label>
                         {fieldsValidation.piso && (
                           <FieldValidation conditions={fieldsValidation.piso.conditions} isTouched={fieldsValidation.piso.isTouched} />
                         )}
@@ -82,9 +120,18 @@ function FormularioZona({
                 </div>
 
                 {!hideSede && <div className= {`inputSede input-group menu-dropdown-item ${isOpenSede ? 'dropdown-open' : ''} ${formData.id_sede ? 'has-selected-value' : ''}`}>
-                    <div
+                    <button
+                        ref={triggerSedeRef}
+                        id="zona-sede"
+                        type="button"
+                        role="combobox"
+                        aria-expanded={isOpenSede}
+                        aria-controls={LISTBOX_SEDE_ID}
+                        aria-haspopup="listbox"
+                        aria-activedescendant={isOpenSede && indiceResaltado >= 0 ? `${LISTBOX_SEDE_ID}-opt-${indiceResaltado}` : undefined}
                         className="dropdown-trigger-clean"
-                        onClick={() => setIsOpenSede(!isOpenSede)}
+                        onClick={() => setIsOpenSede((abierto) => !abierto)}
+                        onKeyDown={manejarTecladoSede}
                     >
                         <span className="selected-display-text">
                             {formData.id_sede && sedes.length > 0
@@ -93,20 +140,23 @@ function FormularioZona({
                             }
                         </span>
 
-                        <svg className="chevron-arrow-svg" viewBox="0 0 24 24">
-                            <path d="M7 10l5 5 5-5H7z" fill="currentColor" />
-                        </svg>
-                    </div>
+                        <ChevronDown className="chevron-arrow-svg" size={20} aria-hidden="true" />
+                    </button>
 
-                    <ul className="submenu-custom-list">
-                        {sedes.map((sede) => (
+                    <ul
+                        id={LISTBOX_SEDE_ID}
+                        role="listbox"
+                        aria-label="Sede"
+                        className="submenu-custom-list"
+                    >
+                        {sedes.map((sede, index) => (
                             <li
                                 key={sede.id}
-                                className="submenu-custom-option"
-                                onClick={() => {
-                                    onChange('id_sede', Number(sede.id));
-                                    setIsOpenSede(false);
-                                }}
+                                id={`${LISTBOX_SEDE_ID}-opt-${index}`}
+                                role="option"
+                                aria-selected={Number(sede.id) === Number(formData.id_sede)}
+                                className={`submenu-custom-option ${index === indiceResaltado ? 'submenu-custom-option--activa' : ''}`}
+                                onClick={() => seleccionarSede(sede)}
                             >
                                 <span className="submenu-custom-link">
                                     {getDisplayName(sede)}
@@ -114,14 +164,15 @@ function FormularioZona({
                             </li>
                         ))}
                     </ul>
-                    <label>Sede</label>
+                    <label htmlFor="zona-sede">Sede</label>
                 </div>}
 
                </section>
-              
+
                 <div className={`input-group ${formData.ubicacion ? 'has-value' : ''}`}>
                     {ubicacionFija !== undefined ? (
                         <input
+                            id="zona-ubicacion"
                             type="text"
                             placeholder=" "
                             value={ubicacionFija || ''}
@@ -136,6 +187,7 @@ function FormularioZona({
                             onPlaceChanged={handlePlaceChanged}
                         >
                             <input
+                                id="zona-ubicacion"
                                 type="text"
                                 placeholder=" "
                                 value={formData.ubicacion || ''}
@@ -146,6 +198,7 @@ function FormularioZona({
                         </Autocomplete>
                     ) : (
                         <input
+                            id="zona-ubicacion"
                             type="text"
                             placeholder=" "
                             value={formData.ubicacion || ''}
@@ -154,7 +207,7 @@ function FormularioZona({
                             required
                         />
                     )}
-                    <label>Ubicacion</label>
+                    <label htmlFor="zona-ubicacion">Ubicación</label>
                     {fieldsValidation.ubicacion && (
                       <FieldValidation conditions={fieldsValidation.ubicacion.conditions} isTouched={fieldsValidation.ubicacion.isTouched} />
                     )}
@@ -163,6 +216,7 @@ function FormularioZona({
                 <div className="fila-inputs fila-horarios">
                     <div className="input-group input-group-time">
                         <input
+                            id="zona-hora-apertura"
                             ref={aperturaRef}
                             type="time"
                             placeholder=" "
@@ -175,7 +229,7 @@ function FormularioZona({
                             autoComplete="off"
                             required={!es24Horas}
                         />
-                        <label>Hora de apertura</label>
+                        <label htmlFor="zona-hora-apertura">Hora de apertura</label>
                         {fieldsValidation.hora_apertura && (
                           <FieldValidation conditions={fieldsValidation.hora_apertura.conditions} isTouched={fieldsValidation.hora_apertura.isTouched} />
                         )}
@@ -183,6 +237,7 @@ function FormularioZona({
 
                     <div className="input-group input-group-time">
                         <input
+                            id="zona-hora-cierre"
                             ref={cierreRef}
                             type="time"
                             placeholder=" "
@@ -195,7 +250,7 @@ function FormularioZona({
                             autoComplete="off"
                             required={!es24Horas}
                         />
-                        <label>Hora de cierre</label>
+                        <label htmlFor="zona-hora-cierre">Hora de cierre</label>
                         {fieldsValidation.hora_cierre && (
                           <FieldValidation conditions={fieldsValidation.hora_cierre.conditions} isTouched={fieldsValidation.hora_cierre.isTouched} />
                         )}

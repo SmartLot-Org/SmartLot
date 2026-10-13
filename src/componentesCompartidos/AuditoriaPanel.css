@@ -34,7 +34,7 @@
 
 .auditoria-header-compartido p {
   font-size: 13px;
-  color: #64748B;
+  color: #475569;
   margin: 0;
 }
 
@@ -42,7 +42,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #64748B;
+  color: #475569;
   flex-shrink: 0;
 }
 
@@ -59,7 +59,7 @@
 }
 
 .auditoria-empty-msg {
-  color: #64748B;
+  color: #475569;
   font-size: 13px;
   margin: 0;
   padding: 4px 0;
@@ -117,7 +117,7 @@
   align-items: center;
   gap: 5px;
   font-size: 12px;
-  color: #64748B;
+  color: #475569;
   margin: 0;
 }
 

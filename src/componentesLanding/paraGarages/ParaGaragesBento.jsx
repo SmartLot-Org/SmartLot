@@ -49,9 +49,6 @@ export default function ParaGaragesBento() {
     >
       <div className="mx-auto max-w-6xl px-6">
         <div className="relative z-20 mb-12 flex flex-col items-center text-center">
-          <span className="pg-header mb-3 block text-sm font-semibold tracking-[0.2em] text-brand-navy uppercase">
-            Tu panel de dueño
-          </span>
           <h2 className="pg-header mb-6 text-brand-warm">
             Todo lo que necesitás para <br className="hidden md:block" /> administrar tus garages
           </h2>

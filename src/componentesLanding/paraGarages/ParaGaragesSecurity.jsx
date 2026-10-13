@@ -33,9 +33,6 @@ export default function ParaGaragesSecurity() {
     <section ref={container} className="relative z-10 bg-transparent px-6 py-20 content-visibility-auto">
       <div className="mx-auto max-w-6xl">
         <div className="mb-12 flex flex-col items-center text-center">
-          <span className="pg-header mb-3 block text-sm font-semibold tracking-[0.2em] text-brand-navy uppercase">
-            Tranquilidad
-          </span>
           <h2 className="pg-header text-brand-warm">Vos decidís qué pasa con tus plazas</h2>
         </div>
 

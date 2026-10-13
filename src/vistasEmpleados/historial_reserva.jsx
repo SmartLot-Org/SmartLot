@@ -44,7 +44,7 @@ const tieneSalidaRegistrada = (reserva) =>
 const esValorEstado = (valor) => {
   if (typeof valor !== "string") return false;
   const texto = valor.trim().toLowerCase();
-  return ["true", "false", "1", "0", "si", "sÃ­", "no", "completo", "completado"].includes(texto);
+  return ["true", "false", "1", "0", "si", "sí", "no", "completo", "completado"].includes(texto);
 };
 
 const obtenerFechaHoraReal = (reserva, camposFechaHora, camposFecha, camposHora) => {
@@ -125,7 +125,6 @@ function HistorialReservaSkeleton() {
 
       <section className="historial-section historial-section--current historial-skeleton-section">
         <div className="historial-section-header">
-          <span className="historial-skeleton-line historial-skeleton-kicker" />
           <span className="historial-skeleton-line historial-skeleton-heading" />
         </div>
 
@@ -142,7 +141,6 @@ function HistorialReservaSkeleton() {
 
       <section className="historial-section historial-section--past">
         <div className="historial-section-header">
-          <span className="historial-skeleton-line historial-skeleton-kicker" />
           <span className="historial-skeleton-line historial-skeleton-heading" />
         </div>
 
@@ -168,6 +166,8 @@ function HistorialReserva() {
   const [reservasPasadas, setReservasPasadas] = useState([]);
   const [mostrarMasPasadas, setMostrarMasPasadas] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [intento, setIntento] = useState(0);
   const [reservaSeleccionada, setReservaSeleccionada] = useState(null);
 
   const handleReservaClick = (reserva) => {
@@ -191,11 +191,14 @@ function HistorialReserva() {
     if (!idUsuario) {
       setUltimaReserva(null);
       setReservasPasadas([]);
+      setError("");
       setLoading(false);
       return;
     }
 
     let cancelled = false;
+    setLoading(true);
+    setError("");
 
     ReservasGetByUsuario(idUsuario, { force: true }).then((res) => {
       if (cancelled) return;
@@ -221,22 +224,24 @@ function HistorialReserva() {
 
       setUltimaReserva(pasadas[0] || null);
       setReservasPasadas(pasadas.slice(1));
+      setError("");
       setLoading(false);
     }).catch(() => {
+      // Un fallo de carga no es un historial vacío: se conserva la información
+      // anterior y se ofrece reintentar en vez de pintar el estado vacío.
       if (!cancelled) {
-        setUltimaReserva(null);
-        setReservasPasadas([]);
+        setError("No pudimos cargar tu historial de reservas.");
         setLoading(false);
       }
     });
 
     return () => { cancelled = true; };
-  }, [idUsuario]);
+  }, [idUsuario, intento]);
 
   const reservaPasadaPrincipal = reservasPasadas[0] || null;
   const restoReservasPasadas = reservasPasadas.slice(1);
   const tieneMasReservasPasadas = restoReservasPasadas.length > 0;
-  const sinReservas = !loading && !ultimaReserva && reservasPasadas.length === 0;
+  const sinReservas = !loading && !error && !ultimaReserva && reservasPasadas.length === 0;
 
   return (
     <div className="historial-page">
@@ -251,14 +256,24 @@ function HistorialReserva() {
 
             <section className="historial-section historial-section--current">
               <div className="historial-section-header">
-                <span>Resumen</span>
-                <h2>Ultima reserva</h2>
+                <h2>Última reserva</h2>
               </div>
 
-              {sinReservas ? (
+              {error ? (
+                <div className="historial-error" role="alert">
+                  <p>{error}</p>
+                  <button
+                    type="button"
+                    className="historial-error-btn"
+                    onClick={() => setIntento((prev) => prev + 1)}
+                  >
+                    Reintentar
+                  </button>
+                </div>
+              ) : sinReservas ? (
                 <EmptyState
                   icon={CalendarPlus}
-                  title="No tenes reservas en tu historial."
+                  title="No tenés reservas en tu historial."
                   description="Cuando hagas tu primera reserva, vas a poder verla acá."
                   action={{ label: "Hacer una reserva", to: "/nueva_reserva", icon: CalendarPlus }}
                 />
@@ -270,7 +285,6 @@ function HistorialReserva() {
             {reservasPasadas.length > 0 && (
               <section className="historial-section historial-section--past">
                 <div className="historial-section-header">
-                  <span>Actividad</span>
                   <h2>Reservas pasadas</h2>
                 </div>
 
@@ -291,7 +305,7 @@ function HistorialReserva() {
                     onClick={() => setMostrarMasPasadas((prev) => !prev)}
                     aria-expanded={mostrarMasPasadas}
                   >
-                    <span>{mostrarMasPasadas ? "Mostrar menos" : `Mostrar mas (${restoReservasPasadas.length})`}</span>
+                    <span>{mostrarMasPasadas ? "Mostrar menos" : `Mostrar más (${restoReservasPasadas.length})`}</span>
                     <span className="historial-toggle-arrow" aria-hidden="true">&gt;</span>
                   </button>
                 )}

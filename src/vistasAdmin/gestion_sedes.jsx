@@ -38,6 +38,7 @@ function GestionSedesAdmin() {
   const [sedes, setSedes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [reloadKey, setReloadKey] = useState(0);
 
   const empresaAdmin = Number(usuario?.id_empresa);
 
@@ -52,8 +53,9 @@ function GestionSedesAdmin() {
         if (res.respuesta) {
           const todas = obtenerListado(res.datos);
           setSedes(todas.filter((s) => Number(s.id_empresa) === empresaAdmin));
+          setError("");
         } else {
-          setError("No se pudieron cargar las sedes.");
+          setError("No se pudieron cargar las sedes. Revisá tu conexión y volvé a intentar.");
         }
       } finally {
         if (mounted) setLoading(false);
@@ -62,9 +64,11 @@ function GestionSedesAdmin() {
 
     load();
     return () => { mounted = false; };
-  }, [empresaAdmin]);
+  }, [empresaAdmin, reloadKey]);
 
   useGSAP(() => {
+    // Respetamos prefers-reduced-motion: sin entradas animadas
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     if (!loading && sedes.length > 0) {
       gsap.fromTo(
         ".sede-admin-card",
@@ -83,8 +87,7 @@ function GestionSedesAdmin() {
             <ArrowLeft size={20} />
           </button>
           <div>
-            <p>PANEL DE ADMINISTRACIÓN</p>
-            <h1>Gestión de Sedes</h1>
+            <h1>Gestión de sedes</h1>
           </div>
         </div>
 
@@ -99,10 +102,10 @@ function GestionSedesAdmin() {
           <div className="sedes-stats-admin">
             <div className="stats-sedes-card">
               <div className="stats-sedes-header">
-                <h4>Total sedes</h4>
-                <MapPin size={22} />
+                <h2>Total sedes</h2>
+                <MapPin size={22} aria-hidden="true" />
               </div>
-              <h2>{sedes.length}</h2>
+              <strong className="stats-sedes-valor">{sedes.length}</strong>
               <p>Sedes registradas de tu empresa</p>
             </div>
           </div>
@@ -120,7 +123,16 @@ function GestionSedesAdmin() {
             {Array.from({ length: 4 }).map((_, i) => <SedesAdminSkeletonCard key={i} />)}
           </div>
         ) : error ? (
-          <p className="sedes-admin-feedback-error">{error}</p>
+          <div className="sedes-admin-feedback-error" role="alert">
+            <p>{error}</p>
+            <button
+              type="button"
+              className="sedes-admin-retry"
+              onClick={() => { setError(""); setLoading(true); setReloadKey((key) => key + 1); }}
+            >
+              Reintentar
+            </button>
+          </div>
         ) : sedes.length === 0 ? (
           <EmptyState
             icon={MapPin}
@@ -137,7 +149,7 @@ function GestionSedesAdmin() {
                     <MapPin size={22} />
                   </div>
                   <div className="sede-admin-info">
-                    <h3>{sede.nombre}</h3>
+                    <h2>{sede.nombre}</h2>
                     <p className="sede-admin-descripcion">{sede.descripcion || "Sin descripción"}</p>
                     {sede.ubicacion && (
                       <p className="sede-admin-ubicacion">

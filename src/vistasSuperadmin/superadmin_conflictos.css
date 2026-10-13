@@ -1,0 +1,11 @@
+/* Focus visible para los controles de la vista de conflictos.
+   El CSS compartido (admin_panel_de_control.css) apaga el outline; acá se
+   repone con el acento que este mismo panel ya usa (#2563eb). */
+.conflict-status-select:focus-visible,
+.conflict-delete-btn:focus-visible,
+.conflict-restore-btn:focus-visible,
+.conflicts-toolbar__btn:focus-visible,
+.superadmin-conflicts-page .boton-back:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.25);
+  outline-offset: 2px;
+}

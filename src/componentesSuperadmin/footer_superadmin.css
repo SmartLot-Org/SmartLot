@@ -9,9 +9,7 @@
   width: 90%;
   max-width: 700px;
   height: 90px;
-  background: rgba(15, 26, 46, 0.82);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  background: #0F1A2E;
   border-radius: 32px;
   display: flex;
   justify-content: center;

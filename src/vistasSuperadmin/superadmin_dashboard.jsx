@@ -10,6 +10,8 @@ import {
   Database,
   CreditCard,
   Mail,
+  AlertTriangle,
+  RefreshCw,
 } from "lucide-react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
@@ -33,7 +35,7 @@ const obtenerListado = (datos) => {
 };
 
 const StatCard = ({ icono, label, valor, color }) => (
-  <div className="superadmin-stat-card" style={{ borderTop: `3px solid ${color}` }}>
+  <div className="superadmin-stat-card">
     <div className="superadmin-stat-header">
       <span className="superadmin-stat-label">{label}</span>
       <span className="superadmin-stat-icon" style={{ color }}>
@@ -57,12 +59,16 @@ const StatSkeleton = () => (
 function SuperadminDashboard() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState({ usuarios: 0, empresas: 0, sedes: 0, garages: 0 });
+  const [error, setError] = useState(false);
+  const [reintento, setReintento] = useState(0);
+  const [stats, setStats] = useState(null);
 
   useEffect(() => {
     let mounted = true;
 
     const loadStats = async () => {
+      setLoading(true);
+      setError(false);
       try {
         const [usuariosRes, empresasRes, sedesRes, garagesRes] = await Promise.all([
           UsuariosGetAll(),
@@ -81,6 +87,7 @@ function SuperadminDashboard() {
         });
       } catch (err) {
         console.error("Error loading dashboard stats:", err);
+        if (mounted) setError(true);
       } finally {
         if (mounted) setLoading(false);
       }
@@ -88,16 +95,16 @@ function SuperadminDashboard() {
 
     loadStats();
     return () => { mounted = false; };
-  }, []);
+  }, [reintento]);
 
   useGSAP(() => {
-    if (!loading) {
-      const tl = gsap.timeline({ defaults: { ease: "power3.out", duration: 0.6 } });
-      tl.from(".superadmin-stagger-title", { y: 24, opacity: 0 })
-        .from(".superadmin-stagger-stat", { y: 18, opacity: 0, stagger: 0.08 }, "-=0.3")
-        .from(".superadmin-stagger-card", { y: 24, opacity: 0, stagger: 0.1 }, "-=0.3");
-    }
-  }, { dependencies: [loading] });
+    if (loading || error) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const tl = gsap.timeline({ defaults: { ease: "power3.out", duration: 0.6 } });
+    tl.from(".superadmin-stagger-title", { y: 24, opacity: 0 })
+      .from(".superadmin-stagger-stat", { y: 18, opacity: 0, stagger: 0.08 }, "-=0.3")
+      .from(".superadmin-stagger-card", { y: 24, opacity: 0, stagger: 0.1 }, "-=0.3");
+  }, { dependencies: [loading, error, stats] });
 
   return (
     <>
@@ -142,6 +149,23 @@ function SuperadminDashboard() {
               </button>
             </div>
 
+            {error ? (
+              <div className="superadmin-stats-error" role="alert">
+                <AlertTriangle className="superadmin-stats-error-icon" size={22} aria-hidden="true" focusable="false" />
+                <div className="superadmin-stats-error-texto">
+                  <p className="superadmin-stats-error-titulo">No pudimos cargar las estadísticas</p>
+                  <p className="superadmin-stats-error-desc">Revisá tu conexión y volvé a intentar.</p>
+                </div>
+                <button
+                  type="button"
+                  className="superadmin-cache-link"
+                  onClick={() => setReintento((n) => n + 1)}
+                >
+                  <RefreshCw size={16} aria-hidden="true" focusable="false" />
+                  Reintentar
+                </button>
+              </div>
+            ) : (
             <div className="superadmin-stats-grid">
               <div className="superadmin-stagger-stat">
                 <StatCard icono={<Users size={24} />} label="Usuarios" valor={stats.usuarios} color="#3B82F6" />
@@ -156,6 +180,7 @@ function SuperadminDashboard() {
                 <StatCard icono={<Car size={24} />} label="Garages" valor={stats.garages} color="#8B5CF6" />
               </div>
             </div>
+            )}
 
             <h2 className="superadmin-acciones-titulo superadmin-stagger-title">Acciones Rápidas</h2>
 
@@ -188,7 +213,7 @@ function SuperadminDashboard() {
                 <SuperadminDashboardBoton
                   icono={<CalendarDays />}
                   titulo="Reservas del Sistema"
-                  descripcion="Ver todas las reservas con filtros por dia, hora, empresa y sede"
+                  descripcion="Ver todas las reservas con filtros por día, hora, empresa y sede"
                   onClick={() => navigate("/superadmin/reservas")}
                 />
               </div>
@@ -212,7 +237,7 @@ function SuperadminDashboard() {
                 <SuperadminDashboardBoton
                   icono={<Mail />}
                   titulo="Plantillas de Email"
-                  descripcion="Editar los correos del sistema con preview en vivo y envío de pruebas"
+                  descripcion="Editar los correos del sistema con vista previa en vivo y envío de pruebas"
                   onClick={() => navigate("/superadmin/email-templates")}
                 />
               </div>

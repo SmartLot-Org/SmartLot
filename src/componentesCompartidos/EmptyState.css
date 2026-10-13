@@ -10,7 +10,7 @@
   border: 1px dashed #cbd5e1;
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.7);
-  color: #64748b;
+  color: #475569;
   text-align: center;
 }
 
@@ -22,7 +22,7 @@
 
 .empty-state__icon {
   margin-bottom: 0.45rem;
-  color: #94a3b8;
+  color: #475569;
 }
 
 .empty-state--success .empty-state__icon {
@@ -62,7 +62,7 @@
 .empty-state__description {
   max-width: 480px;
   margin: 0;
-  color: #64748b;
+  color: #475569;
   font-size: 13px;
   line-height: 1.5;
 }

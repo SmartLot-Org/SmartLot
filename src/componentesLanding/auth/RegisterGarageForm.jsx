@@ -100,7 +100,7 @@ export default function RegisterGarageForm() {
       return;
     }
     if (cooldown > 0) {
-      setError(`Espere ${cooldown}s antes de reintentar.`);
+      setError(`Esperá ${cooldown}s antes de reintentar.`);
       return;
     }
 
@@ -148,7 +148,7 @@ export default function RegisterGarageForm() {
 
       <div className="auth-stagger flex items-center gap-2 mt-1">
         <User size={16} className="text-brand-blue" aria-hidden="true" />
-        <h3 className="font-display font-bold text-brand-warm">Tus datos</h3>
+        <h2 className="font-display font-bold text-brand-warm">Tus datos</h2>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -214,13 +214,13 @@ export default function RegisterGarageForm() {
       <button
         type="submit"
         disabled={loading || cooldown > 0}
-        className="auth-stagger mt-2 w-full rounded-xl bg-brand-blue px-8 py-4 text-white font-bold text-lg shadow-lg shadow-brand-blue/20 transition-all duration-300 hover:bg-brand-deep hover:shadow-brand-deep/25 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2 focus-visible:ring-offset-white disabled:opacity-60 disabled:cursor-not-allowed"
+        className="auth-stagger mt-2 flex h-12 w-full items-center justify-center rounded-[10px] bg-brand-blue text-white font-bold text-lg shadow-lg shadow-brand-blue/20 transition-colors duration-300 hover:bg-brand-accent-hover active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2 focus-visible:ring-offset-white disabled:opacity-60 disabled:cursor-not-allowed"
       >
-        {cooldown > 0 ? `Espere ${cooldown}s` : loading ? "Creando cuenta..." : "Crear mi cuenta"}
+        {cooldown > 0 ? `Esperá ${cooldown}s` : loading ? "Creando cuenta..." : "Crear mi cuenta"}
       </button>
 
       {error && (
-        <p className="text-sm text-red-600 mt-1 text-center" role="alert">
+        <p className="text-sm text-error-strong mt-1 text-center" role="alert">
           {error}
         </p>
       )}

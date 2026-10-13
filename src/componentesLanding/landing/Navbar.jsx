@@ -1,7 +1,8 @@
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
+import { Menu, X } from 'lucide-react';
 import CtaButton from '../CtaButton';
 import { useAuth } from '../../contexts/useAuth';
 import { getUserHomeRoute } from '../../helpers/roles';
@@ -9,6 +10,9 @@ import { getUserHomeRoute } from '../../helpers/roles';
 export default function Navbar({ links = [] }) {
   const { usuario } = useAuth();
   const navRef = useRef();
+  const [menuAbierto, setMenuAbierto] = useState(false);
+  const botonMenuRef = useRef(null);
+  const panelMenuRef = useRef(null);
 
   useGSAP(() => {
     if (!navRef.current) return;
@@ -28,6 +32,20 @@ export default function Navbar({ links = [] }) {
       gsap.set(navRef.current, { autoAlpha: 1 });
     });
   });
+
+  // El menú mobile necesita foco gestionado: al abrir entra al primer enlace y Escape cierra y lo devuelve al botón.
+  useEffect(() => {
+    if (!menuAbierto) return;
+    panelMenuRef.current?.querySelector('a')?.focus();
+    const alPulsar = (evento) => {
+      if (evento.key === 'Escape') {
+        setMenuAbierto(false);
+        botonMenuRef.current?.focus();
+      }
+    };
+    document.addEventListener('keydown', alPulsar);
+    return () => document.removeEventListener('keydown', alPulsar);
+  }, [menuAbierto]);
 
   return (
     <header
@@ -80,9 +98,49 @@ export default function Navbar({ links = [] }) {
               <CtaButton to="/register" size="sm" arrow={false}>Regístrate</CtaButton>
             </>
           )}
+
+          {links.length > 0 && (
+            <button
+              ref={botonMenuRef}
+              type="button"
+              onClick={() => setMenuAbierto((abierto) => !abierto)}
+              aria-expanded={menuAbierto}
+              aria-controls="menu-secciones-mobile"
+              aria-label={menuAbierto ? 'Cerrar menú de secciones' : 'Abrir menú de secciones'}
+              className="md:hidden inline-flex h-11 w-11 items-center justify-center rounded-lg text-brand-muted transition-colors duration-200 hover:bg-white/60 hover:text-brand-warm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2 focus-visible:ring-offset-brand-bg"
+            >
+              {menuAbierto ? (
+                <X className="h-5 w-5" aria-hidden="true" />
+              ) : (
+                <Menu className="h-5 w-5" aria-hidden="true" />
+              )}
+            </button>
+          )}
         </div>
 
       </div>
+
+      {links.length > 0 && (
+        <div
+          id="menu-secciones-mobile"
+          ref={panelMenuRef}
+          hidden={!menuAbierto}
+          className="md:hidden border-t border-brand-deep/10 bg-brand-bg/95"
+        >
+          <nav aria-label="Secciones de la página" className="mx-auto flex max-w-6xl flex-col gap-1 px-4 py-3">
+            {links.map(({ label, href }) => (
+              <a
+                key={href}
+                href={href}
+                onClick={() => setMenuAbierto(false)}
+                className="rounded-lg px-3 py-3 text-base font-medium text-brand-muted transition-colors duration-200 hover:bg-brand-blue/10 hover:text-brand-warm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue"
+              >
+                {label}
+              </a>
+            ))}
+          </nav>
+        </div>
+      )}
     </header>
   );
 }

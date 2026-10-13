@@ -244,14 +244,14 @@ const NuevaReserva = () => {
         setGarages(garagesDeSede);
 
         if (vehiculosUsuario.length === 0) {
-          setMensaje({ tipo: "error", texto: "No tenes vehiculos registrados para crear una reserva." });
+          setMensaje({ tipo: "error", texto: "No tenés vehículos registrados para crear una reserva." });
         } else if (!idSedeUsuario) {
           setMensaje({ tipo: "error", texto: "No se pudo identificar tu sede para cargar garages." });
         } else if (garagesDeSede.length === 0) {
           setMensaje({ tipo: "error", texto: "No hay garages disponibles para tu sede." });
         }
       } else {
-        setMensaje({ tipo: "error", texto: "No se pudieron cargar tus vehiculos." });
+        setMensaje({ tipo: "error", texto: "No se pudieron cargar tus vehículos." });
       }
 
       setLoadingVehiculos(false);

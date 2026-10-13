@@ -57,3 +57,9 @@
   border: 1px solid rgba(245, 158, 11, 0.25);
   white-space: nowrap;
 }
+
+/* Foco ámbar del logo (identidad del panel — ADR-007) */
+.logo-superadmin button:focus-visible {
+  outline: 3px solid rgba(245, 158, 11, 0.5);
+  outline-offset: 2px;
+}

@@ -45,7 +45,6 @@ export default function ConfirmacionReservaPaga({ abierto, reserva, precioFormat
       >
         <header className="reserva-paga-modal__header">
           <div>
-            <span className="reserva-paga-modal__eyebrow">Reserva con cargo</span>
             <h2 id="reserva-paga-titulo">Confirmar reserva paga</h2>
           </div>
           <button type="button" className="reserva-paga-modal__close" onClick={onClose} disabled={procesando} aria-label="Cerrar modal">

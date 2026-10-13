@@ -55,7 +55,7 @@ function CrearGarageDueño() {
     const handleBeforeUnload = (e) => {
       if (isDirty) {
         e.preventDefault();
-        e.returnValue = "Tienes datos sin guardar. ¿Seguro que deseas salir?";
+        e.returnValue = "Tenés datos sin guardar. ¿Seguro que querés salir?";
       }
     };
     window.addEventListener("beforeunload", handleBeforeUnload);
@@ -66,13 +66,13 @@ function CrearGarageDueño() {
     if (isDirty) {
       const result = await Swal.fire({
         title: "Datos sin guardar",
-        text: "Has comenzado a cargar el garage. Si sales ahora, perderás los datos ingresados.",
+        text: "Empezaste a cargar el garage. Si salís ahora, perdés los datos ingresados.",
         icon: "warning",
         showCancelButton: true,
         confirmButtonColor: "#EF4444",
-        cancelButtonColor: "#64748B",
+        cancelButtonColor: "#475569",
         confirmButtonText: "Salir sin guardar",
-        cancelButtonText: "Permanecer aquí",
+        cancelButtonText: "Permanecer acá",
         reverseButtons: true,
         zIndex: Z_INDEX.SWAL_DIALOG,
       });
@@ -84,38 +84,38 @@ function CrearGarageDueño() {
   const getSchema = () => ({
     nombre: [
       { rule: (v) => v?.trim().length > 0, message: "Requerido" },
-      { rule: (v) => v?.trim().length >= 3, message: "Minimo 3 caracteres" },
+      { rule: (v) => v?.trim().length >= 3, message: "Mínimo 3 caracteres" },
     ],
     piso: [
       { rule: (v) => v !== "" && v !== null && v !== undefined, message: "Requerido" },
-      { rule: (v) => !Number.isNaN(Number(v)) && Number.isInteger(Number(v)), message: "Debe ser numero entero" },
+      { rule: (v) => !Number.isNaN(Number(v)) && Number.isInteger(Number(v)), message: "Ingresá un número entero" },
     ],
     ubicacion: [
       { rule: (v) => v?.trim().length > 0, message: "Requerido" },
-      { rule: (v) => v?.trim().length >= 5, message: "Minimo 5 caracteres" },
-      () => ({ rule: () => coordenadas.lat !== null && coordenadas.lng !== null, message: "Selecciona una ubicacion valida del mapa" }),
+      { rule: (v) => v?.trim().length >= 5, message: "Mínimo 5 caracteres" },
+      () => ({ rule: () => coordenadas.lat !== null && coordenadas.lng !== null, message: "Seleccioná una ubicación válida del mapa" }),
     ],
     hora_apertura: [
-      { rule: (v) => /^([01]\d|2[0-3]):[0-5]\d$/.test(String(v || "")), message: "Formato HH:MM requerido" },
+      { rule: (v) => /^([01]\d|2[0-3]):[0-5]\d$/.test(String(v || "")), message: "Ingresá el horario en formato HH:MM" },
     ],
     hora_cierre: [
-      { rule: (v) => /^([01]\d|2[0-3]):[0-5]\d$/.test(String(v || "")), message: "Formato HH:MM requerido" },
-      () => ({ rule: () => !formData.hora_apertura || !formData.hora_cierre || formData.hora_apertura < formData.hora_cierre, message: "Apertura debe ser anterior a cierre" }),
+      { rule: (v) => /^([01]\d|2[0-3]):[0-5]\d$/.test(String(v || "")), message: "Ingresá el horario en formato HH:MM" },
+      () => ({ rule: () => !formData.hora_apertura || !formData.hora_cierre || formData.hora_apertura < formData.hora_cierre, message: "La apertura debe ser anterior al cierre" }),
     ],
     capacidad_reservas: [
       { rule: (v) => v !== "" && v !== null && v !== undefined, message: "Requerido" },
-      { rule: (v) => Number.isInteger(Number(v)) && Number(v) >= 0, message: "Numero entero >= 0" },
+      { rule: (v) => Number.isInteger(Number(v)) && Number(v) >= 0, message: "Ingresá un número entero mayor o igual a 0" },
     ],
     capacidad_para_no_reservas: [
       { rule: (v) => v !== "" && v !== null && v !== undefined, message: "Requerido" },
-      { rule: (v) => Number.isInteger(Number(v)) && Number(v) >= 0, message: "Numero entero >= 0" },
+      { rule: (v) => Number.isInteger(Number(v)) && Number(v) >= 0, message: "Ingresá un número entero mayor o igual a 0" },
     ],
     dias: [
-      { rule: (v) => Array.isArray(v) && v.length > 0, message: "Selecciona al menos un dia" },
+      { rule: (v) => Array.isArray(v) && v.length > 0, message: "Seleccioná al menos un día" },
     ],
   });
 
-  const { isValid, touched, handleChangeWithTouch } = useLiveValidation(formData, getSchema());
+  const { isValid, touched, handleChangeWithTouch, touchAll } = useLiveValidation(formData, getSchema());
 
   const fieldsValidation = Object.keys(getSchema()).reduce((acc, field) => {
     acc[field] = {
@@ -140,7 +140,8 @@ function CrearGarageDueño() {
     setError("");
 
     if (!isValid) {
-      setError("Corrige los campos marcados antes de guardar.");
+      touchAll();
+      setError("Corregí los campos marcados antes de guardar.");
       return;
     }
 
@@ -191,8 +192,12 @@ function CrearGarageDueño() {
       return;
     }
 
-    const mensaje = response.datos?.message || response.datos || "Error desconocido.";
-    setError(`No se pudo crear el garage: ${typeof mensaje === "string" ? mensaje : JSON.stringify(mensaje)}`);
+    const mensaje = response.datos?.message;
+    setError(
+      typeof mensaje === "string" && mensaje.trim()
+        ? `No se pudo crear el garage: ${mensaje.trim()}`
+        : "No se pudo crear el garage. Revisá los datos e intentá de nuevo."
+    );
   };
 
 return (
@@ -202,14 +207,12 @@ return (
       <main className="duenio-garage-main">
         <div className="contenido-agregar-zona">
           <div className="top-garage">
-            <button className="boton-back" onClick={volverADashboard} aria-label="Volver al panel del dueño">
-              <ArrowLeft size={24} />
+            <button className="duenio-back-button" onClick={volverADashboard} aria-label="Volver al panel del dueño">
+              <ArrowLeft size={24} aria-hidden="true" focusable="false" />
             </button>
 
             <div className="info-top">
-              <p>ALTA DE ACTIVO</p>
               <h1>Crear nuevo garage</h1>
-              <span>Esta funcion ahora pertenece al rol dueño de garage. El garage queda asociado a tu usuario como propietario.</span>
             </div>
           </div>
 
@@ -226,7 +229,7 @@ return (
             <FormularioPreciosGarage values={formData} onChange={handleChange} disabled={loading} />
           </div>
 
-          {error && <p className="form-error" style={{ color: '#d32f2f', padding: '12px', marginBottom: '16px', backgroundColor: '#ffebee', borderRadius: '4px', fontWeight: 'bold' }}>{error}</p>}
+          {error && <p className="duenio-feedback error" role="alert">{error}</p>}
 
           <div className="acciones-garage">
             <BotonGenerico
@@ -234,8 +237,8 @@ return (
               onClick={handleCrearGarage}
               disabled={loading}
             >
-              <CirclePlus size={22} />
-              <span>{loading ? "Creando..." : "Crear Garage"}</span>
+              <CirclePlus size={22} aria-hidden="true" focusable="false" />
+              <span>{loading ? "Creando…" : "Crear garage"}</span>
             </BotonGenerico>
 
             <BotonGenerico

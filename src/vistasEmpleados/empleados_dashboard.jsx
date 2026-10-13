@@ -1,10 +1,11 @@
-import { normalizeReservaDateTime, formatReservaDate, formatReservaMonth, formatReservaHorario, toReservaInstant } from '../helpers/reservaDateTime';
+import { normalizeReservaDateTime, formatReservaDate, formatReservaHorario, toReservaInstant } from '../helpers/reservaDateTime';
 import { createReservaRefresh, bindReservaPolling } from '../helpers/reservaRefresh';
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { MessageCircleQuestion, X, CalendarPlus } from "lucide-react";
 import "./empleados_dashboard.css";
 import EmptyState from "../componentesCompartidos/EmptyState";
+import ModalPortal from "../componentesCompartidos/ModalPortal";
 import HeaderEmpleado from "../componentesEmpleado/header_empleado";
 import TarjetaReserva from "../componentesEmpleado/tarjeta_reserva";
 import ModalEditarReserva from "../componentesEmpleado/modal_editar_reserva";
@@ -222,8 +223,10 @@ const normalizarReserva = (reserva, vehiculosPorId, garagesPorId, modelosPorId, 
     obtenerNombreGarage(garageReserva) ||
     "Garage asignado";
 
-  const plaza = obtenerCampo(reserva, ["plaza", "nro_plaza", "numero_plaza", "espacio"], patente || "Auto");
-  const zona = obtenerCampo(reserva, ["nombre_zona", "nivel", "piso", "sector", "zona"], "Reserva");
+  // Plaza y zona salen solo de campos reales de la reserva: si la API no los
+  // trae, se muestra "-" honesto y no se inventa un valor con la fecha.
+  const plaza = obtenerCampo(reserva, ["plaza", "nro_plaza", "numero_plaza", "espacio"], "-");
+  const zona = obtenerCampo(reserva, ["nombre_zona", "nivel", "piso", "sector", "zona"], "-");
 
   return {
     id: reserva.id ?? reserva.id_reserva ?? `${fecha}-${idVehiculo}-${horaInicio}`,
@@ -234,8 +237,8 @@ const normalizarReserva = (reserva, vehiculosPorId, garagesPorId, modelosPorId, 
     plaza,
     nivel: zona,
     nombre_garage: ubicacion,
-    nro_plaza: fecha ? fecha.slice(8, 10) : "-",
-    nombre_zona: formatReservaMonth(fecha),
+    nro_plaza: plaza,
+    nombre_zona: zona,
     hora_entrada: horaInicio,
     hora_salida: horaFin,
     entradaRegistrada: tieneEntradaRegistrada(reserva),
@@ -250,7 +253,6 @@ const normalizarReserva = (reserva, vehiculosPorId, garagesPorId, modelosPorId, 
 
 const EmpleadoDashboardIntroSkeleton = () => (
   <div className="empleado-dashboard-intro empleado-dashboard-intro-skeleton" aria-label="Cargando datos del empleado">
-    <span className="empleado-skeleton-line empleado-skeleton-kicker" />
     <span className="empleado-skeleton-line empleado-skeleton-title" />
     <span className="empleado-skeleton-line empleado-skeleton-subtitle" />
   </div>
@@ -399,7 +401,7 @@ function EmpleadoDashboard() {
         }
       } catch (err) {
         console.error("Error al cargar el dashboard de empleado:", err);
-        if (montado) setError("Ocurrio un error al cargar tus reservas.");
+        if (montado) setError("Ocurrió un error al cargar tus reservas.");
       } finally {
         if (montado) setLoading(false);
       }
@@ -645,12 +647,12 @@ function EmpleadoDashboard() {
     const idUsuario = Number(obtenerIdUsuario(perfilUsuario || usuario));
 
     if (!descripcion) {
-      setMensajeReporte({ tipo: "error", texto: "Describi brevemente el problema." });
+      setMensajeReporte({ tipo: "error", texto: "Describí brevemente el problema." });
       return;
     }
 
     if (contarPalabras(descripcion) > MAX_PALABRAS) {
-      setMensajeReporte({ tipo: "error", texto: `La descripcion no puede tener mas de ${MAX_PALABRAS} palabras.` });
+      setMensajeReporte({ tipo: "error", texto: `La descripción no puede tener más de ${MAX_PALABRAS} palabras.` });
       return;
     }
 
@@ -695,16 +697,15 @@ function EmpleadoDashboard() {
         ) : (
          
             <div className="empleado-dashboard-intro">
-              <span className="empleado-dashboard-kicker">{new Date(fechaSeleccionada + "T00:00:00").toLocaleDateString("es-AR", { weekday: "long", day: "numeric", month: "long" })}</span>
               <h1 className="empleado-dashboard-title">
                 Hola{nombre ? ` ${nombre}` : ""}
               </h1>
+              <p className="empleado-dashboard-subtitle">{new Date(fechaSeleccionada + "T00:00:00").toLocaleDateString("es-AR", { weekday: "long", day: "numeric", month: "long" })}</p>
             </div>
         )}
 
         <div className="empleado-reservas-header">
           <div>
-            <span>Agenda</span>
             <h2>Mis Reservas Actuales</h2>
           </div>
           <button
@@ -737,12 +738,18 @@ function EmpleadoDashboard() {
               tipoQr={obtenerTipoQrReserva(reservaPrincipal)}
             />
             {tieneResto && (
-              <button type="button" className={`empleado-reservas-toggle${deployableOpen ? " empleado-reservas-toggle--open" : ""}`} onClick={() => setDeployableOpen((prev) => !prev)}>
+              <button
+                type="button"
+                className={`empleado-reservas-toggle${deployableOpen ? " empleado-reservas-toggle--open" : ""}`}
+                onClick={() => setDeployableOpen((prev) => !prev)}
+                aria-expanded={deployableOpen}
+                aria-controls="empleado-reservas-rest"
+              >
                 <span>{deployableOpen ? "Ocultar" : `Mostrar todas (${restoReservas.length})`}</span>
                 <span className="empleado-reservas-toggle-arrow" aria-hidden="true">&gt;</span>
               </button>
             )}
-            <div className={`empleado-reservas-rest${deployableOpen ? " empleado-reservas-rest--open" : ""}`}>
+            <div id="empleado-reservas-rest" className={`empleado-reservas-rest${deployableOpen ? " empleado-reservas-rest--open" : ""}`}>
               {restoReservas.map((reserva, index) => (
                 <TarjetaReserva
                   key={`${reserva.id}-${index}`}
@@ -759,7 +766,7 @@ function EmpleadoDashboard() {
         ) : (
           <EmptyState
             icon={CalendarPlus}
-            title="No tenes reservas activas."
+            title="No tenés reservas activas."
             description="Reservá un lugar en un garage de tu sede y aparecerá acá para que puedas seguirlo."
             action={{ label: "Reservar ahora", to: "/nueva_reserva", icon: CalendarPlus }}
           />
@@ -782,17 +789,16 @@ function EmpleadoDashboard() {
       <FooterEmpleado />
 
       {modalReporteOpen && (
-        <div className="empleado-reporte-overlay" role="presentation" onMouseDown={cerrarModalReporte}>
+        <ModalPortal onClose={cerrarModalReporte} overlayClassName="empleado-reporte-overlay">
           <section
             className="empleado-reporte-modal"
             role="dialog"
             aria-modal="true"
             aria-labelledby="empleado-reporte-title"
-            onMouseDown={(event) => event.stopPropagation()}
+            onClick={(event) => event.stopPropagation()}
           >
             <div className="empleado-reporte-header">
               <div>
-                <span>Soporte</span>
                 <h2 id="empleado-reporte-title">Reportar problema</h2>
               </div>
               <button type="button" className="empleado-reporte-close" onClick={cerrarModalReporte} aria-label="Cerrar reporte">
@@ -811,11 +817,11 @@ function EmpleadoDashboard() {
               </label>
 
               <label className="empleado-reporte-field">
-                <span>Descripcion</span>
+                <span>Descripción</span>
                 <textarea
                   value={descripcionReporte}
                   onChange={(event) => setDescripcionReporte(event.target.value)}
-                  placeholder="Contanos que paso"
+                  placeholder="Contanos qué pasó"
                   rows={5}
                   maxLength={3000}
                 />
@@ -835,7 +841,7 @@ function EmpleadoDashboard() {
               </button>
             </form>
           </section>
-        </div>
+        </ModalPortal>
       )}
 
       {reservaEditando && reservaNormEditando && (

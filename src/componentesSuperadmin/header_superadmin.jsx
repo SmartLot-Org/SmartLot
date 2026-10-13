@@ -1,6 +1,7 @@
 import logo from "../Imagenes/Logo_SmartLot-removebg-preview.png";
 import "./header_superadmin.css";
 import { useNavigate } from "react-router-dom";
+import { Bell } from "lucide-react";
 import UserDropdown from "../components/UserDropdown";
 
 function HeaderSuperadmin() {
@@ -9,19 +10,19 @@ function HeaderSuperadmin() {
     <div className="header-superadmin">
       <div className="header-superadmin-left">
         <div className="logo-superadmin">
-          <img
+          <button
+            type="button"
             onClick={() => navigate("/superadmin_dashboard")}
-            src={logo}
-            alt="logo SmartLot"
-            style={{ cursor: "pointer" }}
-          />
+            aria-label="Ir al panel principal"
+            className="inline-flex rounded-lg cursor-pointer"
+          >
+            <img src={logo} alt="logo SmartLot" />
+          </button>
         </div>
         <span className="header-superadmin-badge">Superadmin</span>
       </div>
       <div className="header-superadmin-right">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="30" height="30" fill="currentColor">
-          <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z" />
-        </svg>
+        <Bell size={30} aria-hidden="true" />
         <UserDropdown />
       </div>
     </div>

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/useAuth";
 import {
   Search,
@@ -152,8 +152,12 @@ const EmpleadosSkeletonGrid = () => (
 
 const GestionEmpleados = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const containerRef = useRef(null);
   const { usuario } = useAuth();
+
+  // Contexto del garage desde el que se inició el alta (flujo "Agregar Garajista")
+  const garageContexto = location.state?.garage || null;
 
   const [searchTerm, setSearchTerm] = useState("");
   const [searchArchivedTerm, setSearchArchivedTerm] = useState("");
@@ -441,6 +445,7 @@ const GestionEmpleados = () => {
 
   useGSAP(
     () => {
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
       const tl = gsap.timeline({ defaults: { ease: "power3.out", duration: 0.8 } });
       tl.from(".animate-header", { y: 30, opacity: 0, stagger: 0.1 }).from(
         ".animate-toolbar",
@@ -452,6 +457,7 @@ const GestionEmpleados = () => {
   );
 
   useGSAP(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     if (empleadosFiltrados.length > 0) {
       gsap.fromTo(
         ".card-empleado-v3",
@@ -469,6 +475,7 @@ const GestionEmpleados = () => {
   }, [empleadosFiltrados]);
 
   useGSAP(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     if (showArchived) {
       gsap.fromTo(
         ".modal-portal-overlay",
@@ -490,13 +497,19 @@ const GestionEmpleados = () => {
       <main className="envoltorio-contenido">
         <header className="header-seccion">
           <div className="header-left-group animate-header">
-            <button className="boton-back" onClick={() => navigate("/admin_dashboard")}>
-              <ArrowLeft size={24} />
+            <button
+              className="boton-back"
+              onClick={() => (garageContexto
+                ? navigate("/editar_zona", { state: { garage: garageContexto } })
+                : navigate("/admin_dashboard"))}
+              aria-label={garageContexto ? "Volver al garage" : "Volver"}
+            >
+              <ArrowLeft size={24} aria-hidden="true" />
             </button>
             <div className="textos-titulos">
-              <h1 className="titulo-vista">Gestión de Usuarios</h1>
+              <h1 className="titulo-vista">Gestión de empleados</h1>
               <p className="subtitulo-vista">
-                Administra todo el personal.
+                Administrá todo el personal.
               </p>
             </div>
           </div>
@@ -523,6 +536,25 @@ const GestionEmpleados = () => {
           </div>
         </header>
 
+        {garageContexto && (
+          <section className="contexto-garage-banner" role="status">
+            <Car size={18} aria-hidden="true" />
+            <div className="contexto-garage-texto">
+              <strong>
+                Estás sumando personal para el garage {garageContexto.nombre || "seleccionado"}.
+              </strong>
+              <span>Cuando termines, volvé al garage para seguir con su configuración.</span>
+            </div>
+            <BotonGenerico
+              className="btn-contexto-volver"
+              onClick={() => navigate("/editar_zona", { state: { garage: garageContexto } })}
+            >
+              <ArrowLeft size={16} aria-hidden="true" />
+              <span>Volver al garage</span>
+            </BotonGenerico>
+          </section>
+        )}
+
         {loading ? (
           <EmpleadosToolbarSkeleton />
         ) : (
@@ -531,7 +563,8 @@ const GestionEmpleados = () => {
               <Search className="search-icon" size={20} />
               <input
                 type="text"
-                placeholder="Buscar por nombre, email o cargo..."
+                placeholder="Buscar por nombre, email o rol..."
+                aria-label="Buscar empleados por nombre, email o rol"
                 className="input-moderno"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -545,6 +578,7 @@ const GestionEmpleados = () => {
               <div className="select-wrapper">
                   <select
                     className="btn-selector-sede"
+                    aria-label="Filtrar por sede"
                     value={selectedSede}
                     onChange={(e) => setSelectedSede(e.target.value)}
                   >
@@ -685,11 +719,11 @@ const GestionEmpleados = () => {
 
       {showArchived && (
         <ModalPortal onClose={() => setShowArchived(false)}>
-          <div className="modal-archive-panel" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-archive-panel" role="dialog" aria-modal="true" aria-labelledby="modal-archive-title" onClick={(e) => e.stopPropagation()}>
             <div className="modal-archive-header">
               <div className="modal-archive-title-group">
-                <Archive size={24} />
-                <h2>Empleados Archivados</h2>
+                <Archive size={24} aria-hidden="true" />
+                <h2 id="modal-archive-title">Empleados Archivados</h2>
               </div>
               <button
                 className="modal-archive-close"
@@ -705,7 +739,8 @@ const GestionEmpleados = () => {
                 <Search className="search-icon" size={20} />
                 <input
                   type="text"
-                  placeholder="Buscar archivados por nombre, email o cargo..."
+                  placeholder="Buscar archivados por nombre, email o rol..."
+                  aria-label="Buscar archivados por nombre, email o rol"
                   className="input-moderno"
                   value={searchArchivedTerm}
                   onChange={(e) => setSearchArchivedTerm(e.target.value)}

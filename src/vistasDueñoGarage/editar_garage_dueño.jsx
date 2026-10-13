@@ -8,6 +8,7 @@ import FormularioPreciosGarage from '../componentesCompartidos/FormularioPrecios
 import { SkeletonFormularioGarage } from '../componentesDueñoGarage/skeleton_admin_garage';
 import FormularioZona from '../componentesAdmin/formulario_zona';
 import FormularioCapacidad from '../componentesAdmin/formulario_capacidad';
+import useLiveValidation from '../hooks/useLiveValidation';
 import '../vistasAdmin/agregar_zona.css';
 import { GaragesGetById, GaragesUpdate } from '../servicies/API_Garage';
 import { buildGaragePricesPayload } from '../helpers/prices';
@@ -39,13 +40,18 @@ export default function EditarGarageDueño() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [cargaError, setCargaError] = useState('');
+  const [intentoCarga, setIntentoCarga] = useState(0);
 
   useEffect(() => {
     let active = true;
-    GaragesGetById(id, { force: true }).then((response) => {
+    const cargarGarage = async () => {
+      const response = await GaragesGetById(id, { force: true });
       if (!active) return;
       if (!response.respuesta) {
-        setError(response.datos?.message || 'No se pudo cargar el garage. Puede que no tengas permiso.');
+        setForm(null);
+        setInitialForm(null);
+        setCargaError('No se pudo cargar el garage. Revisá tu permiso e intentá de nuevo.');
       } else {
         const nuevoForm = {
           nombre: response.datos.nombre ?? '', ubicacion: response.datos.ubicacion ?? '',
@@ -62,15 +68,80 @@ export default function EditarGarageDueño() {
         setInitialForm({ ...nuevoForm });
       }
       setLoading(false);
-    });
-    return () => { active = false; };
-  }, [id]);
+    };
 
-  const change = (name, value) => setForm((current) => {
-    if (typeof name === 'object' && name !== null) return { ...current, ...name };
-    return { ...current, [name]: value, ...(name === 'ubicacion' ? { latitud: null, longitud: null } : {}) };
+    cargarGarage();
+    return () => { active = false; };
+  }, [id, intentoCarga]);
+
+  const recargarGarage = () => {
+    setCargaError('');
+    setLoading(true);
+    setIntentoCarga((n) => n + 1);
+  };
+
+  const getSchema = () => ({
+    nombre: [
+      { rule: (v) => v?.trim().length > 0, message: 'Requerido' },
+      { rule: (v) => v?.trim().length >= 3, message: 'Mínimo 3 caracteres' },
+    ],
+    piso: [
+      { rule: (v) => v !== '' && v !== null && v !== undefined, message: 'Requerido' },
+      { rule: (v) => !Number.isNaN(Number(v)) && Number.isInteger(Number(v)), message: 'Ingresá un número entero' },
+    ],
+    ubicacion: [
+      { rule: (v) => v?.trim().length > 0, message: 'Requerido' },
+      { rule: (v) => v?.trim().length >= 5, message: 'Mínimo 5 caracteres' },
+      () => ({ rule: () => form?.latitud !== null && form?.latitud !== undefined && form?.longitud !== null && form?.longitud !== undefined, message: 'Seleccioná una ubicación válida del mapa' }),
+    ],
+    hora_apertura: [
+      { rule: (v) => /^([01]\d|2[0-3]):[0-5]\d$/.test(String(v || '')), message: 'Ingresá el horario en formato HH:MM' },
+    ],
+    hora_cierre: [
+      { rule: (v) => /^([01]\d|2[0-3]):[0-5]\d$/.test(String(v || '')), message: 'Ingresá el horario en formato HH:MM' },
+      () => ({ rule: () => !form?.hora_apertura || !form?.hora_cierre || form.hora_apertura < form.hora_cierre, message: 'La apertura debe ser anterior al cierre' }),
+    ],
+    capacidad_reservas: [
+      { rule: (v) => v !== '' && v !== null && v !== undefined, message: 'Requerido' },
+      { rule: (v) => Number.isInteger(Number(v)) && Number(v) >= 0, message: 'Ingresá un número entero mayor o igual a 0' },
+    ],
+    capacidad_para_no_reservas: [
+      { rule: (v) => v !== '' && v !== null && v !== undefined, message: 'Requerido' },
+      { rule: (v) => Number.isInteger(Number(v)) && Number(v) >= 0, message: 'Ingresá un número entero mayor o igual a 0' },
+    ],
+    dias: [
+      { rule: (v) => Array.isArray(v) && v.length > 0, message: 'Seleccioná al menos un día' },
+    ],
   });
-  const changeCoordenadas = ({ lat, lng }) => setForm((current) => ({ ...current, latitud: lat, longitud: lng }));
+
+  const { isValid, touched, handleChangeWithTouch, touch, touchAll } = useLiveValidation(form || {}, getSchema());
+
+  const fieldsValidation = Object.keys(getSchema()).reduce((acc, field) => {
+    acc[field] = {
+      isTouched: touched[field],
+      conditions: getSchema()[field].map((item) => {
+        const ruleConfig = typeof item === 'function' ? item(form?.[field]) : item;
+        return { label: ruleConfig.message, met: ruleConfig.rule(form?.[field]) };
+      }),
+    };
+    return acc;
+  }, {});
+
+  const change = (name, value) => {
+    if (typeof name === 'object' && name !== null) {
+      Object.keys(name).forEach((campo) => touch(campo));
+      setForm((current) => ({ ...current, ...name }));
+      return;
+    }
+    handleChangeWithTouch(name, value, setForm);
+    if (name === 'ubicacion') {
+      setForm((current) => ({ ...current, latitud: null, longitud: null }));
+    }
+  };
+  const changeCoordenadas = ({ lat, lng }) => {
+    touch('ubicacion');
+    setForm((current) => ({ ...current, latitud: lat, longitud: lng }));
+  };
 
   const isDirty = useMemo(() => formHasDirtyChanges(form, initialForm), [form, initialForm]);
 
@@ -78,7 +149,7 @@ export default function EditarGarageDueño() {
     const handleBeforeUnload = (e) => {
       if (isDirty) {
         e.preventDefault();
-        e.returnValue = 'Tienes cambios sin guardar en el garage. ¿Seguro que deseas salir?';
+        e.returnValue = 'Tenés cambios sin guardar en el garage. ¿Seguro que querés salir?';
       }
     };
     window.addEventListener('beforeunload', handleBeforeUnload);
@@ -102,13 +173,13 @@ export default function EditarGarageDueño() {
     if (isDirty) {
       const result = await Swal.fire({
         title: 'Cambios sin guardar',
-        text: 'Has modificado el garage. Si sales ahora, perderás las modificaciones.',
+        text: 'Modificaste el garage. Si salís ahora, perdés las modificaciones.',
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#EF4444',
-        cancelButtonColor: '#64748B',
+        cancelButtonColor: '#475569',
         confirmButtonText: 'Salir sin guardar',
-        cancelButtonText: 'Permanecer aquí',
+        cancelButtonText: 'Permanecer acá',
         reverseButtons: true,
         zIndex: Z_INDEX.SWAL_DIALOG,
       });
@@ -119,23 +190,22 @@ export default function EditarGarageDueño() {
 
   const save = async () => {
     setError('');
+
+    if (!isValid) {
+      touchAll();
+      setError('Corregí los campos marcados antes de guardar.');
+      return;
+    }
+
     try {
-      if (form.nombre.trim().length < 3) throw new Error('El nombre debe tener al menos 3 caracteres.');
-      if (form.piso === '' || !Number.isInteger(Number(form.piso))) throw new Error('El nivel / planta debe ser un número entero.');
-      if (form.ubicacion.trim().length < 5 || form.latitud === null || form.longitud === null) throw new Error('Seleccioná una ubicación válida de las sugerencias.');
-      const horarioValido = /^([01]\d|2[0-3]):[0-5]\d$/;
-      if (!horarioValido.test(form.hora_apertura) || !horarioValido.test(form.hora_cierre) || form.hora_apertura >= form.hora_cierre) throw new Error('Ingresá horarios válidos: la apertura debe ser anterior al cierre.');
       const capacidad_reservas = Number(form.capacidad_reservas);
       const capacidad_para_no_reservas = Number(form.capacidad_para_no_reservas);
-      if (![capacidad_reservas, capacidad_para_no_reservas].every((value) => Number.isInteger(value) && value >= 0)) throw new Error('Las capacidades deben ser enteros mayores o iguales a 0.');
       const capacidad = capacidad_reservas + capacidad_para_no_reservas;
-      if (!Number.isInteger(capacidad) || capacidad < 0) throw new Error('La capacidad debe ser un entero mayor o igual a 0.');
-      if (!form.dias.length) throw new Error('Seleccioná al menos un día de disponibilidad.');
       const payload = { piso: String(form.piso).trim(), latitud: Number(form.latitud), longitud: Number(form.longitud), capacidad_reservas, capacidad_para_no_reservas, nombre: form.nombre.trim(), ubicacion: form.ubicacion.trim(), hora_apertura: form.hora_apertura || null,
         hora_cierre: form.hora_cierre || null, estado: Boolean(form.estado), capacidad, dias: form.dias, ...buildGaragePricesPayload(form) };
       setSaving(true);
       const response = await GaragesUpdate(id, payload);
-      if (!response.respuesta) throw new Error(response.datos?.message || 'No se pudo actualizar el garage.');
+      if (!response.respuesta) throw new Error(response.datos?.message || 'No se pudo actualizar el garage. Intentá de nuevo en unos segundos.');
       const merged = { ...form, ...payload, ...response.datos, hora_apertura: (response.datos?.hora_apertura ?? form.hora_apertura).slice(0, 5), hora_cierre: (response.datos?.hora_cierre ?? form.hora_cierre).slice(0, 5), dias: normalizeDays(response.datos?.dias ?? form.dias) };
       setForm(merged);
       setInitialForm({ ...merged });
@@ -144,14 +214,21 @@ export default function EditarGarageDueño() {
   };
 
   return <div className="duenio-garage-page"><HeaderDueñoGarage /><main className="duenio-garage-main"><div className="duenio-form-wrap">
-    <button type="button" className="duenio-back-button" onClick={volverADashboard} aria-label="Volver al panel del dueño"><ArrowLeft size={20} /></button>
-    <section className="duenio-section-head left"><span>Garage propio</span><h1>Editar garage</h1><p>Las ocupaciones se administran desde los flujos operativos y no pueden editarse aquí.</p></section>
-    {loading && <SkeletonFormularioGarage />}{error && <p className="duenio-feedback error">{error}</p>}
-    {form && <fieldset className="form-garage" disabled={saving} style={{ border: 0, padding: 0, margin: 0, minWidth: 0 }}>
-      <FormularioZona formData={form} onChange={change} hideSede onCoordenadasChange={changeCoordenadas} />
+    <button type="button" className="duenio-back-button" onClick={volverADashboard} aria-label="Volver al panel del dueño"><ArrowLeft size={20} aria-hidden="true" focusable="false" /></button>
+    <section className="duenio-section-head left"><h1>Editar garage</h1><p>Las ocupaciones se administran desde los flujos operativos y no pueden editarse aquí.</p></section>
+    {loading && <SkeletonFormularioGarage />}
+    {!loading && cargaError && (
+      <div className="duenio-load-error" role="alert">
+        <p>{cargaError}</p>
+        <button type="button" onClick={recargarGarage}>Reintentar</button>
+      </div>
+    )}
+    {error && <p className="duenio-feedback error" role="alert">{error}</p>}
+    {form && <fieldset className="form-garage duenio-form-fieldset" disabled={saving}>
+      <FormularioZona formData={form} onChange={change} hideSede fieldsValidation={fieldsValidation} onCoordenadasChange={changeCoordenadas} />
       <FormularioCapacidad formData={form} onChange={change} />
       <FormularioPreciosGarage values={form} onChange={change} disabled={saving} />
     </fieldset>}
-    {form && <div className="duenio-form-actions"><button onClick={save} disabled={saving}>{saving ? 'Guardando...' : 'Guardar cambios'}</button><button className="secondary" onClick={volverADashboard} disabled={saving}>Cancelar</button></div>}
+    {form && <div className="duenio-form-actions"><button onClick={save} disabled={saving}>{saving ? 'Guardando…' : 'Guardar cambios'}</button><button className="secondary" onClick={volverADashboard} disabled={saving}>Cancelar</button></div>}
   </div></main><FooterDueñoGarage /></div>;
 }

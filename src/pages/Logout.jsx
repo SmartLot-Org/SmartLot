@@ -18,5 +18,9 @@ export default function Logout() {
     });
   }, [setUsuario, navigate]);
 
-  return null;
+  return (
+    <div className="min-h-screen bg-brand-bg flex items-center justify-center">
+      <p role="status" aria-live="polite" className="text-brand-muted text-lg">Cerrando sesión…</p>
+    </div>
+  );
 }

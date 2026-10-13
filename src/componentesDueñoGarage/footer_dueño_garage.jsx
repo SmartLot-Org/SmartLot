@@ -42,22 +42,24 @@ function FooterDueñoGarage() {
     <footer
       className={`duenio-footer${compacto ? " footer-compacto" : ""}`}
       style={{ "--duenio-footer-offset": `${visualIndex * 100}%`, "--duenio-footer-items": ITEMS.length }}
-      aria-label="Navegacion del dueño de garage"
+      aria-label="Navegación del dueño de garage"
     >
       <span className="duenio-footer-indicator" aria-hidden="true" />
       {ITEMS.map((item) => {
         const isTratos = item.path === "/duenio-garage/tratos";
+        const pendientes = isTratos && !loading && count > 0 ? count : 0;
         return (
           <button
             key={item.path}
             className={`duenio-footer-item${pathname === item.path ? " is-active" : ""}`}
             onClick={() => navigate(item.path)}
             aria-current={pathname === item.path ? "page" : undefined}
+            aria-label={pendientes > 0 ? `${item.label}, ${pendientes} solicitudes pendientes` : undefined}
           >
-            <span className="duenio-footer-item__icon">
+            <span className="duenio-footer-item__icon" aria-hidden="true">
               {item.icon}
-              {isTratos && !loading && count > 0 && (
-                <span className="duenio-footer-badge">{count > 99 ? "99+" : count}</span>
+              {pendientes > 0 && (
+                <span className="duenio-footer-badge">{pendientes > 99 ? "99+" : pendientes}</span>
               )}
             </span>
             <span className="duenio-footer-item__label">{item.label}</span>

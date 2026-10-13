@@ -9,6 +9,7 @@ import BotonGenerico from "../componentesAdmin/boton_generico";
 import { UsuariosCreate } from "../servicies/API_Usuario";
 import { SedesGetById } from "../servicies/API_Sede";
 import useLiveValidation from "../hooks/useLiveValidation";
+import { showToast } from "../helpers/toast";
 
 function AgregarAdminSede() {
   const navigate = useNavigate();
@@ -81,7 +82,7 @@ function AgregarAdminSede() {
     ],
   });
 
-  const { isValid, touched, handleChangeWithTouch } = useLiveValidation(formData, getSchema());
+  const { isValid, touched, handleChangeWithTouch, touchAll } = useLiveValidation(formData, getSchema());
 
   const buildConditions = (fieldName) => {
     const schema = getSchema();
@@ -109,7 +110,11 @@ function AgregarAdminSede() {
   const handleGuardarAdmin = async () => {
     setError('');
 
-    if (!isValid) return;
+    if (!isValid) {
+      touchAll();
+      setError('Corregí los campos marcados antes de guardar.');
+      return;
+    }
     if (!formData.id_empresa || !formData.id_sede) {
       setError('No se detectó la sede o la empresa para el nuevo administrador. Volvé a la gestión de sedes e intentá de nuevo.');
       return;
@@ -129,10 +134,11 @@ function AgregarAdminSede() {
     });
 
     if (response.respuesta) {
+      showToast('Administrador creado correctamente', 'success');
       navigate('/gestion_sedes', { replace: true });
     } else {
       setLoading(false);
-      setError(response.datos?.message || 'No se pudo guardar el administrador. Verifica los datos e intenta de nuevo.');
+      setError(response.datos?.message || 'No pudimos guardar el administrador. Revisá los datos e intentá de nuevo.');
     }
   };
 
@@ -144,8 +150,8 @@ function AgregarAdminSede() {
     <div className="agregar-admin-sede-page">
       <Header />
       <div className="titulo-agregar-admin-sede">
-        <h3>Agregar Administrador de Sede</h3>
-        <p>{sedeNombre ? `Nuevo administrador para la sede "${sedeNombre}"` : 'Configuración de un administrador para una sede específica'}</p>
+        <h1>Agregar administrador de sede</h1>
+        <p>{sedeNombre ? `Nuevo administrador para la sede "${sedeNombre}"` : 'Completá los datos del administrador de la sede.'}</p>
       </div>
 
       <main className="contenido-agregar-admin-sede">
@@ -174,7 +180,7 @@ function AgregarAdminSede() {
             disabled={loading}
             className="btn-guardar-admin-sede"
           >
-            <CircleCheck size={20} color="white" />
+            <CircleCheck size={20} aria-hidden="true" />
             <span>{loading ? 'Guardando...' : 'Guardar administrador'}</span>
           </BotonGenerico>
 

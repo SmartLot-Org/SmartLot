@@ -112,10 +112,10 @@
 
 .btn-guardar-grande,
 .btn-cancelar-grande {
-  min-height: 58px;
+  height: 48px;
   padding: 0.85rem 1rem;
   border: none;
-  border-radius: 14px;
+  border-radius: 10px;
   font-size: 1rem;
   font-weight: 800;
   cursor: pointer;
@@ -127,14 +127,40 @@
 }
 
 .btn-guardar-grande {
-  background: #156fe5;
+  background: #2563EB;
   color: #ffffff;
   box-shadow: 0 14px 30px rgba(21, 111, 229, 0.24);
   flex: 1.4;
 }
 
 .btn-guardar-grande:hover {
+  background: #156FE5;
   transform: translateY(-2px);
+}
+
+.btn-guardar-grande:focus-visible,
+.btn-cancelar-grande:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.35);
+  outline-offset: 2px;
+}
+
+.agregar-zona .form-error {
+  margin: 0 0 16px;
+  padding: 12px 14px;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 10px;
+  background: #FEF2F2;
+  color: #B91C1C;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.garage-boton-motivo {
+  margin: 10px 0 0;
+  color: #475569;
+  font-size: 13px;
+  text-align: center;
 }
 
 .btn-cancelar-grande {
@@ -186,8 +212,8 @@
   .btn-guardar-grande,
   .btn-cancelar-grande {
     width: 100%;
-    min-height: 52px;
-    border-radius: 12px;
+    height: 48px;
+    border-radius: 10px;
   }
 }
 

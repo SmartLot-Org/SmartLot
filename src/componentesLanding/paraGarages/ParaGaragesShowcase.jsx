@@ -16,9 +16,6 @@ export default function ParaGaragesShowcase() {
     <section ref={container} className="relative z-10 bg-transparent px-6 py-20 content-visibility-auto">
       <div className="mx-auto max-w-6xl">
         <div className="mb-12 flex flex-col items-center text-center">
-          <span className="pg-header mb-3 block text-sm font-semibold tracking-[0.2em] text-brand-navy uppercase">
-            Visibilidad total
-          </span>
           <h2 className="pg-header mb-4 text-brand-warm">Tus números, siempre a mano</h2>
           <p className="pg-header max-w-2xl text-brand-muted">
             Entrá y sabé, sin abrir una planilla, cómo está rindiendo cada garage.
@@ -29,7 +26,7 @@ export default function ParaGaragesShowcase() {
           {METRICS.map((m) => (
             <article
               key={m.label}
-              className="pg-item glass-card rounded-[1.5rem] px-5 py-8 text-center shadow-[0_4px_20px_rgba(0,0,0,0.03)]"
+              className="pg-item glass-card rounded-[1.5rem] px-5 py-8 text-center"
             >
               <p className="font-display text-4xl font-black tracking-tight text-brand-warm tabular-nums md:text-5xl">
                 {m.value}
@@ -41,7 +38,7 @@ export default function ParaGaragesShowcase() {
           ))}
         </div>
 
-        <p className="pg-item mt-6 text-center text-xs text-brand-muted/80">
+        <p className="pg-item mt-6 text-center text-xs text-brand-muted">
           Datos de ejemplo de un portafolio de dueño. Consumos generados: no representan cobros ni pagos recibidos.
         </p>
       </div>

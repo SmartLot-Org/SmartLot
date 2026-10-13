@@ -7,7 +7,6 @@ import {
   CheckCircle2,
   Clock3,
   DoorOpen,
-  Eye,
   QrCode,
   Search,
   ShieldCheck,
@@ -326,7 +325,7 @@ const obtenerMensajeIngresoAnticipado = (reserva) => {
   const fechaHabilitacion = obtenerHoraHabilitacionIngreso(reserva);
   if (!fechaHabilitacion) return MENSAJE_INGRESO_ANTICIPADO;
 
-  return `No se puede registrar el ingreso todavia. La entrada del vehiculo se podra efectuar a partir de las ${formatearHora(fechaHabilitacion)}, una hora antes del horario de la reserva.`;
+  return `No se puede registrar el ingreso todavía. La entrada del vehículo se podrá efectuar a partir de las ${formatearHora(fechaHabilitacion)}, una hora antes del horario de la reserva.`;
 };
 
 const obtenerFechaHoraProgramada = (fecha, hora) => {
@@ -405,7 +404,6 @@ function GaragistaDashboardSkeleton() {
           <section className="garagista-section garagista-mobile-panel is-active" key={titulo}>
             <div className="garagista-section-heading" aria-hidden="true">
               <div>
-                <SkeletonLine className="garagista-skeleton-line--eyebrow" />
                 <SkeletonLine className="garagista-skeleton-line--heading" />
               </div>
               <SkeletonLine className="garagista-skeleton-line--count" />
@@ -423,7 +421,6 @@ function GaragistaDashboardSkeleton() {
       <section className="garagista-section garagista-section--movements">
         <div className="garagista-section-heading" aria-hidden="true">
           <div>
-            <SkeletonLine className="garagista-skeleton-line--eyebrow" />
             <SkeletonLine className="garagista-skeleton-line--heading" />
           </div>
           <SkeletonLine className="garagista-skeleton-line--count" />
@@ -837,10 +834,6 @@ export default function GaragistaDashboard() {
               ) : null}
 
               <div>
-                <span className="garagista-eyebrow">
-                  {esAdmin ? <Eye size={16} /> : <ShieldCheck size={16} />}
-                  {esAdmin ? "Vista de solo lectura" : "Operación diaria"}
-                </span>
                 <h1>Control de acceso</h1>
               </div>
             </div>
@@ -938,7 +931,6 @@ export default function GaragistaDashboard() {
             <section className={`garagista-section garagista-mobile-panel ${seccionMovil === "pendientes" ? "is-active" : ""}`}>
               <div className="garagista-section-heading">
                 <div>
-                  <span>Ingresos pendientes</span>
                   <h2>Reservas próximas</h2>
                 </div>
                 <strong>{reservasPendientes.length}</strong>
@@ -1004,7 +996,6 @@ export default function GaragistaDashboard() {
             <section className={`garagista-section garagista-mobile-panel ${seccionMovil === "dentro" ? "is-active" : ""}`}>
               <div className="garagista-section-heading">
                 <div>
-                  <span>Ocupacion actual</span>
                   <h2>Autos dentro</h2>
                 </div>
                 <strong>{autosDentro.length}</strong>
@@ -1081,7 +1072,6 @@ export default function GaragistaDashboard() {
           <section className="garagista-section garagista-section--movements">
             <div className="garagista-section-heading">
               <div>
-                <span>Actividad reciente</span>
                 <h2>Últimos movimientos</h2>
               </div>
               <strong>{movimientosFinalizados.length}</strong>
@@ -1122,7 +1112,14 @@ export default function GaragistaDashboard() {
 
       {!esAdmin && reservaSeleccionada ? (
         <ModalPortal onClose={cerrarVerificacion} overlayClassName="garagista-modal-overlay">
-          <form className="garagista-modal" onSubmit={verificarPatente} onClick={(e) => e.stopPropagation()}>
+          <form
+            className="garagista-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-label={patenteVerificada ? "Confirmar vehículo" : `Verificar ${tipoVerificacion}`}
+            onSubmit={verificarPatente}
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="garagista-modal__header">
               <div>
                 <h2>{patenteVerificada ? "Confirmar vehículo" : `Verificar ${tipoVerificacion}`}</h2>

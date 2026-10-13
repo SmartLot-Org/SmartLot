@@ -163,7 +163,7 @@ function AgregarUsuario() {
       { rule: (v) => !v || v.trim().length === 0 || v.trim().replace(/\D/g, "").length >= 7, message: "Mínimo 7 dígitos" },
     ],
     id_rol: [
-      { rule: (v) => v !== "", message: "Selecciona un rol" },
+      { rule: (v) => v !== "", message: "Elegí un rol" },
     ],
   });
 
@@ -184,17 +184,17 @@ function AgregarUsuario() {
     setError("");
 
     if (!isValid) {
-      setError("Corrige los errores antes de guardar.");
+      setError("Corregí los errores antes de guardar.");
       return;
     }
 
     if (ROLES_NEED_EMPRESA.includes(idRol) && !formData.id_empresa) {
-      setError("Debes seleccionar una empresa para este rol.");
+      setError("Tenés que seleccionar una empresa para este rol.");
       return;
     }
 
     if (ROLES_NEED_GARAGE.includes(idRol) && !formData.id_garage) {
-      setError("Debes seleccionar un garage para este rol.");
+      setError("Tenés que seleccionar un garage para este rol.");
       return;
     }
 
@@ -235,7 +235,7 @@ function AgregarUsuario() {
     const response = await UsuariosCreate(payload);
 
     if (response.respuesta) {
-      showToast(`Usuario ${emailNormalizado} creado. Se enviara una notificacion al email.`, "success");
+      showToast(`Usuario ${emailNormalizado} creado. Le mandamos la notificación al email.`, "success");
       navigate("/superadmin/gestion_usuarios", { replace: true });
     } else {
       setLoading(false);
@@ -267,8 +267,9 @@ function AgregarUsuario() {
         <section className="agregar-usuario-form">
           <div className="agregar-usuario-grid">
             <div className="agregar-usuario-field">
-              <label>Nombre</label>
+              <label htmlFor="agregar-usuario-nombre">Nombre</label>
               <input
+                id="agregar-usuario-nombre"
                 type="text"
                 placeholder="Ej: Juan"
                 value={formData.nombre}
@@ -280,8 +281,9 @@ function AgregarUsuario() {
             </div>
 
             <div className="agregar-usuario-field">
-              <label>Apellido</label>
+              <label htmlFor="agregar-usuario-apellido">Apellido</label>
               <input
+                id="agregar-usuario-apellido"
                 type="text"
                 placeholder="Ej: Pérez"
                 value={formData.apellido}
@@ -293,8 +295,9 @@ function AgregarUsuario() {
             </div>
 
             <div className="agregar-usuario-field">
-              <label>Email</label>
+              <label htmlFor="agregar-usuario-email">Email</label>
               <input
+                id="agregar-usuario-email"
                 type="email"
                 placeholder="ejemplo@correo.com"
                 value={formData.email}
@@ -306,8 +309,9 @@ function AgregarUsuario() {
             </div>
 
             <div className="agregar-usuario-field">
-              <label>Teléfono</label>
+              <label htmlFor="agregar-usuario-telefono">Teléfono</label>
               <input
+                id="agregar-usuario-telefono"
                 type="tel"
                 placeholder="+54 11 1234-5678"
                 value={formData.telefono}
@@ -337,8 +341,9 @@ function AgregarUsuario() {
             </div>
 
             <div className="agregar-usuario-field">
-              <label>Rol</label>
+              <label htmlFor="agregar-usuario-rol">Rol</label>
               <select
+                id="agregar-usuario-rol"
                 value={formData.id_rol}
                 onChange={(e) => handleChange("id_rol", e.target.value)}
                 autoComplete="off"
@@ -355,8 +360,9 @@ function AgregarUsuario() {
 
             {needsEmpresa && (
               <div className="agregar-usuario-field">
-                <label>Empresa</label>
+                <label htmlFor="agregar-usuario-empresa">Empresa</label>
                 <select
+                  id="agregar-usuario-empresa"
                   value={formData.id_empresa}
                   onChange={(e) => handleChange("id_empresa", e.target.value)}
                   autoComplete="off"
@@ -374,8 +380,9 @@ function AgregarUsuario() {
 
             {needsSede && (
               <div className="agregar-usuario-field">
-                <label>Sede</label>
+                <label htmlFor="agregar-usuario-sede">Sede</label>
                 <select
+                  id="agregar-usuario-sede"
                   value={formData.id_sede}
                   onChange={(e) => handleChange("id_sede", e.target.value)}
                   disabled={!formData.id_empresa}
@@ -383,7 +390,7 @@ function AgregarUsuario() {
                   required={needsSede}
                 >
                   <option value="">
-                    {formData.id_empresa ? "Seleccionar sede..." : "Primero elige una empresa"}
+                    {formData.id_empresa ? "Seleccionar sede..." : "Primero elegí una empresa"}
                   </option>
                   {idRol === 1 && (
                     <option value="sede_general">Admin general de la empresa</option>
@@ -399,8 +406,9 @@ function AgregarUsuario() {
 
             {needsGarage && (
               <div className="agregar-usuario-field">
-                <label>Garage</label>
+                <label htmlFor="agregar-usuario-garage">Garage</label>
                 <select
+                  id="agregar-usuario-garage"
                   value={formData.id_garage}
                   onChange={(e) => handleChange("id_garage", e.target.value)}
                   autoComplete="off"

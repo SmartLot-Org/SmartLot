@@ -23,7 +23,7 @@
   border: none;
   border-radius: 14px;
   background: rgba(255, 255, 255, 0.92);
-  color: #191c1e;
+  color: #1E293B;
   cursor: pointer;
   margin-bottom: 1.5rem;
   display: flex;
@@ -50,13 +50,13 @@
   font-size: clamp(2rem, 5vw, 3rem);
   line-height: 1.1;
   margin: 0 0 0.8rem;
-  color: #191c1e;
+  color: #1E293B;
   font-weight: 800;
   overflow-wrap: anywhere;
 }
 
 .editar-zona-top span {
-  color: #64748b;
+  color: #475569;
   line-height: 1.6;
   font-size: 1rem;
   display: block;
@@ -97,7 +97,7 @@
 
 .bloque-formulario h3 {
   margin: 0;
-  color: #191c1e;
+  color: #1E293B;
   font-size: 1.08rem;
   font-weight: 800;
 }
@@ -125,7 +125,7 @@
   margin-bottom: 0.55rem;
   font-size: 0.76rem;
   font-weight: 800;
-  color: #64748b;
+  color: #475569;
   text-transform: uppercase;
   letter-spacing: 0.6px;
 }
@@ -135,11 +135,11 @@
 .bloque-formulario textarea {
   width: 100%;
   border: 1px solid #e2e8f0;
-  background: #f8fafc;
+  background: #F5F7FB;
   border-radius: 12px;
   padding: 1rem;
   font-size: 0.97rem;
-  color: #191c1e;
+  color: #1E293B;
   box-sizing: border-box;
   transition: border 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
   outline: none;
@@ -173,8 +173,8 @@
   min-height: 112px;
   border: 1px solid #e2e8f0;
   border-radius: 14px;
-  background: #f8fafc;
-  color: #64748b;
+  background: #F5F7FB;
+  color: #475569;
   cursor: pointer;
   font-size: 0.9rem;
   transition: transform 0.2s ease, background 0.2s ease, border 0.2s ease;
@@ -187,7 +187,7 @@
 }
 
 .estado-btn strong {
-  color: #191c1e;
+  color: #1E293B;
   font-size: 0.95rem;
 }
 
@@ -201,9 +201,9 @@
 }
 
 .estado-btn.activo {
-  border-color: #156fe5;
-  background: #eef5ff;
-  color: #156fe5;
+  border-color: #2563EB;
+  background: #DBEAFE;
+  color: #0C1E3F;
   box-shadow: 0 10px 24px rgba(21, 111, 229, 0.12);
 }
 
@@ -227,8 +227,8 @@
   justify-content: space-between;
   align-items: center;
   gap: 1rem;
-  background: #eff6ff;
-  color: #156fe5;
+  background: #DBEAFE;
+  color: #0C1E3F;
   border-radius: 12px;
   padding: 1rem;
   margin-bottom: 1rem;
@@ -250,7 +250,7 @@
 }
 
 .plaza-item {
-  background: #f8fafc;
+  background: #F5F7FB;
   border-radius: 14px;
   padding: 1rem;
   border: 1px solid #e2e8f0;
@@ -267,8 +267,8 @@
   width: 40px;
   height: 40px;
   border-radius: 12px;
-  background: #eff6ff;
-  color: #156fe5;
+  background: #DBEAFE;
+  color: #2563EB;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -287,11 +287,11 @@
 .plaza-item h4 {
   margin: 0 0 0.35rem;
   font-size: 1rem;
-  color: #191c1e;
+  color: #1E293B;
 }
 
 .plaza-item p {
-  color: #64748b;
+  color: #475569;
   margin: 0 0 1rem;
   line-height: 1.5;
   font-size: 0.9rem;
@@ -308,12 +308,12 @@
 }
 
 .contador button {
-  width: 38px;
-  height: 38px;
+  width: 44px;
+  height: 44px;
   border: none;
   border-radius: 10px;
   background: #f1f5f9;
-  color: #191c1e;
+  color: #1E293B;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -338,9 +338,14 @@
   text-align: center;
   font-weight: 800;
   font-size: 1.15rem;
-  color: #191c1e;
+  color: #1E293B;
   outline: none;
   
+}
+
+.contador input[type="number"]:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.35);
+  outline-offset: 2px;
 }
 
 .contador input[type="number"]::-webkit-outer-spin-button,
@@ -352,7 +357,7 @@
 .contador span {
   font-weight: 800;
   font-size: 1.15rem;
-  color: #191c1e;
+  color: #1E293B;
 }
 
 .acciones-formulario {
@@ -419,7 +424,7 @@
   padding: 30px;
   border-radius: 18px;
   background: #ffffff;
-  color: #64748b;
+  color: #475569;
   font-weight: 700;
   border: 1px solid rgba(148, 163, 184, 0.15);
   width: 100%;
@@ -446,14 +451,14 @@
 .gz-garajista-name {
   font-size: 16px !important; /* Fuente controlada para que no rompa el bloque */
   font-weight: 800;
-  color: #191c1e;
+  color: #1E293B;
   margin: 0 !important;
 }
 
 .gz-role-badge {
   padding: 4px 10px;
-  background: #eff6ff;
-  color: #2563eb;
+  background: #DBEAFE;
+  color: #0C1E3F;
   border-radius: 99px;
   font-size: 10px;
   font-weight: 800;
@@ -465,12 +470,12 @@
   align-items: center;
   gap: 4px;
   font-size: 12px;
-  color: #64748b;
+  color: #475569;
   margin-bottom: 12px;
 }
 
 .gz-parking-section {
-  background-color: #f8fafc;
+  background-color: #F5F7FB;
   border-radius: 14px;
   padding: 10px;
   margin-top: auto; /* Empuja el contenedor hacia abajo simétricamente */
@@ -479,7 +484,7 @@
 .gz-parking-label {
   font-size: 9px;
   font-weight: 800;
-  color: #94a3b8;
+  color: #475569;
   letter-spacing: 0.8px;
   margin: 0 0 6px 0;
 }
@@ -519,7 +524,7 @@
 
 .gz-level-text {
   font-size: 10px;
-  color: #64748b;
+  color: #475569;
   font-weight: 600;
   text-align: left;
 }
@@ -532,8 +537,8 @@
 
 /* Botón de eliminación calibrado por hardware GPU */
 .gz-btn-eliminar {
-  width: 34px !important;
-  height: 34px !important;
+  width: 44px !important;
+  height: 44px !important;
   padding: 0 !important;
   min-height: auto !important;
   background-color: #f1f5f9 !important;
@@ -547,9 +552,14 @@
 }
 
 .gz-btn-eliminar:hover {
-  background-color: #fee2e2 !important;
-  border-color: #fca5a5 !important;
+  background-color: #FEF2F2 !important;
+  border-color: #EF4444 !important;
   transform: scale(1.05);
+}
+
+.gz-btn-eliminar:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.35);
+  outline-offset: 2px;
 }
 
 .gz-btn-eliminar:hover .gz-trash-icon {
@@ -557,7 +567,7 @@
 }
 
 .gz-trash-icon {
-  color: #64748b;
+  color: #475569;
   transition: color 0.2s ease;
 }
 
@@ -615,7 +625,7 @@
 }
 
 .btn-agregar-garajista-zona:hover {
-  background: #1054b1 !important;
+  background: #156FE5 !important;
   transform: translateY(-1px);
 }
 
@@ -642,14 +652,14 @@
   margin-bottom: 0.55rem;
   font-size: 0.76rem;
   font-weight: 800;
-  color: #64748b;
+  color: #475569;
   text-transform: uppercase;
   letter-spacing: 0.6px;
 }
 
 .horario-input-wrap {
   border: 1px solid #e2e8f0;
-  background: #f8fafc;
+  background: #F5F7FB;
   border-radius: 12px;
   transition: border 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
 }
@@ -671,7 +681,7 @@
   background: transparent;
   padding: 0.85rem 1rem;
   font-size: 0.97rem;
-  color: #191c1e;
+  color: #1E293B;
   outline: none;
   box-sizing: border-box;
   font-family: inherit;
@@ -687,7 +697,7 @@
   display: flex;
   align-items: center;
   padding-bottom: 14px;
-  color: #94a3b8;
+  color: #475569;
   opacity: 0.5;
   user-select: none;
   flex-shrink: 0;
@@ -748,7 +758,7 @@
 .toggle-text {
   font-size: 0.85rem;
   font-weight: 700;
-  color: #191c1e;
+  color: #1E293B;
   white-space: nowrap;
   text-transform: none;
   letter-spacing: 0;

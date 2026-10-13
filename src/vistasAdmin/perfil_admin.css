@@ -2,7 +2,7 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background-color: #f8fafc;
+  background-color: #F5F7FB;
 }
 
 .admin-profile-main-container {
@@ -37,22 +37,27 @@
   background: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 12px;
-  color: #64748b;
+  color: #475569;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .boton-back-admin:hover {
-  background: #f1f5f9;
-  color: #0f172a;
+  background: #F1F5F9;
+  color: #1E293B;
   transform: translateX(-2px);
+}
+
+.boton-back-admin:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.35);
+  outline-offset: 2px;
 }
 
 .textosTitulosPerfilAdmin h1 {
   margin: 0;
   font-size: 1.625rem;
   font-weight: 800;
-  color: #0f172a;
+  color: #0C1E3F;
   letter-spacing: -0.02em;
   text-align: left;
 }
@@ -61,8 +66,8 @@
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  background-color: #f0f5ff;
-  color: #2563eb;
+  background-color: #DBEAFE;
+  color: #0C1E3F;
   padding: 0.2rem 0.65rem;
   border-radius: 9999px;
   font-size: 0.72rem;
@@ -88,7 +93,7 @@
 
 .admin-bento-card-view {
   background: #ffffff;
-  border-radius: 16px;
+  border-radius: 14px;
   border: 1px solid #e2e8f0;
   box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.02);
   padding: 1.75rem;
@@ -111,14 +116,15 @@
 .security-badge-icon {
   width: 36px;
   height: 36px;
-  background-color: #fff1f2;
-  color: #f43f5e;
+  background-color: #FEF2F2;
+  color: #B91C1C;
   border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
+.security-card-header h2,
 .security-card-header h3 {
   margin: 0;
   font-size: 1.05rem;
@@ -130,7 +136,7 @@
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
-  background-color: #f8fafc;
+  background-color: #F5F7FB;
   padding: 1.25rem;
   border-radius: 12px;
   border: 1px dashed #cbd5e1;
@@ -151,7 +157,7 @@
 .ind-label {
   margin: 0;
   font-size: 0.72rem;
-  color: #64748b;
+  color: #475569;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -161,7 +167,7 @@
 .ind-val {
   margin: 0;
   font-size: 0.88rem;
-  color: #334155;
+  color: #475569;
   font-weight: 600;
   text-align: left;
 }
@@ -191,9 +197,9 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  background-color: #fff1f2;
-  color: #e11d48;
-  border: 1px solid rgba(225, 29, 72, 0.1);
+  background-color: #FEF2F2;
+  color: #B91C1C;
+  border: 1px solid rgba(185, 28, 28, 0.12);
   padding: 0.65rem 1.25rem;
   border-radius: 10px;
   font-size: 0.85rem;
@@ -203,8 +209,13 @@
 }
 
 .btn-secondary-action-admin:hover {
-  background-color: #ffe4e6;
-  color: #be123c;
+  background-color: rgba(185, 28, 28, 0.08);
+  color: #B91C1C;
+}
+
+.btn-secondary-action-admin:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.35);
+  outline-offset: 2px;
 }
 
 .admin-profile-loading-screen {
@@ -212,8 +223,38 @@
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  color: #64748b;
+  color: #475569;
   font-weight: 600;
+}
+
+/* --- Información personal (tokens de texto) --- */
+.perfil-info-titulo {
+  margin: 0 0 1.25rem;
+  color: #1E293B;
+  text-align: left;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.perfil-info-fila {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid #E2E8F0;
+}
+
+.perfil-info-label {
+  color: #475569;
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+}
+
+.perfil-info-valor {
+  color: #1E293B;
+  font-weight: 600;
+  font-size: 0.95rem;
 }
 /* src/vistasAdmin/perfil_admin.css */
 
@@ -227,7 +268,7 @@
 
 .admin-scope-root .admin-bento-card-view {
   background: #ffffff;
-  border-radius: 16px;
+  border-radius: 14px;
   border: 1px solid #e2e8f0;
   padding: 1.75rem;
   box-sizing: border-box;

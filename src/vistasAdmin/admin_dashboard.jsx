@@ -6,7 +6,7 @@ import Header from "../componentesAdmin/header_admin";
 import FooterAdmin from "../componentesAdmin/footer_admin";
 import { useAuth } from "../contexts/useAuth";
 import { isEmpresaAdmin } from "../helpers/roles";
-import { UserPlus, Car, SlidersVertical, PersonStanding, WalletCards, UserRound, Building2 } from "lucide-react";
+import { UserPlus, Car, SlidersVertical, PersonStanding, WalletCards, Building2 } from "lucide-react";
 
 const DashboardHeaderSkeleton = () => (
   <section className="dashboard-header-skeleton" aria-label="Cargando dashboard">
@@ -16,7 +16,7 @@ const DashboardHeaderSkeleton = () => (
 );
 
 const DashboardSkeletonGrid = ({ cantidad = 6 }) => (
-  <div className="dashboard-grid" aria-label="Cargando acciones rapidas">
+  <div className="dashboard-grid" aria-label="Cargando acciones rápidas">
     {Array.from({ length: cantidad }).map((_, index) => (
       <article className="dashboard-card dashboard-card-skeleton" key={index}>
         <span className="dashboard-skeleton-icon" />
@@ -56,7 +56,7 @@ function AdminDashboard() {
         ) : (
           <>
             <h1>Acciones Rápidas</h1>
-            <p>Desde aquí puedes acceder a las funciones de mayor uso.</p>
+            <p>Desde acá podés acceder a las funciones que más usás.</p>
           </>
         )}
 
@@ -66,9 +66,10 @@ function AdminDashboard() {
           <div className="dashboard-grid">
             <DashboardBoton
               icono={<UserPlus />}
-              titulo="Gestión de Usuarios"
-              descripcion="Gestionar y agregar nuevos usuarios"
+              titulo="Gestión de empleados"
+              descripcion="Gestioná y agregá nuevos empleados"
               onClick={() => navigate("/gestion_de_empleados")}
+              TituloTag="h2"
             />
 
             {esAdminEmpresa && (
@@ -77,6 +78,7 @@ function AdminDashboard() {
                 titulo="Gestión de sedes"
                 descripcion="Creá sedes y asigná sus administradores"
                 onClick={() => navigate("/gestion_sedes")}
+                TituloTag="h2"
               />
             )}
 
@@ -85,6 +87,7 @@ function AdminDashboard() {
               titulo="Gestión de garages"
               descripcion="Buscá garages y administrá los contratados"
               onClick={() => navigate("/gestion_garages")}
+              TituloTag="h2"
             />
 
             <DashboardBoton
@@ -92,6 +95,7 @@ function AdminDashboard() {
               titulo="Panel de control"
               descripcion="Información de vital importancia"
               onClick={() => navigate("/admin_panel_de_control")}
+              TituloTag="h2"
             />
 
             <DashboardBoton
@@ -99,6 +103,7 @@ function AdminDashboard() {
               titulo="Control de acceso"
               descripcion="Control de entradas y salidas"
               onClick={() => navigate("/control-acceso")}
+              TituloTag="h2"
             />
 
             <DashboardBoton
@@ -106,6 +111,7 @@ function AdminDashboard() {
               titulo="Pagos"
               descripcion="Consultá saldos, liquidaciones y movimientos"
               onClick={() => navigate("/admin_pagos")}
+              TituloTag="h2"
             />
 
           </div>

@@ -1,5 +1,5 @@
 import "./tarjeta_garages.css";
-import { Pencil, MapPin, Clock } from "lucide-react";
+import { Pencil, MapPin } from "lucide-react";
 import { getDiaDisplay } from "../helpers/diasSemana";
 
 function TarjetaGarage({
@@ -9,16 +9,26 @@ function TarjetaGarage({
   capacidad,
   dias,
   imagen,
-  ultimoReporte,
   onClick,
   relaciones = [],
 }) {
   const estaAbierto = estado?.toLowerCase() === "abierto";
 
   return (
-    <article className="tarjeta-garage" onClick={onClick}>
+    <article
+      className="tarjeta-garage"
+      onClick={onClick}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onClick?.();
+        }
+      }}
+    >
       <div className="garage-media">
-        <img src={imagen} alt={titulo} className="garage-img" />
+        <img src={imagen} alt="" className="garage-img" />
 
         <span
           className={`estado-garage ${
@@ -49,11 +59,6 @@ function TarjetaGarage({
           <span>
             <MapPin size={17} />
             {plazas} plazas
-          </span>
-
-          <span>
-            <Clock size={17} />
-            {ultimoReporte}
           </span>
 
           {relaciones.length > 0 ? (

@@ -98,7 +98,7 @@
 
 .cn-panel-head span {
   font-size: 12px;
-  color: #64748b;
+  color: #475569;
 }
 
 .cn-panel-head button {
@@ -177,7 +177,7 @@
   gap: 6px;
   text-align: center;
   padding: 32px 20px;
-  color: #64748b;
+  color: #475569;
 }
 
 .cn-vacio svg {
@@ -269,7 +269,7 @@
 
 .cn-item-meta small {
   font-size: 11px;
-  color: #94a3b8;
+  color: #475569;
 }
 
 .cn-item-cta {
@@ -326,7 +326,7 @@
   right: 8px;
   border: 0;
   background: transparent;
-  color: #94a3b8;
+  color: #475569;
   cursor: pointer;
   display: inline-flex;
   align-items: center;

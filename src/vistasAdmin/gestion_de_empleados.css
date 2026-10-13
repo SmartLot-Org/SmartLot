@@ -21,7 +21,7 @@
   border: none;
   border-radius: 14px;
   background: white !important;
-  color: #191c1e;
+  color: #1E293B;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -54,7 +54,7 @@
 .titulo-vista {
   font-size: 38px;
   font-weight: 850;
-  color: #1a1c1e;
+  color: #1E293B;
   margin: 0;
   letter-spacing: 0;
   text-align: left;
@@ -63,7 +63,7 @@
 
 .subtitulo-vista {
   font-size: 16px;
-  color: #64748b;
+  color: #475569;
   margin-top: 8px;
   line-height: 1.4;
   text-align: left;
@@ -89,7 +89,7 @@
   left: 18px;
   top: 50%;
   transform: translateY(-50%);
-  color: #94a3b8;
+  color: #475569;
   z-index: 10;
 }
 
@@ -106,14 +106,14 @@
   -webkit-appearance: none;
   width: 100%;
   display: block;
-  background: #E8EAED;
+  background: #F1F5F9;
   border: 1px solid #E2E8F0;
   border-radius: 16px;
   padding: 14px 48px 14px 18px;
   font-size: 15px;
   line-height: 1.3;
   font-weight: 600;
-  color: #1a1c1e;
+  color: #1E293B;
   cursor: pointer;
   transition: all 0.2s ease;
   min-width: 280px;
@@ -123,7 +123,7 @@
 }
 
 .btn-selector-sede:hover {
-  background-color: #dee0e3;
+  background-color: #E2E8F0;
   border-color: #cbd5e1;
 }
 
@@ -135,10 +135,10 @@
 }
 
 .texto-sede {
-  color: #1a1c1e;
+  color: #1E293B;
   font-size: 16px;
   font-weight: 500;
-  font-family: 'Inter', sans-serif;
+  font-family: "DM Sans", system-ui, sans-serif;
 }
 
 .chevron-select-icon {
@@ -146,7 +146,7 @@
   top: 50%;
   right: 16px;
   transform: translateY(-50%);
-  color: #64748b;
+  color: #475569;
   pointer-events: none;
   transition: transform 0.2s ease, color 0.2s ease;
 }
@@ -158,7 +158,7 @@
 }
 
 .select-wrapper:focus-within .chevron-select-icon {
-  color: #64748b;
+  color: #475569;
   transform: translateY(-50%) rotate(180deg);
 }
 
@@ -171,13 +171,13 @@
   background-color: #ffffff;
   border: none;
   border-radius: 18px;
-  color: #1a1c1e;
+  color: #1E293B;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .btn-icon-filtros:hover {
-  background-color: #dee0e3;
+  background-color: #E2E8F0;
   transform: scale(1.02);
 }
 
@@ -190,7 +190,7 @@
   width: 100%;
   height: 56px;
   padding-left: 52px;
-  background: #E8EAED;
+  background: #F1F5F9;
   border: none;
   border-radius: 16px;
   font-size: 16px;
@@ -201,6 +201,68 @@
 .input-moderno:hover {
   background: #e2e8f0;
   border-color: #cbd5e1;
+}
+
+.input-moderno:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.35);
+  outline-offset: 2px;
+}
+
+/* Banner de contexto: alta de personal desde un garage */
+.contexto-garage-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 18px;
+  padding: 12px 16px;
+  border: 1px solid #BFDBFE;
+  border-radius: 10px;
+  background: #DBEAFE;
+  color: #0C1E3F;
+  box-sizing: border-box;
+}
+
+.contexto-garage-texto {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+}
+
+.contexto-garage-texto strong {
+  font-size: 14px;
+}
+
+.contexto-garage-texto span {
+  color: #475569;
+  font-size: 13px;
+}
+
+.btn-contexto-volver {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid #BFDBFE;
+  border-radius: 10px;
+  background: #FFFFFF;
+  color: #0C1E3F;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.btn-contexto-volver:hover {
+  border-color: #2563EB;
+}
+
+.btn-contexto-volver:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.35);
+  outline-offset: 2px;
 }
 
 /* =========================================================================
@@ -220,7 +282,7 @@
   padding: 40px;
   border-radius: 18px;
   background: #ffffff;
-  color: #64748b;
+  color: #475569;
   font-weight: 700;
   border: 1px solid rgba(148, 163, 184, 0.18);
 }
@@ -234,7 +296,7 @@
 /* TARJETAS MÁS COMPACTAS */
 .card-empleado-v3 {
   background: white;
-  border-radius: 24px;
+  border-radius: 14px;
   padding: 18px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
   display: flex;
@@ -252,14 +314,14 @@
   align-items: center;
   gap: 4px;
   font-size: 14px;
-  color: #64748b;
+  color: #475569;
   margin-bottom: 12px;
 }
 
 .role-badge-v3 {
   padding: 6px 12px;
-  background: #eff6ff;
-  color: #2563eb;
+  background: #DBEAFE;
+  color: #0C1E3F;
   border-radius: 99px;
   font-size: 10px;
   font-weight: 800;
@@ -269,7 +331,7 @@
 .emp-name-v3 {
   font-size: 20px;
   font-weight: 850;
-  color: #1a1c1e;
+  color: #1E293B;
   margin: 0 0 12px 0;
   text-align: left;
 }
@@ -280,7 +342,7 @@
 }
 
 .parking-pill-v3 {
-  background: #f1f3f4;
+  background: #F1F5F9;
   padding: 10px;
   border-radius: 16px;
   display: flex;
@@ -310,13 +372,13 @@
 .spot-v3 {
   font-weight: 800;
   font-size: 14px;
-  color: #1a1c1e;
+  color: #1E293B;
   text-align: left;
 }
 
 .level-v3 {
   font-size: 12px;
-  color: #5f6368;
+  color: #475569;
   text-align: left;
 }
 
@@ -334,13 +396,13 @@
   gap: 8px;
   font-size: 13px;
   font-weight: 600;
-  color: #1a1c1e;
+  color: #1E293B;
 }
 
 .green-dot {
   width: 9px;
   height: 9px;
-  background: #34a853;
+  background: #22C55E;
   border-radius: 50%;
 }
 
@@ -349,18 +411,18 @@
   justify-content: space-between;
   align-items: center;
   padding-top: 10px;
-  border-top: 1px solid #f1f3f4;
+  border-top: 1px solid #F1F5F9;
 }
 
 .email-v3 {
   font-size: 13px;
-  color: #5f6368;
+  color: #475569;
 }
 
 /* SECCIÓN TELÉFONO PERFECTAMENTE ALINEADO */
 .empTel {
   font-size: 12px;
-  color: #5f6368;
+  color: #475569;
   font-weight: 600;
   display: block;
   margin-top: 2px;
@@ -369,8 +431,8 @@
 
 /* BOTÓN ELIMINAR */
 .btn-eliminar-v3 {
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -382,8 +444,13 @@
 }
 
 .btn-eliminar-v3:hover {
-  background-color: #fee2e2 !important;
-  border-color: #fca5a5 !important;
+  background-color: #FEF2F2 !important;
+  border-color: #EF4444 !important;
+}
+
+.btn-eliminar-v3:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.35);
+  outline-offset: 2px;
 }
 
 .btn-eliminar-v3:hover .trash-icon-v3 {
@@ -391,7 +458,7 @@
 }
 
 .trash-icon-v3 {
-  color: #64748b;
+  color: #475569;
   transition: color 0.2s ease;
 }
 
@@ -407,7 +474,7 @@
 .empleado-skeleton-parking-icon {
   position: relative;
   overflow: hidden;
-  background: #e5e7eb;
+  background: #F1F5F9;
 }
 
 .empleados-btn-skeleton::after,
@@ -494,7 +561,7 @@
   height: 27px;
   flex: 0 0 82px;
   border-radius: 99px;
-  background: #dbe5f3;
+  background: #DBEAFE;
 }
 
 .empleado-skeleton-sede {
@@ -518,7 +585,7 @@
   display: flex;
   align-items: center;
   gap: 16px;
-  background: #f1f3f4;
+  background: #F1F5F9;
 }
 
 .empleado-skeleton-parking-icon {
@@ -561,7 +628,7 @@
 .empleado-skeleton-email {
   width: 66%;
   padding-top: 10px;
-  border-top: 1px solid #f1f3f4;
+  border-top: 1px solid #F1F5F9;
 }
 
 @keyframes empleados-skeleton-shimmer {
@@ -701,7 +768,7 @@
   background: #F1F5F9;
   border: none;
   border-radius: 12px;
-  color: #64748B;
+  color: #475569;
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -767,7 +834,7 @@
   align-items: center;
   padding: 4px 12px;
   background: #F1F5F9;
-  color: #64748B;
+  color: #475569;
   border-radius: 99px;
   font-size: 11px;
   font-weight: 700;
@@ -862,7 +929,7 @@
 .empty-archived-text {
   font-size: 18px;
   font-weight: 700;
-  color: #64748B;
+  color: #475569;
   margin: 0 0 6px;
 }
 
@@ -879,7 +946,7 @@
   position: relative;
   display: flex;
   align-items: center;
-  background-color: #E8EAED;
+  background-color: #F1F5F9;
   /* Gris unificado con tus buscadores */
   border-radius: 14px;
   /* Mismo radio que tus botones */
@@ -922,7 +989,7 @@
   height: 100%;
   font-size: 14px;
   font-weight: 700;
-  color: #64748b;
+  color: #475569;
   /* Gris apagado por defecto */
   cursor: pointer;
   position: relative;
@@ -935,13 +1002,13 @@
 
 /* El botón seleccionado pasa a color oscuro destacado */
 .role-switch-btn.active {
-  color: #1a1c1e;
+  color: #1E293B;
 }
 
 .role-switch-skeleton {
   position: relative;
   overflow: hidden;
-  background: #e5e7eb;
+  background: #F1F5F9;
   border-radius: 14px;
   width: 240px;
   /* Misma anchura exacta que el switch real */

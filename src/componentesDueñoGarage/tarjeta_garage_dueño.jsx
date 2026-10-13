@@ -1,55 +1,37 @@
-import { useEffect, useRef, useState } from "react";
-import { ArrowUpRight, Clock3, MapPin, MoreVertical, ParkingCircle, Pencil, RotateCcw, ShieldCheck, Trash2 } from "lucide-react";
+import { ArrowUpRight, Clock3, MapPin, ParkingCircle, RotateCcw, ShieldCheck, Trash2 } from "lucide-react";
 import { getDiaDisplay } from "../helpers/diasSemana";
 import "./tarjeta_garage_dueño.css";
 import { formatARS } from "../helpers/prices";
 
 function TarjetaGarageDueño({ garage, porcentajeOcupacion = 0, onClick, onBorrador, onRestaurar, esBorrador }) {
-  const [menuAbierto, setMenuAbierto] = useState(false);
-  const menuRef = useRef(null);
   const nombre = garage.nombre || garage.name || garage.descripcion || "Garage sin nombre";
   const capacidad = Number(garage.capacidad || 0);
   const piso = garage.piso ? `Nivel ${garage.piso}` : "Sin nivel";
   const estadoActivo = garage.estado === true || garage.estado === 1 || String(garage.estado).toLowerCase() === "activo" || String(garage.estado).toLowerCase() === "abierto";
 
-  useEffect(() => {
-    if (!menuAbierto) return;
-
-    const manejarClickFuera = (event) => {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
-        setMenuAbierto(false);
-      }
-    };
-
-    document.addEventListener("mousedown", manejarClickFuera);
-    return () => document.removeEventListener("mousedown", manejarClickFuera);
-  }, [menuAbierto]);
-
-  const cerrarMenu = () => setMenuAbierto(false);
-
   return (
     <article className={`duenio-garage-card${esBorrador ? " is-draft" : ""}`}>
       <div className="duenio-garage-card-top">
         <span className={`duenio-garage-state${esBorrador ? " is-draft" : (estadoActivo ? " is-open" : " is-closed")}`}>
-          <ShieldCheck size={15} />
+          <ShieldCheck size={15} aria-hidden="true" focusable="false" />
           {esBorrador ? "Borrador" : (estadoActivo ? "Operativo" : "Cerrado")}
         </span>
 
         <div className="duenio-garage-card-top-actions">
           {!esBorrador && (
             <button onClick={onClick} aria-label={`Ver detalle de ${nombre}`}>
-              <ArrowUpRight size={19} />
+              <ArrowUpRight size={19} aria-hidden="true" focusable="false" />
             </button>
           )}
           {!esBorrador && (
             <button className="duenio-card-trash-btn" onClick={onBorrador} aria-label={`Mover ${nombre} a borrador`}>
-              <Trash2 size={18} />
+              <Trash2 size={18} aria-hidden="true" focusable="false" />
             </button>
           )}
-         
+
           {esBorrador && (
             <button onClick={onRestaurar} aria-label={`Restaurar ${nombre}`} className="duenio-restore-btn">
-              <RotateCcw size={18} />
+              <RotateCcw size={18} aria-hidden="true" focusable="false" />
             </button>
           )}
         </div>
@@ -62,23 +44,22 @@ function TarjetaGarageDueño({ garage, porcentajeOcupacion = 0, onClick, onBorra
       </div>
 
       <div className="duenio-garage-title">
-        <span className="duenio-garage-index">SL Garage</span>
         <h3>{nombre}</h3>
       </div>
 
       <div className="duenio-garage-mapline">
-        <MapPin size={17} />
-        <span>{garage.ubicacion || "Ubicacion pendiente"}</span>
+        <MapPin size={17} aria-hidden="true" focusable="false" />
+        <span>{garage.ubicacion || "Ubicación pendiente"}</span>
       </div>
 
       <div className="duenio-garage-metrics">
         <div>
-          <ParkingCircle size={18} />
+          <ParkingCircle size={18} aria-hidden="true" focusable="false" />
           <strong>{capacidad}</strong>
           <span>plazas</span>
         </div>
         <div>
-          <Clock3 size={18} />
+          <Clock3 size={18} aria-hidden="true" focusable="false" />
           <strong>{piso}</strong>
           <span>{garage.hora_apertura && garage.hora_cierre ? `${garage.hora_apertura} - ${garage.hora_cierre}` : "Horario no definido"}</span>
         </div>
@@ -94,7 +75,7 @@ function TarjetaGarageDueño({ garage, porcentajeOcupacion = 0, onClick, onBorra
 
       <div className="duenio-garage-occupancy">
         <div>
-          <span>Ocupacion actual</span>
+          <span>Ocupación actual</span>
           <strong>{porcentajeOcupacion}%</strong>
         </div>
         <div className="duenio-garage-bar">
@@ -104,7 +85,7 @@ function TarjetaGarageDueño({ garage, porcentajeOcupacion = 0, onClick, onBorra
 
       {esBorrador && (
         <button className="duenio-card-restore-cta" onClick={onRestaurar}>
-          <RotateCcw size={16} />
+          <RotateCcw size={16} aria-hidden="true" focusable="false" />
           Restaurar garage
         </button>
       )}

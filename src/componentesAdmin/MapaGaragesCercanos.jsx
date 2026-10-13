@@ -99,7 +99,7 @@ export default function MapaGaragesCercanos({ sede, garages, selectedGarageId, o
         <span>{selectedPoint.garage.distanciaTexto || `${Number(selectedPoint.garage.distance || 0).toFixed(1)} km`} · {selectedPoint.garage.tiempoConduccion || 'tiempo estimado'}</span>
         <h3>{selectedPoint.garage.nombre || 'Garage'}</h3>
         <p>{selectedPoint.garage.ubicacion || 'Ubicación no informada'}</p>
-        <div><strong>{selectedPoint.garage.cocheras_disponibles ?? 0}</strong><small> cocheras disponibles</small></div>
+        <div><strong>{selectedPoint.garage.cocheras_disponibles ?? 0}</strong><small> plazas disponibles</small></div>
         <button type="button" onClick={() => onSelectGarage(selectedPoint.garage)}>Ver tarjeta completa</button>
       </article>
     </InfoWindow> : null}

@@ -6,29 +6,31 @@
   gap: 16px;
   padding: 18px 22px;
   border: none;
-  border-radius: 16px;
-  background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%);
-  color: white;
+  border-radius: 10px;
+  background: #2563EB;
+  color: #FFFFFF;
   cursor: pointer;
   text-align: left;
-  font-family: system-ui, -apple-system, sans-serif;
-  box-shadow: 0 6px 20px rgba(29, 78, 216, 0.25);
-  transition: box-shadow 0.3s, transform 0.2s;
+  font-family: "DM Sans", system-ui, sans-serif;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.25);
+  transition: box-shadow 0.3s, transform 0.2s, background 0.2s;
   box-sizing: border-box;
   margin-top: 3%;
 }
 
 .report-btn:hover {
-  box-shadow: 0 10px 28px rgba(29, 78, 216, 0.35);
+  background: #156FE5;
+  box-shadow: 0 8px 30px rgba(15, 23, 42, 0.1);
   transform: translateY(-2px);
 }
 
 .report-btn:active {
+  background: #1A73E8;
   transform: scale(0.98);
 }
 
 .report-btn:focus-visible {
-  outline: 2px solid #93c5fd;
+  outline: 3px solid rgba(37, 99, 235, 0.35);
   outline-offset: 4px;
 }
 
@@ -39,7 +41,7 @@
   align-items: center;
   justify-content: center;
   background: rgba(255, 255, 255, 0.18);
-  border-radius: 12px;
+  border-radius: 10px;
   flex-shrink: 0;
 }
 
@@ -62,7 +64,7 @@
 
 .report-btn__subtitle {
   font-size: 0.75rem;
-  opacity: 0.8;
+  opacity: 0.85;
   font-weight: 500;
   line-height: 1.3;
 }

@@ -3,7 +3,7 @@
   padding: 15px 4%;
   background-color: #f5f7fb;
   min-height: 100vh;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family: "DM Sans", system-ui, sans-serif;
   width: 100%;
   box-sizing: border-box;
   padding-bottom: 120px;
@@ -12,7 +12,7 @@
 .admin-dashboard p {
   padding-bottom: 16px;
   text-align: left;
-  color: #4A5568;
+  color: #475569;
 }
 
 /* TITULO PRINCIPAL */
@@ -21,7 +21,7 @@
   margin-bottom: 6px;
   text-align: left;
   font-size: 26px;
-  color: #191C1E;
+  color: #0C1E3F;
 }
 
 /* GRID DE CARDS */
@@ -49,12 +49,17 @@
   outline: none;
 }
 
+.dashboard-card:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.35);
+  outline-offset: 2px;
+}
+
 /* ICONO SUPERIOR IZQUIERDO */
 .dashboard-icon {
   width: 42px;
   height: 42px;
   background: #ffffff;
-  color: grey; /* Color de acento de marca para consistencia visual */
+  color: #2563EB; /* Color de acento de marca para consistencia visual */
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -68,6 +73,7 @@
 }
 
 /* TITULO CARD */
+.dashboard-card h2,
 .dashboard-card h3 {
   margin: 0;
   font-size: 18px;
@@ -82,7 +88,7 @@
   margin: 0;
   padding: 0;
   font-size: 13.5px;
-  color: #64748B;
+  color: #475569;
   text-align: left;
   line-height: 1.4;
 }

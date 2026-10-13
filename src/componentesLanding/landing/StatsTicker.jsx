@@ -34,7 +34,10 @@ export default function StatsTicker({
   }, { scope: tickerRef });
 
   return (
-    <div ref={tickerRef} className="w-full bg-brand-deep py-6 overflow-hidden border-y border-white/5" aria-label={ariaLabel}>
+    <div ref={tickerRef} className="relative w-full bg-brand-deep py-6 overflow-hidden border-y border-white/5" aria-label={ariaLabel}>
+      <span className="absolute right-4 top-2 z-10 rounded-full border border-white/15 bg-brand-deep px-2.5 py-1 text-[11px] font-medium uppercase tracking-wider text-white/70">
+        Datos de ejemplo
+      </span>
       <div className="ticker-track flex whitespace-nowrap w-fit" aria-hidden="true">
 
         {[...Array(2)].map((_, idx) => (
@@ -58,7 +61,7 @@ export default function StatsTicker({
 
       </div>
       <div className="sr-only" aria-live="polite" aria-atomic="true">
-        {stats.map((s) => `${s.value} ${s.label}`).join(', ')}
+        {`Datos de ejemplo: ${stats.map((s) => `${s.value} ${s.label}`).join(', ')}`}
       </div>
     </div>
   );
