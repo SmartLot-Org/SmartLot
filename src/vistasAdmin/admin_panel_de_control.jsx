@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
@@ -18,6 +18,7 @@ import FooterEmpleado from '../componentesAdmin/footer_admin';
 import BotonReportes from "../componentesAdmin/boton_reportes";
 import EmptyState from "../componentesCompartidos/EmptyState";
 import ModalPortal from "../componentesCompartidos/ModalPortal";
+import ToastUndo from "../componentesShared/ToastUndo";
 import TablaReservasPanleControl from "../componentesAdmin/tabla_reservas_panelControl";
 import {
   ConflictosCreate,
@@ -188,14 +189,12 @@ export default function AdminPanelControl() {
   const [compactMode, setCompactMode] = useState(true);
   const [ultimaActualizacion, setUltimaActualizacion] = useState(null);
   const [conflictosResolviendo, setConflictosResolviendo] = useState(() => new Set());
-  const toastTimeoutRef = useRef(null);
   const [tiempoTranscurrido, setTiempoTranscurrido] = useState("");
   const [isStale, setIsStale] = useState(false);
 
+  // El cierre automático y el "Deshacer" los gestiona el ToastUndo compartido.
   const mostrarToast = (mensaje, onDeshacer) => {
-    if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
     setToast({ mensaje, onDeshacer });
-    toastTimeoutRef.current = setTimeout(() => setToast(null), 5000);
   };
 
   useEffect(() => {
@@ -809,15 +808,12 @@ export default function AdminPanelControl() {
       <FooterEmpleado />
 
       {toast && (
-        <div className="toast-container">
-          <div className="toast">
-            <span className="toast__message">{toast.mensaje}</span>
-            <button className="toast__undo" onClick={() => { toast.onDeshacer(); setToast(null); if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current); }}>
-              Deshacer
-            </button>
-            <div className="toast__progress" />
-          </div>
-        </div>
+        <ToastUndo
+          key={toast.mensaje}
+          message={toast.mensaje}
+          onUndo={toast.onDeshacer}
+          onClose={() => setToast(null)}
+        />
       )}
 
       {modalSoporteOpen && (

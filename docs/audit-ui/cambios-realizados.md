@@ -381,3 +381,73 @@ de pantalla y sandbox de Mercado Pago; no se atribuyen resultados runtime que no
 | `.agents/skills/impeccable/scripts/impeccable.cmd context` | No pudo descargar el engine 0.1.5 desde GitHub por falta de acceso/permiso de red. Se aplicó el fallback leyendo `PRODUCT.md` y `DESIGN.md`; no se corrió `detect`. |
 | Browser/MCP | `list_mcp_resources` no devolvió recursos ni hay runner en el lockfile; se usó Edge headless/CDP contra `dist/`. Smoke: `/para-garages` a 360px con `scrollWidth=360`; reduced motion emulado antes del mount mantiene ticker estático en landing; flipbook pasó de 1 request antes del scroll a 120 después y transfirió 10.456.063 bytes en ~60s a 4G emulado. Capturas de `/`, `/para-garages`, `/login` y `/recuperar-clave` quedaron en Temp, no en el repo. API `localhost:3000` no disponible; sin pruebas de rutas protegidas, cámara ni sandbox. |
 | Working tree | Limpio al iniciar. Cambios intencionales: tres documentos de `docs/audit-ui/`; `src/index.css`; vistas de reduced-motion, lector QR, pagos admin y polling superadmin; cuatro tests fuente; sin commit. |
+
+## 10. Sesión 2026-10-14 — cierre técnico de métricas P6 (side-stripes, motion, foco y muted)
+
+> Continuación del plan aprobado (`plan-de-ejecucion.md` §6) sin reabrir P1–P4 ni los checks runtime de
+> P5 (siguen requiriendo API/dispositivo/sandbox). Esta tanda cierra las métricas medibles del audit con
+> la app sin correr: side-stripes a 0, warnings `layout-transition` del detector a 0, auditoría de
+> `outline:none` 45/45 con reemplazo de foco y `#94a3b8` fuera de superadmin solo en usos permitidos.
+> **Sin dependencias nuevas, sin cambios de color en superadmin (ADR-007) y sin commit (no pedido).**
+
+### P6-A — Side-stripes (`border-left: ≥3px`) 2 → 0
+
+| Archivo | Cambios |
+|---|---|
+| `vistasAdmin/admin_panel_de_control.css` | Side-stripe de `.conflict-card` eliminado junto a los modificadores `--resuelto`/`--proceso`/`--pendiente` (el estado ya lo comunican `.conflict-card__badge` y `.conflict-card__status` con texto). Bloque `.toast*` local eliminado completo (side-stripe `border-left: 4px`, easing con rebote `cubic-bezier(0.34, 1.56, 0.64, 1)` y `@keyframes` que animaban `width`): era una copia desfasada del componente compartido. |
+| `vistasAdmin/admin_panel_de_control.jsx` | El toast manual (markup + `toastTimeoutRef`) se reemplazó por el componente compartido **`ToastUndo`** (`componentesShared/ToastUndo.jsx`), que ya trae `role="status"`, `aria-live="polite"`, cierre a los 5 s, "Deshacer" y `prefers-reduced-motion`. Se eliminó `useRef`/`toastTimeoutRef` sin uso. |
+
+> Nota: el bloque `.conflict-card*` de `admin_panel_de_control.css` es **CSS muerto** (ningún JSX lo
+> referencia; la vista usa `.conflicts-table`). Se limpiaron los side-stripes y modificadores; la
+> eliminación completa del bloque queda como limpieza opcional registrada en `pendientes.md`.
+
+### P6-B — Warnings `layout-transition` del detector 2 → 0 (`empleados_dashboard.css`)
+
+| Archivo | Cambios |
+|---|---|
+| `vistasEmpleados/empleados_dashboard.css` | (1) Bloque muerto `.empleado-capacidad-*` (62 líneas, sin uso en JSX) eliminado: contenía el `transition: width` que marcaba `layout-transition:500`. (2) `.empleado-reservas-rest` ya no anima `max-height`/`margin`: colapsa con `display:none/block` y una entrada con fade + `translateY` (`@keyframes empleado-reservas-rest-in`), con el `prefers-reduced-motion` actualizado para la nueva animación. (3) Reglas muertas de `.empleado-reporte-overlay` eliminadas: `position/inset/z-index/display/padding/background/blur` las pisan siempre los inline styles de `ModalPortal` (ganador por especificidad), incluido el `backdrop-filter: blur(3px)` que no llegaba a aplicarse; la clase se conserva en el JSX como hook de override. (4) `.empleado-reporte-close` 38×38px → **44×44px** (Regla del Pulgar) + `:focus-visible`. |
+| `vistasAdmin/admin_panel_de_control.css` | Extra del barrido: `.panel-stats__progress-bar` usaba easing con rebote `cubic-bezier(0.34, 1.56, 0.64, 1)` (prohibido por craft floor) → `ease-out`. |
+
+> **Hallazgo nuevo registrado (no tocado por ser compartido global):** `ModalPortal` pinta el overlay con
+> inline styles `backdropFilter: blur(6px)` (`src/componentesCompartidos/ModalPortal.jsx:70-71`), es decir
+> vidrio en overlays de paneles de producto (Regla del Vidrio Solo Landing). Queda como decisión pendiente
+> en `pendientes.md`: quitarlo afecta a todos los modales del producto.
+
+### P6-C — Auditoría de `outline: none` (45/45 con foco visible)
+
+Se revisaron las **45** ocurrencias de `src/**/*.{css,jsx}`: 44 ya tenían reemplazo en `:focus`,
+`:focus-visible` o contenedor `:focus-within`. La única brecha era el disparador del combobox de sede:
+
+| Archivo | Cambios |
+|---|---|
+| `componentesAdmin/formulario_zona.css` | `.dropdown-trigger-clean:focus` suma el borde/anillo azul señal junto a `input`/`textarea`, y `:focus-visible` aporta el outline de 3px `rgba(37, 99, 235, 0.35)`. |
+| `componentesAdmin/formularios.css` | Mismo tratamiento para `.formulario-container .dropdown-trigger-clean` (antes solo `input` tenía `:focus`). |
+
+### P6-D — `#94a3b8` fuera de superadmin: texto real → `#475569` (49 → 43 usos totales)
+
+Respetando ADR-007 (superadmin sin tocar), se corrigieron los **6 usos de texto legible** que quedaban
+fuera de superadmin (≈2.57:1, debajo de AA):
+
+| Archivo | Cambios |
+|---|---|
+| `componentesAdmin/formulario_zona.css` | Labels flotantes en reposo (`:147`, `:300`) y `fill` del chevron (`:165`) → `#475569` (alineado con `formularios.css`). |
+| `vistasAdmin/admin_reportes_analisis.css` | `.trend-chart-footer` → `#475569`. |
+| `vistasAdmin/gestion_de_empleados.css` | `.archived-status span` y `.empty-archived-sub` → `#475569`; **targets táctiles** `.btn-restaurar` (36px → 44px) y `.btn-eliminar-archivado` (36×36 → 44×44). |
+
+Los 14 usos restantes fuera de superadmin quedan **auditados como permitidos**: `:disabled`
+(`modal_editar_reserva.css`, `form_reserva.css`), `::placeholder` (`Login.css`), ícono decorativo con
+`:focus-within` (`tabla_reservas_panelControl.css`), bordes dashed decorativos (`form_reserva.jsx`),
+trazos/gradientes SVG de gráficos y skeleton (`admin_reportes_analisis.jsx`) y un anillo de 1px sobre
+fondo oscuro (`gestion_garages.css`).
+
+### Verificación de esta sesión
+
+| Comando / herramienta | Resultado |
+|---|---|
+| `npm ci` | Requerido: el checkout no tenía `node_modules` (361 paquetes instalados; lockfile sin cambios). |
+| `npm test` | **130 pass / 0 fail** (el primer intento falló solo por `axios` faltante:126/127 sin dependencias). |
+| `npx eslint src/vistasAdmin/admin_panel_de_control.jsx` | **Limpio** (único JSX tocado; el resto son CSS). |
+| `npm run build` | **OK, built in 3.67s** con Vite 8.2.2 (solo warning preexistente de chunks >500 kB). |
+| Métricas (grep `src/**/*.{css,jsx}`) | `border-left/right: ≥3px` **2 → 0**; `#94a3b8` **49 → 43** (14 fuera de superadmin, todos permitidos); `outline:none` 45 (45/45 con foco visible); `eyebrow/kicker` 0; `Espere` 0. |
+| Detector de impeccable | **No corrido**: el engine 0.1.5 sigue sin descargarse (mismo bloqueo del 2026-10-13). Los 2 warnings `layout-transition` documentados quedaron corregidos igualmente. |
+| Commit | **Sin commit** (no pedido). |

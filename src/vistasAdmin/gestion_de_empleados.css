@@ -845,7 +845,7 @@
 }
 
 .archived-status span {
-  color: #94A3B8;
+  color: #475569;
 }
 
 .gray-dot {
@@ -865,7 +865,7 @@
   display: inline-flex !important;
   align-items: center;
   gap: 6px;
-  height: 36px;
+  height: 44px;
   padding: 0 14px;
   background: #EFF6FF !important;
   border: 1px solid #BFDBFE !important;
@@ -889,8 +889,8 @@
 }
 
 .btn-eliminar-archivado {
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   display: inline-flex !important;
   align-items: center;
   justify-content: center;
@@ -935,7 +935,7 @@
 
 .empty-archived-sub {
   font-size: 14px;
-  color: #94A3B8;
+  color: #475569;
   margin: 0;
 }
 

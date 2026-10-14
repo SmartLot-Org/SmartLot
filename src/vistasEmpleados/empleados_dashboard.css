@@ -445,69 +445,6 @@
   font-weight: 650;
 }
 
-.empleado-capacidad-split {
-  display: flex;
-  gap: 10px;
-  margin-top: 12px;
-}
-
-.empleado-capacidad-item {
-  flex: 1;
-  padding: 12px;
-  border-radius: 16px;
-  background: #f8fafc;
-  text-align: center;
-}
-
-.empleado-capacidad-item-label {
-  display: block;
-  color: #475569;
-  font-size: 10px;
-  font-weight: 900;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  margin-bottom: 6px;
-}
-
-.empleado-capacidad-item-number {
-  display: block;
-  color: #1E293B;
-  font-family: var(--font-display), "Archivo", system-ui, sans-serif;
-  font-size: 24px;
-  line-height: 1;
-  font-weight: 900;
-}
-
-.empleado-capacidad-item-number small {
-  font-size: 14px;
-  font-weight: 700;
-  color: #475569;
-}
-
-.empleado-capacidad-item-bar {
-  width: 100%;
-  height: 4px;
-  margin-top: 8px;
-  border-radius: 999px;
-  background: #e2e8f0;
-  overflow: hidden;
-}
-
-.empleado-capacidad-item-bar-fill {
-  height: 100%;
-  border-radius: 999px;
-  background: #2563eb;
-  transition: width 0.4s ease;
-}
-
-.empleado-capacidad-item-bar-fill.alta {
-  background: #ef4444;
-}
-
-.empleado-capacidad-item-bar-fill.media {
-  background: #f59e0b;
-}
-
 .empleado-disponibilidad-metrics {
   display: flex;
   gap: 8px;
@@ -789,19 +726,7 @@
   flex-shrink: 0;
 }
 
-.empleado-reporte-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 2000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  background: rgba(15, 23, 42, 0.32);
-  backdrop-filter: blur(3px);
-  -webkit-backdrop-filter: blur(3px);
-}
-
+/* El overlay lo pinta ModalPortal con estilos inline; esta clase queda como hook de override. */
 .empleado-reporte-modal {
   width: min(100%, 420px);
   max-height: min(90vh, 620px);
@@ -831,8 +756,8 @@
 }
 
 .empleado-reporte-close {
-  width: 38px;
-  height: 38px;
+  width: 44px;
+  height: 44px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -841,6 +766,11 @@
   background: #f1f5f9;
   color: #334155;
   cursor: pointer;
+}
+
+.empleado-reporte-close:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.35);
+  outline-offset: 2px;
 }
 
 .empleado-reporte-form {
@@ -990,18 +920,26 @@
   transform: rotate(90deg);
 }
 
+/* Colapso sin animar propiedades de layout: solo fade + desplazamiento sutil. */
 .empleado-reservas-rest {
-  overflow: hidden;
-  max-height: 0;
-  opacity: 0;
-  transition: max-height 0.35s ease, opacity 0.3s ease, margin 0.3s ease;
-  margin-top: 0;
+  display: none;
 }
 
 .empleado-reservas-rest--open {
-  max-height: 2000px;
-  opacity: 1;
+  display: block;
   margin-top: 10px;
+  animation: empleado-reservas-rest-in 0.25s ease-out both;
+}
+
+@keyframes empleado-reservas-rest-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @media (max-width: 380px) {
@@ -1049,10 +987,13 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .empleado-reservas-rest,
   .empleado-reservas-toggle,
   .empleado-reservas-toggle-arrow,
   .empleado-reporte-close {
     transition: none;
+  }
+
+  .empleado-reservas-rest--open {
+    animation: none;
   }
 }

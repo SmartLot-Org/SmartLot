@@ -3,8 +3,8 @@
 > **Empezá por acá.** Esta carpeta es el handoff completo de la auditoría UI (48 vistas + shell global)
 > y de la ejecución de sus fixes, para poder retomarla en cualquier sesión nueva sin contexto previo.
 
-**Última actualización:** 2026-10-13 (P5 #1–#8 revisados en paralelo; fixes de QR (#5), Mercado Pago/polling (#6) y `prefers-reduced-motion` (#7); `npm test` 130/130 y build OK; checks runtime abiertos).
-Quedan P5 (validaciones runtime en navegador/dispositivo/API) y P6 (revisión visual; detector bloqueado por descarga del engine; lint global no limpio en HEAD).
+**Última actualización:** 2026-10-14 (cierre técnico de métricas P6: side-stripes 2→0, warnings `layout-transition` 2→0, auditoría `outline:none` 45/45, `#94a3b8` de texto fuera de superadmin a `#475569`, toast del panel unificado en `ToastUndo`; `npm test` 130/130 y build OK; commit **sin hacer** porque no se pidió).
+Quedan P5 (validaciones runtime en navegador/dispositivo/API), la revisión visual P6 y3 hallazgos nuevos accionables registrados en `pendientes.md` (barras con `transition: width`, blur del overlay de `ModalPortal`, CSS muerto de `.conflict-card*`).
 **Idioma:** los documentos van en español (idioma del proyecto). Código y rutas en su forma real.
 
 ---
@@ -21,17 +21,18 @@ Quedan P5 (validaciones runtime en navegador/dispositivo/API) y P6 (revisión vi
 | Fixes — Dueño de garage | ✅ Hecho (commiteado en rama audit-ui) | ~15 archivos. |
 | Fixes — Público / Auth / Payment | ✅ Hecho (en sesión, commiteado en rama audit-ui) | El subagente falló 2 veces; se re-ejecutó en sesión el 2026-10-10: 17/17 puntos aplicados + `npm test` 117/117 + ESLint limpio (deuda preexistente de PaymentStatus documentada). Ver `cambios-realizados.md` §6. |
 | Trabajo central (coordinador) | ✅ Hecho (en sesión, commiteado en rama audit-ui) | P2.1–P2.8 completos: ModalPortal (focus trap), formularios + combobox de sede, 4 headers, boton_generico, index.css (`--mono`, asterisco con `:has()`), JetBrains Mono en `index.html`, DESIGN.md, footer superadmin sin blur. Detalle en `cambios-realizados.md` §7. Queda revisión visual (P6). |
-| Verificación global | ⚠️ Parcial | `npm test` 130/130 ✅ (2026-10-13); `npm run build` ✅ 1.83s con Vite 8.2.2 (warning de chunks); lint global: 99 errores/4 warnings ⚠️; ESLint dirigido sin regresiones (deuda previa en `gestion_usuarios.jsx`/`admin_pagos.jsx`, y un `no-empty` corregido en `superadmin_pagos_test.jsx`); revisión estática P5 #1–#8 ✅ y fixes #5–#7 aplicados. Edge headless dio evidencia parcial de vistas públicas (#2/#7/#8), pero runtime protegido/dispositivo/sandbox y ronda visual formal siguen pendientes; detector no repetido por descarga del engine. |
-| Commit de base | ✅ Los fixes P1–P3 están commiteados en `audit-ui` (2026-10-12), pusheada a `origin`; `main` solo tiene documentación general (ver §5). Los cambios de continuación P5/P6 de 2026-10-13 están **sin commit** (no pedido). |
+| Verificación global | ⚠️ Parcial | `npm test` 130/130 ✅ (2026-10-14); `npm run build` ✅ 3.67s con Vite 8.2.2 (warning de chunks); lint global: 99 errores/4 warnings ⚠️ (registrado el 2026-10-13); ESLint dirigido limpio (`admin_panel_de_control.jsx`, único JSX de la última tanda; deuda previa en `gestion_usuarios.jsx`/`admin_pagos.jsx`/`superadmin_pagos_test.jsx` sin cambios); revisión estática P5 #1–#8 ✅ y fixes #5–#7 aplicados. Métricas P6 cerradas el 2026-10-14 (side-stripes 0, `layout-transition` 0, foco 45/45, muted en texto 0 fuera de superadmin). Edge headless dio evidencia parcial de vistas públicas (#2/#7/#8), pero runtime protegido/dispositivo/sandbox y ronda visual formal siguen pendientes; detector no repetido por descarga del engine. |
+| Commit de base | ✅ Los fixes P1–P3 están commiteados en `audit-ui` (2026-10-12), pusheada a `origin`; P5 de 2026-10-13 también (`0303d08`); `main` solo tiene documentación general (ver §5). La tanda de métricas P6 del 2026-10-14 está **sin commit** (no pedido). |
 
-### Métricas de progreso (medidas el 2026-10-12 al cerrar P3)
+### Métricas de progreso (última medición: 2026-10-14, post cierre técnico P6)
 
-| Métrica (grep en `src/**/*.{css,jsx}`) | Antes del audit | Ahora (2026-10-12, post-P3) | Meta |
+| Métrica (grep en `src/**/*.{css,jsx}`) | Antes del audit | Ahora (2026-10-14) | Meta |
 |---|---|---|---|
-| `outline:none` | ~44 | 45 (verificar reemplazo :focus-visible por caso en P6) | Todo con `:focus-visible` de reemplazo |
-| `#94a3b8` (uso de muted) | ~97 | 49 (sin cambios en P3) | Solo en `:disabled` / placeholder decorativo (DESIGN.md) |
-| `border-left: ≥3px` (side-stripes) | ~8 | 2 (`admin_panel_de_control.css:811,1077`: conflict-card y toast) | 0 |
-| Clases `eyebrow`/`kicker` | ~18 | **0** (P3.1 completo 2026-10-12) | 0 (craft floor los prohíbe) |
+| `outline:none` | ~44 | 45 (**45/45 con foco visible verificado**: 44 con `:focus`/`:focus-visible`/`:focus-within` + el combobox de sede corregido el 2026-10-14) | ✅ Cumplida |
+| `#94a3b8` (uso de muted) | ~97 | **43** (era 49; 6 textos → `#475569`). Fuera de superadmin: 14, todos `:disabled`/`::placeholder`/decorativos | ✅ Cumplida fuera de superadmin (ADR-007 lo congela dentro) |
+| `border-left: ≥3px` (side-stripes) | ~8 | **0** (era 2) | ✅ Cumplida |
+| Clases `eyebrow`/`kicker` | ~18 | **0** | ✅ Cumplida |
+| `transition` sobre `width/height/max-height/margin/top/left` | s/d | 3 restantes (barras de progreso; hallazgo nuevo en `pendientes.md`) | 0 |
 
 > Extras medidos el 2026-10-10: `Espere` (tuteo) = **0** en todo `src/`; `tracking-[0.2em]`
 > (patrón de eyebrow) = **0** en landing/paraGarages.
@@ -66,8 +67,8 @@ Quedan P5 (validaciones runtime en navegador/dispositivo/API) y P6 (revisión vi
 | `README.md` (este) | Índice, estado, decisiones, cómo retomar | Primero, siempre |
 | `hallazgos-audit-ui.md` | Informe consolidado del audit: 48/48 vistas, Top 10, hallazgos por vista (H/M/L con archivo:línea y fix), componentes compartidos, runtime checks | Para entender qué se encontró y por qué existe cada fix |
 | `plan-de-ejecucion.md` | Plan aprobado: decisiones, tandas, metodología, **plan de continuación P5/P6 (§6)** y plantilla de prompt | Para seguir el orden de cierre sin reabrir P1–P3 |
-| `cambios-realizados.md` | Detalle archivo por archivo de TODO lo aplicado (4 scopes iniciales + scope público §6 + trabajo central P2 §7) + verificación + deudas | Para revisar/commitear lo hecho |
-| `pendientes.md` | Backlog accionable con estados y TODO: barridos finales (P3), diferidos (P4), runtime checks (P5) y cierre (P6) | Para trackear cada check y registrar evidencia |
+| `cambios-realizados.md` | Detalle archivo por archivo de TODO lo aplicado (4 scopes iniciales + scope público §6 + trabajo central P2 §7 + P3 §8 + P5 §9 + cierre de métricas P6 §10) + verificación + deudas | Para revisar/commitear lo hecho |
+| `pendientes.md` | Backlog accionable con estados y TODO: barridos finales (P3), diferidos (P4), runtime checks (P5), hallazgos nuevos del barrido 2026-10-14 y cierre (P6) | Para trackear cada check y registrar evidencia |
 
 Relacionado: `docs/decisions/ADR-007-paleta-propia-superadmin.md` (en la carpeta de ADRs del proyecto).
 
@@ -78,31 +79,33 @@ Relacionado: `docs/decisions/ADR-007-paleta-propia-superadmin.md` (en la carpeta
 1. **Leer** este README completo, y luego `pendientes.md` (la lista de tareas).
 2. **Correr el launcher de contexto del skill impeccable** una vez:
    `.agents/skills/impeccable/scripts/impeccable.cmd context` (Windows, sin `sh`) desde la raíz.
-   - En esta sesión (2026-10-13) se intentó, pero no se pudo descargar el engine 0.1.5 desde GitHub. Se usó el fallback y se leyeron `PRODUCT.md` y `DESIGN.md`; no reintentar ni correr `init` en la misma sesión.
+   - En esta sesión (2026-10-14) se intentó, pero no se pudo descargar el engine 0.1.5 desde GitHub (mismo bloqueo del 2026-10-13). Se usó el fallback y se leyeron `PRODUCT.md` y `DESIGN.md`; no reintentar ni correr `init` en la misma sesión.
    - Si falla: leer `PRODUCT.md` y `DESIGN.md` directamente (fallback ya previsto por el skill).
    - Nota registrada por el skill: hay `CONTEXT_STALE` (PRODUCT.md sin schema stamp → el skill ofrece
      `init`; correrlo solo si el usuario lo pide) y una actualización disponible de Impeccable
      (mencionarla una vez; no correr `npx impeccable update` en la misma sesión).
 3. **Verificar el estado real** antes de tocar nada:
    ```
-    git status --short        # limpio al inicio de esta sesión; revisar docs/audit-ui tras documentar
+    git status --short        # revisar qué hay sin commitear (la tanda 2026-10-14 está sin commit)
     git log --oneline -5      # rama audit-ui: commits de la auditoría sobre main
-    npm test                  # 130/130 (2026-10-13)
+    npm test                  # 130/130 (2026-10-14)
     npm run lint              # 99 errores / 4 warnings; deuda global registrada
-    npm run build             # OK, Vite 8.2.2, 1.83s (2026-10-13)
+    npm run build             # OK, Vite 8.2.2, 3.67s (2026-10-14)
    ```
+   - Si el checkout no tiene `node_modules`, correr `npm ci` primero (pasó el 2026-10-14: sin
+     dependencias, `npm test` falla solo en `arranqueApi.test.js` por el import de `axios`).
 4. **Queda pendiente, en este orden** (detalle en `pendientes.md`):
     - **P5 — Runtime checks**: se corrigieron los riesgos de QR (#5), popup/polling (#6) y reduced-motion
       (#7), con tests fuente. Edge headless cubrió parcialmente rutas públicas; quedan `/nueva_reserva`,
       conflictos protegidos, Maps/lector, cámara, preferencia real del SO y sandbox. Ver el TODO por
       punto en `pendientes.md` §P5.1.
-    - **P6 — Verificación y cierre**: `npm test` y build pasan; `npm run lint` completo se ejecutó y
-      falla con 99 errores/4 warnings (incluye el bundle del skill bajo `.agents/` y deuda de `src/`).
-      ESLint dirigido no agrega errores: `gestion_usuarios.jsx` y `admin_pagos.jsx` conservan deuda
-      idéntica a HEAD; `superadmin_pagos_test.jsx` elimina un `no-empty` previo.
-      Sigue la **revisión visual** (máx. 2 rondas, desktop + 360px:
-      logo con teclado, asterisco de requeridos en `agregar_sede`, focus trap de modales, JetBrains Mono,
-      toggle de registro). El detector no pudo correr por descarga del engine; commit solo si se pide.
+    - **P6 — Verificación y cierre**: las métricas medibles cerraron el 2026-10-14 (side-stripes 0,
+      `layout-transition` 0, foco 45/45, muted en texto 0 fuera de superadmin). Sigue la **revisión
+      visual** (máx. 2 rondas, desktop + 360px: logo con teclado, asterisco de requeridos en
+      `agregar_sede`, focus trap de modales, JetBrains Mono, toggle de registro, toast del panel sin
+      side-stripe). El detector no pudo correr por descarga del engine; commit solo si se pide. Hay
+      además 3 hallazgos nuevos accionables en `pendientes.md` (barras `transition: width`, blur del
+      overlay de `ModalPortal`, CSS muerto de `.conflict-card*`).
    - ✅ Ya hechos: P1 (17/17), P2 (P2.1–P2.8) y **P3 (P3.1–P3.3, 2026-10-12)**, con `npm test`
      117/117, ESLint sin issues nuevos, `npm run build` ✅ 1.56s y detector de impeccable corrido.
      Ver `cambios-realizados.md` §6–§8. Decisión P3.2 en `docs/decisions/ADR-008-terminologia-plazas-ui-producto.md`.
@@ -137,10 +140,10 @@ Relacionado: `docs/decisions/ADR-007-paleta-propia-superadmin.md` (en la carpeta
 
 | Comando | Resultado registrado |
 |---|---|
-| `npm test` | **130 pass / 0 fail**, ejecutado 2026-10-13 después de `npm ci` (lockfile sin cambios). |
+| `npm test` | **130 pass / 0 fail**, ejecutado 2026-10-14 (checkout sin `node_modules`; se corrió `npm ci` con lockfile sin cambios). |
 | `npm run lint` | **Ejecutado 2026-10-13: 99 errores / 4 warnings**. Incluye errores del bundle `modern-screenshot.umd.js` dentro de `.agents/` y deuda preexistente en `src/`; el lint global no está verde. |
-| ESLint dirigido | QR, tests fuente nuevos y vistas de reduced-motion limpios. `admin_pagos.jsx`: 3 errores/1 warning iguales a HEAD; `gestion_usuarios.jsx`: 12 errores iguales a HEAD; `superadmin_pagos_test.jsx`: 5 errores/1 warning vs. 6/1 en HEAD (se corrigió un `no-empty`). `src/index.css` se ignora por ser CSS. |
-| `npm run build` | **✅ Ejecutado 2026-10-13: built in 1.83s con Vite 8.2.2** (warning de chunks >500 kB). |
-| `impeccable detect --json` | **No ejecutado en esta sesión**: `impeccable context` no pudo descargar el engine 0.1.5 desde GitHub. La corrida anterior del 2026-10-12 sigue registrada arriba. |
+| ESLint dirigido | `admin_panel_de_control.jsx` (2026-10-14, único JSX tocado): **limpio**. Deuda sin cambios: `admin_pagos.jsx` 3 errores/1 warning; `gestion_usuarios.jsx` 12 errores; `superadmin_pagos_test.jsx` 5 errores/1 warning (HEAD tenía 6/1). El CSS no aplica al parser de ESLint. |
+| `npm run build` | **✅ Ejecutado 2026-10-14: built in 3.67s con Vite 8.2.2** (warning de chunks >500 kB). |
+| `impeccable detect --json` | **No ejecutado**: `impeccable context` no pudo descargar el engine 0.1.5 desde GitHub (también el 2026-10-14). La última corrida registrada es la del 2026-10-12. |
 | Revisión P5 | **Revisión estática de 8 checks + smoke parcial con Edge headless** (rutas públicas, 360px, `prefers-reduced-motion` y requests del flipbook); evidencia/límites en `pendientes.md` §P5.1. Los checks completos siguen abiertos. |
 | Screenshots/revisión visual | Capturas Edge de rutas públicas quedaron en Temp, no en el repo. No se hizo la ronda visual formal ni se revisaron rutas protegidas; requieren API/sesión y evidencia conservada según el checklist P6. |

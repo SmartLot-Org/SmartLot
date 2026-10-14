@@ -392,12 +392,13 @@ landing reportó `matchMedia=true` y ticker estático. `localhost:3000` no está
 rechazadas; aviso `VITE_API_URL debe usar HTTPS` por el fallback del preview local), así que no se pudieron
 abrir rutas protegidas ni probar Maps, cámara o Mercado Pago. Ver §P6.
 
-### TODO de continuidad (actualizado 2026-10-13)
+### TODO de continuidad (actualizado 2026-10-14)
 
 - [x] Revisión estática paralela de P5 #1–#8 y registro de riesgos/evidencia.
 - [x] Fixes de código P5 #5 (QR), #6 (checkout/polling) y #7 (reduced-motion), con tests fuente.
-- [x] `npm test` **130/130**, `npm run build` **OK 1.83s** y `npm run lint` ejecutado (**99 errores / 4 warnings**, deuda global registrada).
+- [x] `npm test` **130/130**, `npm run build` **OK** y `npm run lint` ejecutado (**99 errores / 4 warnings**, deuda global registrada).
 - [x] Smoke parcial Edge headless/CDP de rutas públicas, 360px, `reduce` antes del mount y precarga de frames bajo 4G. Evidencia/capturas temporales; no cierra P5.
+- [x] Cierre técnico de métricas P6 (2026-10-14): side-stripes **2 → 0**, warnings `layout-transition` **2 → 0**, auditoría `outline:none` **45/45** con foco visible, `#94a3b8` de texto fuera de superadmin → `#475569` (49 → 43, restantes solo usos permitidos) y toast del panel unificado en `ToastUndo`. Detalle en `cambios-realizados.md` §10.
 - [ ] P5 #1/#3: volver a probar `/nueva_reserva` y `/superadmin/conflictos` con API, sesión y datos reales a los anchos de la tabla.
 - [ ] P5 #2: medir contraste compuesto de glass/auth y `.panel-stats-card` con muestras de píxel y contenido real.
 - [ ] P5 #4: recorrer sugerencias de Maps con teclado y lector de pantalla/Accessibility Inspector.
@@ -406,8 +407,25 @@ abrir rutas protegidas ni probar Maps, cámara o Mercado Pago. Ver §P6.
 - [ ] P5 #7: repetir con ajuste real del SO y recorrer landing + superadmin; Edge solo cubrió landing emulada.
 - [ ] P5 #8: observar costura varios ciclos y transferencia total del flipbook con caché fría/4G.
 - [ ] Hacer la revisión visual P6 (máximo dos rondas: desktop + 360px).
-- [ ] Correr `impeccable detect --json` cuando el engine esté disponible; el intento de contexto del 2026-10-13 quedó bloqueado por la descarga desde GitHub.
+- [ ] Correr `impeccable detect --json` cuando el engine esté disponible; los intentos del 2026-10-13 y 2026-10-14 quedaron bloqueados por la descarga desde GitHub.
 - [ ] Cerrar la auditoría y actualizar este tracking; commit solo si el usuario lo pide.
+
+### Hallazgos nuevos detectados en el barrido del 2026-10-14 (accionables, sin ejecutar aún)
+
+1. **`transition: width` restante (3 sitios):** `componentesAdmin/selector_dias_operativos.css:146`
+   (`.dops-track-fill`), `vistasAdmin/admin_panel_de_control.css:181` (`.panel-stats__progress-bar`,
+   easing ya corregido a `ease-out`) y `vistasAdmin/admin_reportes_analisis.css:422`
+   (`.trend-tooltip__fill`). Son barras de progreso con `width` inline en el JSX; para cumplir "no animar
+   layout" hay que pasarlas a `transform: scaleX(...)` con `transform-origin: left center` tocando también
+   el JSX (el radio de los extremos se deforma con `scaleX`, por eso no se hizo a ciegas sin revisión
+   visual).
+2. **Vidrio en overlay de modales de producto:** `ModalPortal.jsx:70-71` aplica
+   `backdropFilter: blur(6px)` por inline styles a todos los overlays (Regla del Vidrio Solo Landing
+   prohíbe vidrio en paneles). Quitarlo cambia el look de todos los modales del producto → requiere
+   decisión del dueño (si se aprueba, sumar ADR nuevo que complemente `DESIGN.md`).
+3. **CSS muerto opcional:** el bloque `.conflict-card*` completo de `admin_panel_de_control.css` (~200
+   líneas) no se referencia en ningún JSX (la vista usa `.conflicts-table`); eliminarlo es limpieza
+   segura verificable con grep.
 
 ---
 
@@ -415,30 +433,30 @@ abrir rutas protegidas ni probar Maps, cámara o Mercado Pago. Ver §P6.
 
 1. **Comandos finales (en orden):**
    ```
-    npm test                                   # ✅ 130/130 (2026-10-13, tras npm ci)
-    npm run lint                               # ⚠️ ejecutado: 99 errores / 4 warnings (deuda global)
-    npm run build                              # ✅ Vite 8.2.2, 1.83s (2026-10-13; warning de chunks)
+    npm test                                   # ✅ 130/130 (2026-10-14, tras npm ci)
+    npm run lint                               # ⚠️ ejecutado 2026-10-13: 99 errores / 4 warnings (deuda global)
+    npm run build                              # ✅ Vite 8.2.2, 3.67s (2026-10-14; warning de chunks)
     ```
-   - ESLint dirigido: `superadmin_reservas.jsx`, `superadmin_gestion_garages.jsx`,
-     `gestion_empresas.jsx`, `reduced-motion.source.test.js`, `LectorQrReserva.jsx`, los nuevos tests
-     fuente de QR/pagos/polling: limpios. `gestion_usuarios.jsx` conserva 12 errores y `admin_pagos.jsx`
-     3 errores/1 warning, idénticos a HEAD. `superadmin_pagos_test.jsx` queda en 5 errores/1 warning
-     (HEAD tenía 6/1; se corrigió un `no-empty`). El CSS global no aplica al parser de ESLint.
+   - ESLint dirigido: `admin_panel_de_control.jsx` (único JSX tocado el 2026-10-14) **limpio**. La deuda
+     registrada se mantiene sin cambios: `gestion_usuarios.jsx` 12 errores, `admin_pagos.jsx` 3/1 y
+     `superadmin_pagos_test.jsx` 5/1, idénticos a HEAD. El CSS global no aplica al parser de ESLint.
 2. **Detector de impeccable** (correr una sola vez al final, cuando el engine esté disponible):
     ```
     .agents\skills\impeccable\scripts\impeccable.cmd detect --json <archivos tocados>
     ```
-   - Intento de `context` del 2026-10-13 bloqueado: el launcher no pudo descargar el engine 0.1.5 desde
-     GitHub (red/permiso de descarga). No se ejecutó `detect` en esta sesión.
+   - Intentos de `context` del 2026-10-13 y 2026-10-14 bloqueados: el launcher no pudo descargar el
+     engine 0.1.5 desde GitHub (red/permiso de descarga). Los 2 warnings `layout-transition` que el
+     detector marcaba en `empleados_dashboard.css` quedaron corregidos igualmente
+     (`cambios-realizados.md` §10).
 3. **Revisión visual acotada (máx. 2 rondas):** desktop + mobile 360px de las vistas tocadas; anotar
    defectos; corregir todo en un batch; una ronda de confirmación; parar.
-4. **Documentación:** ✅ actualizada el 2026-10-13 en `README.md`, `cambios-realizados.md` y este
+4. **Documentación:** ✅ actualizada el 2026-10-14 en `README.md`, `cambios-realizados.md` (§10) y este
     `pendientes.md`. Mantener esos tres documentos sincronizados al cerrar cada tanda.
 5. **Commit:** **solo si el usuario lo pide.** Si lo pide: revisar `git status`/`git diff` archivo por
    archivo (hay cambios previos mezclados de otras sesiones), separar lo del audit, y usar el estilo
-   de mensajes del repo (español, descriptivo, ej. commits recientes `e8fc400`, `70a3683`).
+   de mensajes del repo (español, descriptivo, ej. commits recientes `0303d08`, `40cbc75`).
 6. **Avisos del skill impeccable registrados:** (a) `CONTEXT_STALE` de PRODUCT.md (sin schema stamp)
     → ofrecer `init` al usuario, correr solo si lo pide; (b) hay Impeccable v4.5.2 disponible → no correr
-    `npx impeccable update` en esta sesión; (c) el intento de contexto del 2026-10-13 falló por la
-    descarga del engine. En una sesión futura, ejecutar el launcher una vez y repetir `detect` solo si
-    el engine queda disponible.
+    `npx impeccable update` en esta sesión; (c) los intentos de contexto del 2026-10-13 y 2026-10-14
+    fallaron por la descarga del engine. En una sesión futura, ejecutar el launcher una vez y repetir
+    `detect` solo si el engine queda disponible.

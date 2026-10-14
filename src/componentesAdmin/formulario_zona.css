@@ -126,10 +126,16 @@
 }
 
 .input-group input:focus,
-.input-group textarea:focus {
+.input-group textarea:focus,
+.dropdown-trigger-clean:focus {
   border-color: #156fe5;
   background: #e2e8f0;
   box-shadow: 0 0 0 4px rgba(21, 111, 229, 0.1);
+}
+
+.dropdown-trigger-clean:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.35);
+  outline-offset: 2px;
 }
 
 .input-group input::placeholder,
@@ -144,7 +150,7 @@
   top: 16px;
   font-size: 13px;
   font-weight: 700;
-  color: #94a3b8;
+  color: #475569;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   transition: all 0.3s ease;
@@ -162,7 +168,7 @@
 .chevron-arrow-svg {
   width: 20px;
   height: 20px;
-  fill: #94a3b8;
+  fill: #475569;
   transition: transform 0.15s ease;
 }
 
@@ -297,7 +303,7 @@
   top: 16px;
   left: 18px;
   font-size: 13px;
-  color: #94a3b8;
+  color: #475569;
 }
 
 /* --- RESPONSIVE MEDIA QUERIES --- */
