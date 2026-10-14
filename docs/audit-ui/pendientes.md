@@ -452,9 +452,10 @@ abrir rutas protegidas ni probar Maps, cámara o Mercado Pago. Ver §P6.
    defectos; corregir todo en un batch; una ronda de confirmación; parar.
 4. **Documentación:** ✅ actualizada el 2026-10-14 en `README.md`, `cambios-realizados.md` (§10) y este
     `pendientes.md`. Mantener esos tres documentos sincronizados al cerrar cada tanda.
-5. **Commit:** **solo si el usuario lo pide.** Si lo pide: revisar `git status`/`git diff` archivo por
-   archivo (hay cambios previos mezclados de otras sesiones), separar lo del audit, y usar el estilo
-   de mensajes del repo (español, descriptivo, ej. commits recientes `0303d08`, `40cbc75`).
+5. **Commit:** ✅ **hecho y pusheado a pedido del usuario el 2026-10-14** (`68094ac` en `audit-ui`). Los
+   próximos cierres siguen la misma regla: solo commit con pedido explícito, revisando `git status`/
+   `git diff` archivo por archivo y usando el estilo de mensajes del repo (español, descriptivo,
+   ej. commits recientes `68094ac`, `0303d08`).
 6. **Avisos del skill impeccable registrados:** (a) `CONTEXT_STALE` de PRODUCT.md (sin schema stamp)
     → ofrecer `init` al usuario, correr solo si lo pide; (b) hay Impeccable v4.5.2 disponible → no correr
     `npx impeccable update` en esta sesión; (c) los intentos de contexto del 2026-10-13 y 2026-10-14

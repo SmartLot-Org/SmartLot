@@ -388,7 +388,8 @@ de pantalla y sandbox de Mercado Pago; no se atribuyen resultados runtime que no
 > P5 (siguen requiriendo API/dispositivo/sandbox). Esta tanda cierra las métricas medibles del audit con
 > la app sin correr: side-stripes a 0, warnings `layout-transition` del detector a 0, auditoría de
 > `outline:none` 45/45 con reemplazo de foco y `#94a3b8` fuera de superadmin solo en usos permitidos.
-> **Sin dependencias nuevas, sin cambios de color en superadmin (ADR-007) y sin commit (no pedido).**
+> **Sin dependencias nuevas, sin cambios de color en superadmin (ADR-007).** Commiteado y pusheado en
+> `audit-ui` a pedido del usuario (`68094ac`).
 
 ### P6-A — Side-stripes (`border-left: ≥3px`) 2 → 0
 
@@ -450,4 +451,4 @@ fondo oscuro (`gestion_garages.css`).
 | `npm run build` | **OK, built in 3.67s** con Vite 8.2.2 (solo warning preexistente de chunks >500 kB). |
 | Métricas (grep `src/**/*.{css,jsx}`) | `border-left/right: ≥3px` **2 → 0**; `#94a3b8` **49 → 43** (14 fuera de superadmin, todos permitidos); `outline:none` 45 (45/45 con foco visible); `eyebrow/kicker` 0; `Espere` 0. |
 | Detector de impeccable | **No corrido**: el engine 0.1.5 sigue sin descargarse (mismo bloqueo del 2026-10-13). Los 2 warnings `layout-transition` documentados quedaron corregidos igualmente. |
-| Commit | **Sin commit** (no pedido). |
+| Commit | **Hecho y pusheado en `audit-ui` a pedido del usuario** (`68094ac`). |

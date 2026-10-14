@@ -3,7 +3,7 @@
 > **Empezá por acá.** Esta carpeta es el handoff completo de la auditoría UI (48 vistas + shell global)
 > y de la ejecución de sus fixes, para poder retomarla en cualquier sesión nueva sin contexto previo.
 
-**Última actualización:** 2026-10-14 (cierre técnico de métricas P6: side-stripes 2→0, warnings `layout-transition` 2→0, auditoría `outline:none` 45/45, `#94a3b8` de texto fuera de superadmin a `#475569`, toast del panel unificado en `ToastUndo`; `npm test` 130/130 y build OK; commit **sin hacer** porque no se pidió).
+**Última actualización:** 2026-10-14 (cierre técnico de métricas P6: side-stripes 2→0, warnings `layout-transition` 2→0, auditoría `outline:none` 45/45, `#94a3b8` de texto fuera de superadmin a `#475569`, toast del panel unificado en `ToastUndo`; `npm test` 130/130 y build OK; commiteado y pusheado en `audit-ui` a pedido del usuario: `68094ac`).
 Quedan P5 (validaciones runtime en navegador/dispositivo/API), la revisión visual P6 y3 hallazgos nuevos accionables registrados en `pendientes.md` (barras con `transition: width`, blur del overlay de `ModalPortal`, CSS muerto de `.conflict-card*`).
 **Idioma:** los documentos van en español (idioma del proyecto). Código y rutas en su forma real.
 
@@ -22,7 +22,7 @@ Quedan P5 (validaciones runtime en navegador/dispositivo/API), la revisión visu
 | Fixes — Público / Auth / Payment | ✅ Hecho (en sesión, commiteado en rama audit-ui) | El subagente falló 2 veces; se re-ejecutó en sesión el 2026-10-10: 17/17 puntos aplicados + `npm test` 117/117 + ESLint limpio (deuda preexistente de PaymentStatus documentada). Ver `cambios-realizados.md` §6. |
 | Trabajo central (coordinador) | ✅ Hecho (en sesión, commiteado en rama audit-ui) | P2.1–P2.8 completos: ModalPortal (focus trap), formularios + combobox de sede, 4 headers, boton_generico, index.css (`--mono`, asterisco con `:has()`), JetBrains Mono en `index.html`, DESIGN.md, footer superadmin sin blur. Detalle en `cambios-realizados.md` §7. Queda revisión visual (P6). |
 | Verificación global | ⚠️ Parcial | `npm test` 130/130 ✅ (2026-10-14); `npm run build` ✅ 3.67s con Vite 8.2.2 (warning de chunks); lint global: 99 errores/4 warnings ⚠️ (registrado el 2026-10-13); ESLint dirigido limpio (`admin_panel_de_control.jsx`, único JSX de la última tanda; deuda previa en `gestion_usuarios.jsx`/`admin_pagos.jsx`/`superadmin_pagos_test.jsx` sin cambios); revisión estática P5 #1–#8 ✅ y fixes #5–#7 aplicados. Métricas P6 cerradas el 2026-10-14 (side-stripes 0, `layout-transition` 0, foco 45/45, muted en texto 0 fuera de superadmin). Edge headless dio evidencia parcial de vistas públicas (#2/#7/#8), pero runtime protegido/dispositivo/sandbox y ronda visual formal siguen pendientes; detector no repetido por descarga del engine. |
-| Commit de base | ✅ Los fixes P1–P3 están commiteados en `audit-ui` (2026-10-12), pusheada a `origin`; P5 de 2026-10-13 también (`0303d08`); `main` solo tiene documentación general (ver §5). La tanda de métricas P6 del 2026-10-14 está **sin commit** (no pedido). |
+| Commit de base | ✅ Los fixes P1–P3 están commiteados en `audit-ui` (2026-10-12), pusheada a `origin`; P5 de 2026-10-13 (`0303d08`) y la tanda de métricas P6 del 2026-10-14 (`68094ac`, a pedido del usuario) también; `main` solo tiene documentación general (ver §5). |
 
 ### Métricas de progreso (última medición: 2026-10-14, post cierre técnico P6)
 
@@ -86,7 +86,7 @@ Relacionado: `docs/decisions/ADR-007-paleta-propia-superadmin.md` (en la carpeta
      (mencionarla una vez; no correr `npx impeccable update` en la misma sesión).
 3. **Verificar el estado real** antes de tocar nada:
    ```
-    git status --short        # revisar qué hay sin commitear (la tanda 2026-10-14 está sin commit)
+    git status --short        # revisar qué hay sin commitear (último commit de la auditoría: 68094ac)
     git log --oneline -5      # rama audit-ui: commits de la auditoría sobre main
     npm test                  # 130/130 (2026-10-14)
     npm run lint              # 99 errores / 4 warnings; deuda global registrada
