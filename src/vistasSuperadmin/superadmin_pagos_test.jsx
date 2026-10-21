@@ -959,7 +959,8 @@ function ReembolsosTab({ onVerificarPago }) {
     setReembolsando(true);
     setResultado(null);
 
-    const res = await PagosReembolsar(paymentId.trim(), amount ? Number(amount) : undefined, motivo.trim() || undefined);
+    const amountValue = amount === "" ? undefined : Number(amount);
+    const res = await PagosReembolsar(paymentId.trim(), amountValue, motivo.trim() || undefined);
     setReembolsando(false);
 
     if (!res.respuesta) {
@@ -989,7 +990,7 @@ function ReembolsosTab({ onVerificarPago }) {
           </label>
           <label className="mpt-field">
             <span><CircleDollarSign size={15} /> Monto (opcional)</span>
-            <input type="number" min="1" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="Vacío = reembolso total" />
+            <input type="number" min="0.01" step="0.01" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="Vacío = reembolso total" />
           </label>
           <label className="mpt-field">
             <span><FileText size={15} /> Motivo (opcional)</span>

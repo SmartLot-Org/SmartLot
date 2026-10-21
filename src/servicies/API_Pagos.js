@@ -118,7 +118,7 @@ const PagosReembolsar = async (paymentId, amount, motivo) => {
 
         const body = {};
 
-        if (amount) body.amount = amount;
+        if (amount !== undefined && amount !== null && amount !== '') body.amount = amount;
         if (motivo) body.motivo = motivo;
 
         const response = await apiClient.post('/api/payments/' + paymentId + '/refund', body);
