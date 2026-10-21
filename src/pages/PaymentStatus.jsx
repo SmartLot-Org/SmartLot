@@ -127,7 +127,10 @@ export default function PaymentStatus() {
     setLoading(true);
     setError(null);
     setPago(null);
-    const res = await PagosGetById(String(pid).trim());
+    const res = await PagosGetById(String(pid).trim(), {
+      external_reference: fallbackExternalRef || params.externalReference || undefined,
+      preference_id: params.preferenceId || undefined,
+    });
     setLoading(false);
     if (!res.respuesta) {
       const msg = res.datos?.message || res.datos?.error || "No se pudo verificar el pago";

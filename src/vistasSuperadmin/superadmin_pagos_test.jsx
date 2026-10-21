@@ -316,7 +316,10 @@ function CrearPagoTab({ onPagoVerificado }) {
     }
 
     setVerificando(true);
-    const res = await PagosGetById(id);
+    const res = await PagosGetById(id, {
+      external_reference: orderId.trim() || undefined,
+      preference_id: preferencia?.preferenceId || preferencia?.preference_id || localStorage.getItem("mp_last_preferenceId") || undefined,
+    });
     setVerificando(false);
 
     if (!res.respuesta) {
@@ -385,6 +388,7 @@ function CrearPagoTab({ onPagoVerificado }) {
   useEffect(() => {
     const pid = searchParams.get("payment_id") || searchParams.get("paymentId") || searchParams.get("collection_id") || searchParams.get("collectionId");
     const ext = searchParams.get("external_reference") || searchParams.get("externalReference");
+    const pref = searchParams.get("preference_id") || sessionStorage.getItem("mp_pending_preferenceId") || localStorage.getItem("mp_last_preferenceId");
     const statusHint = searchParams.get("status") || searchParams.get("collection_status");
     if (!pid && !ext) return;
     if (pid) {
@@ -392,7 +396,10 @@ function CrearPagoTab({ onPagoVerificado }) {
       if (ext) setOrderId(ext);
       detenerPolling();
       setVerificando(true);
-      PagosGetById(String(pid).trim()).then((res) => {
+      PagosGetById(String(pid).trim(), {
+        external_reference: ext || undefined,
+        preference_id: pref || undefined,
+      }).then((res) => {
         setVerificando(false);
         if (res.respuesta) {
           const pago = res.datos?.payment || res.datos;
@@ -686,14 +693,14 @@ function DetallePagoDrawer({ pago, onClose }) {
 
   const detalles = [
     ["ID de pago", pago.id || pago.mp_payment_id],
-    ["Preferencia", pago.preference_id || pago.mp_preference_id],
-    ["Referencia externa", pago.external_reference || pago.id_orden_externa],
-    ["Monto", formatearImporte(pago.transaction_amount ?? pago.monto)],
-    ["Moneda", pago.currency_id || pago.moneda],
-    ["Tipo", pago.payment_type_id || pago.mp_payment_type],
+    ["Preferencia", pago.preferenceId || pago.preference_id || pago.mp_preference_id],
+    ["Referencia externa", pago.externalReference || pago.external_reference || pago.id_orden_externa],
+    ["Monto", formatearImporte(pago.transactionAmount ?? pago.transaction_amount ?? pago.monto)],
+    ["Moneda", pago.currency || pago.currency_id || pago.moneda],
+    ["Tipo", pago.paymentType || pago.payment_type_id || pago.mp_payment_type],
     ["Descripción", pago.description || pago.descripcion],
-    ["Aprobado", formatearFecha(pago.date_approved || pago.fecha_aprobacion)],
-    ["Creado", formatearFecha(pago.date_created || pago.fecha_creacion)],
+    ["Aprobado", formatearFecha(pago.dateApproved || pago.date_approved || pago.fecha_aprobacion)],
+    ["Creado", formatearFecha(pago.dateCreated || pago.date_created || pago.fecha_creacion)],
   ];
 
   return (
@@ -809,10 +816,10 @@ function ConsultarPagosTab() {
                   {pagos.map((pago) => (
                     <tr key={pago.id}>
                       <td><code>{pago.id}</code></td>
-                      <td>{pago.external_reference || pago.id_orden_externa || "—"}</td>
-                      <td className="mpt-table__amount">{formatearImporte(pago.transaction_amount ?? pago.monto)}</td>
+                      <td>{pago.externalReference || pago.external_reference || pago.id_orden_externa || "—"}</td>
+                      <td className="mpt-table__amount">{formatearImporte(pago.transactionAmount ?? pago.transaction_amount ?? pago.monto)}</td>
                       <td><EstadoBadge estado={pago.status || pago.mp_payment_status} /></td>
-                      <td>{formatearFecha(pago.date_created || pago.fecha_creacion)}</td>
+                      <td>{formatearFecha(pago.dateCreated || pago.date_created || pago.fecha_creacion)}</td>
                       <td><button type="button" className="mpt-link-btn" onClick={() => setPagoSeleccionado(pago)}>Ver detalle</button></td>
                     </tr>
                   ))}
@@ -823,9 +830,9 @@ function ConsultarPagosTab() {
               {pagos.map((pago) => (
                 <article className="mpt-mobile-card" key={pago.id}>
                   <div className="mpt-mobile-card__top"><strong><code>{pago.id}</code></strong><EstadoBadge estado={pago.status || pago.mp_payment_status} /></div>
-                  <span>{pago.external_reference || pago.id_orden_externa || "Sin referencia"}</span>
+                  <span>{pago.externalReference || pago.external_reference || pago.id_orden_externa || "Sin referencia"}</span>
                   <div className="mpt-mobile-card__bottom">
-                    <strong>{formatearImporte(pago.transaction_amount ?? pago.monto)}</strong>
+                    <strong>{formatearImporte(pago.transactionAmount ?? pago.transaction_amount ?? pago.monto)}</strong>
                     <button type="button" className="mpt-link-btn" onClick={() => setPagoSeleccionado(pago)}>Ver detalle</button>
                   </div>
                 </article>

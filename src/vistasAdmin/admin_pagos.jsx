@@ -152,6 +152,7 @@ function AdminPagos() {
   useEffect(() => {
     const pid = searchParams.get("payment_id") || searchParams.get("paymentId") || searchParams.get("collection_id");
     const externalReference = searchParams.get("external_reference") || searchParams.get("externalReference") || sessionStorage.getItem("mp_pending_orderId") || localStorage.getItem("mp_last_orderId");
+    const preferenceId = searchParams.get("preference_id") || sessionStorage.getItem("mp_pending_preferenceId") || localStorage.getItem("mp_last_preferenceId");
     if (!pid && !externalReference) return undefined;
 
     let activo = true;
@@ -160,7 +161,10 @@ function AdminPagos() {
       let sincronizado = false;
 
       if (pid) {
-        const resultado = await PagosGetById(pid);
+        const resultado = await PagosGetById(pid, {
+          external_reference: externalReference || undefined,
+          preference_id: preferenceId || undefined,
+        });
         sincronizado = resultado.respuesta;
         pago = resultado.datos?.payment || null;
       }

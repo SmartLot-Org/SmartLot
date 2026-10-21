@@ -59,13 +59,16 @@ const PagosCrearPreferenciaReserva = async (idReserva) => {
     }
 };
 
-const PagosGetById = async (paymentId) => {
+const PagosGetById = async (paymentId, contexto = {}) => {
 
     let returnObject = { respuesta: false, datos: null };
 
     try {
 
-        const response = await apiClient.get('/api/payments/' + paymentId, { _skipToast: true });
+        const params = {};
+        if (contexto.external_reference) params.external_reference = contexto.external_reference;
+        if (contexto.preference_id) params.preference_id = contexto.preference_id;
+        const response = await apiClient.get('/api/payments/' + paymentId, { params, _skipToast: true });
 
         returnObject.respuesta = true;
         returnObject.datos = response.data;
@@ -93,6 +96,8 @@ const PagosBuscar = async (filtros = {}) => {
         if (filtros.status) params.status = filtros.status;
         if (filtros.from) params.from = filtros.from;
         if (filtros.to) params.to = filtros.to;
+        if (filtros.limit) params.limit = filtros.limit;
+        if (filtros.offset) params.offset = filtros.offset;
 
         const response = await apiClient.get('/api/payments', { params, _skipToast: true });
 

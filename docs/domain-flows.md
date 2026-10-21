@@ -28,7 +28,7 @@ Vistas: `vistasEmpleados/nueva_reserva.jsx`, `empleados_dashboard.jsx`, `histori
 1. **Cotización**: el formulario (`componentesEmpleado/form_reserva.jsx`) cotiza disponibilidad y política; muestra vigentes/restantes según el límite de reservas activas del empleado.
 2. **Creación**: hay dos caminos según el tipo de reserva (corporativa o con retención de pago). Si el empleado alcanzó su máximo, el backend responde `409 RESERVATION_LIMIT_REACHED` y el front lo traduce con `reservationPolicy` + `erroresMensajes`.
 3. **Pago (Mercado Pago)**: cuando hay retención, el flujo deriva al checkout. Al volver del checkout, la vista reutiliza retenciones vigentes en lugar de duplicar reservas.
-4. **Retorno de pago**: `/payment/success|failure|pending` (`pages/PaymentStatus.jsx`) verifica el resultado por `payment_id` / `external_reference`.
+4. **Retorno de pago**: `/payment/success|failure|pending` (`pages/PaymentStatus.jsx`) envía `payment_id`, `external_reference` y `preference_id` como pistas de correlación. El backend autoriza primero la reserva o preferencia local con la sesión validada y recién después consulta Mercado Pago; los parámetros de la URL no conceden acceso.
 5. **Vehículos**: `agregar_vehiculo.jsx` + `API_Vehiculo.js`; marcas/modelos vía `API_Marca.js` / `API_Modelo.js`. Patentes validadas con `helpers/patente.js`.
 6. **Historial**: `historial_reserva.jsx` lista reservas pasadas; fechas normalizadas con `helpers/reservaDateTime.js` (las reservas usan hora argentina).
 
@@ -60,7 +60,7 @@ Vistas: `vistasGaragista/garagista_dashboard.jsx` (rutas `/garagista_dashboard` 
 - **Personal**: alta/edición/baja de empleados y garajistas (`gestion_de_empleados.jsx`, `agregar_empleado.jsx`), incluida la configuración del límite de reservas activas.
 - **Garages**: búsqueda y contratación de garages de terceros, garage propio y zonas (`gestion_garages.jsx`, `agregar_garage_propio.jsx`, `agregar_zona.jsx`, `editar_zona.jsx`). Los tratos con garages se gestionan desde `componentesCompartidos/GestionTratosGarage.jsx`.
 - **Sedes** (solo admin de empresa, `requireEmpresaAdmin`): `gestion_sedes.jsx`, `agregar_sede.jsx`, `agregar_admin_sede.jsx`. Un admin con sede no administra sedes.
-- **Operación**: panel de control (reservas + conflictos + papelera), reportes y análisis, pagos (`admin_panel_de_control.jsx`, `admin_reportes_analisis.jsx`, `admin_pagos.jsx`).
+- **Operación**: panel de control (reservas + conflictos + papelera), reportes y análisis, pagos (`admin_panel_de_control.jsx`, `admin_reportes_analisis.jsx`, `admin_pagos.jsx`). Las consultas generales de pagos quedan acotadas a la empresa y, si corresponde, a la sede autenticada.
 - **Exportaciones**: Excel/PDF desde `src/util/`.
 
 ## 5. Dueño de garage
@@ -79,7 +79,7 @@ Vistas: `vistasGaragista/garagista_dashboard.jsx` (rutas `/garagista_dashboard` 
 - **Garages**: `superadmin_gestion_garages.jsx` (vista global, incluye garages sin empresa).
 - **Conflictos**: `superadmin_conflictos.jsx` con papelera y restauración.
 - **Reservas globales**: `superadmin_reservas.jsx`.
-- **Pagos de prueba**: `superadmin_pagos_test.jsx` (Mercado Pago con `VITE_MP_PUBLIC_KEY`).
+- **Pagos de prueba**: `superadmin_pagos_test.jsx` (Mercado Pago con `VITE_MP_PUBLIC_KEY`); el listado global y el diagnóstico de webhooks son capacidades exclusivas del superadmin.
 - **Caché**: `superadmin_cache.jsx` sobre `getCacheStats`/`getCacheEntries`; permite inspeccionar y repoblar la caché en memoria.
 - **Plantillas de email**: `superadmin_email_templates.jsx`; los enlaces usan `VITE_FRONTEND_URL`.
 - **Solicitudes de registro**: `ConfirmarSolicitud.jsx` + `API_SolicitudRegistro.js`.
