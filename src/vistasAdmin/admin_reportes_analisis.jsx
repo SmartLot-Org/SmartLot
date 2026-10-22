@@ -307,7 +307,7 @@ const CustomTooltip = ({ active, payload, label }) => {
           <span className="trend-tooltip__count">{data.count} reservas</span>
         )}
         <div className="trend-tooltip__bar">
-          <div className="trend-tooltip__fill" style={{ width: `${data.valor}%` }} />
+          <div className="trend-tooltip__fill" style={{ transform: `translateX(${limitarPorcentaje(data.valor) - 100}%)` }} />
         </div>
       </div>
     );

@@ -52,13 +52,13 @@ export default function Navbar({ links = [] }) {
       ref={navRef}
       className="fixed top-0 left-0 w-full z-50 glass-nav"
     >
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3.5 flex flex-wrap justify-between items-center gap-x-3 gap-y-2">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3.5 flex flex-wrap justify-between items-center gap-x-2 sm:gap-x-3 gap-y-2">
 
         <Link to="/" className="flex items-center gap-2 group min-w-0">
           <img
             src="/logo.png"
             alt="SmartLot Logo"
-            className="h-10 md:h-12 w-auto drop-shadow-sm transition-all duration-300 group-hover:brightness-110"
+            className="h-8 sm:h-10 md:h-12 w-auto drop-shadow-sm transition-all duration-300 group-hover:brightness-110"
           />
           <span className="hidden sm:inline text-xl md:text-2xl font-extrabold text-brand-warm tracking-tight font-display">
             SmartLot
@@ -79,7 +79,7 @@ export default function Navbar({ links = [] }) {
           </nav>
         )}
 
-        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+        <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
           {usuario ? (
             <Link
               to={getUserHomeRoute(usuario)}
@@ -91,7 +91,7 @@ export default function Navbar({ links = [] }) {
             <>
               <Link
                 to="/login"
-                className="inline-flex items-center justify-center whitespace-nowrap rounded-lg border border-brand-navy/10 bg-white/70 px-3 sm:px-4 py-2.5 text-sm font-semibold text-brand-muted shadow-sm hover:border-brand-blue/40 hover:bg-brand-blue/10 hover:text-brand-deep hover:shadow-md active:scale-[0.97] transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2 focus-visible:ring-offset-brand-bg"
+                className="inline-flex items-center justify-center whitespace-nowrap rounded-lg border border-brand-navy/10 bg-white/70 px-2 min-[400px]:px-2.5 sm:px-4 py-2.5 text-sm font-semibold text-brand-muted shadow-sm hover:border-brand-blue/40 hover:bg-brand-blue/10 hover:text-brand-deep hover:shadow-md active:scale-[0.97] transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2 focus-visible:ring-offset-brand-bg"
               >
                 Iniciar sesión
               </Link>

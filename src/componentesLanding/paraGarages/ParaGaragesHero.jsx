@@ -121,17 +121,17 @@ export default function ParaGaragesHero() {
           aria-label="Aparecé en el mapa de las empresas"
         >
           <span aria-hidden="true" className="hero-line hero-line-1 block will-change-transform">
-            <span className="block overflow-hidden py-[0.04em]">
+            <span className="block overflow-hidden -mt-[0.08em] pt-[0.12em] pb-[0.04em] pr-[0.06em]">
               <span className="word block">APARECÉ</span>
             </span>
           </span>
           <span aria-hidden="true" className="hero-line hero-line-2 block will-change-transform md:text-right">
-            <span className="block overflow-hidden py-[0.04em]">
+            <span className="block overflow-hidden -mt-[0.08em] pt-[0.12em] pb-[0.04em] pr-[0.06em]">
               <span className="word block">EN EL MAPA</span>
             </span>
           </span>
           <span aria-hidden="true" className="hero-line hero-line-3 block will-change-transform">
-            <span className="block overflow-hidden py-[0.04em]">
+            <span className="block overflow-hidden -mt-[0.08em] pt-[0.12em] pb-[0.04em] pr-[0.06em]">
               <span className="word block text-brand-blue">DE LAS EMPRESAS</span>
             </span>
           </span>

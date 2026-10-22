@@ -77,7 +77,6 @@ function AgregarEmpresa() {
             <ArrowLeft size={20} />
           </button>
           <div>
-            <p>SUPERADMIN</p>
             <h1>Agregar Empresa</h1>
           </div>
         </div>

@@ -85,7 +85,7 @@ function SelectorDiasOperativos({ value = [], onChange, validation }) {
         <span className="dops-track">
           <span
             className="dops-track-fill"
-            style={{ width: `${(value.length / DIAS_SEMANA.length) * 100}%` }}
+            style={{ transform: `translateX(${(value.length / DIAS_SEMANA.length) * 100 - 100}%)` }}
           />
         </span>
       </div>

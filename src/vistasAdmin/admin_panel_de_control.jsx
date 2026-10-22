@@ -558,7 +558,7 @@ export default function AdminPanelControl() {
             {`${ocupacion.porcentaje}%`}
           </div>
           <div className="panel-stats__progress-container">
-            <div className="panel-stats__progress-bar" style={{ width: `${ocupacion.porcentaje}%` }} />
+            <div className="panel-stats__progress-bar" style={{ transform: `translateX(${Math.min(100, ocupacion.porcentaje) - 100}%)` }} />
           </div>
         </section>
       )}

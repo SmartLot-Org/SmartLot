@@ -34,10 +34,13 @@ export default function StatsTicker({
   }, { scope: tickerRef });
 
   return (
-    <div ref={tickerRef} className="relative w-full bg-brand-deep py-6 overflow-hidden border-y border-white/5" aria-label={ariaLabel}>
-      <span className="absolute right-4 top-2 z-10 rounded-full border border-white/15 bg-brand-deep px-2.5 py-1 text-[11px] font-medium uppercase tracking-wider text-white/70">
-        Datos de ejemplo
-      </span>
+    <div ref={tickerRef} className="relative w-full bg-brand-deep pt-3 pb-6 overflow-hidden border-y border-white/5" aria-label={ariaLabel}>
+      {/* El rótulo va en su propia fila: flotando sobre el marquee tapaba el texto que pasa por detrás. */}
+      <div className="flex justify-end px-4 mb-3">
+        <span className="rounded-full border border-white/15 px-2.5 py-1 text-[11px] font-medium uppercase tracking-wider text-white/70">
+          Datos de ejemplo
+        </span>
+      </div>
       <div className="ticker-track flex whitespace-nowrap w-fit" aria-hidden="true">
 
         {[...Array(2)].map((_, idx) => (

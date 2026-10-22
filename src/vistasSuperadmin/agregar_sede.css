@@ -38,14 +38,6 @@
   color: #ffffff;
 }
 
-.agregar-sede-top p {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 1px;
-  color: #F59E0B;
-  margin: 0 0 2px;
-}
-
 .agregar-sede-top h1 {
   font-size: 24px;
   font-weight: 700;
@@ -61,6 +53,65 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
+}
+
+.agregar-sede-form .input-group-superadmin {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.agregar-sede-form .input-group-superadmin label {
+  text-align: left;
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+  line-height: 1.5;
+}
+
+.agregar-sede-form .input-group-superadmin :is(input, select, textarea) {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  min-height: 44px;
+  padding: 12px 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 14px;
+  font-family: inherit;
+  line-height: 1.5;
+  color: #1e293b;
+  background: #ffffff;
+  outline: none;
+  caret-color: #2563eb;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.agregar-sede-form .input-group-superadmin :is(input, textarea)::placeholder {
+  color: #94a3b8;
+}
+
+.agregar-sede-form .input-group-superadmin :is(input, select, textarea):focus {
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15);
+}
+
+.agregar-sede-form .input-group-superadmin textarea {
+  resize: vertical;
+  min-height: 96px;
+}
+
+.agregar-sede-form .form-error-superadmin {
+  color: #b91c1c;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.5;
+  margin: 0;
 }
 
 .agregar-sede-actions {

@@ -146,7 +146,6 @@ function AgregarSede() {
             <ArrowLeft size={20} aria-hidden="true" focusable="false" />
           </button>
           <div>
-            <p>SUPERADMIN</p>
             <h1>Agregar Sede</h1>
           </div>
         </div>

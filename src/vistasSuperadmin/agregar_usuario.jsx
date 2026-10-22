@@ -256,7 +256,6 @@ function AgregarUsuario() {
             <ArrowLeft size={20} />
           </button>
           <div>
-            <p>SUPERADMIN</p>
             <h1>Agregar Usuario</h1>
           </div>
         </div>
