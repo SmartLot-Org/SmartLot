@@ -7,41 +7,13 @@ const logApiError = (error) => {
     }
 };
 
-const PagosCrearPreferencia = async (items, orderId, backUrls, extra = {}) => {
-
-    let returnObject = { respuesta: false, datos: null };
-
+const PagosCrearPreferencia = async ({ consumosIds, idSede, idGarage, periodo, backUrls }) => {
     try {
-
-        const body = { items, orderId };
-
-        if (backUrls) {
-            body.backUrls = backUrls;
-        }
-        // Soporte para pagos de admin: consumosIds, metadata, periodo, idGarage, idSede
-        if (extra && typeof extra === 'object' && Object.keys(extra).length) {
-            if (extra.metadata) body.metadata = extra.metadata;
-            if (extra.consumosIds) body.consumosIds = extra.consumosIds;
-            if (extra.periodo) body.periodo = extra.periodo;
-            if (extra.idGarage) body.idGarage = extra.idGarage;
-            if (extra.idSede) body.idSede = extra.idSede;
-            // compat: si viene directamente consumos_ids
-            if (extra.consumos_ids) body.consumosIds = extra.consumos_ids;
-        }
-
-        const response = await apiClient.post('/api/payments/preference', body);
-
-        returnObject.respuesta = true;
-        returnObject.datos = response.data;
-
-        return returnObject;
-
+        const response = await apiClient.post('/api/payments/preference', { consumosIds, idSede, idGarage, periodo, backUrls });
+        return { respuesta: true, datos: response.data };
     } catch (error) {
-
         logApiError(error);
-        returnObject.datos = error.response?.data || { message: error.message };
-        returnObject.status = error.response?.status || 0;
-        return returnObject;
+        return { respuesta: false, datos: error.response?.data || { message: error.message }, status: error.response?.status || 0 };
     }
 };
 

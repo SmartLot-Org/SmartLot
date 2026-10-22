@@ -17,13 +17,6 @@ const moneda = (n) => new Intl.NumberFormat("es-AR", { style: "currency", curren
 const fechaHora = (f) => new Intl.DateTimeFormat("es-AR", { dateStyle: "short", timeStyle: "short" }).format(new Date(f));
 const nombrePeriodo = (p) => new Intl.DateTimeFormat("es-AR", { month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(`${p}-01T00:00:00Z`));
 const duracion = (m = 0) => `${Math.floor(m / 60)} h ${m % 60} min`;
-const MONTO_MAX_TEST = 0.10;
-const montoTest = (n) => {
-  const v = Number(n) || 0;
-  if (v <= 0) return MONTO_MAX_TEST;
-  return Math.min(v, MONTO_MAX_TEST);
-};
-
 function DetalleCuenta({ cuenta, onClose, onPagar, pagando }) {
   useEffect(() => {
     if (!cuenta) return undefined;
@@ -32,22 +25,22 @@ function DetalleCuenta({ cuenta, onClose, onPagar, pagando }) {
     return () => { document.removeEventListener("keydown", keydown); document.body.classList.remove("pagos-modal-open"); };
   }, [cuenta, onClose]);
   if (!cuenta) return null;
-  const pagada = cuenta.estadoPago === "PAGADA";
-  const aCobrar = montoTest(cuenta.importeGenerado);
+  const pagada = cuenta.estadoPago === "PAGADA" || !(cuenta.importePendiente > 0);
+  const aCobrar = cuenta.importePendiente;
   return <div className="pagos-drawer-overlay" role="presentation" onMouseDown={onClose}><aside className="pagos-drawer" role="dialog" aria-modal="true" aria-labelledby="detalle-cuenta-titulo" onMouseDown={(e) => e.stopPropagation()}>
-    <div className="pagos-drawer__header"><div><span className="pagos-eyebrow">Detalle de consumo</span><h2 id="detalle-cuenta-titulo">{cuenta.garage}</h2><span style={{ marginTop: 6, display: "inline-flex" }}>{pagada ? <span className="pagos-badge pagos-badge--pagada"><BadgeCheck size={14} /> PAGADA</span> : <span className="pagos-badge pagos-badge--pendiente">PENDIENTE DE PAGO</span>}</span></div><button className="pagos-icon-button" type="button" onClick={onClose} aria-label="Cerrar detalle"><X size={20} /></button></div>
+    <div className="pagos-drawer__header"><div><span className="pagos-eyebrow">Detalle de consumo</span><h2 id="detalle-cuenta-titulo">{cuenta.garage}</h2><span style={{ marginTop: 6, display: "inline-flex" }}>{pagada ? <span className="pagos-badge pagos-badge--pagada"><BadgeCheck size={14} /> {cuenta.estadoPago === "PAGADA" ? "PAGADA" : "SIN SALDO"}</span> : <span className="pagos-badge pagos-badge--pendiente">PENDIENTE DE PAGO</span>}</span></div><button className="pagos-icon-button" type="button" onClick={onClose} aria-label="Cerrar detalle"><X size={20} /></button></div>
     <dl className="pagos-detail-summary"><div><dt>Período</dt><dd>{nombrePeriodo(cuenta.periodo)}</dd></div><div><dt>Sede</dt><dd>{cuenta.sede}</dd></div><div><dt>Tiempo utilizado</dt><dd>{duracion(cuenta.minutosTotales)}</dd></div><div><dt>Importe generado</dt><dd className="pagos-amount">{moneda(cuenta.importeGenerado)}</dd></div></dl>
     <div style={{ marginTop: 16, padding: "12px 14px", borderRadius: 12, background: pagada ? "#f0fdf4" : "#eff6ff", border: `1px solid ${pagada ? "#bbf7d0" : "#dbeafe"}`, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
       <div>
-        <strong style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: pagada ? "#15803d" : "#1e40af" }}>{pagada ? <BadgeCheck size={16} /> : <CreditCard size={16} />} {pagada ? "Consumo pagado" : "Importe a cobrar (test)"}</strong>
-        <span style={{ fontSize: 12, color: pagada ? "#166534" : "#3730a3" }}>{pagada ? "Este período ya fue abonado." : `Sandbox: se cobrará ${moneda(aCobrar)} (cap $0.10) · Original ${moneda(cuenta.importeGenerado)}`}</span>
+        <strong style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: pagada ? "#15803d" : "#1e40af" }}>{pagada ? <BadgeCheck size={16} /> : <CreditCard size={16} />} {pagada ? "Sin saldo pendiente" : "Importe pendiente"}</strong>
+        <span style={{ fontSize: 12, color: pagada ? "#166534" : "#3730a3" }}>{pagada ? "No hay saldo pendiente." : `Pendiente ${moneda(aCobrar)}`}</span>
       </div>
-      {!pagada && <button type="button" className="pagos-pay-button" onClick={() => onPagar(cuenta)} disabled={pagando}>{pagando ? <Loader2 size={16} className="pagos-spin" /> : <CreditCard size={16} />} {pagando ? "Creando..." : `PAGAR ${moneda(aCobrar)}`}</button>}
-      {pagada && <span className="pagos-badge pagos-badge--pagada" style={{ fontSize: 12 }}><BadgeCheck size={14} /> PAGADA</span>}
+      {!pagada && <button type="button" className="pagos-pay-button" onClick={() => onPagar(cuenta)} disabled={pagando || cuenta.requiereRegularizacion}>{pagando ? <Loader2 size={16} className="pagos-spin" /> : <CreditCard size={16} />} {pagando ? "Creando..." : `PAGAR ${moneda(aCobrar)}`}</button>}
+      {pagada && <span className="pagos-badge pagos-badge--pagada" style={{ fontSize: 12 }}><BadgeCheck size={14} /> {cuenta.estadoPago === "PAGADA" ? "PAGADA" : "SIN SALDO"}</span>}
     </div>
     <section className="pagos-movements" aria-labelledby="movimientos-titulo"><div className="pagos-movements__title"><ReceiptText size={18} /><h3 id="movimientos-titulo">Reservas utilizadas</h3></div><div className="pagos-movements__list">{cuenta.movimientos.map((m) => <article className="pagos-movement" key={m.idConsumo}><div><strong>Reserva #{m.idReserva} · {m.tipoVehiculo} {m.pagado ? <span className="pagos-badge pagos-badge--pagada" style={{ marginLeft: 6, fontSize: 10, padding: "2px 6px" }}>PAGADA</span> : null}</strong><time dateTime={m.fechaInicio}>{fechaHora(m.fechaInicio)} — {fechaHora(m.fechaFin)} · {m.minutosUtilizados} min · {moneda(m.tarifaHoraAplicada)}/h</time></div><span>{moneda(m.importeGenerado)}</span></article>)}</div></section>
-    <p className="pagos-coming-soon" style={{ background: pagada ? "#f0fdf4" : "#eff6ff", border: `1px solid ${pagada ? "#bbf7d0" : "#dbeafe"}`, color: pagada ? "#15803d" : "#1e40af" }}>{pagada ? <BadgeCheck size={18} /> : <CircleDollarSign size={18} />}{pagada ? "Este consumo ya se encuentra pagado. Podés descargar el comprobante desde el historial de pagos." : `Modo test: el cobro real será de ${moneda(aCobrar)} máximo $0.10 para sandbox.`}</p>
-    {!pagada && <button type="button" className="pagos-pay-button pagos-pay-button--full" onClick={() => onPagar(cuenta)} disabled={pagando} style={{ marginTop: 14 }}>{pagando ? <Loader2 size={16} className="pagos-spin" /> : <ExternalLink size={16} />} {pagando ? "Abriendo checkout..." : `Pagar con Mercado Pago (sandbox) · ${moneda(aCobrar)}`}</button>}
+    <p className="pagos-coming-soon" style={{ background: pagada ? "#f0fdf4" : "#eff6ff", border: `1px solid ${pagada ? "#bbf7d0" : "#dbeafe"}`, color: pagada ? "#15803d" : "#1e40af" }}>{pagada ? <BadgeCheck size={18} /> : <CircleDollarSign size={18} />}{pagada ? "No hay saldo pendiente para esta cuenta." : (cuenta.requiereRegularizacion ? "Esta cuenta tiene una operación pendiente de confirmación o regularización." : `Saldo pendiente: ${moneda(aCobrar)}. El servidor verifica el importe al generar el pago.`)}</p>
+    {!pagada && <button type="button" className="pagos-pay-button pagos-pay-button--full" onClick={() => onPagar(cuenta)} disabled={pagando || cuenta.requiereRegularizacion} style={{ marginTop: 14 }}>{pagando ? <Loader2 size={16} className="pagos-spin" /> : <ExternalLink size={16} />} {pagando ? "Abriendo checkout..." : `Pagar con Mercado Pago · ${moneda(aCobrar)}`}</button>}
   </aside></div>;
 }
 
@@ -109,7 +102,7 @@ function AdminPagos() {
       sessionStorage.removeItem("mp_pending_orderId");
       localStorage.removeItem("mp_last_orderId");
       localStorage.removeItem("mp_last_preferenceId");
-    } catch {}
+    } catch { /* El navegador puede bloquear el almacenamiento local. */ }
     setCargando(true);
     setReintento((n) => n + 1);
     Swal.fire({ toast: true, position: "top-end", icon: "success", title: `Pago aprobado${pago?.id ? ` (${pago.id})` : ""}. Actualizando consumos…`, showConfirmButton: false, timer: 4000 });
@@ -204,46 +197,33 @@ function AdminPagos() {
 
   const handlePagar = async (cuenta) => {
     const key = `${cuenta.idGarage}-${cuenta.idSede}-${cuenta.periodo}`;
-    if (cuenta.estadoPago === "PAGADA") {
-      Swal.fire({ toast: true, position: "top-end", icon: "info", title: "Este consumo ya está pagado (PAGADA)", showConfirmButton: false, timer: 2500 });
+    if (cuenta.estadoPago === "PAGADA" || !(cuenta.importePendiente > 0)) {
+      Swal.fire({ toast: true, position: "top-end", icon: "info", title: "Esta cuenta no tiene saldo pendiente.", showConfirmButton: false, timer: 2500 });
+      return;
+    }
+    if (cuenta.requiereRegularizacion) {
+      Swal.fire({ icon: "info", title: "Operación pendiente de confirmación o regularización" });
       return;
     }
     setPagandoKey(key);
     try {
-      const aCobrar = montoTest(cuenta.importeGenerado);
-      const orderId = `ADMIN-PAGO-${cuenta.periodo}-G${cuenta.idGarage}-S${cuenta.idSede}-${Date.now()}`;
-      const consumosIds = cuenta.movimientos.map((m) => m.idConsumo);
-      const titulo = `Consumo ${cuenta.garage} - ${nombrePeriodo(cuenta.periodo)} (${cuenta.reservasUtilizadas} reservas)`;
-      const items = [{ id: `consumo-${cuenta.idGarage}-${cuenta.idSede}-${cuenta.periodo}`, title: titulo, unit_price: aCobrar, quantity: 1 }];
+      const consumosIds = cuenta.movimientos.filter((m) => !m.pagado).map((m) => m.idConsumo);
       const backUrls = {
         success: `${window.location.origin}/admin/pagos`,
         failure: `${window.location.origin}/admin/pagos`,
         pending: `${window.location.origin}/admin/pagos`,
       };
-      const res = await PagosCrearPreferencia(items, orderId, backUrls, {
-        consumosIds,
-        periodo: cuenta.periodo,
-        idGarage: cuenta.idGarage,
-        idSede: cuenta.idSede,
-        metadata: {
-          consumos_ids: consumosIds,
-          periodo: cuenta.periodo,
-          id_garage: cuenta.idGarage,
-          id_sede: cuenta.idSede,
-          importe_original: cuenta.importeGenerado,
-          importe_cobrado: aCobrar,
-          test: true,
-          origen: "admin_pagos",
-        },
-      });
+      const res = await PagosCrearPreferencia({ consumosIds, periodo: cuenta.periodo, idGarage: cuenta.idGarage, idSede: cuenta.idSede, backUrls });
       if (!res.respuesta) {
         Swal.fire({ toast: true, position: "top-end", icon: "error", title: res.datos?.message || "No se pudo crear la preferencia de pago", showConfirmButton: false, timer: 4000 });
         return;
       }
       const pref = res.datos;
+      const orderId = pref.orderId;
+      const aCobrar = pref.amount;
       const sandboxUrl = pref.sandboxInitPoint || pref.sandbox_init_point;
       const initUrl = pref.initPoint || pref.init_point;
-      const url = sandboxUrl || initUrl;
+      const url = pref.sandbox ? sandboxUrl || initUrl : initUrl;
       if (!url) {
         Swal.fire({ toast: true, position: "top-end", icon: "error", title: "Preferencia creada pero sin URL de checkout", showConfirmButton: false, timer: 3500 });
         return;
@@ -252,9 +232,9 @@ function AdminPagos() {
         localStorage.setItem("mp_last_orderId", orderId);
         localStorage.setItem("mp_last_preferenceId", String(pref.preferenceId || pref.preference_id || ""));
         sessionStorage.setItem("mp_pending_orderId", orderId);
-      } catch {}
+      } catch { /* El navegador puede bloquear el almacenamiento local. */ }
       iniciarPolling(orderId);
-      Swal.fire({ toast: true, position: "top-end", icon: "success", title: `Checkout abierto · ${moneda(aCobrar)} (cap $0.10)`, showConfirmButton: false, timer: 3000 });
+      Swal.fire({ toast: true, position: "top-end", icon: "success", title: `Checkout abierto · ${moneda(aCobrar)}`, showConfirmButton: false, timer: 3000 });
       window.open(url, "_blank", "noopener,noreferrer");
     } catch (e) {
       Swal.fire({ toast: true, position: "top-end", icon: "error", title: e?.message || "Error al iniciar el pago", showConfirmButton: false, timer: 3500 });
@@ -263,22 +243,21 @@ function AdminPagos() {
     }
   };
 
-  return <div className="pagos-page"><Header /><main className="pagos-main"><header className="pagos-page-header"><div><span className="pagos-eyebrow">Administración financiera</span><h1>Consumos generados</h1><p>Consultá el importe generado por las reservas utilizadas de tu empresa — modo test: cap $0.10 por pago</p></div><button className="pagos-export-button" type="button" onClick={() => setExportarAbierto(true)} disabled={!data.items.length || cargando}><Download size={18} /> Exportar</button></header>
+  return <div className="pagos-page"><Header /><main className="pagos-main"><header className="pagos-page-header"><div><span className="pagos-eyebrow">Administración financiera</span><h1>Consumos generados</h1><p>Consultá el importe generado por las reservas utilizadas de tu empresa —</p></div><button className="pagos-export-button" type="button" onClick={() => setExportarAbierto(true)} disabled={!data.items.length || cargando}><Download size={18} /> Exportar</button></header>
     <section className="pagos-kpis" aria-label="Resumen general">{metricas.map(({ label, value, icon: Icon, tone }) => <article className="pagos-kpi" key={label}><div className={`pagos-kpi__icon pagos-kpi__icon--${tone}`}><Icon size={21} /></div><div><span>{label}</span><strong>{value}</strong></div></article>)}</section>
-    <div className="pagos-alert" role="status" style={{ background: "#eff6ff", borderColor: "#bfdbfe", color: "#1e3a8a" }}><div className="pagos-alert__icon" style={{ background: "#dbeafe" }}><CreditCard size={20} /></div><div><strong>Pagos de prueba — hasta $0.10 por checkout</strong><span>Para testear múltiples veces con saldo chico en sandbox de Mercado Pago. El monto real cobrado es <strong>min(importe, $0.10)</strong>.</span></div></div>
     <section className="pagos-accounts" aria-labelledby="cuentas-titulo"><div className="pagos-section-heading"><div><h2 id="cuentas-titulo">Consumos por garage y sede</h2><p>{data.items.length} resultados</p></div></div><div className="pagos-filters"><label className="pagos-search"><span className="sr-only">Buscar por garage o sede</span><Search size={18} /><input value={busqueda} onChange={(e) => setBusqueda(e.target.value)} placeholder="Buscar por garage o sede" /></label><label><span>Sede</span><select value={idSede} onChange={(e) => cambiarFiltro(setIdSede, e.target.value)}><option value="">Todas las autorizadas</option>{sedes.map((s) => <option value={s.id} key={s.id}>{s.nombre}</option>)}</select></label><label><span>Período</span><select value={periodo} onChange={(e) => cambiarFiltro(setPeriodo, e.target.value)}>{periodos.map((p) => <option value={p} key={p}>{nombrePeriodo(p)}</option>)}</select></label><button className="pagos-clear-button" type="button" onClick={limpiar}><X size={16} /> Limpiar filtros</button></div>
       {cargando ? <div className="pagos-empty" role="status"><strong>Cargando consumos…</strong><span>Consultando información real.</span></div> : error ? <div className="pagos-empty" role="alert"><strong>No pudimos cargar los consumos</strong><span>{error}</span><button type="button" onClick={() => { setCargando(true); setError(""); setReintento((n) => n + 1); }}>Reintentar</button></div> : data.items.length ? <><div className="pagos-table-wrap"><table className="pagos-table"><thead><tr><th>Garage / sede</th><th>Período</th><th>Reservas</th><th>Tiempo</th><th>Importe generado</th><th>Pago</th><th><span className="sr-only">Acciones</span></th></tr></thead><tbody>{data.items.map((c) => {
         const key = `${c.idGarage}-${c.idSede}-${c.periodo}`;
-        const pagada = c.estadoPago === "PAGADA";
+        const pagada = c.estadoPago === "PAGADA" || !(c.importePendiente > 0);
         const pagando = pagandoKey === key;
-        const aCobrar = montoTest(c.importeGenerado);
-        return <tr key={key}><td><strong>{c.garage}</strong><br /><small>{c.sede}</small></td><td>{nombrePeriodo(c.periodo)}</td><td>{c.reservasUtilizadas}</td><td>{duracion(c.minutosTotales)}</td><td className="pagos-table__amount">{moneda(c.importeGenerado)}<br /><small style={{ color: "#64748b", fontWeight: 600, fontSize: 11 }}>a cobrar {moneda(aCobrar)}</small></td><td>{pagada ? <span className="pagos-badge pagos-badge--pagada"><BadgeCheck size={14} /> PAGADA</span> : <button type="button" className="pagos-pay-button" onClick={() => handlePagar(c)} disabled={pagando}>{pagando ? <Loader2 size={14} className="pagos-spin" /> : <CreditCard size={14} />} {pagando ? "Creando..." : `PAGAR ${moneda(aCobrar)}`}</button>}</td><td><button className="pagos-detail-button" type="button" onClick={() => setSeleccionada(c)}>Ver detalle <ChevronRight size={16} /></button></td></tr>;
+        const aCobrar = c.importePendiente;
+        return <tr key={key}><td><strong>{c.garage}</strong><br /><small>{c.sede}</small></td><td>{nombrePeriodo(c.periodo)}</td><td>{c.reservasUtilizadas}</td><td>{duracion(c.minutosTotales)}</td><td className="pagos-table__amount">{moneda(c.importeGenerado)}<br /><small style={{ color: "#64748b", fontWeight: 600, fontSize: 11 }}>a cobrar {moneda(aCobrar)}</small></td><td>{pagada ? <span className="pagos-badge pagos-badge--pagada"><BadgeCheck size={14} /> {c.estadoPago === "PAGADA" ? "PAGADA" : "SIN SALDO"}</span> : <button type="button" className="pagos-pay-button" onClick={() => handlePagar(c)} disabled={pagando || c.requiereRegularizacion}>{pagando ? <Loader2 size={14} className="pagos-spin" /> : <CreditCard size={14} />} {pagando ? "Creando..." : `PAGAR ${moneda(aCobrar)}`}</button>}</td><td><button className="pagos-detail-button" type="button" onClick={() => setSeleccionada(c)}>Ver detalle <ChevronRight size={16} /></button></td></tr>;
       })}</tbody></table></div><div className="pagos-mobile-list">{data.items.map((c) => {
         const key = `${c.idGarage}-${c.idSede}-${c.periodo}`;
-        const pagada = c.estadoPago === "PAGADA";
+        const pagada = c.estadoPago === "PAGADA" || !(c.importePendiente > 0);
         const pagando = pagandoKey === key;
-        const aCobrar = montoTest(c.importeGenerado);
-        return <article className="pagos-account-card" key={key}><div className="pagos-account-card__header"><div><strong>{c.garage}</strong><span>{c.sede} · {nombrePeriodo(c.periodo)}</span></div>{pagada ? <span className="pagos-badge pagos-badge--pagada"><BadgeCheck size={12} /> PAGADA</span> : <span className="pagos-badge pagos-badge--pendiente">PENDIENTE</span>}</div><dl><div><dt>Reservas</dt><dd>{c.reservasUtilizadas}</dd></div><div><dt>Importe generado</dt><dd>{moneda(c.importeGenerado)}<br /><small style={{ fontSize: 11, color: "#64748b" }}>a cobrar {moneda(aCobrar)}</small></dd></div></dl><div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>{pagada ? <span className="pagos-badge pagos-badge--pagada" style={{ height: 36, padding: "0 12px", display: "inline-flex", alignItems: "center", gap: 6 }}><BadgeCheck size={14} /> PAGADA</span> : <button className="pagos-pay-button" type="button" onClick={() => handlePagar(c)} disabled={pagando}>{pagando ? <Loader2 size={14} className="pagos-spin" /> : <CreditCard size={14} />} {pagando ? "Creando..." : `PAGAR ${moneda(aCobrar)}`}</button>}<button className="pagos-detail-button" type="button" onClick={() => setSeleccionada(c)}>Ver detalle <ChevronRight size={16} /></button></div></article>;
+        const aCobrar = c.importePendiente;
+        return <article className="pagos-account-card" key={key}><div className="pagos-account-card__header"><div><strong>{c.garage}</strong><span>{c.sede} · {nombrePeriodo(c.periodo)}</span></div>{pagada ? <span className="pagos-badge pagos-badge--pagada"><BadgeCheck size={12} /> {c.estadoPago === "PAGADA" ? "PAGADA" : "SIN SALDO"}</span> : <span className="pagos-badge pagos-badge--pendiente">PENDIENTE</span>}</div><dl><div><dt>Reservas</dt><dd>{c.reservasUtilizadas}</dd></div><div><dt>Importe generado</dt><dd>{moneda(c.importeGenerado)}<br /><small style={{ fontSize: 11, color: "#64748b" }}>a cobrar {moneda(aCobrar)}</small></dd></div></dl><div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>{pagada ? <span className="pagos-badge pagos-badge--pagada" style={{ height: 36, padding: "0 12px", display: "inline-flex", alignItems: "center", gap: 6 }}><BadgeCheck size={14} /> {c.estadoPago === "PAGADA" ? "PAGADA" : "SIN SALDO"}</span> : <button className="pagos-pay-button" type="button" onClick={() => handlePagar(c)} disabled={pagando || c.requiereRegularizacion}>{pagando ? <Loader2 size={14} className="pagos-spin" /> : <CreditCard size={14} />} {pagando ? "Creando..." : `PAGAR ${moneda(aCobrar)}`}</button>}<button className="pagos-detail-button" type="button" onClick={() => setSeleccionada(c)}>Ver detalle <ChevronRight size={16} /></button></div></article>;
       })}</div></> : <EmptyState icon={Search} tone="filtered" title="No hay consumos para estos filtros" description="El período consultado no registra reservas utilizadas." action={{ label: "Limpiar filtros", onClick: limpiar }} />}
     </section></main><FooterAdmin /><DetalleCuenta cuenta={seleccionada} onClose={() => setSeleccionada(null)} onPagar={handlePagar} pagando={seleccionada ? pagandoKey === `${seleccionada.idGarage}-${seleccionada.idSede}-${seleccionada.periodo}` : false} /><ExportarModal abierto={exportarAbierto} cantidad={data.items.length} cargando={exportando} onClose={() => setExportarAbierto(false)} onExport={exportar} /></div>;
 }
