@@ -452,3 +452,117 @@ fondo oscuro (`gestion_garages.css`).
 | Métricas (grep `src/**/*.{css,jsx}`) | `border-left/right: ≥3px` **2 → 0**; `#94a3b8` **49 → 43** (14 fuera de superadmin, todos permitidos); `outline:none` 45 (45/45 con foco visible); `eyebrow/kicker` 0; `Espere` 0. |
 | Detector de impeccable | **No corrido**: el engine 0.1.5 sigue sin descargarse (mismo bloqueo del 2026-10-13). Los 2 warnings `layout-transition` documentados quedaron corregidos igualmente. |
 | Commit | **Hecho y pusheado en `audit-ui` a pedido del usuario** (`68094ac`). |
+
+---
+
+## 11. Sesión 2026-10-22 — hallazgos nuevos accionables de P6 (barras con `width` y CSS muerto)
+
+Se ejecutaron los dos hallazgos del barrido del 2026-10-14 que no requerían decisión del dueño. El
+tercero (blur del overlay de `ModalPortal`) sigue abierto a la espera de esa decisión.
+
+### P6-E — Barras de progreso: `transition: width` → `transform` (3 → 0)
+
+Las tres barras animaban `width` (layout). Ahora el relleno mide siempre `width: 100%` y el avance se
+expresa con `translateX(<porcentaje − 100>%)`. El contenedor ya tenía `overflow: hidden` y radio, así que
+recorta el tramo vacío y el extremo del relleno conserva su radio (con `scaleX` se habría deformado, que
+era la razón por la que no se hizo a ciegas antes). El porcentaje se acota a 0–100 porque fuera de ese
+rango el desplazamiento dejaría la barra invisible.
+
+| Archivo | Cambios |
+|---|---|
+| `vistasAdmin/admin_panel_de_control.css` + `.jsx` | `.panel-stats__progress-bar`: `width: 100%` + `transition: transform 1.2s ease-out`. El JSX pasa `translateX(Math.min(100, porcentaje) − 100 %)` (la ocupación puede superar 100). |
+| `componentesAdmin/selector_dias_operativos.css` + `.jsx` | `.dops-track-fill`: `transition: transform 0.35s ease-out`. Valor siempre ≤ 100 (`días elegidos / 7`). |
+| `vistasAdmin/admin_reportes_analisis.css` + `.jsx` | `.trend-tooltip__fill`: `transition: transform 0.4s ease-out`. El JSX reutiliza `limitarPorcentaje` ya existente en el archivo. |
+
+`prefers-reduced-motion` ya reduce la duración de transiciones de forma global (`index.css`, P5 #7), por
+lo que no hizo falta una rama adicional.
+
+### P6-F — CSS muerto `.conflict-card*` eliminado
+
+Se borró el bloque «Conflict Card» completo de `vistasAdmin/admin_panel_de_control.css` (líneas 807–1015,
+**209 líneas**; 1433 → 1224). Verificado antes y después con grep: 0 referencias a `conflict-card` en
+`src/` (la vista usa `.conflicts-table`). Los `@keyframes` que le siguen no se tocaron.
+
+### Verificación de esta sesión
+
+| Comando / herramienta | Resultado |
+|---|---|
+| `npm ci` | Requerido de nuevo: el checkout no tenía `node_modules` (sin él, `npm test` 126/127 por `axios` y ESLint/Vite no arrancan). |
+| `npm test` | **130 pass / 0 fail**. |
+| `npx eslint` (los 3 JSX tocados) | **Limpio** (`admin_panel_de_control.jsx`, `selector_dias_operativos.jsx`, `admin_reportes_analisis.jsx`). |
+| `npm run build` | **OK, built in 2.68s**. |
+| Métrica `transition` sobre `width/height/max-height/margin/top/left` | **3 → 0**. |
+| Revisión visual de las 3 barras | **Pendiente** (parte de la ronda visual P6): comprobar 0 %, 100 %, valor intermedio y el redondeo del extremo. |
+| Impeccable `context` / `detect` | **No corrió**: el `.cmd` del launcher está bloqueado por la directiva de grupo de Windows en esta máquina (distinto del bloqueo de descarga previo). Se leyeron `DESIGN.md` y la craft floor directamente. |
+| Commit | **No realizado** (sin pedido explícito). |
+
+---
+
+## 12. Sesión 2026-10-22 (2) — ronda visual P6 de rutas públicas, con backend local
+
+Se levantó el backend (`SmartLot_API`, `node src/app.js`, puerto 3000, base Supabase del `.env` local) y
+`npm run dev` (5173). Edge headless por CDP con **esperas reales** (las capturas con
+`--virtual-time-budget` salen a mitad de las animaciones GSAP y no sirven como evidencia). Rutas: `/`,
+`/para-garages`, `/login`, `/register`, `/recuperar-clave`, `/unauthorized`, a 1440 y 360 px. Sin
+overflow horizontal en ninguna (`scrollWidth = 360` en móvil). Los servidores se apagaron al terminar.
+
+### Defectos encontrados y corregidos (1 ronda + 1 confirmación)
+
+| Defecto | Causa | Fix |
+|---|---|---|
+| `/` desktop y móvil: el rótulo «Datos de ejemplo» tapaba el texto del marquee («Soporte técnico») | `StatsTicker.jsx`: pill `absolute` flotando sobre una pista que se mueve (regresión del fix P1 #3) | El pill pasa a su propia fila (`flex justify-end`) dentro del ticker; `py-6` → `pt-3 pb-6`. |
+| `/para-garages` desktop: acento de la **É** de «APARECÉ» recortado y borde de la **A** final de «EN EL MAPA» cortado | `ParaGaragesHero.jsx`: `overflow-hidden py-[0.04em]` con `line-height: .82` y tracking −0.03em | Cada línea: `-mt-[0.08em] pt-[0.12em] pb-[0.04em] pr-[0.06em]` (el ritmo vertical se conserva). |
+| Header móvil a 360 px en **dos filas** (121 px de alto) | `Navbar.jsx`: logo 73 px + CTAs 263 px > 328 px disponibles; `flex-wrap` | Logo `h-8 sm:h-10 md:h-12`, gaps y padding del login reducidos bajo `sm`: **una fila, 73 px**. |
+
+### Observado sin cambios
+- `/register` móvil conserva «cocheras» en el copy: intencional (ADR-008 deja fuera landing y registro).
+- Logo del header móvil queda pequeño (el PNG trae margen transparente); no es un defecto funcional.
+
+### Verificación
+`npm test` **130/130**; ESLint de `StatsTicker.jsx`, `Navbar.jsx`, `ParaGaragesHero.jsx` **limpio**;
+`npm run build` **OK (934 ms)**. Sin commit.
+
+### Límite de esta ronda
+No se pudieron abrir rutas protegidas: no hay credenciales de prueba y no se usaron datos/sesiones reales
+del backend. Siguen pendientes P5 #1/#3 y la revisión visual de los paneles; requieren un usuario de
+prueba por rol (o que lo provea el dueño).
+
+---
+
+## 13. Sesión 2026-10-22 (3) — revisión de paneles con sesión superadmin y suplantación de un admin
+
+Con el backend local y una ventana Edge con **perfil aislado** (la persona dueña inició sesión con Google
+ahí; no se tocaron credenciales ni cookies de su navegador), se conectó el driver CDP a esa pestaña. Se
+recorrieron vistas de superadmin (`/superadmin_dashboard`, `/superadmin/conflictos`, `/superadmin/reservas`,
+`/superadmin/agregar_sede`, `/superadmin/gestion_usuarios`) y, tras «Ingresar como» un usuario admin desde
+`gestion_usuarios` (solo lectura, sin mutar datos), `/admin_dashboard`, `/admin_panel_de_control`,
+`/admin_reportes_analisis`, `/gestion_garages` y `/admin_pagos`, a 1440 y 360 px.
+
+### Defectos encontrados y corregidos
+
+| Defecto | Causa | Fix |
+|---|---|---|
+| `/superadmin/agregar_sede`: campos sin estilo (etiquetas centradas sueltas, sin cajas, «Descripción» solapada con el textarea) | `agregar_sede.css` nunca definió `.input-group-superadmin` (en `main` tampoco: 0 coincidencias); solo `agregar_empresa.css` lo hacía, con alcance propio | Se agregaron las reglas de campos/select/textarea/error con alcance `.agregar-sede-form`, misma paleta que `agregar_empresa.css` (ADR-007: sin tocar colores del panel) y etiquetas alineadas a la izquierda. Confirmado: asterisco solo en Empresa/Nombre/Ubicación, no en Descripción (valida P2.5). |
+| Rótulo «SUPERADMIN» sobre el `h1` en 4 vistas (eyebrow prohibido) | `<p>SUPERADMIN</p>` suelto: la métrica `eyebrow\|kicker` (grep por clase) no lo detectaba | Eliminado de `agregar_sede`, `agregar_empresa`, `agregar_usuario` y `gestion_empresas` (JSX + reglas CSS `*-top p` muertas). |
+
+### Observado sin defecto
+- `/superadmin_dashboard` parecía vacío (tarjetas sin renderizar): **artefacto de medición**. La ventana estaba
+  en segundo plano (`visibilityState: hidden`) y el navegador pausó las animaciones GSAP de entrada. Con
+  `Emulation.setFocusEmulationEnabled` + `Page.bringToFront` el dashboard carga completo (stats + tarjetas).
+  **Lección para futuras rondas:** forzar foco/visibilidad antes de capturar vistas con GSAP.
+- Sin overflow horizontal de página en ninguna vista a 360 px (`/superadmin/reservas` tiene la tabla ancha
+  dentro de su contenedor con scroll; `/gestion_garages` tiene pestañas con scroll horizontal propio).
+- `/admin_panel_de_control`: la barra de ocupación con 0 % muestra solo la pista (sin relleno) — correcto con
+  `translateX(-100%)`; ancho del relleno = ancho del contenedor (1257 px).
+
+### Verificación
+`npm test` **130/130**; ESLint de las 4 vistas JSX tocadas **limpio**; `npm run build` **OK (942 ms)**. Sin commit.
+
+### Límites de esta ronda (siguen abiertos)
+- **P5 #3:** el ancho 769/860/956 px no desborda la página, pero hay **0 conflictos** en la base, así que la
+  tabla con filas no se ejercitó (solo el estado vacío).
+- **Barras de progreso con valor ≠ 0:** no verificadas visualmente (el entorno solo tiene 0 % de ocupación);
+  la prueba con valores forzados (40 %/100 %) quedó por correr.
+- **Focus trap de `ModalPortal`** (modal «Enviar mensaje a soporte») y **combobox de sede**: pendientes.
+- La sesión suplantada **venció** (redirigió a `/login`), cortando la ronda; hay que volver a iniciar sesión.
+- `/nueva_reserva` (empleado) y `/agregar_zona` (requiere estado de navegación) no se alcanzaron.

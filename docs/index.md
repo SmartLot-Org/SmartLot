@@ -16,7 +16,7 @@ Este repositorio es el frontend SPA de SmartLot y consume la API del backend `Sm
 | [`development.md`](./development.md) | Entorno, variables, pruebas, lint, build y mantenimiento | Frontend |
 | [`domain-flows.md`](./domain-flows.md) | Flujos de negocio por rol (reserva, pagos, acceso, paneles) | Producto, frontend |
 | [`decisions/README.md`](./decisions/README.md) | ADRs: decisiones arquitectónicas y su contexto | Arquitectos, agentes |
-| [`specs/README.md`](./specs/README.md) | Cómo se especifican features antes de codificar | Producto, frontend, agentes |
+| [`specs/README.md`](./specs/README.md) | Cómo se especifican features antes de codificar (spec vigente: [`SPEC-cierre-auditoria-ui.md`](./specs/SPEC-cierre-auditoria-ui.md), en revisión) | Producto, frontend, agentes |
 | [`estados-vacios.md`](./estados-vacios.md) | Inventario de estados vacíos por pantalla y su acción | Frontend, QA |
 | [`reservation-limit.md`](./reservation-limit.md) | Informe del límite de reservas activas por empleado (frontend + backend revisado) | Producto, backend |
 | [`audit-ui/README.md`](./audit-ui/README.md) | Auditoría UI: estado, hallazgos, plan de ejecución, cambios realizados y pendientes (handoff para continuar en otra sesión) | Frontend, agentes |

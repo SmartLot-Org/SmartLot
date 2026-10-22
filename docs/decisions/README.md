@@ -18,7 +18,7 @@ Los ADRs registran decisiones técnicas significativas: contexto, decisión, alt
 
 ## Nota sobre ADRs retrospectivos
 
-Los ADRs de esta carpeta son **retrospectivos**: documentan decisiones ya implementadas, reconstruidas a partir del código y de los documentos del repositorio (2026-10-09) — excepto **ADR-007** (2026-10-10) y **ADR-008** (2026-10-12), que registran decisiones vivas del dueño del producto tomadas durante la ejecución de la auditoría UI. El contexto refleja lo verificable; las alternativas listadas son las razonables en el momento de la decisión, no un registro literal de la discusión original.
+Los ADRs de esta carpeta son **retrospectivos**: documentan decisiones ya implementadas, reconstruidas a partir del código y de los documentos del repositorio (2026-10-09) — excepto **ADR-007** (2026-10-10), **ADR-008** (2026-10-12) y **ADR-010** (2026-10-22), que registran decisiones vivas tomadas durante la ejecución de la auditoría UI, y **ADR-009** (2026-10-22), una propuesta pendiente de decisión del dueño. El contexto refleja lo verificable; las alternativas listadas son las razonables en el momento de la decisión, no un registro literal de la discusión original.
 
 ## Índice
 
@@ -32,3 +32,5 @@ Los ADRs de esta carpeta son **retrospectivos**: documentan decisiones ya implem
 | [ADR-006](./ADR-006-code-splitting-por-ruta.md) | Code splitting por ruta e imports diferidos de dependencias pesadas | Aceptado |
 | [ADR-007](./ADR-007-paleta-propia-superadmin.md) | Paleta propia del panel superadmin (excepción deliberada a la Regla del Token) | Aceptado |
 | [ADR-008](./ADR-008-terminologia-plazas-ui-producto.md) | Terminología "plazas" en la UI de producto (copy unificado; campos de API intactos) | Aceptado |
+| [ADR-009](./ADR-009-overlay-modales-producto-sin-blur.md) | Overlay de los modales de producto sin blur (cumplir la Regla del Vidrio Solo Landing) | **Propuesto** (espera al dueño) |
+| [ADR-010](./ADR-010-verificacion-runtime-perfil-aislado-cdp.md) | Verificación runtime de la auditoría con perfil de navegador aislado y CDP, solo lectura | Aceptado |

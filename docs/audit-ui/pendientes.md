@@ -1,5 +1,7 @@
 # Pendientes — Auditoría UI SmartLot
 
+> **Resumen de lo que falta y criterios de cierre:** `docs/specs/SPEC-cierre-auditoria-ui.md`.
+>
 > Backlog accionable para continuar la ejecución de fixes. Cada tarea tiene **Aceptación**,
 > **Verificación** y **Archivos**. El estado global está en `README.md`; lo ya hecho en
 > `cambios-realizados.md`.
@@ -392,40 +394,41 @@ landing reportó `matchMedia=true` y ticker estático. `localhost:3000` no está
 rechazadas; aviso `VITE_API_URL debe usar HTTPS` por el fallback del preview local), así que no se pudieron
 abrir rutas protegidas ni probar Maps, cámara o Mercado Pago. Ver §P6.
 
-### TODO de continuidad (actualizado 2026-10-14)
+### TODO de continuidad (actualizado 2026-10-22)
 
 - [x] Revisión estática paralela de P5 #1–#8 y registro de riesgos/evidencia.
 - [x] Fixes de código P5 #5 (QR), #6 (checkout/polling) y #7 (reduced-motion), con tests fuente.
 - [x] `npm test` **130/130**, `npm run build` **OK** y `npm run lint` ejecutado (**99 errores / 4 warnings**, deuda global registrada).
 - [x] Smoke parcial Edge headless/CDP de rutas públicas, 360px, `reduce` antes del mount y precarga de frames bajo 4G. Evidencia/capturas temporales; no cierra P5.
 - [x] Cierre técnico de métricas P6 (2026-10-14): side-stripes **2 → 0**, warnings `layout-transition` **2 → 0**, auditoría `outline:none` **45/45** con foco visible, `#94a3b8` de texto fuera de superadmin → `#475569` (49 → 43, restantes solo usos permitidos) y toast del panel unificado en `ToastUndo`. Detalle en `cambios-realizados.md` §10.
-- [ ] P5 #1/#3: volver a probar `/nueva_reserva` y `/superadmin/conflictos` con API, sesión y datos reales a los anchos de la tabla.
+- [ ] P5 #1 (`/nueva_reserva`, rol empleado, aún sin visitar) y #3 (2026-10-22: sin desborde de página a 769/860/956 px, pero **0 conflictos** en la base → falta una tabla con filas): volver a probar `/nueva_reserva` y `/superadmin/conflictos` con API, sesión y datos reales a los anchos de la tabla.
 - [ ] P5 #2: medir contraste compuesto de glass/auth y `.panel-stats-card` con muestras de píxel y contenido real.
 - [ ] P5 #4: recorrer sugerencias de Maps con teclado y lector de pantalla/Accessibility Inspector.
 - [ ] P5 #5: probar cámara real, cierre con `start()` pendiente, ingreso/egreso y actualización del tablero.
 - [ ] P5 #6: probar checkout/polling contra sandbox con popup bloqueado/permitido, retornos y latencia >5 s.
 - [ ] P5 #7: repetir con ajuste real del SO y recorrer landing + superadmin; Edge solo cubrió landing emulada.
 - [ ] P5 #8: observar costura varios ciclos y transferencia total del flipbook con caché fría/4G.
-- [ ] Hacer la revisión visual P6 (máximo dos rondas: desktop + 360px).
-- [ ] Correr `impeccable detect --json` cuando el engine esté disponible; los intentos del 2026-10-13 y 2026-10-14 quedaron bloqueados por la descarga desde GitHub.
+- [x] Hallazgos nuevos #1 (barras `width` → `translateX`) y #3 (CSS muerto `.conflict-card*`) resueltos el 2026-10-22; `npm test` 130/130, ESLint de los 3 JSX limpio, build OK 2.68s.
+- [ ] Decisión del dueño sobre el blur del overlay de `ModalPortal` (hallazgo nuevo #2).
+- [x] Revisión visual P6 de **rutas públicas** (2026-10-22, backend local + Edge CDP, 1440 y 360 px): 3 defectos corregidos (pill del ticker, recorte del hero de `/para-garages`, header móvil de 2 filas); ver `cambios-realizados.md` §12.
+- [x] Revisión visual P6 de **rutas protegidas, parte 1** (2026-10-22, sesión superadmin + suplantación de un admin; `cambios-realizados.md` §13): asterisco de `agregar_sede` ✅, 2 defectos corregidos (formulario de `agregar_sede` sin estilos; eyebrow «SUPERADMIN» ×4).
+- [ ] Revisión visual P6, **parte 2**: iniciar sesión de nuevo (la suplantación venció) y verificar focus trap de `ModalPortal` (modal de soporte en `/admin_panel_de_control`), 3 barras de progreso con valor ≠ 0 y combobox de sede; vistas de empleado, garagista y dueño de garage.
+- [ ] Correr `impeccable detect --json` cuando el engine esté disponible; 2026-10-13 y 2026-10-14 bloqueados por la descarga desde GitHub; 2026-10-22 el `.cmd` fue bloqueado por directiva de grupo de Windows (ejecutarlo desde otra terminal/permiso o pedir excepción a IT).
 - [ ] Cerrar la auditoría y actualizar este tracking; commit solo si el usuario lo pide.
 
-### Hallazgos nuevos detectados en el barrido del 2026-10-14 (accionables, sin ejecutar aún)
+### Hallazgos nuevos detectados en el barrido del 2026-10-14
 
-1. **`transition: width` restante (3 sitios):** `componentesAdmin/selector_dias_operativos.css:146`
-   (`.dops-track-fill`), `vistasAdmin/admin_panel_de_control.css:181` (`.panel-stats__progress-bar`,
-   easing ya corregido a `ease-out`) y `vistasAdmin/admin_reportes_analisis.css:422`
-   (`.trend-tooltip__fill`). Son barras de progreso con `width` inline en el JSX; para cumplir "no animar
-   layout" hay que pasarlas a `transform: scaleX(...)` con `transform-origin: left center` tocando también
-   el JSX (el radio de los extremos se deforma con `scaleX`, por eso no se hizo a ciegas sin revisión
-   visual).
-2. **Vidrio en overlay de modales de producto:** `ModalPortal.jsx:70-71` aplica
-   `backdropFilter: blur(6px)` por inline styles a todos los overlays (Regla del Vidrio Solo Landing
-   prohíbe vidrio en paneles). Quitarlo cambia el look de todos los modales del producto → requiere
-   decisión del dueño (si se aprueba, sumar ADR nuevo que complemente `DESIGN.md`).
-3. **CSS muerto opcional:** el bloque `.conflict-card*` completo de `admin_panel_de_control.css` (~200
-   líneas) no se referencia en ningún JSX (la vista usa `.conflicts-table`); eliminarlo es limpieza
-   segura verificable con grep.
+1. ✅ **`transition: width` restante (3 sitios) — resuelto el 2026-10-22.** `.dops-track-fill`,
+   `.panel-stats__progress-bar` y `.trend-tooltip__fill` pasaron a `translateX` dentro de su contenedor
+   `overflow:hidden` (sin deformar el radio; porcentaje acotado a 0–100). Detalle en `cambios-realizados.md`
+   §11 (P6-E). **Falta** confirmarlo en la ronda visual (0 %, valor intermedio, 100 %, extremo redondeado).
+2. ⏳ **Vidrio en overlay de modales de producto — espera decisión del dueño** (propuesta formal: `docs/decisions/ADR-009-overlay-modales-producto-sin-blur.md`). `ModalPortal.jsx:70-71`
+   aplica `backdropFilter: blur(6px)` por inline styles a todos los overlays (la Regla del Vidrio Solo
+   Landing prohíbe vidrio en paneles). Quitarlo cambia el look de todos los modales del producto; si se
+   aprueba, sumar ADR nuevo que complemente `DESIGN.md`. **No tocar sin esa decisión** (AGENTS.md: cambios de
+   componente compartido central se consultan).
+3. ✅ **CSS muerto `.conflict-card*` — eliminado el 2026-10-22** (209 líneas de
+   `admin_panel_de_control.css`; 0 referencias en `src/`). Ver `cambios-realizados.md` §11 (P6-F).
 
 ---
 
