@@ -25,7 +25,6 @@ export default function RegisterEmpresaForm() {
   const [error, setError] = useState("");
   const [cooldown, setCooldown] = useState(0);
   const [enviado, setEnviado] = useState(false);
-  const [emailEnviado, setEmailEnviado] = useState("");
 
   useEffect(() => {
     if (cooldown <= 0) return;
@@ -133,7 +132,6 @@ export default function RegisterEmpresaForm() {
         },
         { _skipAuthRedirect: true, _skipToast: true }
       );
-      setEmailEnviado(emailNormalizado);
       setEnviado(true);
     } catch (err) {
       const msg = err.response?.data?.message || "Error de conexión.";
@@ -154,11 +152,11 @@ export default function RegisterEmpresaForm() {
           <CircleCheck size={44} className="text-green-600" aria-hidden="true" />
         </span>
         <h2 className="font-display text-2xl font-extrabold text-brand-warm">
-          ¡Solicitud enviada!
+          Recibimos tu solicitud.
         </h2>
         <p className="text-brand-muted text-sm md:text-base leading-relaxed max-w-sm">
-          Recibimos el registro de tu empresa. Un superadmin la validará a la brevedad y te
-          avisaremos a <strong className="text-brand-warm">{emailEnviado}</strong>.
+          Si corresponde procesarla, te contactaremos por correo. Si ya tenés una cuenta,
+          podés iniciar sesión o recuperar tu contraseña.
         </p>
         <Link
           to="/login"

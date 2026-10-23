@@ -30,11 +30,15 @@ test('el panel visual alterna Building2 y Car según el modo', () => {
   assert.match(register, /<RegisterBrandPanel modo=\{modo\} \/>/);
 });
 
-test('empresa crea solicitud con empresa_nombre y no auto-loguea', () => {
+test('empresa envía solicitud con empresa_nombre y no auto-loguea', () => {
   assert.match(empresa, /apiClient\.post\(\s*"\/api\/solicitud-registro"/);
   assert.match(empresa, /empresa_nombre/);
   assert.match(empresa, /empresa_descripcion/);
   assert.match(empresa, /setEnviado\(true\)/);
+  assert.match(empresa, /Recibimos tu solicitud\./);
+  assert.match(empresa, /Si corresponde procesarla, te contactaremos por correo\./);
+  assert.match(empresa, /podés iniciar sesión o recuperar tu contraseña\./);
+  assert.doesNotMatch(empresa, /emailEnviado|Un superadmin la validará|avisaremos a/);
   assert.doesNotMatch(empresa, /setUsuario\(/);
 });
 
