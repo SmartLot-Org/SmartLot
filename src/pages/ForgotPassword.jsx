@@ -5,6 +5,7 @@ import apiClient from '../api/client';
 import { getUserHomeRoute } from '../helpers/roles';
 import './Login.css';
 import usePageMeta from '../hooks/usePageMeta';
+import { recoveryRetrySeconds } from '../helpers/recoveryRetry';
 
 export default function ForgotPassword() {
   const [paso, setPaso] = useState('email');
@@ -16,6 +17,8 @@ export default function ForgotPassword() {
   const [mostrarCambio, setMostrarCambio] = useState(false);
   const [error, setError] = useState('');
   const [cooldown, setCooldown] = useState(0);
+  const [resendCooldown, setResendCooldown] = useState(0);
+  const [aviso, setAviso] = useState('');
   const [loading, setLoading] = useState(false);
 
   usePageMeta({
@@ -34,25 +37,36 @@ export default function ForgotPassword() {
     return () => clearInterval(id);
   }, [cooldown]);
 
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const id = setTimeout(() => setResendCooldown((prev) => Math.max(0, prev - 1)), 1000);
+    return () => clearTimeout(id);
+  }, [resendCooldown]);
+
   const handleEmailSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
     if (!email.trim()) { setError('El email es requerido.'); return; }
-    if (cooldown > 0) { setError(`Espere ${cooldown}s antes de reintentar.`); return; }
+    if (cooldown > 0 || resendCooldown > 0) {
+      setError(`Espere ${Math.max(cooldown, resendCooldown)}s antes de solicitar otro código.`); return;
+    }
 
     setLoading(true);
     try {
-      await apiClient.post('/api/usuario/recuperar-clave', {
+      const res = await apiClient.post('/api/usuario/recuperar-clave', {
         email: email.trim().toLowerCase()
       }, { _skipAuthRedirect: true });
+      setResendCooldown(recoveryRetrySeconds(res));
+      setAviso(res.data?.message || 'Si el email está registrado, te enviamos un código de verificación.');
+      setCodigo('');
       setPaso('codigo');
     } catch (err) {
       const msg = err.response?.data?.message || 'Error de conexión.';
       setError(msg);
 
       if (err.response?.status === 429) {
-        const retryAfter = parseInt(err.response?.headers?.['retry-after'] || '900', 10);
+        const retryAfter = recoveryRetrySeconds(err.response);
         setCooldown(retryAfter);
       }
     } finally {
@@ -86,7 +100,7 @@ export default function ForgotPassword() {
       const msg = err.response?.data?.message || 'Error de conexión.';
       setError(msg);
       if (err.response?.status === 429) {
-        const retryAfter = parseInt(err.response?.headers?.['retry-after'] || '900', 10);
+        const retryAfter = recoveryRetrySeconds(err.response);
         setCooldown(retryAfter);
       }
     } finally {
@@ -119,7 +133,7 @@ export default function ForgotPassword() {
       setError(msg);
 
       if (err.response?.status === 429) {
-        const retryAfter = parseInt(err.response?.headers?.['retry-after'] || '900', 10);
+        const retryAfter = recoveryRetrySeconds(err.response);
         setCooldown(retryAfter);
       }
     } finally {
@@ -153,11 +167,11 @@ export default function ForgotPassword() {
       <button
         type="submit"
         className="login-boton"
-        disabled={loading || cooldown > 0}
+        disabled={loading || cooldown > 0 || resendCooldown > 0}
       >
         <Key size={18} />
-        {cooldown > 0
-          ? `Espere ${cooldown}s`
+        {cooldown > 0 || resendCooldown > 0
+          ? `Espere ${Math.max(cooldown, resendCooldown)}s`
           : loading ? 'Enviando...' : 'Enviar código'}
       </button>
     </form>
@@ -165,6 +179,7 @@ export default function ForgotPassword() {
 
   const renderCodigoStep = () => (
     <div className="login-form">
+      {aviso && <p role="status">{aviso}</p>}
       <label className="login-campo">
         <span className="login-campo-label">Correo electrónico</span>
         <div className="login-input-wrapper">
@@ -179,6 +194,17 @@ export default function ForgotPassword() {
           />
         </div>
       </label>
+
+      <button
+        type="button"
+        className="login-link-secundario"
+        onClick={handleEmailSubmit}
+        disabled={loading || cooldown > 0 || resendCooldown > 0}
+      >
+        {Math.max(cooldown, resendCooldown) > 0
+          ? `Solicitar otro código en ${Math.max(cooldown, resendCooldown)}s`
+          : 'Solicitar un nuevo código'}
+      </button>
 
       <label className="login-campo">
         <span className="login-campo-label">Código de verificación</span>
