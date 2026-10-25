@@ -24,7 +24,7 @@ Los commits SEG-01 a SEG-06 del backend (`SmartLot_API`, de `9133f39` a `57d6ebb
 
 ## Reglas transversales
 
-- Una política de errores única, escrita en `docs/api-errores.md` del BE: **repository** devuelve `null`/`[]`/`false` solo cuando "no hay filas" y deja propagar las excepciones; **service** lanza errores de dominio con `statusCode`; **controller** solo traduce `null` → 404 en GET/PUT/DELETE por id; **errorHandler** mapea las excepciones.
+- Una política de errores única, escrita en `docs/plans-franC/api-errores.md` del BE: **repository** devuelve `null`/`[]`/`false` solo cuando "no hay filas" y deja propagar las excepciones; **service** lanza errores de dominio con `statusCode`; **controller** solo traduce `null` → 404 en GET/PUT/DELETE por id; **errorHandler** mapea las excepciones.
 - Express 5 propaga los rechazos async, así que no se agregan `try/catch + next`.
 - Tests de **comportamiento** con `supertest` (ya es devDependency) y `mock.module` sobre `db.js` (el patrón de `test/garage-responsables.test.js`). Nada de `readFile` + regex: el informe los marca como señal negativa.
 - Cada fase cierra con `npm test` en el BE y es un commit independiente (solo si se pide commitear).
@@ -50,7 +50,7 @@ Los commits SEG-01 a SEG-06 del backend (`SmartLot_API`, de `9133f39` a `57d6ebb
 
 ## Fase 2 — PUT vs PATCH (ALTO 2)
 
-Decisión que se documenta en `docs/api-errores.md` (sección "Semántica de escritura"): **PUT = reemplazo completo**, todos los campos obligatorios se exigen con 400. **PATCH = parcial.**
+Decisión que se documenta en `docs/plans-franC/api-errores.md` (sección "Semántica de escritura"): **PUT = reemplazo completo**, todos los campos obligatorios se exigen con 400. **PATCH = parcial.**
 
 - `marcaController` (PUT exige `nombre`), `modeloController` (`id_marca` + `nombre`), `rolController` (`tipo_rol`) y `empresaController` (`nombre`; `descripcion` puede ser `null` explícito). Validación en el controller con `isValidString`/`isValidId`. Las queries quedan como están porque ahora siempre reciben el cuerpo completo.
 - El FE ya manda cuerpos completos (`gestion_empresas.jsx:80` manda `{nombre, descripcion}`; `API_Marca/Modelo/Rol.js` mandan el objeto entero): no hace falta tocarlo.
@@ -84,7 +84,7 @@ Decisión que se documenta en `docs/api-errores.md` (sección "Semántica de esc
 
 ## Fase 6 — Contrato publicado (SUGERENCIA)
 
-- `docs/api.md` en el BE: formato de error, tabla de status codes, PUT vs PATCH y el inventario de endpoints (método, ruta, roles, códigos posibles). El inventario se genera con el `scripts/check-routes.cjs` que ya existe, extendido para imprimirlo.
+- `docs/plans-franC/api.md` en el BE: formato de error, tabla de status codes, PUT vs PATCH y el inventario de endpoints (método, ruta, roles, códigos posibles). El inventario se genera con el `scripts/check-routes.cjs` que ya existe, extendido para imprimirlo.
 - Actualizar `src/postman/SmartLot.postman_collection.json` (hoy cubre ~30 de ~136): una carpeta por router, con los casos de error de las fases 1 a 3 como requests de ejemplo. Se queda en Markdown + Postman (decidido), sin OpenAPI ni dependencias nuevas.
 
 ## Archivos críticos (backend `C:\Users\49123639\SmartLot_API\SmartLot_API\src`)
@@ -94,7 +94,7 @@ Decisión que se documenta en `docs/api-errores.md` (sección "Semántica de esc
 - `repositories/*.js`, `repos/NotificacionRepository.js`
 - `controllers/{marca,modelo,rol,empresa,sede,reserva,Notificacion,payment,tratoEmpresaGarage,garage,usuario}Controller.js`
 - `services/NotificacionService.js`, `services/mpService.js`, `services/paymentReadService.js`
-- `test/api-errores.test.js` y `test/api-validacion.test.js` (nuevos), `docs/api-errores.md` y `docs/api.md` (nuevos)
+- `test/api-errores.test.js` y `test/api-validacion.test.js` (nuevos), `docs/plans-franC/api-errores.md` y `docs/plans-franC/api.md` (nuevos)
 - FE (mínimo): `src/servicies/API_Pagos.js`, `perfil_empleado.jsx`, `perfil_dueño_garage.jsx`, `gestion_de_empleados.jsx`
 
 ## Verificación
@@ -107,4 +107,4 @@ Decisión que se documenta en `docs/api-errores.md` (sección "Semántica de esc
    - alta de marca duplicada → 409
    - con `DATABASE_URL` inválido, una request autenticada → 500, no 401
 3. FE: `npm test`, lint de los archivos tocados y `npm run dev` contra el BE local. Recorrer el perfil (cambio de contraseña), el retorno de pago del empleado (verificación) y la gestión de empresas, marcas y sedes.
-4. Al cerrar, actualizar la tabla de estado de arriba en `docs/api-errores.md` con la columna "resuelto en commit X", que sirve como evidencia para la defensa oral.
+4. Al cerrar, actualizar la tabla de estado de arriba en `docs/plans-franC/api-errores.md` con la columna "resuelto en commit X", que sirve como evidencia para la defensa oral.

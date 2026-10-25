@@ -31,16 +31,18 @@ const PagosCrearPreferenciaReserva = async (idReserva) => {
     }
 };
 
+// Verifica el pago contra Mercado Pago y sincroniza el registro local. Es un POST porque
+// escribe: el GET del backend solo lee el estado que ya está guardado.
 const PagosGetById = async (paymentId, contexto = {}) => {
 
     let returnObject = { respuesta: false, datos: null };
 
     try {
 
-        const params = {};
-        if (contexto.external_reference) params.external_reference = contexto.external_reference;
-        if (contexto.preference_id) params.preference_id = contexto.preference_id;
-        const response = await apiClient.get('/api/payments/' + paymentId, { params, _skipToast: true });
+        const body = {};
+        if (contexto.external_reference) body.externalReference = contexto.external_reference;
+        if (contexto.preference_id) body.preferenceId = contexto.preference_id;
+        const response = await apiClient.post('/api/payments/' + paymentId + '/verificar', body, { _skipToast: true });
 
         returnObject.respuesta = true;
         returnObject.datos = response.data;
@@ -71,6 +73,11 @@ const PagosBuscar = async (filtros = {}) => {
         if (filtros.limit) params.limit = filtros.limit;
         if (filtros.offset) params.offset = filtros.offset;
 
+        // Buscar por referencia también sincroniza con Mercado Pago; como eso escribe,
+        // el backend lo expone aparte (POST) y el listado posterior es una lectura pura.
+        if (filtros.external_reference) {
+            await apiClient.post('/api/payments/verificar', { externalReference: filtros.external_reference }, { _skipToast: true });
+        }
         const response = await apiClient.get('/api/payments', { params, _skipToast: true });
 
         returnObject.respuesta = true;

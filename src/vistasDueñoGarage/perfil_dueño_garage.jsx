@@ -211,7 +211,7 @@ export default function PerfilDueñoGarage() {
       });
 
       if (contraseñaCambiada) {
-        await apiClient.patch(`/api/usuario/${idUsuarioFinal}/contraseña`, {
+        await apiClient.patch(`/api/usuario/${idUsuarioFinal}/contrasenia`, {
           contraseña: nuevaContraseña
         });
       }

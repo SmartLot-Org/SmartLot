@@ -260,7 +260,7 @@ export default function PerfilEmpleado() {
       });
 
       if (contraseñaCambiada) {
-        await apiClient.patch(`/api/usuario/${idUsuarioFinal}/contraseña`, {
+        await apiClient.patch(`/api/usuario/${idUsuarioFinal}/contrasenia`, {
           contraseña: nuevaContraseña
         });
       }
