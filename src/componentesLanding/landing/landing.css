@@ -26,6 +26,56 @@
   margin: 0;
 }
 
+/* Hero de "/": el trío de marca crece en celulares (la regla general lo
+   dejaba en 28 px, apenas más que el cuerpo) y conserva el tope de escritorio. */
+.landing-page .hero-titulo {
+  font-size: clamp(2.75rem, 6vw, 5rem);
+}
+
+.landing-page .hero-bajada {
+  font-size: clamp(1.0625rem, 1.35vw, 1.25rem);
+  line-height: 1.55;
+}
+
+/* Títulos de sección del relato: un mismo rol en todas las secciones de "/".
+   En celulares parten de 2rem (la regla general baja a 1.35rem). */
+.landing-page .titulo-relato {
+  font-size: clamp(2rem, 4.5vw, 3.75rem);
+  text-wrap: balance;
+}
+
+/* Problemas de la empresa: se leen grandes y se tachan al pasar al recorrido.
+   El tachado es un fondo (y no ::after) para que siga cada línea cuando el
+   texto se parte en celulares. */
+.landing-page .problema-item {
+  font-size: clamp(1.125rem, 1.7vw, 1.375rem);
+  font-weight: 500;
+  line-height: 1.45;
+  color: var(--color-brand-warm);
+}
+
+.landing-page .tachado {
+  background-image: linear-gradient(var(--color-brand-blue), var(--color-brand-blue));
+  background-repeat: no-repeat;
+  background-position: 0 55%;
+  background-size: 0% 2px;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+/* El cierre responde a la lista: tinta plena (la regla general de p lo
+   dejaría en gris secundario). */
+.landing-page .problema-cierre {
+  color: var(--color-brand-deep);
+  font-weight: 600;
+}
+
+/* Las superficies del navegador también llevan la marca. */
+.landing-page ::selection {
+  background-color: var(--color-brand-sky);
+  color: var(--color-brand-deep);
+}
+
 /* Cuerpo del relato de "/": 16 px como mínimo (la regla general de arriba
    baja hasta 14 px en celulares). */
 .landing-page .texto-relato {

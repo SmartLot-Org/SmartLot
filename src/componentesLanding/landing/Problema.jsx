@@ -1,11 +1,10 @@
 import { useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { SplitText } from 'gsap/SplitText';
 import { useGSAP } from '@gsap/react';
 import { problema } from './contenido';
 
-gsap.registerPlugin(useGSAP, ScrollTrigger, SplitText);
+gsap.registerPlugin(useGSAP, ScrollTrigger);
 
 export default function Problema() {
   const ref = useRef(null);
@@ -13,31 +12,25 @@ export default function Problema() {
   useGSAP(
     () => {
       const mm = gsap.matchMedia();
-      // Con reduced motion no se parte el texto: queda quieto y legible.
+      // El momento de la sección: mientras se scrollea hacia "Cómo funciona",
+      // cada problema se tacha en azul. Primero se lee entero; con reduced
+      // motion queda sin tachar y el cierre dice lo mismo en palabras.
       mm.add('(prefers-reduced-motion: no-preference)', () => {
-        SplitText.create(ref.current.querySelector('h2'), {
-          type: 'lines',
-          mask: 'lines',
-          autoSplit: true,
-          // Devolver el tween permite que SplitText lo rehaga al re-partir
-          // (resize o carga de fuentes) sin duplicar animaciones.
-          onSplit: (self) =>
-            gsap.from(self.lines, {
-              yPercent: 110,
-              duration: 0.9,
-              ease: 'power4.out',
-              stagger: 0.09,
-              scrollTrigger: { trigger: ref.current, start: 'top 70%', toggleActions: 'play none none reverse' },
-            }),
-        });
-        gsap.from(ref.current.querySelectorAll('[data-revelar]'), {
-          autoAlpha: 0,
-          y: 24,
-          duration: 0.8,
-          ease: 'power3.out',
-          stagger: 0.08,
-          scrollTrigger: { trigger: ref.current, start: 'top 60%', toggleActions: 'play none none reverse' },
-        });
+        gsap.fromTo(
+          '[data-tachar]',
+          { backgroundSize: '0% 2px' },
+          {
+            backgroundSize: '100% 2px',
+            ease: 'none',
+            stagger: 0.4,
+            scrollTrigger: {
+              trigger: ref.current.querySelector('[data-lista]'),
+              start: 'top 55%',
+              end: 'bottom 25%',
+              scrub: true,
+            },
+          },
+        );
       });
     },
     { scope: ref },
@@ -48,16 +41,19 @@ export default function Problema() {
       id="problema"
       ref={ref}
       aria-labelledby="problema-titulo"
-      className="relative z-10 py-20 md:py-28"
+      className="relative z-10 py-20 md:py-32"
     >
-      <div className="mx-auto grid max-w-6xl gap-8 px-6 text-left md:grid-cols-[1.25fr_1fr] md:items-end md:gap-16">
-        <h2 id="problema-titulo">{problema.titulo}</h2>
-        <div className="space-y-4">
-          {problema.cuerpo.map((parrafo) => (
-            <p key={parrafo} data-revelar className="texto-relato">
-              {parrafo}
-            </p>
-          ))}
+      <div className="mx-auto grid max-w-6xl gap-10 px-6 text-left md:grid-cols-[1fr_1.1fr] md:gap-16">
+        <h2 id="problema-titulo" className="titulo-relato">{problema.titulo}</h2>
+        <div className="flex flex-col gap-8">
+          <ul data-lista className="divide-y divide-brand-navy/10 border-y border-brand-navy/10">
+            {problema.lista.map((item) => (
+              <li key={item} className="problema-item py-5">
+                <span data-tachar className="tachado">{item}</span>
+              </li>
+            ))}
+          </ul>
+          <p className="texto-relato problema-cierre">{problema.cierre}</p>
         </div>
       </div>
     </section>

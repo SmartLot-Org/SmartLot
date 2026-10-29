@@ -7,6 +7,10 @@ const landing = await readFile(new URL('./Landing.jsx', import.meta.url), 'utf8'
 const contenido = await readFile(new URL('../componentesLanding/landing/contenido.js', import.meta.url), 'utf8');
 const smoothScroll = await readFile(new URL('../componentesLanding/landing/smoothScroll.js', import.meta.url), 'utf8');
 const bento = await readFile(new URL('../componentesLanding/landing/BentoGrid.jsx', import.meta.url), 'utf8');
+const problemaJsx = await readFile(new URL('../componentesLanding/landing/Problema.jsx', import.meta.url), 'utf8');
+const filaPlazas = await readFile(new URL('../componentesLanding/landing/FilaPlazas.jsx', import.meta.url), 'utf8');
+const ctaButton = await readFile(new URL('../componentesLanding/CtaButton.jsx', import.meta.url), 'utf8');
+const landingCss = await readFile(new URL('../componentesLanding/landing/landing.css', import.meta.url), 'utf8');
 const escenario = await readFile(new URL('../componentesLanding/landing/recorrido/EscenarioRecorrido.jsx', import.meta.url), 'utf8');
 const designMd = await readFile(new URL('../../DESIGN.md', import.meta.url), 'utf8');
 const watermark = await readFile(new URL('../componentesLanding/landing/LogoWatermark.jsx', import.meta.url), 'utf8');
@@ -86,9 +90,37 @@ test('"/" no muestra métricas ni claims sin verificar', () => {
 test('la CTA principal dice "Registrate" en navbar, hero y cierre', () => {
   assert.match(contenido, /CTA_PRINCIPAL = \{ etiqueta: 'Registrate', destino: '\/register' \}/);
   assert.match(navbar, />Registrate<\/CtaButton>/);
-  assert.match(hero, /<CtaButton to=\{CTA_PRINCIPAL\.destino\}>\{CTA_PRINCIPAL\.etiqueta\}<\/CtaButton>/);
+  assert.match(hero, /<CtaButton to=\{CTA_PRINCIPAL\.destino\}[^>]*>\{CTA_PRINCIPAL\.etiqueta\}<\/CtaButton>/);
   assert.match(contact, /\{CTA_PRINCIPAL\.etiqueta\}<\/CtaButton>/);
   assert.match(contenido, /destino: '\/para-garages'/);
+});
+
+test('el hero tiene un solo momento animado y la CTA mide 48 px', () => {
+  // La fila de plazas es lo único que se anima al cargar, y solo con movimiento.
+  assert.match(hero, /<FilaPlazas /);
+  assert.match(filaPlazas, /prefers-reduced-motion: no-preference/);
+  assert.match(filaPlazas, /aria-hidden="true"/);
+  assert.doesNotMatch(hero, /blur-\[100px\]/);
+  assert.match(hero, /size="md"/);
+  assert.match(ctaButton, /md: \{\n\s+box: 'min-h-12/);
+  // Criterio de interfaz (Emil Kowalski): propiedades concretas, nada de
+  // transition-all ni brillos de hover de 700 ms.
+  for (const fuente of [ctaButton, hero]) {
+    assert.doesNotMatch(fuente, /transition-all|duration-700|duration-500/);
+  }
+  assert.match(ctaButton, /active:scale-\[0\.97\]/);
+});
+
+test('el problema lista los dolores reales y el tachado nunca oculta el texto', () => {
+  assert.match(contenido, /Reservas que se arreglan de manera informal\./);
+  assert.match(contenido, /quedan de palabra, por WhatsApp o en papel\./);
+  assert.match(contenido, /Consumos que cuesta auditar por sede o por período\./);
+  assert.match(contenido, /cierre: 'Con SmartLot, cada paso queda registrado\.'/);
+  assert.match(problemaJsx, /prefers-reduced-motion: no-preference/);
+  assert.match(problemaJsx, /scrub: true/);
+  assert.doesNotMatch(problemaJsx, /autoAlpha|opacity:\s*0|SplitText/);
+  // Sin movimiento, el estado por defecto es "sin tachar": se lee completo.
+  assert.match(landingCss, /\.tachado \{[^}]*background-size: 0% 2px;/);
 });
 
 test('three y React Three Fiber solo viven en EscenaGarage, que llega por lazy()', async () => {

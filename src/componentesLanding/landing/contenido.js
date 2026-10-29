@@ -28,12 +28,16 @@ export const navegacion = [
   { label: 'Contacto', href: '#contacto' },
 ];
 
+// Cada ítem es un problema real del lado de la empresa (PRODUCT.md, "Problema
+// que resuelve"); el cierre lleva al recorrido.
 export const problema = {
   titulo: 'Lugar sin asegurar, consumos sin auditar',
-  cuerpo: [
-    'Tu gente no tiene lugar asegurado y las reservas se arreglan de manera informal.',
-    'Los acuerdos con el garage quedan de palabra y cuesta auditar los consumos por sede o por período.',
+  lista: [
+    'Reservas que se arreglan de manera informal.',
+    'Acuerdos con el garage que quedan de palabra, por WhatsApp o en papel.',
+    'Consumos que cuesta auditar por sede o por período.',
   ],
+  cierre: 'Con SmartLot, cada paso queda registrado.',
 };
 
 // Mismo orden que los encuadres de recorrido/camaras.js: el índice de cada

@@ -56,7 +56,7 @@ export default function BentoGrid() {
       <div className="max-w-6xl mx-auto px-6">
 
         <div className="mb-12 text-center relative z-20 flex flex-col items-center gap-6">
-          <h2 id="capacidades-titulo" className="bento-header-text text-brand-warm">
+          <h2 id="capacidades-titulo" className="bento-header-text titulo-relato text-brand-warm">
             {capacidades.titulo}
           </h2>
           <p className="bento-header-text texto-relato text-brand-muted max-w-2xl mx-auto">

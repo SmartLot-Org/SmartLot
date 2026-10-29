@@ -91,7 +91,7 @@ export default function Contact() {
             <div className="absolute -top-24 -left-24 w-64 h-64 bg-brand-navy/[0.03] rounded-full blur-[80px]" aria-hidden="true"></div>
 
             <div className="relative z-10 flex flex-col items-center gap-8">
-              <h2 id="contacto-titulo" className="cta-content text-brand-warm">
+              <h2 id="contacto-titulo" className="cta-content titulo-relato text-brand-warm">
                 {contacto.titulo}
               </h2>
               

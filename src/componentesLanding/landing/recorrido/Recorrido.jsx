@@ -48,7 +48,7 @@ function RecorridoEstatico() {
       <div className="mx-auto max-w-6xl px-6 text-left">
         {/* El margen va en el contenedor: .landing-page h2 fija margin: 0. */}
         <header className="mb-12 md:mb-16">
-          <h2 id="recorrido-titulo">{recorrido.titulo}</h2>
+          <h2 id="recorrido-titulo" className="titulo-relato">{recorrido.titulo}</h2>
         </header>
         <ol className="grid gap-14 md:gap-20">
           {pasos.map((paso, i) => (

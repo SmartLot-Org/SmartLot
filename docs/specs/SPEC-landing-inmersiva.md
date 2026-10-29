@@ -171,6 +171,48 @@ Los tres estudios muestran el mismo momento (paso "Trato", con tres plazas ya co
 - **Títulos:** un `h1`, un `h2` por sección y un `h3` por paso o capacidad.
 - **Navegación SPA:** al ir a `/para-garages` Lenis se destruye (la clase `lenis` desaparece del `html`) y al volver se crea de nuevo.
 
+## Pulido del hero y del problema (2026-10-29)
+
+Pedido del dueño del producto después de ver el recorrido: el hero "puede ser mucho mejor" y la sección del problema se podía pulir. Criterios combinados:
+
+- **`web-inmersiva`:** un solo momento orquestado por sección.
+- **Impeccable** (`.agents/skills/impeccable`: polish, bolder, typeset, layout y su piso de calidad):
+  - Llevar el hero al nivel expresivo que ya tiene el recorrido, con el mismo vocabulario.
+  - Escala tipográfica en celulares.
+  - Sin glows decorativos.
+  - Detector sin hallazgos.
+- **Emil Kowalski** (`emilkowalski/skills`, `emil-design-eng`; se leyó del repo público, no está instalada):
+  - Transiciones con propiedades concretas.
+  - `scale(0.97)` al presionar.
+  - Nada de efectos de hover de 700 ms.
+  - Escalonados de 30 a 80 ms.
+
+**Hero**
+
+| Antes | Después | Por qué |
+|---|---|---|
+| Las palabras entraban con un `yPercent` animado | Título, bajada y CTAs quietos desde el primer render | Son el LCP; el momento del hero pasa a ser la fila de plazas |
+| Mitad inferior vacía (hero de 75vh) | `FilaPlazas`: una fila de plazas como piso, con tres en azul (lugar asegurado) que se demarcan al cargar | Es la demarcación del recorrido. El hero ocupa la primera pantalla en escritorio |
+| `h1` de 28 px en celulares | `clamp(2.75rem, 6vw, 5rem)`: 44 px en celulares, igual en escritorio | La jerarquía en celular era casi nula frente a un cuerpo de 16 px |
+| CTA de 64 a 72 px, `transition-all`, brillo de hover de 700 ms | `CtaButton size="md"` de 48 px (DESIGN.md), transición de `transform`, `background-color` y `box-shadow` en 150 ms y `active:scale-[0.97]` | Un control que se usa seguido responde rápido y no decora |
+| Secundaria con ícono de auto y sombra | Botón quieto con borde, texto en tinta y chevron | Acción secundaria clara, sin competir con la CTA |
+| Glow azul difuso detrás del logo | Sin glow; el logo lleva `fetchpriority="high"` | Glow decorativo; el logo es el LCP en escritorio |
+
+**Problema**
+
+- **Lista:** los dos párrafos pasan a ser tres problemas concretos de la empresa (`PRODUCT.md`), en una lista con hairlines.
+- **Cierre:** "Con SmartLot, cada paso queda registrado.", en tinta plena.
+- **Momento:**
+  - Al scrollear hacia "Cómo funciona", cada problema se tacha en azul, con scroll scrubbed.
+  - El tachado es un fondo, así que sigue cada línea cuando el texto se parte.
+  - Con reduced motion queda sin tachar.
+  - Se quitó el revelado con SplitText (un solo momento por sección), y el chunk de `Problema` bajó de 3,9 a 0,7 kB gzip.
+
+**Transversal**
+
+- **Títulos de sección:** comparten el rol `.titulo-relato`, de 32 px como mínimo en celular y con `text-wrap: balance`.
+- **Selección de texto:** usa los colores de la marca (`::selection`).
+
 ## Desvíos respecto de la skill `web-inmersiva`
 
 - **JS y Tailwind** en lugar de TS y CSS propio: manda lo que ya decidió el repo.
