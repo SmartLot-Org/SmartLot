@@ -1,18 +1,18 @@
-import { useState, useEffect, useRef, useCallback, lazy, Suspense } from 'react';
+import { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import 'lenis/dist/lenis.css';
 import Navbar from '../componentesLanding/landing/Navbar';
 import Hero from '../componentesLanding/landing/Hero';
 import '../componentesLanding/landing/landing.css';
-import StatsTicker from '../componentesLanding/landing/StatsTicker';
 import InteractiveBackground from '../componentesLanding/landing/InteractiveBackground';
-import IntroAnimation from '../componentesLanding/landing/IntroAnimation';
 import LogoWatermark from '../componentesLanding/landing/LogoWatermark';
+import { meta, navegacion } from '../componentesLanding/landing/contenido';
 import usePageMeta from '../hooks/usePageMeta';
 
+const Problema = lazy(() => import('../componentesLanding/landing/Problema'));
+const Recorrido = lazy(() => import('../componentesLanding/landing/recorrido/Recorrido'));
 const BentoGrid = lazy(() => import('../componentesLanding/landing/BentoGrid'));
 const Contact = lazy(() => import('../componentesLanding/landing/Contact'));
-
-const INTRO_SEEN_KEY = 'smartlot-intro-seen';
 
 // Un solo refresh por frame aunque resuelvan varios chunks a la vez: al
 // reemplazar el skeleton por la sección real cambia el alto de la página y
@@ -39,14 +39,6 @@ function SkeletonFallback({ className = 'h-96' }) {
 }
 
 export default function LandingPage() {
-  const [isIntroComplete, setIsIntroComplete] = useState(() => {
-    try {
-      return sessionStorage.getItem(INTRO_SEEN_KEY) === '1';
-    } catch {
-      return true;
-    }
-  });
-  const [startHero, setStartHero] = useState(isIntroComplete);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(
     () => typeof window !== 'undefined'
       && window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -54,9 +46,8 @@ export default function LandingPage() {
   const heroRef = useRef(null);
 
   usePageMeta({
-    title: 'SmartLot — El estacionamiento del futuro',
-    description:
-      'Publicás tu garage, las empresas piden lugar para su gente y vos manejás tratos, ocupación y consumos. Sin hardware, sin planillas.',
+    title: meta.titulo,
+    description: meta.descripcion,
   });
 
   useEffect(() => {
@@ -66,50 +57,44 @@ export default function LandingPage() {
     return () => mq.removeEventListener('change', handler);
   }, []);
 
-  // El scroll solo queda bloqueado mientras la intro está en pantalla.
-  // Con prefers-reduced-motion no hay intro, así que nunca se bloquea.
+  // Lenis solo en "/" y solo con movimiento habilitado: con reduced motion el
+  // scroll queda nativo. Se carga aparte para no sumar al bundle principal.
   useEffect(() => {
-    const locked = !isIntroComplete && !prefersReducedMotion;
-    document.body.classList.toggle('no-scroll', locked);
-    return () => document.body.classList.remove('no-scroll');
-  }, [isIntroComplete, prefersReducedMotion]);
-
-  const markIntroComplete = useCallback(() => {
-    try {
-      sessionStorage.setItem(INTRO_SEEN_KEY, '1');
-    } catch {
-      // Sin sessionStorage la intro puede repetirse; nada se rompe
-    }
-    setIsIntroComplete(true);
-  }, []);
-
-  const openDoors = useCallback(() => setStartHero(true), []);
-
-  const showIntro = !prefersReducedMotion && !isIntroComplete;
+    if (prefersReducedMotion) return undefined;
+    let cancelado = false;
+    let detener = null;
+    import('../componentesLanding/landing/smoothScroll').then(({ initSmoothScroll }) => {
+      if (!cancelado) detener = initSmoothScroll();
+    });
+    return () => {
+      cancelado = true;
+      detener?.();
+    };
+  }, [prefersReducedMotion]);
 
   return (
     <>
-      {showIntro && (
-        <IntroAnimation
-          onComplete={markIntroComplete}
-          onOpenDoors={openDoors}
-        />
-      )}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-3 focus:left-3 focus:z-[70] focus:rounded-lg focus:bg-white focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-brand-warm focus:shadow-lg focus:ring-2 focus:ring-brand-blue"
+      >
+        Saltar al contenido principal
+      </a>
       <InteractiveBackground
         count={prefersReducedMotion ? 35 : 45}
         interactionRadius={150}
         repelForce={80}
       />
-      <div className="min-h-screen overflow-x-hidden bg-noise landing-page">
-        <Navbar
-          links={[
-            { label: 'Solución', href: '#solucion' },
-            { label: 'Contacto', href: '#contacto' },
-          ]}
-        />
-        <main id="main-content" className="relative z-10">
-          <Hero ref={heroRef} startAnimation={startHero} />
-          <StatsTicker />
+      <div className="min-h-screen overflow-x-clip bg-noise landing-page">
+        <Navbar links={navegacion} />
+        <main id="main-content" tabIndex={-1} className="relative z-10 focus:outline-none">
+          <Hero ref={heroRef} />
+          <Suspense fallback={<SkeletonFallback className="min-h-[24rem]" />}>
+            <SectionReady><Problema /></SectionReady>
+          </Suspense>
+          <Suspense fallback={<SkeletonFallback className="min-h-svh" />}>
+            <SectionReady><Recorrido /></SectionReady>
+          </Suspense>
           <Suspense fallback={<SkeletonFallback className="min-h-[44rem]" />}>
             <SectionReady><BentoGrid /></SectionReady>
           </Suspense>

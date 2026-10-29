@@ -2,15 +2,10 @@ import { useRef } from 'react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 
-const DEFAULT_STATS = [
-  { label: "Satisfacción del cliente", value: "4.9/5" },
-  { label: "Tiempo de respuesta", value: "2 min" },
-  { label: "Calificación en empresas", value: "4.8★" },
-  { label: "Soporte técnico", value: "24/7" },
-];
-
+// Sin valores por defecto: cada página pasa datos con fuente verificable
+// (la landing "/" ya no muestra métricas; ver docs/specs/SPEC-landing-inmersiva.md).
 export default function StatsTicker({
-  stats = DEFAULT_STATS,
+  stats,
   ariaLabel = "Estadísticas de la plataforma",
 }) {
   const tickerRef = useRef();

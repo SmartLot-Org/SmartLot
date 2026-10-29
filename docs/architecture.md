@@ -202,7 +202,7 @@ Un módulo por recurso (`API_Reserva`, `API_Usuario`, `API_Garage`, ...). Conven
 - `DESIGN.md` (raíz) es la especificación: dirección "Azul Señal", tipografías Archivo (display/landing) y DM Sans (producto), radios, sombras, alturas de botón, badges.
 - Los tokens viven en `@theme` de `src/index.css` y generan utilidades `brand-*` (`bg-brand-blue`, `text-brand-muted`, ...). Evitar hex/rgb hardcodeados.
 - Las fuentes se cargan en `index.html` (Google Fonts) con `lang="es-AR"`.
-- `prefers-reduced-motion` está contemplado al menos para el smooth scroll de landing.
+- Landing `/`: Lenis hace el scroll suave solo con movimiento habilitado, y la sección «Cómo funciona» muestra una maqueta 3D (three + React Three Fiber). Sin WebGL2, con `?sin3d` o con `prefers-reduced-motion`, cada paso se muestra con una planta SVG estática (ADR-008, `docs/specs/SPEC-landing-inmersiva.md`).
 
 ## Errores y feedback
 
@@ -215,6 +215,7 @@ Un módulo por recurso (`API_Reserva`, `API_Usuario`, `API_Garage`, ...). Conven
 
 - **Code splitting por ruta**: todas las vistas usan `lazy()`; `Landing` es la excepción intencional (evitar round-trip antes del primer paint). El fallback es `RouteFallback` (spinner).
 - **Dependencias diferidas**: SweetAlert2 se importa dinámicamente en el interceptor (comentario en `client.js`: ~50 kB gzip fuera del arranque). Google Maps se carga solo cuando una vista lo pide.
+- **3D de la landing**: `componentesLanding/landing/recorrido/EscenaGarage.jsx` es el único módulo que importa three/R3F. Llega por `lazy()` recién cuando `#recorrido` está cerca (≈245 kB gzip, fuera del arranque) y se pausa fuera de pantalla. `landing.source.test.js` lo vigila.
 - El build de Vite emite una advertencia por chunks >500 kB (deuda conocida, ver `docs/reservation-limit.md`).
 
 ## Despliegue

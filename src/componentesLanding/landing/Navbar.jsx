@@ -77,7 +77,7 @@ export default function Navbar({ links = [] }) {
               >
                 Iniciar sesión
               </Link>
-              <CtaButton to="/register" size="sm" arrow={false}>Regístrate</CtaButton>
+              <CtaButton to="/register" size="sm" arrow={false}>Registrate</CtaButton>
             </>
           )}
         </div>

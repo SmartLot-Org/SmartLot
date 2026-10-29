@@ -154,7 +154,7 @@ Un solo acento cromático sobre una base neutra fría; los estados usan semánti
 
 ### Named Rules
 
-**La Regla del Token.** Ningún componente define sus propios colores: todo sale del frontmatter y de `src/index.css`. Las únicas excepciones son datos internos de exportables (Excel/PDF), previews de email y pantallas de depuración; si aparecen, se documentan aquí.
+**La Regla del Token.** Ningún componente define sus propios colores: todo sale del frontmatter y de `src/index.css`. Las únicas excepciones son datos internos de exportables (Excel/PDF), previews de email y pantallas de depuración; si aparecen, se documentan aquí. Excepción documentada: la maqueta 3D de la landing (WebGL no lee clases de Tailwind) recibe los colores como valores en `src/componentesLanding/landing/recorrido/paleta.js`, con el nombre de cada token; `landing.source.test.js` verifica que coincidan con este frontmatter.
 
 **La Regla AA.** Texto de cuerpo ≥ 4.5:1; texto grande y componentes de UI ≥ 3:1. El texto secundario ya está calibrado a 7.07:1 sobre el fondo.
 

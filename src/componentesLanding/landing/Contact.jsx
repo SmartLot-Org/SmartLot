@@ -3,6 +3,7 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
 import CtaButton from '../CtaButton';
+import { CTA_PRINCIPAL, contacto } from './contenido';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -49,7 +50,7 @@ export default function Contact() {
   }, { scope: container });
 
   return (
-    <footer id="contacto" ref={container} className="bg-transparent pt-24 pb-12 relative overflow-hidden">
+    <footer id="contacto" ref={container} aria-labelledby="contacto-titulo" className="bg-transparent pt-24 pb-12 relative overflow-hidden">
       
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full max-w-5xl h-96 bg-brand-navy/5 rounded-full blur-[120px] pointer-events-none" aria-hidden="true"></div>
 
@@ -90,15 +91,15 @@ export default function Contact() {
             <div className="absolute -top-24 -left-24 w-64 h-64 bg-brand-navy/[0.03] rounded-full blur-[80px]" aria-hidden="true"></div>
 
             <div className="relative z-10 flex flex-col items-center gap-8">
-              <h2 className="cta-content text-brand-warm">
-                ¿Listo para modernizar <br className="hidden md:block"/> tu estacionamiento?
+              <h2 id="contacto-titulo" className="cta-content text-brand-warm">
+                {contacto.titulo}
               </h2>
               
-              <p className="cta-content text-brand-muted max-w-2xl mx-auto">
-                Dejá de perder tiempo gestionando planillas. Implementá SmartLot hoy mismo y mejorá la experiencia de tu equipo.
+              <p className="cta-content texto-relato text-brand-muted max-w-2xl mx-auto">
+                {contacto.cuerpo}
               </p>
               
-              <CtaButton to="/register" className="cta-content">Registrate</CtaButton>
+              <CtaButton to={CTA_PRINCIPAL.destino} className="cta-content">{CTA_PRINCIPAL.etiqueta}</CtaButton>
             </div>
           </div>
         </div>

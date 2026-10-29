@@ -21,6 +21,7 @@ El mapa completo de rutas y la autorización de cada una están en `docs/archite
 - Axios con cliente central e interceptor de sesión (`src/api/client.js`)
 - Caché en memoria con invalidación por prefijos (`src/cache/cacheStore.js`)
 - Mercado Pago SDK, Google Maps, QR (`html5-qrcode`), SweetAlert2, GSAP, Recharts, ExcelJS y jsPDF
+- Landing `/`: three + React Three Fiber (maqueta 3D diferida) y Lenis (scroll suave)
 - Pruebas con `node:test` (sin framework externo)
 
 ## Requisitos

@@ -8,6 +8,7 @@ Frontend SPA de gestión de estacionamientos: empresas, garages, reservas, pagos
 - Tailwind CSS v4 con tokens `@theme` en `src/index.css`
 - Axios con cliente central en `src/api/client.js`; caché en memoria en `src/cache/cacheStore.js`
 - Mercado Pago SDK, Google Maps, QR (`html5-qrcode`), SweetAlert2, GSAP, Recharts, ExcelJS/PDF
+- Solo en la landing `/`: three + React Three Fiber (maqueta 3D en un chunk diferido) y Lenis (scroll suave); ver ADR-008
 - Pruebas con `node:test` (sin framework externo)
 
 ## Comandos

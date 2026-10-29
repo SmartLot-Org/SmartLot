@@ -66,6 +66,8 @@ node --test src/helpers/roles.test.js
 ```
 
 - Al agregar lógica a un helper, agregar o extender su test. Para cambios de estructura de vistas, considerar un `.source.test.js` siguiendo el patrón existente.
+- Ojo con la profundidad: `npm test` pasa `src/**/*.test.js` sin comillas y `sh` lo expande a un solo nivel (`src/<carpeta>/*.test.js`). Un test en una subcarpeta más profunda no corre. Por eso la cuenta pura del recorrido de la landing se prueba en `src/helpers/recorridoLanding.test.js`.
+- Landing `/` (3D y scroll): no hay pruebas de render; se verifica con Playwright y Chromium con WebGL por software (`--use-gl=angle --use-angle=swiftshader --enable-unsafe-swiftshader`) en 390×844, 768, 1440×900, con reduced motion, con `?sin3d` y sin WebGL. El detalle está en `docs/specs/SPEC-landing-inmersiva.md`.
 
 ## Calidad y deuda conocida
 

@@ -25,17 +25,18 @@ Restricciones vigentes:
    - El suavizado de cámara usa `THREE.MathUtils.damp`.
    - El estado continuo vive en un objeto mutable (`rigRecorrido`).
    - El estado discreto vive en React.
-   - "Solo brilla lo que significa algo" se resuelve con `toneMapped={false}`, sin Bloom.
+   - "Solo brilla lo que significa algo" se resuelve con colores sin iluminar (`meshBasicMaterial`) y el Canvas en `flat` (sin tone mapping), sin Bloom.
 2. **Aislamiento del 3D:** `src/componentesLanding/landing/recorrido/EscenaGarage.jsx` es el único módulo que importa `three` o `@react-three/*`.
-   - Se carga con `lazy()` desde un escenario DOM que reserva su espacio con `aspect-ratio`.
+   - Se carga con `lazy()` desde un escenario DOM que ya ocupa su lugar (el escenario fijo de `100svh`), así que no mueve el layout.
    - Lo monta solo cuando `#recorrido` está a 300 px del viewport.
    - Se pausa con `frameloop="never"` cuando sale de pantalla.
-   - Con `prefers-reduced-motion` usa `frameloop="demand"`.
+   - Con `prefers-reduced-motion` no se monta: aplica el respaldo del punto 4.
    - La capa DOM se comunica con la escena solo a través del rig.
-3. **Un solo loop de scroll:** Lenis se crea al montar `Landing.jsx` y se destruye al desmontarla.
+3. **Un solo loop de scroll:** Lenis se crea al montar `Landing.jsx`, solo con movimiento habilitado, y se destruye al desmontarla. Se importa en forma dinámica para no sumar al bundle principal.
    - Lo mueve `gsap.ticker`, sin `requestAnimationFrame` propio.
    - Notifica a ScrollTrigger con `lenis.on('scroll', ScrollTrigger.update)`.
    - El resto de la app (incluida `/para-garages`) mantiene el scroll nativo.
+   - No se usa la opción `anchors` de Lenis. Lenis no cancela el salto nativo del hash, así que las anclas (incluido "Saltar al contenido") quedan nativas: mueven el foco y Lenis se resincroniza.
 4. **Respaldo sin 3D:** sin WebGL2, con `?sin3d` o con `prefers-reduced-motion`, el recorrido muestra un SVG estático por paso. El contenido real siempre está en el HTML y el Canvas es `aria-hidden`.
 
 ## Alternativas consideradas
@@ -62,10 +63,11 @@ Restricciones vigentes:
 
 ## Consecuencias
 
-- **Chunk 3D:** aparece un chunk diferido de 350 KB gzip como máximo, que solo descarga quien llega cerca del recorrido y tiene WebGL2. `index-*.js` no debe crecer por este cambio, y una prueba de contrato de fuente lo protege.
+- **Chunk 3D:** aparece un chunk diferido de 350 KB gzip como máximo (medido: 245 KB), que solo descarga quien llega cerca del recorrido y tiene WebGL2. El JS inicial queda en 186,3 KB gzip, contra 185,6 KB en la base. Una prueba de contrato de fuente verifica que three no salga de `EscenaGarage.jsx`.
 - **Techo de React:** React no puede pasar de 19.3.x mientras se use R3F 9.8. Cualquier actualización de React requiere revisar primero el peer de `@react-three/fiber`.
 - **Scroll de la landing:**
   - La regla `html:has(.landing-page) { scroll-behavior: smooth }` queda neutralizada por `lenis.css` mientras Lenis está activo.
   - Las anclas internas (`#contacto`, `#capacidades`) pasan a resolverse con `anchors: true` de Lenis.
+- **Sticky en la landing:** el escenario fijo del recorrido usa `position: sticky`. Como `src/index.css` pone `overflow-y: scroll` en `html` y `overflow-x: hidden` en `body`, el body pasaba a ser un contenedor de scroll que anulaba el sticky. En las páginas de landing, `body:has(.landing-page)` usa `overflow-x: clip`, y el wrapper de `/` también usa `overflow-x-clip`.
 - **`LogoWatermark`:** usa `scrub: 1`. Con Lenis puede notarse doble suavizado; se verifica con Playwright y, si hace falta, se ajusta en una tarea aparte.
 - **Spec:** la verificación de la landing suma Chromium con WebGL por software (`--use-gl=angle --use-angle=swiftshader --enable-unsafe-swiftshader`) y la versión `?sin3d` (ver el spec).

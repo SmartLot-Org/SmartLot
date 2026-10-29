@@ -2,13 +2,15 @@
 
 Contexto de producto para personas y agentes: qué es SmartLot, para quién, qué reglas de negocio respeta y con qué voz se comunica. Es el documento que hay que leer **antes** de escribir UI, copy o features nuevas.
 
-Última revisión: 2026-10-09. Fuentes: landing pública (`src/componentesLanding/`), paneles por rol (`src/vistas*/`), documentación funcional (`docs/`) y el código en `src/`. Si algo no está acá ni en el código, **preguntar, no inventar**.
+Última revisión: 2026-10-29. Fuentes: landing pública (`src/componentesLanding/`), paneles por rol (`src/vistas*/`), documentación funcional (`docs/`) y el código en `src/`. Si algo no está acá ni en el código, **preguntar, no inventar**.
 
 ## Resumen
 
 SmartLot es una plataforma web de gestión de estacionamientos que conecta **empresas que necesitan cocheras para su personal** con **garages que tienen plazas disponibles**. Las empresas solicitan lugar para sus equipos, los dueños de garages aceptan o rechazan tratos, y todo el ciclo —reservas, pagos, control de acceso por QR y consumos— queda registrado en un panel.
 
-Frase canónica (landing): *"Publicás tu garage, las empresas piden lugar para su gente y vos manejás tratos, ocupación y consumos. Sin hardware, sin planillas."*
+Frase canónica (landing `/`, le habla a la empresa): *"Tu empresa contrata plazas en garages cercanos, tu gente reserva y entra con QR, y vos auditás cada consumo. Sin hardware, sin planillas."* (decisión del 2026-10-29, spec `docs/specs/SPEC-landing-inmersiva.md`).
+
+Frase anterior, orientada al dueño de garage: *"Publicás tu garage, las empresas piden lugar para su gente y vos manejás tratos, ocupación y consumos. Sin hardware, sin planillas."*
 
 Tagline del hero: **Gestioná. Optimizá. Escalá.**
 
@@ -103,7 +105,7 @@ Detalle de rutas y autorización: `docs/architecture.md`. Flujos por rol: `docs/
 
 Usados en la landing; **no inventar nuevos ni alterarlos sin pedido** (regla de `docs/pendientes-audit-ui.md`):
 
-- Landing general: satisfacción 4.9/5, tiempo de respuesta 2 min, calificación 4.8★, soporte 24/7 (`StatsTicker.jsx`).
+- Landing general (`/`): **sin métricas ni testimonios** desde el 2026-10-29. La prueba es el recorrido del producto (solicitud, trato, reserva, acceso con QR y consumo) y el copy vive en `src/componentesLanding/landing/contenido.js`. Las métricas anteriores (satisfacción 4.9/5, respuesta en 2 min, 4.8★, soporte 24/7) se retiraron por no estar verificadas.
 - Para garages: 24 meses de historial, 3 tarifas por vehículo, 100% online sin hardware, exportación PDF+XLS (`ParaGarages.jsx`).
 - Testimonios y casos: sección "Dueños que ya aparecen en el mapa" (`ParaGaragesSocial.jsx`).
 

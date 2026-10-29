@@ -26,6 +26,25 @@
   margin: 0;
 }
 
+/* Cuerpo del relato de "/": 16 px como mínimo (la regla general de arriba
+   baja hasta 14 px en celulares). */
+.landing-page .texto-relato {
+  font-size: clamp(1rem, 1.4vw, 1.125rem);
+  line-height: 1.6;
+}
+
+/* El h2 del recorrido inmersivo va dentro del primer panel, a escala de
+   etiqueta: la protagonista de la sección es la maqueta. */
+.landing-page .recorrido-etiqueta {
+  margin-bottom: 0.75rem;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: 0;
+  color: var(--color-brand-muted);
+}
+
 .logo-watermark {
   position: absolute;
   transform-style: preserve-3d;
@@ -36,6 +55,20 @@
 .landing-page section[id],
 .landing-page footer[id] {
   scroll-margin-top: 5.5rem;
+}
+
+/* index.css pone overflow-y: scroll en html y overflow-x: hidden en body:
+   así body pasa a ser un contenedor de scroll que nunca scrollea y anula
+   position: sticky (el escenario del recorrido). clip recorta igual sin
+   crear contenedor de scroll; donde no se soporta queda el hidden global. */
+body:has(.landing-page) {
+  overflow-x: clip;
+}
+
+/* El escenario del recorrido ocupa toda la pantalla bajo el navbar de
+   vidrio: al saltar con el ancla se alinea arriba de todo. */
+.landing-page #recorrido[data-modo="inmersivo"] {
+  scroll-margin-top: 0;
 }
 
 .pg-page .content-visibility-auto {

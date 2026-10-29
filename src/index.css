@@ -119,12 +119,6 @@ body[style*="padding-right"] {
    Utility Classes (used in components)
    ═══════════════════════════════════════════════════════════════════ */
 
-/* Body scroll lock during intro animation */
-.no-scroll {
-  overflow: hidden !important;
-  height: 100vh !important;
-}
-
 /* Subtle film-grain noise texture overlay */
 .bg-noise::after {
   content: '';

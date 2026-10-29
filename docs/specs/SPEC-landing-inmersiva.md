@@ -1,6 +1,6 @@
 # Spec: Landing inmersiva de SmartLot (`/`)
 
-> Estado: En revisión
+> Estado: Implementada
 > Módulo: `landing-inmersiva`
 > Última actualización: 2026-10-29
 
@@ -28,22 +28,31 @@ Origen: pedido de aplicar la skill `web-inmersiva` a la landing (2026-10-29). De
 - Se retira la intro de puertas.
 - El logo flip-book y las partículas se mantienen.
 
-**Criterios de aceptación:**
+**Decisiones cerradas el 2026-10-29.** El dueño del producto delegó las decisiones pendientes ("modo automático"):
 
-- [ ] El `h1`, el subtítulo y la CTA "Registrate" del hero se pintan en el primer render, sin esperar animaciones ni 3D. Ya no hay intro de puertas.
-- [ ] La CTA principal dice "Registrate" en el navbar, el hero y el cierre. "Para dueños de garages" queda como acción secundaria.
-- [ ] `/` no muestra métricas, testimonios ni claims no verificados: nada de 4.9/5, 2 min, 4.8★, 24/7, "aprende" ni "tiempo real".
-- [ ] El recorrido cuenta los 5 pasos reales del producto: solicitud, trato, reserva, acceso con QR y consumo.
-- [ ] Sin WebGL2, con `?sin3d` o con `prefers-reduced-motion: reduce`, el recorrido se lee completo con un SVG estático por paso y la CTA funciona.
-- [ ] `three` y `@react-three/fiber` no entran en `index-*.js`. Viven en un chunk diferido de 350 KB gzip como máximo, que se pide recién cuando `#recorrido` está cerca.
-- [ ] Lenis se activa solo en `/` y se destruye al salir. `/para-garages` y los paneles mantienen el scroll nativo.
-- [ ] El scroll hacia adelante, hacia atrás y con un tirón rápido restaura el estado de cada paso del recorrido.
-- [ ] Accesibilidad:
+- Estudio de dirección: **B (Maqueta)**.
+- Subtítulo del hero: **B**.
+- Copy: los borradores de este spec, con tres ajustes de redacción:
+  - El cuerpo de `problema` dice "cuesta auditar los consumos".
+  - El paso de acceso se titula "Acceso con QR, sin molinetes".
+  - En el cuerpo del acceso: "quedan registrados el ingreso y el egreso".
+
+**Criterios de aceptación** (verificados el 2026-10-29; resultados en "Verificación"):
+
+- [x] El `h1`, el subtítulo y la CTA "Registrate" del hero se pintan en el primer render, sin esperar animaciones ni 3D. Ya no hay intro de puertas.
+- [x] La CTA principal dice "Registrate" en el navbar, el hero y el cierre. "Para dueños de garages" queda como acción secundaria.
+- [x] `/` no muestra métricas, testimonios ni claims no verificados: nada de 4.9/5, 2 min, 4.8★, 24/7, "aprende" ni "tiempo real".
+- [x] El recorrido cuenta los 5 pasos reales del producto: solicitud, trato, reserva, acceso con QR y consumo.
+- [x] Sin WebGL2, con `?sin3d` o con `prefers-reduced-motion: reduce`, el recorrido se lee completo con un SVG estático por paso y la CTA funciona.
+- [x] `three` y `@react-three/fiber` no entran en `index-*.js`. Viven en un chunk diferido de 350 KB gzip como máximo, que se pide recién cuando `#recorrido` está cerca.
+- [x] Lenis se activa solo en `/` y se destruye al salir. `/para-garages` y los paneles mantienen el scroll nativo.
+- [x] El scroll hacia adelante, hacia atrás y con un tirón rápido restaura el estado de cada paso del recorrido.
+- [x] Accesibilidad:
   - Enlace para saltar al contenido y foco visible.
   - Un `h1` y un `h2` por sección.
   - Cuerpo de 16 px como mínimo.
   - Áreas táctiles de 44 px como mínimo.
-- [ ] Pruebas:
+- [x] Pruebas:
   - `npm test`, el lint de los archivos tocados y `npm run build` en verde.
   - Consola limpia en Playwright a 390×844, 768 y 1440×900, y con reduced motion.
 
@@ -56,7 +65,7 @@ Una sección es una idea y un encuadre. El copy de cada sección es un **borrado
 | id | Qué hay en la escena | Título | Cuerpo | Fuente | Movimiento | weight |
 |---|---|---|---|---|---|---|
 | `inicio` | Logo del hero, con el flip-book actual sin cambios | Gestioná. Optimizá. Escalá. | Subtítulo nuevo, `TODO(contenido)`: ver las propuestas más abajo | Tagline de `PRODUCT.md` | El realce del título no lo esconde nunca | 1 |
-| `problema` | Solo tipografía, sin 3D | Lugar sin asegurar, consumos sin auditar | Tu gente no tiene lugar asegurado y las reservas se arreglan de manera informal. Los acuerdos con el garage quedan de palabra y los consumos cuestan auditarse por sede o por período. | `PRODUCT.md` § Problema que resuelve | El título se revela por líneas | 1 |
+| `problema` | Solo tipografía, sin 3D | Lugar sin asegurar, consumos sin auditar | Tu gente no tiene lugar asegurado y las reservas se arreglan de manera informal. Los acuerdos con el garage quedan de palabra y cuesta auditar los consumos por sede o por período. | `PRODUCT.md` § Problema que resuelve | El título se revela por líneas | 1 |
 | `recorrido` | Maqueta del garage (3D acotado), ver los pasos abajo | Cómo funciona | Cinco pasos fijados | Ver la tabla de pasos | La cámara desciende de la planta a la plaza y de ahí al ingreso | 5 (1 por paso) |
 | `capacidades` | Sin 3D, el bento actual reescrito | Control por sede y por persona | Cada sede opera lo suyo y vos definís las reglas para tu gente. | Ver la lista de capacidades | Revelado | 1 |
 | `contacto` | Sin 3D, el `Contact.jsx` actual | Asegurale lugar a tu gente | Registrá tu empresa. Revisamos la solicitud y, una vez aprobada, creás tus sedes y sumás a tu equipo. | `pages/Register.jsx` (el registro de empresa requiere aprobación) | Ninguno | 1 |
@@ -68,7 +77,7 @@ Una sección es una idea y un encuadre. El copy de cada sección es un **borrado
 | `solicitud` | Planta completa. Un grupo de plazas se demarca en `brand-sky` (solicitadas) | Pedís lugar para tu gente | Elegís un garage de la zona y solicitás plazas para una sede, con la modalidad de pago que te sirve. | `PRODUCT.md` § Tratos y solicitudes; `ParaGaragesSteps.jsx` | Desciende sobre la planta |
 | `trato` | Las plazas solicitadas pasan a `brand-blue` (trato activo) | El dueño confirma el trato | Nada se activa sin su confirmación. El acuerdo queda registrado con plazas, modalidad y vigencia. | Regla de negocio 5; glosario "Trato" | Quieta; las plazas se pintan |
 | `reserva` | Un volumen simple de vehículo ocupa una plaza | Tu gente reserva su plaza | Cada persona reserva desde el celular para una fecha y un horario. Si la reserva lleva pago, la plaza queda apartada mientras se paga con Mercado Pago. | `docs/domain-flows.md` §2 | Se acerca a la plaza |
-| `acceso` | Barrera del ingreso con una señal de acceso habilitado | Entra con un QR, sin molinetes | En el ingreso, el garagista escanea el QR de la reserva desde su celular y queda registrado el ingreso y el egreso. No se instala hardware. | `PRODUCT.md` § Propuesta de valor; `docs/domain-flows.md` §3 | Travelling hasta el ingreso |
+| `acceso` | Barrera del ingreso con una señal de acceso habilitado | Acceso con QR, sin molinetes | En el ingreso, el garagista escanea el QR de la reserva desde su celular y quedan registrados el ingreso y el egreso. No se instala hardware. | `PRODUCT.md` § Propuesta de valor; `docs/domain-flows.md` §3 | Travelling hasta el ingreso |
 | `consumo` | Planta completa con las plazas usadas marcadas como registro | Cada consumo, auditado | Ves el detalle reserva por reserva y filtrás por sede, garage y período. Exportás en PDF o Excel. | `PRODUCT.md` § Transparencia de cobro | Se aleja a la planta completa |
 
 ### Capacidades
@@ -86,7 +95,7 @@ El bento actual se reescribe con capacidades reales que complementan el recorrid
 - **B:** "Tu empresa contrata plazas en garages cercanos, tu gente reserva y entra con QR, y vos auditás cada consumo. Sin hardware, sin planillas."
 - **C:** Mantener la frase canónica actual, que le habla al dueño de garage.
 
-Hasta que se elija, el hero conserva la frase actual.
+Elegida: **B**. `PRODUCT.md` la registra como frase canónica de `/`.
 
 ### Lo que sale de `/`
 
@@ -134,7 +143,41 @@ Los tres estudios cambian el campo, el material, la luz, la relación tipográfi
 
 Los tres estudios muestran el mismo momento (paso "Trato", con tres plazas ya confirmadas y dos todavía solicitadas) en un lienzo de diseño: <https://claude.ai/artifact/Frm7VeH8W5afsDQshDyA8q>. El lienzo es privado hasta que su dueño lo comparta desde el menú Compartir.
 
-**Estudio elegido:** `TODO(decisión)`.
+**Estudio elegido:** B (Maqueta). En la implementación, la maqueta es procedural:
+- losa, muros y columnas mate;
+- demarcación instanciada;
+- cinco plazas que pasan de celeste a azul;
+- un marco blanco para la plaza reservada;
+- una barrera con tapa luminosa en verde de éxito;
+- un vehículo de dos volúmenes;
+- el recorrido registrado como un tubo azul;
+- una calle de acceso y una sombra horneada.
+
+## Verificación (2026-10-29)
+
+- **Pruebas y build:**
+  - `npm test`: 131 pruebas en verde.
+  - `npx eslint` sobre los archivos tocados: sin problemas.
+  - `npm run build`: en verde.
+- **Peso:**
+  - JS inicial: 186,3 KB gzip, contra 185,6 KB en la base. La diferencia es mínima: la intro y las métricas salieron, y Lenis se carga aparte.
+  - Chunk de la escena (`EscenaGarage-*.js`): 245 KB gzip.
+- **Playwright** (Chromium con SwiftShader), recorridos hacia adelante, hacia atrás y con un tirón rápido en:
+  - 1440×900, 768×1024 y 390×844: modo inmersivo;
+  - con reduced motion, con `?sin3d` y sin WebGL: modo estático.
+  - En todos: sin scroll horizontal ni errores de página.
+  - La consola solo muestra la falta de backend (`ERR_CONNECTION_REFUSED`, `VITE_API_URL`) y el aviso conocido `THREE.Clock`.
+- **Teclado:** el primer Tab es "Saltar al contenido principal", y Enter lleva el foco a `main`. El orden de tabulación sigue al visual.
+- **Títulos:** un `h1`, un `h2` por sección y un `h3` por paso o capacidad.
+- **Navegación SPA:** al ir a `/para-garages` Lenis se destruye (la clase `lenis` desaparece del `html`) y al volver se crea de nuevo.
+
+## Desvíos respecto de la skill `web-inmersiva`
+
+- **JS y Tailwind** en lugar de TS y CSS propio: manda lo que ya decidió el repo.
+- **Lenis sin `anchors`:** así las anclas nativas mueven el foco (ADR-008).
+- **Reduced motion usa la versión estática completa** (sin escenario fijo), no la cámara a saltos.
+- **Sin `PerformanceMonitor` ni postprocesado:** la escena es liviana y no sumamos drei.
+- **Prueba pura en `src/helpers/`:** el glob de `npm test` solo llega a un nivel de carpeta (ver `docs/development.md`).
 
 ## Supuestos
 
@@ -161,12 +204,20 @@ npm run build
 - **`src/componentesLanding/landing/smoothScroll.js`:** Lenis movido por `gsap.ticker`, `lenis.on('scroll', ScrollTrigger.update)` y `scrollToSection`.
 - **`src/componentesLanding/landing/Problema.jsx`:** la sección `problema`.
 - **`src/componentesLanding/landing/recorrido/`**
-  - `Recorrido.jsx` (DOM): la sección fijada y los paneles de cada paso. Un ScrollTrigger con `scrub: true` escribe en el rig.
-  - `rigRecorrido.js`: el objeto mutable `{ progreso, paso, snap, requestFrame }`. No importa three.
+  - `Recorrido.jsx` (DOM):
+    - Elige el modo. En el modo inmersivo hay un escenario `sticky` de `100svh` y un panel por paso que pasa por encima.
+    - Un ScrollTrigger escribe el progreso en el rig, sin tween ni scrub propio, porque el suavizado lo hacen Lenis y la cámara.
+    - El modo estático es el flujo normal con una planta por paso.
+  - `useModoRecorrido.js`: decide entre "inmersivo" y "estatico" según WebGL2, `?sin3d` y reduced motion.
+  - `rigRecorrido.js`: el objeto mutable `{ progreso, entrada }`. No importa three.
   - `camaras.js`: el encuadre de cada paso, horizontal y vertical, como datos puros. No importa three.
-  - `EscenarioRecorrido.jsx` (DOM): reserva el espacio con `aspect-ratio`, observa la cercanía con IntersectionObserver y carga la escena con `lazy()`.
-  - `PlantaSvg.jsx`: el respaldo estático por paso, con `<title>`.
+  - `paleta.js`: los colores de la maqueta con el nombre de su token (prueba contra `DESIGN.md`).
+  - `EscenarioRecorrido.jsx` (DOM):
+    - Ocupa el escenario fijo, observa la cercanía con IntersectionObserver y carga la escena con `lazy()`.
+    - Si WebGL falla, muestra la planta estática.
+  - `PlantaSvg.jsx`: el respaldo estático por paso, con `<title>` y utilidades de Tailwind.
   - `EscenaGarage.jsx`: el **único** módulo que importa `three` y `@react-three/fiber`.
+- **`src/helpers/recorridoLanding.js`** y su prueba: la cuenta pura del recorrido (`pasoActivo`, `posicionPaso` con estadía, `encuadreEn`).
 - **`src/componentesLanding/landing/BentoGrid.jsx`:** pasa a ser la sección `capacidades`.
 - **`src/componentesLanding/landing/StatsTicker.jsx`:** el prop `stats` pasa a ser obligatorio y se elimina `DEFAULT_STATS`.
 
@@ -178,7 +229,7 @@ El patrón es el de la skill (rig mutable más un ScrollTrigger único que lo es
 // rigRecorrido.js — estado continuo del recorrido. GSAP lo escribe y la
 // escena lo lee en useFrame: nunca pasa por React para no re-renderizar
 // en cada frame de scroll.
-export const rigRecorrido = { progreso: 0, paso: 0, snap: false, requestFrame: () => {} };
+export const rigRecorrido = { progreso: 0, entrada: 0 };
 
 // Recorrido.jsx — la capa DOM nunca importa three: la escena llega por lazy()
 const EscenaGarage = lazy(() => import('./EscenaGarage'));
@@ -232,7 +283,7 @@ const EscenaGarage = lazy(() => import('./EscenaGarage'));
 
 ## Preguntas abiertas
 
-- [ ] ¿Qué estudio de dirección: A (Plano), B (Maqueta) o C (Nocturno)?
-- [ ] ¿Qué subtítulo para el hero: A, B o C?
-- [ ] ¿Se aprueba el copy borrador de `problema`, los pasos, `capacidades` y el cierre?
-- [ ] ¿Sumamos una imagen de Open Graph (`og:image`) con una captura del recorrido? Hoy `index.html` no tiene ninguna.
+- [x] Estudio de dirección: B (Maqueta).
+- [x] Subtítulo del hero: B.
+- [x] Copy de `problema`, los pasos, `capacidades` y el cierre: aprobado por delegación, con los ajustes de redacción de arriba.
+- [ ] ¿Sumamos una imagen de Open Graph (`og:image`) con una captura del recorrido? Pendiente: la meta necesita una URL absoluta y para eso hace falta el dominio de producción.
