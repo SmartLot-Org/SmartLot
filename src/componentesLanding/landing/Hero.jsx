@@ -1,10 +1,9 @@
 import { forwardRef } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronRight } from 'lucide-react';
+import { Car, ChevronRight } from 'lucide-react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import CtaButton from '../CtaButton';
-import FilaPlazas from './FilaPlazas';
 import { CTA_PRINCIPAL, hero } from './contenido';
 
 
@@ -25,9 +24,10 @@ const Hero = forwardRef(function Hero(_props, ref) {
 
 
   // Título, bajada y CTAs se pintan en el primer render, sin animación de
-  // entrada (son el LCP). El único momento animado es la fila de plazas.
+  // entrada (son el LCP). La tira de datos que cierra la primera pantalla
+  // vive en Landing.jsx, justo debajo.
   return (
-    <section ref={ref} className="relative z-10 flex flex-col overflow-hidden pt-28 lg:min-h-svh">
+    <section ref={ref} className="relative z-10 flex flex-1 flex-col overflow-hidden pt-28">
       <div className="mx-auto flex w-full max-w-6xl flex-1 items-center px-6 py-10 lg:py-12">
         <div className="grid w-full grid-cols-1 items-center gap-12 lg:grid-cols-[1.1fr_1fr] lg:gap-8">
 
@@ -44,20 +44,26 @@ const Hero = forwardRef(function Hero(_props, ref) {
               {hero.subtitulo}
             </p>
 
-            <div className="flex flex-wrap items-center gap-3 pt-2">
+            {/* Registro y puerta para garages en la misma línea, unidos por las
+                líneas finas de la versión anterior. En celulares las líneas y
+                el auto se ocultan para que entren los dos botones. */}
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-3 pt-2 sm:flex-nowrap sm:gap-3">
               <CtaButton to={CTA_PRINCIPAL.destino} size="md">{CTA_PRINCIPAL.etiqueta}</CtaButton>
+              <span aria-hidden="true" className="hidden h-px w-10 shrink-0 bg-brand-navy/10 sm:block" />
               <Link
                 to={hero.secundaria.destino}
                 aria-label={hero.secundaria.ariaLabel}
-                className="group inline-flex min-h-12 items-center gap-1.5 rounded-[10px] border border-brand-navy/15 px-5 py-3 text-sm font-semibold text-brand-warm transition-[color,background-color,border-color,transform] duration-150 ease-out hover:border-brand-blue/40 hover:bg-white/70 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2 focus-visible:ring-offset-brand-bg"
+                className="group inline-flex min-h-12 shrink-0 items-center gap-2 whitespace-nowrap rounded-full border border-brand-navy/10 bg-white/70 px-4 py-3 text-sm font-semibold text-brand-muted shadow-sm transition-[color,background-color,border-color,box-shadow,transform] duration-300 hover:border-brand-blue/40 hover:bg-brand-blue/10 hover:text-brand-deep hover:shadow-md active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2 focus-visible:ring-offset-brand-bg sm:px-5"
               >
+                <Car size={16} aria-hidden="true" className="hidden shrink-0 sm:block" />
                 <span>{hero.secundaria.etiqueta}</span>
                 <ChevronRight
-                  size={16}
+                  size={14}
                   aria-hidden="true"
-                  className="shrink-0 transition-transform duration-200 ease-out group-hover:translate-x-0.5"
+                  className="shrink-0 motion-safe:transition-transform motion-safe:duration-300 motion-safe:group-hover:translate-x-0.5 motion-safe:group-focus-visible:translate-x-0.5"
                 />
               </Link>
+              <span aria-hidden="true" className="hidden h-px min-w-0 flex-1 bg-brand-navy/10 sm:block" />
             </div>
           </div>
 
@@ -81,8 +87,6 @@ const Hero = forwardRef(function Hero(_props, ref) {
 
         </div>
       </div>
-
-      <FilaPlazas className="h-20 md:h-24 lg:h-28" />
     </section>
   );
 });

@@ -4,9 +4,10 @@ import 'lenis/dist/lenis.css';
 import Navbar from '../componentesLanding/landing/Navbar';
 import Hero from '../componentesLanding/landing/Hero';
 import '../componentesLanding/landing/landing.css';
+import StatsTicker from '../componentesLanding/landing/StatsTicker';
 import InteractiveBackground from '../componentesLanding/landing/InteractiveBackground';
 import LogoWatermark from '../componentesLanding/landing/LogoWatermark';
-import { meta, navegacion } from '../componentesLanding/landing/contenido';
+import { datosProducto, meta, navegacion } from '../componentesLanding/landing/contenido';
 import usePageMeta from '../hooks/usePageMeta';
 
 const Problema = lazy(() => import('../componentesLanding/landing/Problema'));
@@ -88,7 +89,12 @@ export default function LandingPage() {
       <div className="min-h-screen overflow-x-clip bg-noise landing-page">
         <Navbar links={navegacion} />
         <main id="main-content" tabIndex={-1} className="relative z-10 focus:outline-none">
-          <Hero ref={heroRef} />
+          {/* En escritorio hero y tira llenan la primera pantalla: el hero
+              crece hasta donde empieza la tira, mida lo que mida la tira. */}
+          <div className="flex flex-col lg:min-h-svh">
+            <Hero ref={heroRef} />
+            <StatsTicker stats={datosProducto} ariaLabel="Datos del producto" />
+          </div>
           <Suspense fallback={<SkeletonFallback className="min-h-[24rem]" />}>
             <SectionReady><Problema /></SectionReady>
           </Suspense>

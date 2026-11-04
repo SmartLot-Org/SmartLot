@@ -99,7 +99,7 @@ Elegida: **B**. `PRODUCT.md` la registra como frase canónica de `/`.
 
 ### Lo que sale de `/`
 
-- **`StatsTicker`:** sale de `/`. El componente se queda para `/para-garages`, donde muestra capacidades reales.
+- **`StatsTicker`:** sale de `/` con sus métricas sin verificar. El componente se queda para `/para-garages`. *Actualización 2026-11-04:* vuelve a `/` bajo el hero con datos del producto (ver "Segundo pulido").
 - **Intro de puertas:** se elimina `IntroAnimation.jsx`.
 - **Claims del bento:** "Tecnología de Asignación… que aprende", "Métricas en tiempo real", el eyebrow "Ecosistema Integral" y las badges "Core" y "Admin".
 
@@ -212,6 +212,23 @@ Pedido del dueño del producto después de ver el recorrido: el hero "puede ser 
 
 - **Títulos de sección:** comparten el rol `.titulo-relato`, de 32 px como mínimo en celular y con `text-wrap: balance`.
 - **Selección de texto:** usa los colores de la marca (`::selection`).
+
+### Segundo pulido (2026-11-04)
+
+Pedido del dueño del producto después de revisar la landing. Skills: Emil Kowalski (brillo y hover), ui-ux-pro-max (objetivos táctiles y contenido en movimiento), taste-skill e impeccable (composición del problema). Algunas filas revierten decisiones del primer pulido por pedido explícito.
+
+| Antes | Después | Por qué |
+|---|---|---|
+| CTA sin brillo (primer pulido) | Vuelve el brillo de hover de `CtaButton`. Cruza solo al entrar el mouse, vuelve sin animación (nunca barre hacia atrás) y no existe con reduced motion | Pedido explícito: es la firma de la CTA de registro |
+| `FilaPlazas` como piso del hero | Se elimina. `StatsTicker` vuelve debajo del hero y, en escritorio, hero y tira llenan la primera pantalla (`lg:min-h-svh` en el contenedor) | Pedido explícito. La tira cierra la primera pantalla sin depender de su alto |
+| Tira con métricas sin verificar | `datosProducto` en `contenido.js`: 100% online, QR, Mercado Pago y PDF+XLS. Son hechos del producto, no métricas de uso | Respeta la decisión de no inventar métricas. Si se quieren métricas, tienen que venir con fuente |
+| Tira sin control | Botón para pausar y reanudar (44 px). Se oculta con reduced motion, donde la tira ya está quieta | WCAG 2.2.2: lo que se mueve solo más de 5 s tiene que poder pausarse |
+| Registro y secundaria como dos botones rectos | Registro a la izquierda y "Para dueños de garages" en la misma línea, unidos por las líneas finas de la versión anterior. La secundaria vuelve a ser píldora con ícono de auto y el hover de "Iniciar sesión" | Pedido explícito, con la imagen de la versión anterior como referencia |
+| Problema: lista suelta con hairlines y raya de 2 px | Panel blanco como los pasos del recorrido. Cada fila lleva `--tachado` (de 0 a 1) desde el scroll, de a una. De ese valor salen la raya de 3 px, el texto que baja a gris y la cruz que pasa a tilde. Cierre en barra azul | La sección se veía suelta y el tachado no se notaba. El estado no depende solo del color |
+
+**Celulares:** en 390 px los dos botones entran en una línea: se ocultan las líneas finas y el auto, y la CTA achica padding y texto. Por debajo de eso la píldora baja a la línea siguiente (`flex-wrap`), sin scroll horizontal.
+
+**Reduced motion:** el tachado queda sin dibujar, igual que antes. Sin `--tachado`, todo vale 0.
 
 ## Desvíos respecto de la skill `web-inmersiva`
 

@@ -17,6 +17,17 @@ export const hero = {
   },
 };
 
+// Tira de datos bajo el hero. Son hechos del producto que se comprueban
+// usándolo (PRODUCT.md, "Propuesta de valor"), no métricas de uso: las de
+// satisfacción, respuesta y soporte se retiraron por no estar verificadas.
+// El ticker apila cada palabra de la etiqueta: máximo tres palabras.
+export const datosProducto = [
+  { value: '100%', label: 'online, sin hardware' },
+  { value: 'QR', label: 'acceso sin molinetes' },
+  { value: 'Mercado Pago', label: 'pagos de reservas' },
+  { value: 'PDF+XLS', label: 'exportación de consumos' },
+];
+
 export const meta = {
   titulo: 'SmartLot — El estacionamiento del futuro',
   descripcion: hero.subtitulo,

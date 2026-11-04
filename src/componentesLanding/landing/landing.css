@@ -44,30 +44,48 @@
   text-wrap: balance;
 }
 
-/* Problemas de la empresa: se leen grandes y se tachan al pasar al recorrido.
-   El tachado es un fondo (y no ::after) para que siga cada línea cuando el
-   texto se parte en celulares. */
+/* Problemas de la empresa. Cada fila recibe --tachado (0 → 1) desde el scroll
+   y de ese único valor salen la raya, el tono del texto y la cruz que pasa a
+   tilde al final del tachado (--marca). Sin movimiento --tachado no existe:
+   todo queda en 0 y se lee completo, sin tachar. */
 .landing-page .problema-item {
-  font-size: clamp(1.125rem, 1.7vw, 1.375rem);
-  font-weight: 500;
-  line-height: 1.45;
-  color: var(--color-brand-warm);
+  --marca: clamp(0, calc((var(--tachado, 0) - 0.8) * 5), 1);
 }
 
+.landing-page .problema-texto {
+  font-size: clamp(1.125rem, 1.6vw, 1.3125rem);
+  font-weight: 500;
+  line-height: 1.45;
+  color: color-mix(in srgb, var(--color-brand-muted) calc(var(--tachado, 0) * 100%), var(--color-brand-warm));
+}
+
+/* La raya es un fondo (y no ::after) para que siga cada línea cuando el texto
+   se parte en celulares. */
 .landing-page .tachado {
   background-image: linear-gradient(var(--color-brand-blue), var(--color-brand-blue));
   background-repeat: no-repeat;
   background-position: 0 55%;
-  background-size: 0% 2px;
+  background-size: calc(var(--tachado, 0) * 100%) 3px;
   -webkit-box-decoration-break: clone;
   box-decoration-break: clone;
 }
 
-/* El cierre responde a la lista: tinta plena (la regla general de p lo
-   dejaría en gris secundario). */
+.landing-page .marca-cruz {
+  opacity: calc(1 - var(--marca));
+}
+
+.landing-page .marca-tilde {
+  opacity: var(--marca);
+  transform: scale(calc(0.7 + var(--marca) * 0.3));
+}
+
+/* El cierre responde a la lista: barra azul señal con texto blanco (la regla
+   general de p lo dejaría en gris secundario). */
 .landing-page .problema-cierre {
-  color: var(--color-brand-deep);
+  font-size: clamp(1rem, 1.4vw, 1.125rem);
   font-weight: 600;
+  line-height: 1.4;
+  color: var(--color-brand-surface);
 }
 
 /* Las superficies del navegador también llevan la marca. */

@@ -105,7 +105,7 @@ Detalle de rutas y autorización: `docs/architecture.md`. Flujos por rol: `docs/
 
 Usados en la landing; **no inventar nuevos ni alterarlos sin pedido** (regla de `docs/pendientes-audit-ui.md`):
 
-- Landing general (`/`): **sin métricas ni testimonios** desde el 2026-10-29. La prueba es el recorrido del producto (solicitud, trato, reserva, acceso con QR y consumo) y el copy vive en `src/componentesLanding/landing/contenido.js`. Las métricas anteriores (satisfacción 4.9/5, respuesta en 2 min, 4.8★, soporte 24/7) se retiraron por no estar verificadas.
+- Landing general (`/`): **sin métricas ni testimonios** desde el 2026-10-29. La prueba es el recorrido del producto (solicitud, trato, reserva, acceso con QR y consumo) y el copy vive en `src/componentesLanding/landing/contenido.js`. Las métricas anteriores (satisfacción 4.9/5, respuesta en 2 min, 4.8★, soporte 24/7) se retiraron por no estar verificadas. Desde el 2026-11-04, la tira bajo el hero muestra **datos del producto, no métricas**: 100% online sin hardware, acceso con QR sin molinetes, pagos de reservas con Mercado Pago y exportación de consumos en PDF+XLS (`datosProducto` en `contenido.js`).
 - Para garages: 24 meses de historial, 3 tarifas por vehículo, 100% online sin hardware, exportación PDF+XLS (`ParaGarages.jsx`).
 - Testimonios y casos: sección "Dueños que ya aparecen en el mapa" (`ParaGaragesSocial.jsx`).
 

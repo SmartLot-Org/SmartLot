@@ -8,7 +8,6 @@ const contenido = await readFile(new URL('../componentesLanding/landing/contenid
 const smoothScroll = await readFile(new URL('../componentesLanding/landing/smoothScroll.js', import.meta.url), 'utf8');
 const bento = await readFile(new URL('../componentesLanding/landing/BentoGrid.jsx', import.meta.url), 'utf8');
 const problemaJsx = await readFile(new URL('../componentesLanding/landing/Problema.jsx', import.meta.url), 'utf8');
-const filaPlazas = await readFile(new URL('../componentesLanding/landing/FilaPlazas.jsx', import.meta.url), 'utf8');
 const ctaButton = await readFile(new URL('../componentesLanding/CtaButton.jsx', import.meta.url), 'utf8');
 const landingCss = await readFile(new URL('../componentesLanding/landing/landing.css', import.meta.url), 'utf8');
 const escenario = await readFile(new URL('../componentesLanding/landing/recorrido/EscenarioRecorrido.jsx', import.meta.url), 'utf8');
@@ -75,12 +74,15 @@ test('el hero conserva el trío de marca y ya no promete IA ni lleva eyebrow', (
   assert.match(hero, /hero\.titulo\.map/);
   assert.doesNotMatch(hero + contenido, /con IA/);
   assert.doesNotMatch(hero, /SmartLot App/);
-  assert.match(hero, /px-5 py-3/);
+  assert.match(hero, /rounded-full/);
 });
 
-test('"/" no muestra métricas ni claims sin verificar', () => {
-  assert.doesNotMatch(landing, /StatsTicker/);
+test('"/" muestra datos del producto bajo el hero, nunca métricas sin verificar', () => {
+  assert.match(landing, /<Hero ref=\{heroRef\} \/>\s*<StatsTicker stats=\{datosProducto\}/);
+  assert.match(contenido, /export const datosProducto = \[/);
   assert.doesNotMatch(ticker, /DEFAULT_STATS|4\.9\/5|Satisfacción del cliente/);
+  // WCAG 2.2.2: la tira se mueve sola, así que tiene que poder pausarse.
+  assert.match(ticker, /Pausar la tira de datos/);
   assert.match(paraGarages, /<StatsTicker stats=\{GARAGE_STATS\}/);
   for (const fuente of [contenido, bento, hero, contact]) {
     assert.doesNotMatch(fuente, /aprende|tiempo real|4\.9|4\.8★|24\/7|Ecosistema Integral/i);
@@ -95,20 +97,27 @@ test('la CTA principal dice "Registrate" en navbar, hero y cierre', () => {
   assert.match(contenido, /destino: '\/para-garages'/);
 });
 
-test('el hero tiene un solo momento animado y la CTA mide 48 px', () => {
-  // La fila de plazas es lo único que se anima al cargar, y solo con movimiento.
-  assert.match(hero, /<FilaPlazas /);
-  assert.match(filaPlazas, /prefers-reduced-motion: no-preference/);
-  assert.match(filaPlazas, /aria-hidden="true"/);
-  assert.doesNotMatch(hero, /blur-\[100px\]/);
+test('el hero no lleva dibujo, la CTA mide 48 px y conserva su brillo', () => {
+  assert.equal(existsSync(new URL('../componentesLanding/landing/FilaPlazas.jsx', import.meta.url)), false);
+  assert.doesNotMatch(hero, /FilaPlazas|blur-\[100px\]/);
   assert.match(hero, /size="md"/);
   assert.match(ctaButton, /md: \{\n\s+box: 'min-h-12/);
-  // Criterio de interfaz (Emil Kowalski): propiedades concretas, nada de
-  // transition-all ni brillos de hover de 700 ms.
+  // El brillo volvió a pedido del dueño del producto: cruza solo al entrar el
+  // mouse, no barre de vuelta y no existe con reduced motion.
+  assert.match(ctaButton, /group-hover\/cta:translate-x-\[200%\] group-hover\/cta:transition-transform group-hover\/cta:duration-700/);
+  assert.match(ctaButton, /motion-reduce:hidden/);
   for (const fuente of [ctaButton, hero]) {
-    assert.doesNotMatch(fuente, /transition-all|duration-700|duration-500/);
+    assert.doesNotMatch(fuente, /transition-all/);
   }
   assert.match(ctaButton, /active:scale-\[0\.97\]/);
+});
+
+test('registro y "Para dueños de garages" en una línea, con el hover de "Iniciar sesión"', () => {
+  assert.match(hero, /sm:flex-nowrap/);
+  for (const clase of ['hover:border-brand-blue/40', 'hover:bg-brand-blue/10', 'hover:text-brand-deep', 'hover:shadow-md']) {
+    assert.ok(hero.includes(clase), `la píldora debería tener ${clase}`);
+    assert.ok(navbar.includes(clase), `"Iniciar sesión" debería tener ${clase}`);
+  }
 });
 
 test('el problema lista los dolores reales y el tachado nunca oculta el texto', () => {
@@ -120,7 +129,8 @@ test('el problema lista los dolores reales y el tachado nunca oculta el texto', 
   assert.match(problemaJsx, /scrub: true/);
   assert.doesNotMatch(problemaJsx, /autoAlpha|opacity:\s*0|SplitText/);
   // Sin movimiento, el estado por defecto es "sin tachar": se lee completo.
-  assert.match(landingCss, /\.tachado \{[^}]*background-size: 0% 2px;/);
+  assert.match(problemaJsx, /'--tachado': 1/);
+  assert.match(landingCss, /\.tachado \{[^}]*background-size: calc\(var\(--tachado, 0\) \* 100%\) 3px;/);
 });
 
 test('three y React Three Fiber solo viven en EscenaGarage, que llega por lazy()', async () => {
