@@ -343,8 +343,7 @@ YOUR SCOPE (group N of 7: <nombre>). Route in brackets, file after the arrow:
 
 ### Fase A — Recuperar la auditoría (solo lectura)
 
-1. **[x] Diagnóstico del fallo del Grupo 1.** *(2026-11-04: rehecho a mano en la sesión principal,
-   sin subagentes, como permite el paso 2. Resultado en [`audit-ui-hallazgos.md`](./audit-ui-hallazgos.md).)* El intento previo (`ses_ee1456cb0ffewbgEVqhGy5WrZm`)
+1. **[ ] Diagnóstico del fallo del Grupo 1.** El intento previo (`ses_ee1456cb0ffewbgEVqhGy5WrZm`)
    terminó `completed` con `task_result` vacío. Decidir: (a) re-lanzar el Grupo 1 con el mismo
    prompt, o (b) si vuelve vacío, partirlo en dos (1a: Landing + ParaGarages + Auth; 1b: pages/* +
    shell) para bajar el volumen. Registrar el resultado en este documento.
@@ -355,8 +354,7 @@ YOUR SCOPE (group N of 7: <nombre>). Route in brackets, file after the arrow:
    - Nota: **no usar el parámetro `command`** en `task` (se asoció al intento fallido).
    - Si un grupo devuelve vacío, reintentarlo una vez; si insiste, hacerlo manual con Glob+Read
      en la sesión principal.
-3. **[ ] Verificar cobertura.** *(Grupo 1: hecho, 9 vistas más el shell, con su conteo H/M/L. Faltan los
-   grupos 2 a 7.)* Cruzar las secciones A de los 7 grupos contra el inventario de la
+3. **[ ] Verificar cobertura.** Cruzar las secciones A de los 7 grupos contra el inventario de la
    sección 3 (48 archivos + shell). Cada archivo debe aparecer con su conteo H/M/L. Si falta
    alguno, releerlo en la sesión principal (lectura directa, sin subagente).
 4. **[ ] Merge y deduplicación.** Unificar hallazgos:
@@ -364,8 +362,7 @@ YOUR SCOPE (group N of 7: <nombre>). Route in brackets, file after the arrow:
      comunes) probablemente se repitan entre grupos → dejar **uno** con "Affects:" mergeado.
    - Ordenar cada vista por severidad H → M → L y truncar a los 4 más relevantes si hay más
      (manteniendo el (+N more omitted)).
-5. **[ ] Consolidado final.** *(Grupo 1 consolidado en `audit-ui-hallazgos.md`, con su Top 5. El global
-   espera a los grupos 2 a 7.)* Producir el entregable: lista agrupada por vista con
+5. **[ ] Consolidado final.** Producir el entregable: lista agrupada por vista con
    `severidad | error | archivo:línea | fix`, más **Top 10 global de arreglos por impacto**.
    Mostrarlo al usuario (en chat) para aprobación.
 

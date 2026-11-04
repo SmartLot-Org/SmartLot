@@ -20,7 +20,6 @@ Este repositorio es el frontend SPA de SmartLot y consume la API del backend `Sm
 | [`estados-vacios.md`](./estados-vacios.md) | Inventario de estados vacíos por pantalla y su acción | Frontend, QA |
 | [`reservation-limit.md`](./reservation-limit.md) | Informe del límite de reservas activas por empleado (frontend + backend revisado) | Producto, backend |
 | [`pendientes-audit-ui.md`](./pendientes-audit-ui.md) | Auditoría UI en curso: inventario de vistas y plan de trabajo | Frontend |
-| [`audit-ui-hallazgos.md`](./audit-ui-hallazgos.md) | Hallazgos de la auditoría UI por grupo (Grupo 1 hecho: vistas públicas y auth) | Frontend |
 
 ## Fuentes de verdad
 
