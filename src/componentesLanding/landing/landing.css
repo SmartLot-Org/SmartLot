@@ -45,29 +45,36 @@
 }
 
 /* Problemas de la empresa. Cada fila recibe --tachado (0 → 1) desde el scroll
-   y de ese único valor salen la raya, el tono del texto y la cruz que pasa a
-   tilde al final del tachado (--marca). Sin movimiento --tachado no existe:
-   todo queda en 0 y se lee completo, sin tachar. */
+   y de ese único valor salen la raya, el tono del texto, el fondo de la fila
+   y la cruz que pasa a tilde al final del tachado (--marca). Sin movimiento
+   --tachado no existe: todo queda en 0 y se lee completo, sin tachar.
+   Legibilidad primero: el texto tachado solo se aclara un poco (sigue sobre
+   7:1 contra blanco) y la raya es fina; la lista se lee aun tachada. */
 .landing-page .problema-item {
-  --marca: clamp(0, calc((var(--tachado, 0) - 0.8) * 5), 1);
+  --marca: clamp(0, calc((var(--tachado, 0) - 0.85) * 6.67), 1);
+  background-color: color-mix(in srgb, var(--color-brand-sky) calc(var(--marca) * 12%), transparent);
 }
 
 .landing-page .problema-texto {
-  font-size: clamp(1.125rem, 1.6vw, 1.3125rem);
-  font-weight: 500;
-  line-height: 1.45;
-  color: color-mix(in srgb, var(--color-brand-muted) calc(var(--tachado, 0) * 100%), var(--color-brand-warm));
+  font-family: var(--font-display);
+  font-size: clamp(1.375rem, 2.4vw, 1.875rem);
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+  max-width: 46ch;
+  text-wrap: pretty;
+  color: color-mix(in srgb, var(--color-brand-muted) calc(var(--tachado, 0) * 55%), var(--color-brand-warm));
 }
 
-/* La raya es un fondo (y no ::after) para que siga cada línea cuando el texto
-   se parte en celulares. */
+/* La raya es un fondo por palabra (y no ::after): cada palabra se tacha en su
+   tramo de --tachado, así la raya sigue el orden de lectura aunque el texto
+   se parta en dos líneas. Va a la altura media de las minúsculas, fina y en
+   azul señal traslúcido: cruza las letras sin taparlas. */
 .landing-page .tachado {
-  background-image: linear-gradient(var(--color-brand-blue), var(--color-brand-blue));
+  background-image: linear-gradient(color-mix(in srgb, var(--color-brand-blue) 85%, transparent), color-mix(in srgb, var(--color-brand-blue) 85%, transparent));
   background-repeat: no-repeat;
-  background-position: 0 55%;
-  background-size: calc(var(--tachado, 0) * 100%) 3px;
-  -webkit-box-decoration-break: clone;
-  box-decoration-break: clone;
+  background-position: 0 58%;
+  background-size: calc(clamp(0, var(--tachado, 0) * var(--n, 1) - var(--i, 0), 1) * 100%) 2px;
 }
 
 .landing-page .marca-cruz {
@@ -82,7 +89,7 @@
 /* El cierre responde a la lista: barra azul señal con texto blanco (la regla
    general de p lo dejaría en gris secundario). */
 .landing-page .problema-cierre {
-  font-size: clamp(1rem, 1.4vw, 1.125rem);
+  font-size: clamp(1.125rem, 1.8vw, 1.375rem);
   font-weight: 600;
   line-height: 1.4;
   color: var(--color-brand-surface);

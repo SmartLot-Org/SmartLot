@@ -31,6 +31,9 @@ const FRAME0_ALIGN_Y = -8.12;
 // queda tal cual. El corte sigue al layout, no al dispositivo.
 const DESKTOP_QUERY = '(min-width: 1024px)';
 const MOBILE_QUERY = '(max-width: 1023px)';
+// Px de scroll pasado el inicio del trigger que se toleran al medir el ancla
+// sin proyectarla (ver measureAnchor).
+const DESFASE_MAX_SWAP = 80;
 
 
 // ---------------------------------------------------------------------------
@@ -297,7 +300,6 @@ export default function LogoWatermark({ heroRef }) {
     // que animar. El estado reduce queda como estaba: watermark estático sutil.
     mm.add(`(prefers-reduced-motion: no-preference) and ${DESKTOP_QUERY}`, () => {
       const state = { currentFrame: 0 };
-      let continuousAnim = null;
       let tl = null;
       // Geometría fija (viewport coords) donde se pineó el swap. No se
       // re-mide con el scroll: el wrapper es fixed, así que un refresh a
@@ -317,8 +319,13 @@ export default function LogoWatermark({ heroRef }) {
       const getAnchor = () => heroRef.current?.querySelector('.hero-logo-anchor');
 
       // Rect del ancla en coords de viewport, o null si aún no hay layout
-      // válido (primer paint, fonts, remount).
-      const measureAnchor = () => {
+      // válido (primer paint, fonts, remount). Si el swap entra tarde (salto
+      // con un ancla del menú o scrollTo, rueda rápida desde el fondo,
+      // refresh a mitad de página) el ancla ya se movió y, medida tal cual,
+      // el vuelo arrancaba desde arriba de la pantalla: se proyecta al scroll
+      // del inicio del trigger. Con un desfase chico (un frame de Lenis) se
+      // mide tal cual, para que el canvas calce justo sobre el logo visible.
+      const measureAnchor = (self) => {
         const el = getAnchor();
         if (!el) return null;
         const r = el.getBoundingClientRect();
@@ -327,7 +334,9 @@ export default function LogoWatermark({ heroRef }) {
         const floatY = heroLogo
           ? Number.parseFloat(gsap.getProperty(heroLogo, 'y')) || 0
           : 0;
-        return { left: r.left, top: r.top + floatY, width: r.width, height: r.height };
+        const avance = self ? self.scroll() - self.start : 0;
+        const desfase = avance > DESFASE_MAX_SWAP ? avance : 0;
+        return { left: r.left, top: r.top + floatY + desfase, width: r.width, height: r.height };
       };
 
       const hideHeroLogo = () => {
@@ -347,6 +356,38 @@ export default function LogoWatermark({ heroRef }) {
       };
 
 
+      // invalidate() deja sin inicializar los tramos que el playhead ya pasó.
+      // Un fromTo con immediateRender: false, al rebobinarse antes de su
+      // inicio, vuelve al valor que el elemento tenía cuando se inicializó:
+      // si eso pasaba con el logo ya en el fondo (onEnterBack), al subir el
+      // canvas volvía a opacidad 0 (giro invisible) y el wrapper saltaba a la
+      // posición final. Por eso se lleva todo al estado de partida del swap
+      // antes de re-inicializar, y recién ahí se recorre 0 → progreso actual
+      // en el mismo tick, sin que se pinte nada intermedio.
+      const invalidarTimeline = () => {
+        if (!tl) return;
+        const p = tl.progress();
+        state.currentFrame = 0;
+        gsap.set(wrapperRef.current, {
+          top: swapGeom.top,
+          left: swapGeom.left,
+          xPercent: 0,
+          yPercent: 0,
+          scale: 1,
+          rotationY: 0,
+          rotationX: 0,
+        });
+        gsap.set(canvasRef.current, {
+          opacity: 1,
+          scale: START_FRAME_ZOOM,
+          xPercent: FRAME0_ALIGN_X,
+          yPercent: FRAME0_ALIGN_Y,
+        });
+        gsap.set(staticImgRef.current, { opacity: 0 });
+        tl.invalidate().progress(0, true).progress(p, true);
+      };
+
+
       // El canvas se pinta antes de ocultar el logo del Hero. Las dos acciones
       // ocurren en el mismo ciclo de JS, así el navegador nunca presenta un
       // frame donde ambos estén invisibles.
@@ -359,7 +400,7 @@ export default function LogoWatermark({ heroRef }) {
         gsap.set(wrapperRef.current, { opacity: 1 });
         hideHeroLogo();
         swapCommittedRef.current = true;
-        if (tl) tl.invalidate();
+        invalidarTimeline();
         return true;
       };
 
@@ -392,8 +433,8 @@ export default function LogoWatermark({ heroRef }) {
 
       // Swap in: pinea el wrapper sobre el ancla del Hero. El logo real solo
       // se oculta cuando el canvas ya tiene un dibujo listo.
-      const swapIn = () => {
-        const r = measureAnchor();
+      const swapIn = (self) => {
+        const r = measureAnchor(self);
         if (!r) return false;
 
         if (swappedInRef.current) {
@@ -412,7 +453,7 @@ export default function LogoWatermark({ heroRef }) {
           if (lastDraw) {
             drawImage(lastDraw.img, { asFrameStandIn: lastDraw.asFrameStandIn });
           }
-          if (tl) tl.invalidate();
+          invalidarTimeline();
           if (!swapCommittedRef.current) startDrawRetry();
           return true;
         }
@@ -545,8 +586,8 @@ export default function LogoWatermark({ heroRef }) {
           // out. Sin reintentos con timers ni redes de seguridad paralelas:
           // si el ancla no tiene layout todavía, el próximo refresh
           // (ScrollToTop en cada ruta, fonts.ready, load, resize) reintenta.
-          onEnter: () => swapIn(),
-          onEnterBack: () => swapIn(),
+          onEnter: (self) => swapIn(self),
+          onEnterBack: (self) => swapIn(self),
           onLeaveBack: (self) => {
             // Force the lagging scrub to finish rewinding NOW, so its
             // pending renders can't override the restore below
@@ -557,34 +598,26 @@ export default function LogoWatermark({ heroRef }) {
           onToggle: (self) => {
             // Remounts SPA que aterrizan con el trigger ya activo (p. ej.
             // viewport más alto que el hero: start clampado a 0).
-            if (self.isActive) swapIn();
+            if (self.isActive) swapIn(self);
             else if (self.progress === 0) swapOut();
           },
           onRefresh: (self) => {
             // Tras cada refresh el layout ya está asentado: re-alinear el
             // swap (resize, fuentes, lazy sections) o restaurar si estamos
             // arriba de todo.
-            if (self.isActive) swapIn();
+            if (self.isActive) swapIn(self);
             else if (self.progress === 0) swapOut();
-          },
-          onUpdate: (self) => {
-            if (self.progress >= 1 && !continuousAnim && wrapperRef.current) {
-              continuousAnim = gsap.to(wrapperRef.current, {
-                rotationY: "+=360",
-                duration: 20,
-                ease: "none",
-                repeat: -1,
-              });
-            }
-            if (self.progress < 1 && continuousAnim) {
-              continuousAnim.kill();
-              continuousAnim = null;
-            }
           },
         }
       });
 
 
+      // Todos los tramos son fromTo con valores explícitos. swapIn invalida
+      // el timeline al volver a entrar (onEnterBack, refresh) y un .to
+      // re-graba su inicio desde el valor actual: al volver desde abajo
+      // tomaba el estado final y el giro y el crossfade quedaban congelados
+      // (canvas invisible al subir).
+      //
       // Phase 2: el canvas arranca ya calibrado desde el swapIn (zoom +
       // offset que igualan al hero) y se normaliza mientras giran los
       // frames — continuo desde el tick 0 de scroll, sin la
@@ -593,9 +626,10 @@ export default function LogoWatermark({ heroRef }) {
         { scale: START_FRAME_ZOOM, xPercent: FRAME0_ALIGN_X, yPercent: FRAME0_ALIGN_Y },
         { scale: 1, xPercent: 0, yPercent: 0, duration: 0.2, ease: "power1.out", immediateRender: false },
       0.02)
-      .to(state, {
+      .fromTo(state, { currentFrame: 0 }, {
         currentFrame: TOTAL_FRAMES - 1,
         duration: 0.28,
+        immediateRender: false,
         ease: "none",
         onUpdate: () => {
           const target = Math.round(state.currentFrame);
@@ -606,8 +640,8 @@ export default function LogoWatermark({ heroRef }) {
 
 
       // Phase 3: Crossfade from canvas to static logo
-      .to(canvasRef.current, { opacity: 0, duration: 0.03 }, 0.30)
-      .to(staticImgRef.current, { opacity: 1, duration: 0.03 }, 0.30)
+      .fromTo(canvasRef.current, { opacity: 1 }, { opacity: 0, duration: 0.03, immediateRender: false }, 0.30)
+      .fromTo(staticImgRef.current, { opacity: 0 }, { opacity: 1, duration: 0.03, immediateRender: false }, 0.30)
 
       // Phase 3b: Recede — el logo cede el escenario al contenido. Tras el
       // crossfade baja a la opacidad watermark (la misma del estado estático
@@ -648,15 +682,15 @@ export default function LogoWatermark({ heroRef }) {
       0.02)
 
 
-      // Phase 5: Settle
+      // Phase 5: Settle. Al final del recorrido el logo queda quieto como
+      // marca de agua: sin giro continuo.
       .to(wrapperRef.current, {
         duration: 0.20,
         ease: "power1.out",
       }, 0.80);
 
-      // Cleanup del contexto: matar el giro infinito (nace en un callback
-      // async de scroll y matchMedia no siempre lo rastrea), cancelar los
-      // reintentos de dibujo y restaurar SIEMPRE el logo del hero. El
+      // Cleanup del contexto: cancelar los reintentos de dibujo y restaurar
+      // SIEMPRE el logo del hero. El
       // visibility:hidden es un efecto colateral fuera del contexto GSAP:
       // si el unmount agarra el swap activo (navegar a /para-garages
       // scrolleado) no debe quedar pegado.
@@ -665,10 +699,6 @@ export default function LogoWatermark({ heroRef }) {
         drawRetryRafRef.current = 0;
         swappedInRef.current = false;
         swapCommittedRef.current = false;
-        if (continuousAnim) {
-          continuousAnim.kill();
-          continuousAnim = null;
-        }
         restoreHeroLogo();
       };
     });

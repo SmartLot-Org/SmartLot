@@ -230,6 +230,19 @@ Pedido del dueño del producto después de revisar la landing. Skills: Emil Kowa
 
 **Reduced motion:** el tachado queda sin dibujar, igual que antes. Sin `--tachado`, todo vale 0.
 
+### Tercer pulido: logo y problema (2026-11-05)
+
+Pedido del dueño del producto: arreglar los errores del logo al subir y bajar sin tocar su trayectoria, dejarlo quieto cuando queda de fondo y hacer legible la sección del problema mientras se tacha. Skills: impeccable (composición y detector), Emil Kowalski (movimiento ligado al scroll) y ui-ux-pro-max (contraste).
+
+| Antes | Después | Por qué |
+|---|---|---|
+| Al llegar al final, el logo giraba sin parar (`rotationY: "+=360"`, `repeat: -1`) | Queda quieto como marca de agua | Pedido explícito |
+| Al volver desde el final (`onEnterBack`), el timeline se invalidaba con el logo ya en el fondo. En la zona del giro el canvas quedaba en opacidad 0 y el logo no se veía al subir | Los tramos son `fromTo` con valores explícitos. `invalidarTimeline` lleva wrapper, canvas y logo estático al estado de partida del swap y recién después re-inicializa (0 → progreso actual en el mismo tick) | Un `fromTo` con `immediateRender: false`, al rebobinarse, vuelve al valor que tenía el elemento cuando se inicializó. Re-inicializar desde el estado final rompía la vuelta |
+| Si el swap entraba tarde (salto con `scrollTo` o un ancla, rueda rápida desde el fondo), el ancla del hero se medía ya scrolleada y el vuelo arrancaba fuera de la pantalla | Si el scroll pasó más de 80 px del inicio del trigger, la medición se proyecta a ese inicio. Con desfases chicos (un frame de Lenis) se mide tal cual, así el canvas calza sobre el logo visible | La trayectoria no cambia: arranca siempre desde la caja de reposo del logo |
+| Problema: panel angosto al lado del título y texto de 18–21 px partido en 2–3 líneas. La raya de 3 px avanzaba en todos los renglones a la vez y el texto bajaba a gris | Título arriba y panel a todo el ancho. Texto en Archivo de 22–30 px, en una o dos líneas. Cada fila se tacha con su propio trigger (`top 68%` → `top 40%`) y la raya (2 px, azul al 85%) avanza palabra por palabra, en orden de lectura. El texto tachado solo se aclara un poco (sigue por encima de 7:1) y la fila resuelta toma un fondo celeste suave. La sección crece a `py-24 md:py-40` | El contenido estaba bien, pero se leía mal mientras se tachaba |
+
+**Reduced motion:** el logo queda como marca de agua estática y el problema sin tachar, igual que antes.
+
 ## Desvíos respecto de la skill `web-inmersiva`
 
 - **JS y Tailwind** en lugar de TS y CSS propio: manda lo que ya decidió el repo.
@@ -242,7 +255,7 @@ Pedido del dueño del producto después de revisar la landing. Skills: Emil Kowa
 
 1. **Copy:** los textos de este spec son borradores derivados de la documentación. Ninguno se publica sin aprobación.
 2. **Registro de empresa:** `/register` sin parámetros abre el modo empresa, y `?modo=garage` abre el de dueño de garage (`src/pages/Register.jsx`). La CTA principal apunta a `/register`.
-3. **Flip-book del logo:** `LogoWatermark` sigue igual. Usa `scrub: 1`; con Lenis puede sentirse doblemente suavizado y, si pasa, se ajusta en una tarea aparte con aprobación.
+3. **Flip-book del logo:** la trayectoria de `LogoWatermark` sigue igual (ver el tercer pulido para los arreglos de ida y vuelta). Usa `scrub: 1`; con Lenis puede sentirse doblemente suavizado y, si pasa, se ajusta en una tarea aparte con aprobación.
 4. **Scroll nativo:** la regla `html:has(.landing-page) { scroll-behavior: smooth }` de `src/index.css` convive con Lenis porque `lenis/dist/lenis.css` fuerza `scroll-behavior: auto` mientras Lenis está activo.
 5. **Bundle principal:** la línea base actual es de 563,63 kB (173,25 kB gzip) y ya supera el presupuesto de 150 KB de la skill. Es deuda previa (ADR-006). Este trabajo no debe sumarle three.js ni R3F.
 

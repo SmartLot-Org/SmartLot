@@ -130,7 +130,25 @@ test('el problema lista los dolores reales y el tachado nunca oculta el texto', 
   assert.doesNotMatch(problemaJsx, /autoAlpha|opacity:\s*0|SplitText/);
   // Sin movimiento, el estado por defecto es "sin tachar": se lee completo.
   assert.match(problemaJsx, /'--tachado': 1/);
-  assert.match(landingCss, /\.tachado \{[^}]*background-size: calc\(var\(--tachado, 0\) \* 100%\) 3px;/);
+  // Cada fila se tacha con su propio trigger y la raya avanza palabra por
+  // palabra (orden de lectura aunque el texto se parta en dos líneas).
+  assert.match(problemaJsx, /trigger: fila/);
+  assert.match(problemaJsx, /'--i': i/);
+  assert.match(landingCss, /\.tachado \{[^}]*background-size: calc\(clamp\(0, var\(--tachado, 0\) \* var\(--n, 1\) - var\(--i, 0\), 1\) \* 100%\) 2px;/);
+  // El texto tachado nunca baja a gris secundario pleno: sigue legible.
+  assert.match(landingCss, /var\(--color-brand-muted\) calc\(var\(--tachado, 0\) \* 55%\)/);
+});
+
+test('el logo queda fijo como marca de agua y vuelve igual al subir', () => {
+  // Al final del recorrido no gira: sin giro continuo ni repeat infinito.
+  assert.doesNotMatch(watermark, /rotationY: "\+=360"|repeat: -1/);
+  // Crossfade y flip-book con valores de partida explícitos, y la
+  // re-inicialización parte del estado del swap (si no, al volver desde el
+  // final el canvas quedaba invisible).
+  assert.match(watermark, /\.fromTo\(state, \{ currentFrame: 0 \}/);
+  assert.match(watermark, /\.fromTo\(canvasRef\.current, \{ opacity: 1 \}, \{ opacity: 0/);
+  assert.match(watermark, /const invalidarTimeline = \(\) => \{[\s\S]*?gsap\.set\(canvasRef\.current, \{\s*opacity: 1,[\s\S]*?tl\.invalidate\(\)/);
+  assert.doesNotMatch(watermark, /if \(tl\) tl\.invalidate\(\);/);
 });
 
 test('three y React Three Fiber solo viven en EscenaGarage, que llega por lazy()', async () => {
