@@ -1,6 +1,6 @@
 # Spec: Landing inmersiva
 
-> Estado: En revisión
+> Estado: Aprobada
 > Módulo: `landing-inmersiva`
 > Última actualización: 2026-11-16
 
@@ -29,7 +29,7 @@ Por qué ahora: la home actual tiene tres bloques (hero, una grilla de cuatro ta
 2. La home le habla primero a las empresas. El dueño de garage entra por un enlace secundario y `/para-garages` profundiza su lado.
 3. La marca no cambia: "Azul Señal", Archivo para títulos y DM Sans para lectura. Lo que se reemplaza es el mundo visual de la landing (vidrio, ruido, tarjetas), y eso obliga a actualizar las secciones de landing de `DESIGN.md`.
 4. Las métricas del ticker actual (4.9/5, 2 min, 4.8★, 24/7) son datos de ejemplo según `PRODUCT.md` y no se trasladan. La prueba se arma con el producto real.
-5. El proyecto sigue en JavaScript (`.jsx`), sin TypeScript, y sin SSR.
+5. El proyecto sigue en JavaScript (`.jsx`), sin TypeScript, y sin SSR ni prerender: el posicionamiento en buscadores no es prioridad.
 6. La geometría 3D se genera por código. No hay modelos encargados ni presupuesto de arte externo.
 7. Las pantallas de login y registro quedan como están en esta etapa.
 
@@ -179,10 +179,12 @@ Decisión de arquitectura a registrar: un ADR nuevo para la landing con WebGL (s
 - **Estudio:** A, "Plano".
 - **Audiencia:** la home le habla primero a las empresas.
 - **Prueba:** solo el producto. Pantallas reales y hechos verificables; ninguna cifra de satisfacción.
+- **Dependencias:** aprobadas `three`, `@react-three/fiber`, `@react-three/drei`, `lenis`, `zustand` y `maath`, y el autoalojado de Archivo y DM Sans.
+- **Buscadores:** no son prioridad. No se suma prerender.
+- **Copy:** el borrador del guion se usa como base.
+- **Landing actual:** no se conserva nada. Se retiran la animación de entrada, la marca de agua del logo, el ticker de métricas y la grilla de tarjetas.
 
 ## Preguntas abiertas
 
-- [ ] ¿Desde dónde llega la mayoría de las visitas, celular o escritorio? ¿El posicionamiento en buscadores es prioritario? Si lo es, hay que sumar prerender.
-- [ ] ¿Se aprueban las dependencias nuevas y el autoalojado de fuentes?
-- [ ] ¿El copy borrador del guion se usa como base o lo reescribís vos?
-- [ ] ¿Se conserva algo de la landing actual (la animación de entrada, la marca de agua del logo)?
+Ninguna. Queda pendiente confirmar el estudio A sobre su mini prototipo antes de escribir el plan técnico.
+
