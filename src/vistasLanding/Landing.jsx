@@ -1,124 +1,60 @@
-import { useState, useEffect, useRef, useCallback, lazy, Suspense } from 'react';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import Navbar from '../componentesLanding/landing/Navbar';
-import Hero from '../componentesLanding/landing/Hero';
-import '../componentesLanding/landing/landing.css';
-import StatsTicker from '../componentesLanding/landing/StatsTicker';
-import InteractiveBackground from '../componentesLanding/landing/InteractiveBackground';
-import IntroAnimation from '../componentesLanding/landing/IntroAnimation';
-import LogoWatermark from '../componentesLanding/landing/LogoWatermark';
+// Capa DOM de la landing (ADR-008). Nunca importa three ni @react-three/*:
+// el 3D va en un chunk aparte y se comunica a través de scroll/rig.js.
+import { lazy, Suspense, useEffect, useRef } from 'react';
+import 'lenis/dist/lenis.css';
+import '../componentesLanding/inmersiva/inmersiva.css';
+import { META, NAVEGACION, SECCIONES } from '../componentesLanding/inmersiva/contenido/secciones';
+import { initSmoothScroll } from '../componentesLanding/inmersiva/scroll/smoothScroll';
+import { useStoryTimeline } from '../componentesLanding/inmersiva/scroll/useStoryTimeline';
+import { initUIFromBrowser, useUI } from '../componentesLanding/inmersiva/estado/store';
+import { Nav } from '../componentesLanding/inmersiva/ui/Nav';
+import { Seccion } from '../componentesLanding/inmersiva/ui/Seccion';
 import usePageMeta from '../hooks/usePageMeta';
 
-const BentoGrid = lazy(() => import('../componentesLanding/landing/BentoGrid'));
-const Contact = lazy(() => import('../componentesLanding/landing/Contact'));
-
-const INTRO_SEEN_KEY = 'smartlot-intro-seen';
-
-// Un solo refresh por frame aunque resuelvan varios chunks a la vez: al
-// reemplazar el skeleton por la sección real cambia el alto de la página y
-// los start/end de los ScrollTrigger deben re-medirse.
-let refreshRaf = 0;
-function scheduleTriggerRefresh() {
-  cancelAnimationFrame(refreshRaf);
-  refreshRaf = requestAnimationFrame(() => ScrollTrigger.refresh());
-}
-
-function SectionReady({ children }) {
-  useEffect(() => {
-    scheduleTriggerRefresh();
-  }, []);
-  return children;
-}
-
-function SkeletonFallback({ className = 'h-96' }) {
-  return (
-    <div className={`w-full flex items-center justify-center ${className}`}>
-      <div className="w-8 h-8 border-2 border-brand-blue border-t-transparent rounded-full animate-spin" />
-    </div>
-  );
-}
+const Experience = lazy(() => import('../componentesLanding/inmersiva/three/Experience'));
 
 export default function LandingPage() {
-  const [isIntroComplete, setIsIntroComplete] = useState(() => {
-    try {
-      return sessionStorage.getItem(INTRO_SEEN_KEY) === '1';
-    } catch {
-      return true;
-    }
-  });
-  const [startHero, setStartHero] = useState(isIntroComplete);
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(
-    () => typeof window !== 'undefined'
-      && window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  );
-  const heroRef = useRef(null);
+  const main = useRef(null);
+  const tier = useUI((s) => s.tier);
+  const sin3d = useUI((s) => s.sin3d);
+  const tema = useUI((s) => s.tema);
+  const inicializado = useUI((s) => s.inicializado);
+  const alternarSin3d = useUI((s) => s.alternarSin3d);
+  // Antes de `inicializado` no se monta el 3D: lazy() pide el chunk recién cuando
+  // se renderiza Experience. Sin WebGL, con ahorro de datos, con ?sin3d o si se
+  // pierde el contexto, queda la versión estática y el chunk no se descarga.
+  const mostrar3d = inicializado && tier !== 'static' && !sin3d;
+  const sinEscena = inicializado && !mostrar3d;
 
-  usePageMeta({
-    title: 'SmartLot — El estacionamiento del futuro',
-    description:
-      'Publicás tu garage, las empresas piden lugar para su gente y vos manejás tratos, ocupación y consumos. Sin hardware, sin planillas.',
-  });
+  usePageMeta({ title: META.titulo, description: META.descripcion });
 
   useEffect(() => {
-    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const handler = (e) => setPrefersReducedMotion(e.matches);
-    mq.addEventListener('change', handler);
-    return () => mq.removeEventListener('change', handler);
+    initUIFromBrowser();
+    return initSmoothScroll();
   }, []);
-
-  // El scroll solo queda bloqueado mientras la intro está en pantalla.
-  // Con prefers-reduced-motion no hay intro, así que nunca se bloquea.
-  useEffect(() => {
-    const locked = !isIntroComplete && !prefersReducedMotion;
-    document.body.classList.toggle('no-scroll', locked);
-    return () => document.body.classList.remove('no-scroll');
-  }, [isIntroComplete, prefersReducedMotion]);
-
-  const markIntroComplete = useCallback(() => {
-    try {
-      sessionStorage.setItem(INTRO_SEEN_KEY, '1');
-    } catch {
-      // Sin sessionStorage la intro puede repetirse; nada se rompe
-    }
-    setIsIntroComplete(true);
-  }, []);
-
-  const openDoors = useCallback(() => setStartHero(true), []);
-
-  const showIntro = !prefersReducedMotion && !isIntroComplete;
+  useStoryTimeline(main);
 
   return (
-    <>
-      {showIntro && (
-        <IntroAnimation
-          onComplete={markIntroComplete}
-          onOpenDoors={openDoors}
-        />
-      )}
-      <InteractiveBackground
-        count={prefersReducedMotion ? 35 : 45}
-        interactionRadius={150}
-        repelForce={80}
-      />
-      <div className="min-h-screen overflow-x-hidden bg-noise landing-page">
-        <Navbar
-          links={[
-            { label: 'Solución', href: '#solucion' },
-            { label: 'Contacto', href: '#contacto' },
-          ]}
-        />
-        <main id="main-content" className="relative z-10">
-          <Hero ref={heroRef} startAnimation={startHero} />
-          <StatsTicker />
-          <Suspense fallback={<SkeletonFallback className="min-h-[44rem]" />}>
-            <SectionReady><BentoGrid /></SectionReady>
-          </Suspense>
-        </main>
-        <Suspense fallback={<SkeletonFallback className="min-h-[32rem]" />}>
-          <SectionReady><Contact /></SectionReady>
-        </Suspense>
-        <LogoWatermark heroRef={heroRef} />
-      </div>
-    </>
+    <div className="plano" data-tema={tema} data-sin3d={sinEscena}>
+      <a className="plano-saltar" href="#contenido">{NAVEGACION.saltar}</a>
+      {mostrar3d && <Suspense fallback={null}><Experience /></Suspense>}
+      <Nav />
+      {/* Por defecto el layout es el de 3D; pasa al de sin 3D solo cuando ya se sabe que no hay. */}
+      <main id="contenido" ref={main}>
+        {SECCIONES.map((s, i) => (
+          <Seccion key={s.id} s={s} i={i} ultima={i === SECCIONES.length - 1} sinEscena={sinEscena} tema={tema} />
+        ))}
+      </main>
+      <footer className="plano-pie">
+        <p>© {new Date().getFullYear()} {NAVEGACION.marca}. {NAVEGACION.pie}</p>
+        <div>
+          {tier !== 'static' && (
+            <button type="button" className="plano-enlace" onClick={alternarSin3d} aria-pressed={sin3d}>
+              {sin3d ? NAVEGACION.sin3d.desactivar : NAVEGACION.sin3d.activar}
+            </button>
+          )}
+        </div>
+      </footer>
+    </div>
   );
 }

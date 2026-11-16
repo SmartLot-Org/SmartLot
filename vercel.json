@@ -17,7 +17,7 @@
       ]
     },
     {
-      "source": "/GIF_IMGS_LOGO/(.*)",
+      "source": "/landing/(.*)",
       "headers": [
         {
           "key": "Cache-Control",

@@ -26,13 +26,6 @@
   margin: 0;
 }
 
-.logo-watermark {
-  position: absolute;
-  transform-style: preserve-3d;
-  will-change: transform, opacity;
-  contain: layout;
-}
-
 .landing-page section[id],
 .landing-page footer[id] {
   scroll-margin-top: 5.5rem;

@@ -4,15 +4,17 @@ import { existsSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 
 const landing = await readFile(new URL('./Landing.jsx', import.meta.url), 'utf8');
-const intro = await readFile(new URL('../componentesLanding/landing/IntroAnimation.jsx', import.meta.url), 'utf8');
-const watermark = await readFile(new URL('../componentesLanding/landing/LogoWatermark.jsx', import.meta.url), 'utf8');
-const hero = await readFile(new URL('../componentesLanding/landing/Hero.jsx', import.meta.url), 'utf8');
+const inmersiva = (ruta) => readFile(new URL(`../componentesLanding/inmersiva/${ruta}`, import.meta.url), 'utf8');
+const seccion = await inmersiva('ui/Seccion.jsx');
+const nav = await inmersiva('ui/Nav.jsx');
+const experience = await inmersiva('three/Experience.jsx');
+const store = await inmersiva('estado/store.js');
+const estilos = await inmersiva('inmersiva.css');
 const ticker = await readFile(new URL('../componentesLanding/landing/StatsTicker.jsx', import.meta.url), 'utf8');
 const particles = await readFile(new URL('../componentesLanding/landing/InteractiveBackground.jsx', import.meta.url), 'utf8');
 const app = await readFile(new URL('../App.jsx', import.meta.url), 'utf8');
 const indexHtml = await readFile(new URL('../../index.html', import.meta.url), 'utf8');
 const indexCss = await readFile(new URL('../index.css', import.meta.url), 'utf8');
-const contact = await readFile(new URL('../componentesLanding/landing/Contact.jsx', import.meta.url), 'utf8');
 const navbar = await readFile(new URL('../componentesLanding/landing/Navbar.jsx', import.meta.url), 'utf8');
 const authCallback = await readFile(new URL('./AuthCallback.jsx', import.meta.url), 'utf8');
 const loginForm = await readFile(new URL('../componentesLanding/auth/LoginForm.jsx', import.meta.url), 'utf8');
@@ -25,37 +27,6 @@ const paraGarages = await readFile(new URL('./ParaGarages.jsx', import.meta.url)
 const garageCta = await readFile(new URL('../componentesLanding/paraGarages/ParaGaragesCTA.jsx', import.meta.url), 'utf8');
 const garageSteps = await readFile(new URL('../componentesLanding/paraGarages/ParaGaragesSteps.jsx', import.meta.url), 'utf8');
 
-test('el bloqueo de scroll respeta reduce: con motion reducido nunca se bloquea', () => {
-  assert.match(landing, /const locked = !isIntroComplete && !prefersReducedMotion/);
-  assert.match(landing, /classList\.toggle\('no-scroll', locked\)/);
-});
-
-test('la intro se ve una vez por sesión y es saltable', () => {
-  assert.match(landing, /sessionStorage\.getItem\(INTRO_SEEN_KEY\)/);
-  assert.match(landing, /sessionStorage\.setItem\(INTRO_SEEN_KEY, '1'\)/);
-  assert.match(intro, /skippedRef\.current/);
-  assert.match(intro, /e\.key === 'Escape'/);
-  assert.match(intro, /tlRef\.current\?\.kill\(\)/);
-  assert.match(intro, /Saltar/);
-});
-
-test('la intro respira ~2.3s: ningún tween llega a 1s', () => {
-  assert.doesNotMatch(intro, /duration:\s*(1(?![0-9.])|[1-9][0-9.]*\.)/);
-});
-
-test('el flip-book arranca con el primer scroll (sin precarga en idle) y el giro tiene red de dibujo', () => {
-  const mountEffect = watermark.slice(watermark.indexOf('useEffect(() => {'));
-  assert.match(mountEffect, /matchMedia\('(?:\(prefers-reduced-motion: reduce\))'\)/);
-  assert.match(mountEffect, /window\.scrollY > 0/);
-  assert.doesNotMatch(mountEffect, /requestIdleCallback\(kick/);
-  assert.match(mountEffect, /addEventListener\('scroll', kick/);
-  assert.match(mountEffect, /addEventListener\('wheel', kick/);
-  assert.match(mountEffect, /addEventListener\('touchmove', kick/);
-  assert.match(watermark, /FRAME_BATCH/);
-  assert.match(watermark, /startDrawRetry/);
-  assert.match(watermark, /drawRetryRafRef/);
-});
-
 test('las vistas pesadas se cargan por ruta y la landing no espera a la sesión', () => {
   assert.doesNotMatch(app, /if \(loading\) return null/);
   assert.match(app, /lazy\(\(\) => import\("\.\/vistasAdmin\//);
@@ -63,15 +34,6 @@ test('las vistas pesadas se cargan por ruta y la landing no espera a la sesión'
   assert.match(app, /lazy\(\(\) => import\("\.\/vistasEmpleados\//);
   assert.match(app, /<Suspense fallback=/);
   assert.match(app, /import LandingPage from "\.\/vistasLanding\/Landing"/);
-});
-
-test('el hero conserva el trío de marca y ya no promete IA ni lleva eyebrow', () => {
-  assert.match(hero, /Gestioná\./);
-  assert.match(hero, /Optimizá\./);
-  assert.match(hero, /Escalá\./);
-  assert.doesNotMatch(hero, /con IA/);
-  assert.doesNotMatch(hero, /SmartLot App/);
-  assert.match(hero, /px-5 py-3/);
 });
 
 test('el ticker conserva sus métricas de confianza', () => {
@@ -97,7 +59,6 @@ test('la config muerta de Tailwind y PostCSS ya no existen', () => {
 });
 
 test('el azul obsoleto #2A5CBF ya no vive en las superficies de landing', () => {
-  assert.doesNotMatch(contact, /#2A5CBF|#6BA3E8/);
   assert.doesNotMatch(garageCta, /#2A5CBF|#6BA3E8/);
   assert.doesNotMatch(loginForm, /#2A5CBF|#6BA3E8/);
   assert.match(garageSteps, /hover:border-brand-sky/);
@@ -117,8 +78,6 @@ test('los errores del funnel usan red-600 con role="alert"', () => {
 });
 
 test('voseo en las superficies públicas', () => {
-  assert.doesNotMatch(contact, /Regístrate/);
-  assert.match(contact, /Registrate/);
   assert.doesNotMatch(forgotPassword, /Ya puedes/);
   assert.match(forgotPassword, /Ya podés/);
 });
@@ -131,21 +90,10 @@ test('lang es-AR, meta sin promesas de IA y SEO por ruta', () => {
   }
 });
 
-test('el footer de Contact ya no esconde texto a 1px', () => {
-  assert.doesNotMatch(contact, /text-\[1px\]/);
-  assert.doesNotMatch(contact, /text-brand-muted\/(30|40)/);
-  assert.doesNotMatch(garageCta, /text-brand-muted\/(30|40|50)/);
-});
-
 test('el navbar no intercepta el click con toast ni setTimeout', () => {
   assert.doesNotMatch(navbar, /setTimeout|showToast/);
   assert.match(navbar, /Ir a mi panel/);
   assert.match(navbar, /getUserHomeRoute\(usuario\)/);
-});
-
-test('Demo.jsx muerto eliminado sin referencias', () => {
-  assert.equal(existsSync(new URL('../componentesLanding/landing/Demo.jsx', import.meta.url)), false);
-  assert.doesNotMatch(landing, /landing\/Demo/);
 });
 
 test('AuthCallback muestra un loader accesible', () => {
@@ -157,4 +105,44 @@ test('AuthCallback muestra un loader accesible', () => {
 test('el login declara autocomplete y alertas', () => {
   assert.match(loginForm, /autoComplete="email"/);
   assert.match(loginForm, /autoComplete="current-password"/);
+});
+
+test('el hero es HTML desde el primer render: h1 propio, sin animación de entrada ni espera del 3D', () => {
+  assert.match(seccion, /const Titulo = i === 0 \? 'h1' : 'h2'/);
+  assert.doesNotMatch(seccion, /SplitText|gsap\.from\(/);
+  assert.match(landing, /lazy\(\(\) => import\('\.\.\/componentesLanding\/inmersiva\/three\/Experience'\)\)/);
+  assert.match(landing, /mostrar3d && <Suspense fallback=\{null\}>/);
+});
+
+test('el 3D no se pide antes de inicializar, con ?sin3d ni sin WebGL', () => {
+  assert.match(landing, /const mostrar3d = inicializado && tier !== 'static' && !sin3d/);
+  assert.match(store, /sin3d: q\.has\('sin3d'\)/);
+  assert.match(store, /if \(!webgl\) return 'static'/);
+  assert.match(experience, /webglcontextlost/);
+});
+
+test('el escenario 3D es decorativo y hay enlace para saltar al contenido', () => {
+  assert.match(experience, /className="plano-escenario"[^>]*aria-hidden="true"/);
+  assert.match(landing, /className="plano-saltar" href="#contenido"/);
+  assert.match(landing, /<main id="contenido"/);
+});
+
+test('la barra nueva lleva al panel si hay sesión y no intercepta el click', () => {
+  assert.match(nav, /getUserHomeRoute\(usuario\)/);
+  assert.match(nav, /NAVEGACION\.panel/);
+  assert.doesNotMatch(nav, /setTimeout|showToast|preventDefault/);
+});
+
+test('el movimiento de interfaz no usa transition: all y respeta reduced motion', () => {
+  assert.doesNotMatch(estilos, /transition:\s*all/);
+  assert.match(estilos, /prefers-reduced-motion: reduce/);
+});
+
+test('la landing vieja se retiró sin dejar archivos ni referencias', () => {
+  for (const archivo of ['Hero', 'BentoGrid', 'Contact', 'IntroAnimation', 'LogoWatermark']) {
+    assert.equal(existsSync(new URL(`../componentesLanding/landing/${archivo}.jsx`, import.meta.url)), false, archivo);
+  }
+  assert.equal(existsSync(new URL('../../public/GIF_IMGS_LOGO', import.meta.url)), false);
+  assert.doesNotMatch(landing, /componentesLanding\/landing\//);
+  assert.doesNotMatch(indexHtml, /fonts\.googleapis|fonts\.gstatic/);
 });
