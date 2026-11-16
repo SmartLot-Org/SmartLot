@@ -2,7 +2,7 @@
 
 > Estado: Aprobada
 > Módulo: `landing-inmersiva`
-> Última actualización: 2026-11-16
+> Última actualización: 2026-11-16 (etapas 2 a 6 construidas)
 
 ## Objetivo
 
@@ -17,7 +17,7 @@ Por qué ahora: la home actual tiene tres bloques (hero, una grilla de cuatro ta
 - [ ] El título, el subtítulo y la CTA del hero son HTML y se ven en el primer render, sin esperar al 3D ni a una animación.
 - [ ] Las siete secciones se leen completas y la CTA funciona en cuatro versiones: normal, sin 3D (`?sin3d`), con movimiento reducido y estática (sin WebGL).
 - [ ] En perfil móvil: LCP menor a 2,5 s, CLS menor a 0,1 e INP menor a 200 ms.
-- [ ] El JS de entrada no supera los 150 kB gzip (hoy `index-*.js` pesa 173 kB gzip) y el chunk 3D no supera los 350 kB gzip.
+- [ ] El JS propio de la landing que se carga antes del 3D (capa DOM, Lenis y zustand) no supera los 150 kB gzip, y el chunk 3D no supera los 350 kB gzip. El runtime compartido con el resto de la app (React, router, cliente HTTP, sesión) queda fuera de este límite: ver "Decisiones tomadas".
 - [ ] 60 fps en notebook y al menos 30 en un celular de gama media; el scroll es reversible y nunca se secuestra la rueda.
 - [ ] No aparece ninguna métrica, testimonio ni logo que no haya dado el dueño del producto.
 - [ ] Contraste AA en todo el texto, foco visible, enlace para saltar al contenido, un solo `h1` y un `h2` por sección.
@@ -43,16 +43,16 @@ Por qué ahora: la home actual tiene tres bloques (hero, una grilla de cuatro ta
 
 Un solo movimiento de cámara atraviesa el relato: empieza lejos, sobre la ciudad, y se acerca escala por escala hasta el celular del empleado. Al final se aleja de nuevo.
 
-Los títulos y cuerpos son borradores de copy para aprobar antes de construir el esqueleto HTML.
+Los títulos y cuerpos se aprobaron como base del copy. Los `weight` se ajustaron al validar tiempos con el director de scroll (etapa 4); el total pasó de 8,9 a 9,8 pantallas.
 
 | `id` | Escena | Título | Cuerpo | Evidencia | Movimiento | `weight` |
 |---|---|---|---|---|---|---|
 | `gancho` | Una zona de la ciudad vista desde arriba: una oficina y, alrededor, garages con lugar | Cocheras para tu equipo, cerca de la oficina | SmartLot conecta a tu empresa con garages que tienen plazas libres cerca de cada sede. Sin hardware, sin planillas. | `PRODUCT.md`, resumen | desciende | 1,0 |
-| `problema` | La cuadra: autos dando vueltas y un garage a medio llenar | Acuerdos de palabra y vueltas a la manzana | Hoy los acuerdos se arreglan por WhatsApp o en papel, las cocheras quedan vacías y nadie sabe cuánto se usó cada lugar. | `PRODUCT.md`, problema de cada lado | orbita | 1,2 |
-| `idea` | Una línea une la oficina con el garage | Un trato claro entre empresa y garage | La empresa pide plazas para una sede y el dueño del garage acepta o rechaza. Nada se activa sin su confirmación. | Regla de negocio 5; pantalla `/gestion_garages` | se traza | 1,2 |
-| `reserva` | Un nivel del garage: las plazas se van ocupando | Cada persona reserva su lugar | Cada empleado elige día y horario desde el celular. La empresa define cuántas reservas activas puede tener cada uno. | Regla de negocio 1; pantalla `/nueva_reserva` | se llena | 1,5 |
-| `acceso` | La entrada del garage y un celular con el código | Se entra con un QR | El garagista escanea el código al ingreso y a la salida. No hay molinetes ni lectores que instalar. | Propuesta de valor; pantalla `/control-acceso` | avanza | 1,5 |
-| `prueba` | El detalle de consumos, reserva por reserva | Cada consumo queda registrado | Tiempo, tarifa e importe por reserva, con exportación a PDF y Excel. El garage y la empresa ven el mismo detalle. | Pantalla `/admin_pagos` con datos de demostración | se apila | 1,5 |
+| `problema` | La cuadra: autos dando vueltas y un garage a medio llenar | Acuerdos de palabra y vueltas a la manzana | Hoy los acuerdos se arreglan por WhatsApp o en papel, las cocheras quedan vacías y nadie sabe cuánto se usó cada lugar. | `PRODUCT.md`, problema de cada lado | orbita | 1,3 |
+| `idea` | Una línea une la oficina con el garage | Un trato claro entre empresa y garage | La empresa pide plazas para una sede y el dueño del garage acepta o rechaza. Nada se activa sin su confirmación. | Regla de negocio 5; pantalla `/gestion_garages` | se traza | 1,6 |
+| `reserva` | Un nivel del garage: las plazas se van ocupando | Cada persona reserva su lugar | Cada empleado elige día y horario desde el celular. La empresa define cuántas reservas activas puede tener cada uno. | Regla de negocio 1; pantalla `/nueva_reserva` | se llena | 1,6 |
+| `acceso` | La entrada del garage y un celular con el código | Se entra con un QR | El garagista escanea el código al ingreso y a la salida. No hay molinetes ni lectores que instalar. | Propuesta de valor; pantalla `/control-acceso` | avanza | 1,7 |
+| `prueba` | El detalle de consumos, reserva por reserva | Cada consumo queda registrado | Tiempo, tarifa e importe por reserva, con exportación a PDF y Excel. El garage y la empresa ven el mismo detalle. | Pantalla `/admin_pagos` con datos de demostración | se apila | 1,6 |
 | `accion` | La ciudad otra vez, con más garages marcados | Pedí cocheras para tu equipo | Creá la cuenta de tu empresa y pedí plazas en los garages de tu zona. | — | asciende | 1,0 |
 
 CTA: "Registrate", igual en el hero y en `accion`, hacia `/register`. Enlace secundario, más callado: "Tengo un garage", hacia `/para-garages`.
@@ -93,7 +93,14 @@ Se compararon tres estudios sobre el mismo guion, distintos en campo de color, m
 
 **Por qué A.** Es el más propio: `DESIGN.md` ya define la marca como "la claridad de un plano de ingeniería bien ejecutado". Es el que mejor rinde en un celular de gama media, y el zoom por escalas le da al relato un hilo que los otros dos no tienen.
 
-Antes de construir escenas, el estudio A se muestra como mini prototipo navegable (hero y una sección) para confirmarlo.
+El estudio A se mostró como mini prototipo navegable y el dueño del producto lo confirmó el 2026-11-16, con un pedido: transiciones suaves y todo bien fluido.
+
+**Cómo quedó cada escena en el lenguaje del plano:**
+
+- `problema`: autos que dan vueltas a la manzana de la oficina, con la trayectoria punteada.
+- `acceso`: la entrada a escala humana (auto, garagista y portón sin barrera) y el celular con el QR en un detalle ampliado, como los detalles de un plano.
+- `prueba`: sobre cada plaza usada se apilan losas, una por hora de estadía; la tabla de consumos es HTML dentro de la sección, con datos rotulados como de ejemplo.
+- `accion`: cuatro garages más pasan de tinta a azul señal.
 
 ## Comandos
 
@@ -109,9 +116,9 @@ npm run preview
 
 - `src/vistasLanding/Landing.jsx` → sigue siendo la ruta `/` y sigue cargándose sin `lazy()`. Solo contiene la capa DOM.
 - `src/componentesLanding/inmersiva/contenido/secciones.js` → las siete secciones: textos, evidencia y `weight`. Ningún texto queda escrito dentro de los componentes.
-- `src/componentesLanding/inmersiva/scroll/` → `smoothScroll.js`, `useStoryTimeline.js`, `rig.js`. Un solo director escribe `rig`; las escenas solo lo leen.
+- `src/componentesLanding/inmersiva/scroll/` → `smoothScroll.js`, `useStoryTimeline.js`, `rig.js`, más `coreografia.js` (encuadres y fx por sección), `estado.js` (composición pura del estado) y `rangos.js`. Un solo director escribe `rig`; las escenas solo lo leen.
 - `src/componentesLanding/inmersiva/estado/store.js` → sección activa, tier y versión del sitio.
-- `src/componentesLanding/inmersiva/three/` → `Experience.jsx` (se carga con `lazy()`), `CameraRig.jsx`, `escenas/*.jsx`, `paleta.js`.
+- `src/componentesLanding/inmersiva/three/` → `Experience.jsx` (se carga con `lazy()`), `CameraRig.jsx`, `escenas/*.jsx`, `paleta.js`, `mundo.js` (geometría generada), `vivo.js` (estado amortiguado) y `Rotulos.jsx` (rótulos HTML, lente del QR y escala gráfica).
 - `src/componentesLanding/inmersiva/ui/` → `Seccion.jsx`, `Nav.jsx`, `Cta.jsx`.
 - `public/landing/posters/` → imágenes de respaldo para las versiones sin 3D.
 - Tokens nuevos en `@theme` de `src/index.css`; se actualizan junto con `DESIGN.md`.
@@ -183,8 +190,14 @@ Decisión de arquitectura a registrar: un ADR nuevo para la landing con WebGL (s
 - **Buscadores:** no son prioridad. No se suma prerender.
 - **Copy:** el borrador del guion se usa como base.
 - **Landing actual:** no se conserva nada. Se retiran la animación de entrada, la marca de agua del logo, el ticker de métricas y la grilla de tarjetas.
+- **Dirección confirmada sobre el prototipo:** estudio A, con transiciones suaves y fluidas como criterio de calidad. El prototipo queda solo como Artifact; no va al repositorio.
+- **Presupuesto de JS:** los 150 kB gzip aplican solo a la landing. Se mide el JS propio de la landing antes del 3D; el runtime compartido de la app no cuenta.
+- **`ogl`:** se quita de `package.json`.
+- **Dispositivos reales:** no se piden pruebas en celular físico; Core Web Vitals se miden con emulación.
+- **Tema:** la landing se entrega en claro, como define esta spec. La variante en negativo ("cianotipo") que tenía el prototipo queda disponible con `?tema=cianotipo` para decidir si se adopta.
 
 ## Preguntas abiertas
 
-Ninguna. Queda pendiente confirmar el estudio A sobre su mini prototipo antes de escribir el plan técnico.
+- ¿La landing queda siempre en claro o sigue el tema del sistema con la variante cianotipo?
+- Las métricas por defecto de `StatsTicker.jsx` (4.9/5, 2 min, 4.8★, 24/7) ya no se muestran en ninguna página. ¿Se borran del componente?
 

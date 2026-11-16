@@ -73,7 +73,7 @@ Fuente: `src/App.jsx`. Al agregar rutas, actualizar esta tabla en el mismo cambi
 
 | Ruta | Vista | Notas |
 |---|---|---|
-| `/` | `vistasLanding/Landing.jsx` | Única vista eager (primer paint). |
+| `/` | `vistasLanding/Landing.jsx` | Única vista eager (primer paint). Es solo la capa DOM; el 3D se carga con `lazy()` desde `componentesLanding/inmersiva/three/` (ADR-008). Acepta `?sin3d` y `?tema=cianotipo`. |
 | `/para-garages` | `vistasLanding/ParaGarages.jsx` | Lazy. |
 | `/login` | `vistasLanding/Auth.jsx` | Acepta `?redirect=`. |
 | `/register` | `pages/Register.jsx` | Alta pública. |
@@ -201,8 +201,9 @@ Un módulo por recurso (`API_Reserva`, `API_Usuario`, `API_Garage`, ...). Conven
 
 - `DESIGN.md` (raíz) es la especificación: dirección "Azul Señal", tipografías Archivo (display/landing) y DM Sans (producto), radios, sombras, alturas de botón, badges.
 - Los tokens viven en `@theme` de `src/index.css` y generan utilidades `brand-*` (`bg-brand-blue`, `text-brand-muted`, ...). Evitar hex/rgb hardcodeados.
-- Las fuentes se cargan en `index.html` (Google Fonts) con `lang="es-AR"`.
-- `prefers-reduced-motion` está contemplado al menos para el smooth scroll de landing.
+- Las fuentes están autoalojadas: `src/fuentes.css` las declara y `index.html` precarga las dos de la primera pantalla (`lang="es-AR"`).
+- `prefers-reduced-motion` está contemplado en las páginas públicas. En la home, además, la cámara salta por sección y el Canvas renderiza a demanda.
+- La home tiene su propio CSS, `componentesLanding/inmersiva/inmersiva.css`, con todos los selectores bajo `.plano`.
 
 ## Errores y feedback
 
@@ -220,7 +221,7 @@ Un módulo por recurso (`API_Reserva`, `API_Usuario`, `API_Garage`, ...). Conven
 ## Despliegue
 
 - Build estático (`npm run build` → `dist/`) servido en Vercel.
-- `vercel.json`: rewrite de todas las rutas a `index.html` (SPA), cache inmutable para `/assets/*` y caché larga con `stale-while-revalidate` para `/GIF_IMGS_LOGO/*`.
+- `vercel.json`: rewrite de todas las rutas a `index.html` (SPA), cache inmutable para `/assets/*` y caché larga con `stale-while-revalidate` para `/landing/*` (pósters y marca de la home).
 - En producción `VITE_API_URL` debe ser HTTPS; el cliente lo advierte en consola si no lo es.
 
 ## Frontera con el backend

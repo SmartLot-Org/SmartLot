@@ -2,15 +2,15 @@
 
 Contexto de producto para personas y agentes: qué es SmartLot, para quién, qué reglas de negocio respeta y con qué voz se comunica. Es el documento que hay que leer **antes** de escribir UI, copy o features nuevas.
 
-Última revisión: 2026-10-09. Fuentes: landing pública (`src/componentesLanding/`), paneles por rol (`src/vistas*/`), documentación funcional (`docs/`) y el código en `src/`. Si algo no está acá ni en el código, **preguntar, no inventar**.
+Última revisión: 2026-11-16. Fuentes: landing pública (`src/componentesLanding/`), paneles por rol (`src/vistas*/`), documentación funcional (`docs/`) y el código en `src/`. Si algo no está acá ni en el código, **preguntar, no inventar**.
 
 ## Resumen
 
 SmartLot es una plataforma web de gestión de estacionamientos que conecta **empresas que necesitan cocheras para su personal** con **garages que tienen plazas disponibles**. Las empresas solicitan lugar para sus equipos, los dueños de garages aceptan o rechazan tratos, y todo el ciclo —reservas, pagos, control de acceso por QR y consumos— queda registrado en un panel.
 
-Frase canónica (landing): *"Publicás tu garage, las empresas piden lugar para su gente y vos manejás tratos, ocupación y consumos. Sin hardware, sin planillas."*
+Frase canónica para garages (`/para-garages`): *"Publicás tu garage, las empresas piden lugar para su gente y vos manejás tratos, ocupación y consumos. Sin hardware, sin planillas."*
 
-Tagline del hero: **Gestioná. Optimizá. Escalá.**
+Título de la home, que le habla primero a las empresas: **Cocheras para tu equipo, cerca de la oficina.** El lema anterior, "Gestioná. Optimizá. Escalá.", ya no se usa en la home (2026-11-16).
 
 ## Problema que resuelve
 
@@ -103,7 +103,7 @@ Detalle de rutas y autorización: `docs/architecture.md`. Flujos por rol: `docs/
 
 Usados en la landing; **no inventar nuevos ni alterarlos sin pedido** (regla de `docs/pendientes-audit-ui.md`):
 
-- Landing general: satisfacción 4.9/5, tiempo de respuesta 2 min, calificación 4.8★, soporte 24/7 (`StatsTicker.jsx`).
+- Landing general: ninguno. La home nueva no muestra métricas; su prueba es el producto (`docs/specs/SPEC-landing-inmersiva.md`). Los valores 4.9/5, 2 min, 4.8★ y 24/7 siguen como valores por defecto de `StatsTicker.jsx`, sin uso.
 - Para garages: 24 meses de historial, 3 tarifas por vehículo, 100% online sin hardware, exportación PDF+XLS (`ParaGarages.jsx`).
 - Testimonios y casos: sección "Dueños que ya aparecen en el mapa" (`ParaGaragesSocial.jsx`).
 

@@ -1,5 +1,26 @@
 # SmartLot — Paso a paso de todo lo que falta por hacer
 
+> **Estado al 2026-11-16: este plan quedó reemplazado.** La auditoría que describe se hizo de otra
+> forma (medición en navegador por rol, sin subagentes) y su resultado está en
+> [`auditoria-ui-paneles.md`](./auditoria-ui-paneles.md). Este archivo se conserva como registro.
+>
+> **Hecho**
+> - Auditoría de márgenes, jerarquía y organización de los paneles de los cinco roles.
+> - Fase 0: las ocho roturas de layout, corregidas y verificadas.
+> - Landing nueva (`/`), según `docs/specs/SPEC-landing-inmersiva.md` y ADR-008.
+>
+> **Falta** (detalle y orden en `auditoria-ui-paneles.md`, sección 5)
+> 1. Fase 1, fundaciones: tokens de espaciado y tipografía, contenedor y cabecera de página, una sola
+>    cabecera de app, navegación por rol (lateral desde 1024 px) y componentes compartidos. Spec en
+>    `docs/specs/SPEC-fundaciones-ui.md`, pendiente de aprobación.
+> 2. Fase 2, migración de las vistas por rol a esas fundaciones. En superadmin no se tocan colores (ADR-007).
+> 3. Fase 3, jerarquía de cada pantalla según la tarea.
+> 4. Fase 4, copy y pulido.
+> 5. Medir lo que no se midió: rendimiento de los paneles, mapas, lector de QR con cámara y los modales restantes.
+>
+> **Decisiones vigentes:** la raíz tipográfica queda en 18 px; cuando `DESIGN.md` y el código no
+> coinciden, se consulta al dueño del producto antes de elegir.
+
 > **Contexto:** esta sesión inició una auditoría de UI de **todas las vistas routeadas** de SmartLot
 > (pedida como *"check every view and find UI that can be changed for better, list it with the error
 > and where to find it"*, delegada a subagentes tipo `general`). El usuario tuvo que cerrar la sesión,

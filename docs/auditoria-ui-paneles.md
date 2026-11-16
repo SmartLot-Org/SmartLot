@@ -300,7 +300,10 @@ Quedó sin tocar: "Reservado" ya no se muestra en la tarjeta (era el estado por 
 ### Decisiones tomadas (2026-11-16)
 
 - **Navegación:** barra lateral con todas las secciones del rol desde 1024 px; barra inferior opaca en celular. Entra en la spec de la Fase 1.
-- **Landing:** se rehace como sitio inmersivo con 3D y scroll narrativo. Se planifica aparte.
+- **Landing:** se rehace como sitio inmersivo con 3D y scroll narrativo. Construida según `docs/specs/SPEC-landing-inmersiva.md` y ADR-008.
+- **Base tipográfica:** la raíz queda en 18 px (16 px hasta 1024 px). La propuesta de bajarla a 16 px de la sección 2.2 no se aplica. Consecuencia para la Fase 1: los tokens de espaciado y de tipografía se definen en px, no en rem, para que la retícula de 4 px se cumpla con cualquier raíz.
+- **`DESIGN.md` contra el código (sección 4):** no hay una regla general. Cada diferencia se le consulta al dueño del producto antes de elegir qué manda.
+- **Fuentes:** Archivo y DM Sans pasaron a estar autoalojadas (`src/fuentes.css`), con los mismos rangos de peso que servía Google Fonts. Las pilas de fuentes que no se cargan siguen pendientes para la Fase 1.
 
 ## 6. Apéndice: mediciones por vista
 

@@ -115,7 +115,9 @@ Una estética industrial-precisa construida sobre el azul que ya domina el produ
 
 El sistema es **preciso, funcional y consistente**. Prioriza la legibilidad operativa sobre la decoración. El color comunica; la tipografía jerarquiza; el movimiento acompaña.
 
-SmartLot tiene dos registros deliberados: **persuadir** (landing y autenticación, con animación expresiva y superficies de vidrio) y **operar** (paneles por rol, con densidad controlada, scanabilidad y estados claros). Ambos comparten los mismos tokens.
+SmartLot tiene dos registros deliberados: **persuadir** (landing y autenticación) y **operar** (paneles por rol, con densidad controlada, scanabilidad y estados claros). Ambos comparten los mismos tokens.
+
+Dentro de persuadir conviven hoy dos mundos: la home (`/`) es **"Plano"**, un dibujo técnico de la ciudad que se recorre con el scroll (ADR-008), y `/para-garages` y la autenticación conservan las superficies de vidrio hasta su propio rediseño.
 
 **Key Characteristics:**
 
@@ -137,6 +139,13 @@ Un solo acento cromático sobre una base neutra fría; los estados usan semánti
 - **Azul hover** (#156FE5): estado hover del acento, más brillante que el reposo.
 - **Azul presionado** (#1A73E8): estado active/pressed del acento.
 - **Azul cielo** (#93C5FD): bordes y hovers secundarios, avatares.
+
+### Plano (solo la home)
+
+- **Papel**: el fondo (#F5F7FB). **Tinta plena**: azul profundo (#0C1E3F), para títulos y para los objetos que importan del dibujo.
+- **Tinta media** (#7C8BAA) y **tinta tenue** (#CDD6E5): edificios de contexto y manzanas. Son para líneas, nunca para texto.
+- **Azul señal**: en el dibujo marca una sola cosa, un lugar disponible o reservado para vos (contorno de un garage con plazas, recorrido del trato, plazas reservadas).
+- **Cianotipo**: el mismo plano en negativo (papel #0C1E3F, tinta #EAF0FB, tinta media #7389B4, tinta tenue #24406F, señal #8AB4FF, texto secundario #B7C4DD). Hoy solo se ve con `?tema=cianotipo`.
 
 ### Neutral
 
@@ -170,7 +179,8 @@ Un solo acento cromático sobre una base neutra fría; los estados usan semánti
 
 ### Hierarchy
 
-- **Display** (Archivo 600–900, escala fluida): H1/H2 de landing y páginas públicas.
+- **Display** (Archivo 600–900, escala fluida): H1/H2 de landing y páginas públicas. En la home, Archivo 800 con tracking −0,02em: H1 de 32 a 54px y H2 de 24 a 40px.
+- **Carga**: Archivo y DM Sans están autoalojadas (`src/fuentes.css`), con los rangos 400–900 y 400–700.
 - **H1** (DM Sans 500; 56px, tracking −1.68px; ≤1024px: 36px): encabezado principal de producto.
 - **H2** (DM Sans 500; 24px, line-height 118%; ≤1024px: 20px).
 - **Body** (DM Sans 400; 18px/145% base; ≤1024px: 16px).
@@ -186,7 +196,8 @@ Un solo acento cromático sobre una base neutra fría; los estados usan semánti
 
 Modelo **mobile-first** con retícula base de 4px.
 
-- **Landing**: contenedor centrado `max-w-6xl` (1152px) con padding lateral de 24px (`px-6`); grids que colapsan a una columna.
+- **Home (Plano)**: el dibujo queda fijo detrás y el texto va en una nota opaca de hasta 480px, a la izquierda en horizontal y abajo en vertical. Cada sección mide su `weight` en pantallas. Medidas en px sobre retícula de 4.
+- **`/para-garages`**: contenedor centrado `max-w-6xl` (1152px) con padding lateral de 24px (`px-6`); grids que colapsan a una columna.
 - **Paneles de producto**: ancho completo con padding `40px 4%` (`.envoltorio-contenido`, `.admin-dashboard`, `.gestion-garages-container`).
 - **Ritmo espacial**: 4 / 8 / 16 / 24 / 32px para gaps y separaciones; las secciones de landing respiran con 80px verticales (`py-20`).
 - **Breakpoints**: los de Tailwind (sm 640, md 768, lg 1024, xl 1280); el corte tipográfico documentado es 1024px.
@@ -197,7 +208,7 @@ Modelo **mobile-first** con retícula base de 4px.
 
 ## Elevation & Depth
 
-Sistema híbrido: los **paneles de producto son planos** —superficies blancas, borde hairline y sombra solo como respuesta al estado—; la **landing usa profundidad ambiental** con vidrio (blur) sobre el fondo y sombras amplias.
+Sistema híbrido: los **paneles de producto son planos** —superficies blancas, borde hairline y sombra solo como respuesta al estado—; **`/para-garages` y la autenticación usan profundidad ambiental** con vidrio (blur) sobre el fondo y sombras amplias. La **home no usa sombras ni vidrio**: la profundidad la da el dibujo axonométrico, y las notas son papel opaco con borde hairline y radio de 2px.
 
 ### Shadow Vocabulary
 
@@ -210,7 +221,7 @@ Sistema híbrido: los **paneles de producto son planos** —superficies blancas,
 
 **La Regla Plano por Defecto.** Las superficies de producto son planas en reposo. La sombra aparece como respuesta a hover, elevación o foco; nunca decorativa.
 
-**La Regla del Vidrio Solo Landing.** El glassmorphism (`.glass-nav`, `.glass-card`, `bg-noise`) pertenece a las superficies públicas. Los paneles de producto no usan vidrio.
+**La Regla del Vidrio Solo Landing.** El glassmorphism (`.glass-nav`, `.glass-card`, `bg-noise`) pertenece a `/para-garages` y a la autenticación. Ni los paneles de producto ni la home lo usan.
 
 ## Shapes
 
@@ -251,7 +262,8 @@ Cinco variantes —neutral, success, warning, error, info— con radio 6px, padd
 
 ### Navigation
 
-- **Landing:** navbar de vidrio (`.glass-nav`: fondo `rgba(245, 247, 251, 0.75)`, blur 20px, borde inferior hairline).
+- **Home:** barra opaca de papel de 60px con borde inferior hairline (`.plano-barra`).
+- **`/para-garages`:** navbar de vidrio (`.glass-nav`: fondo `rgba(245, 247, 251, 0.75)`, blur 20px, borde inferior hairline).
 - **Producto:** sidebars y footers por rol; el estado activo se marca con azul señal, no solo con color de fondo.
 
 ### Overlays & Feedback
@@ -278,6 +290,7 @@ Componente compartido `EmptyState` obligatorio para todo contenedor vacío, con 
 - **Do** reutilizar componentes compartidos (`EmptyState`, `ModalPortal`, botones y campos existentes) antes de crear nuevos.
 - **Do** acompañar todo estado con texto o ícono además del color.
 - **Do** envolver animaciones en `prefers-reduced-motion` y ofrecer siempre la versión sin movimiento.
+- **Do** en la home, mantener el texto en HTML sobre notas opacas: nunca texto directo sobre el dibujo, y nunca contenido que exista solo en el Canvas.
 - **Do** validar contraste AA (4.5:1 cuerpo, 3:1 grande/UI) antes de cerrar una pantalla.
 - **Do** mantener la copia en español rioplatense con voseo (ver `PRODUCT.md`).
 
