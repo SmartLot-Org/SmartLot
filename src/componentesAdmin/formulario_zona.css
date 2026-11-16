@@ -340,6 +340,11 @@
     width: 100%;
   }
 
+  /* En columna, el flex-basis de 140px pasa a ser alto y deja un hueco entre campos. */
+  .fila-horarios .input-group-time {
+    flex: 0 0 auto;
+  }
+
   .checkbox-24-horas {
     min-height: auto;
     padding-top: 0;

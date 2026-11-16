@@ -58,6 +58,10 @@ html:has(.landing-page) {
   --text-h: #1E293B;
   --bg:     #F5F7FB;
   --border: #E2E8F0;
+  --border-strong: #CBD5E1;
+  --error: #EF4444;
+  --error-strong: #B91C1C;
+  --error-bg: #FEF2F2;
   --code-bg: #f4f3ec;
   --accent: #2563EB;
   --accent-hover: #156FE5;

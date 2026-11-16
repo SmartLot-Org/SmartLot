@@ -5,6 +5,7 @@ import FooterDueñoGarage from "../componentesDueñoGarage/footer_dueño_garage"
 import { CuentasCorrientesDuenoGet, CuentasCorrientesGaragesGet } from "../servicies/API_CuentasCorrientes";
 import { exportarDeudasGarageExcel, exportarDeudasGaragePDF } from "../util/exportar_deudas_garage";
 import EmptyState from "../componentesCompartidos/EmptyState";
+import "./duenio_garage.css";
 import "./cuentas_por_cobrar.css";
 
 const moneda = (n) => new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 2 }).format(n ?? 0);

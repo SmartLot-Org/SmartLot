@@ -250,8 +250,10 @@ function AgregarEmpleado() {
           />
 
         
-        <ReservationLimitFields limited={limited} value={limitValue} onLimitedChange={setLimited} onValueChange={setLimitValue} disabled={loading} />
-        {error && <p className="form-error">{error}</p>}
+        <div className="agregar-empleado-columna">
+          <ReservationLimitFields limited={limited} value={limitValue} onLimitedChange={setLimited} onValueChange={setLimitValue} disabled={loading} />
+          {error && <p className="form-error" role="alert">{error}</p>}
+        </div>
 
         <div className="form-actions">
           <BotonGenerico

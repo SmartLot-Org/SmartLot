@@ -69,3 +69,22 @@
 .agregar-empleado-page .btn-guardar-grande:active {
     transform: translateY(0) scale(0.98);
 }
+
+/* Mismo ancho que la tarjeta del formulario (.formulario-container: 500px),
+   para que el bloque de límite y el error no ocupen todo el ancho de la página. */
+.agregar-empleado-columna {
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.agregar-empleado-page .form-error {
+    margin: 16px 0 0;
+    padding: 12px 16px;
+    border-radius: 10px;
+    background: var(--error-bg);
+    color: var(--error-strong);
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.5;
+    text-align: left;
+}

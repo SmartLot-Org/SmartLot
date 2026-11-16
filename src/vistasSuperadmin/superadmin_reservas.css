@@ -614,3 +614,28 @@
     padding-inline: 11px;
   }
 }
+
+/* Botón "Actualizar": su estilo vivía solo en gestion_usuarios.css y se perdía al entrar directo. */
+.resv-header-actions .btn-archivados {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
+  background: #F1F5F9;
+  color: #475569;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.resv-header-actions .btn-archivados:hover:not(:disabled) {
+  background: #E2E8F0;
+}
+
+.resv-header-actions .btn-archivados:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

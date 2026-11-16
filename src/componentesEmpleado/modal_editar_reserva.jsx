@@ -126,6 +126,11 @@ function ModalEditarReserva({ reservaRaw, reservaNorm, onClose, onActualizada, o
   }, [reservaRaw, onEliminada, onClose]);
 
   const fechaFormateada = formatReservaDate(fechaBase);
+  const vehiculoReserva = reservaNorm?.vehiculo;
+  const vehiculoTexto = [
+    vehiculoReserva?.patente,
+    [vehiculoReserva?.marca, vehiculoReserva?.modelo].filter(Boolean).join(" "),
+  ].filter(Boolean).join(" · ") || "—";
 
 
   return (
@@ -150,8 +155,8 @@ function ModalEditarReserva({ reservaRaw, reservaNorm, onClose, onActualizada, o
           </div>
 
           <div className="modal-reserva-field">
-            <span className="modal-reserva-field-label">Vehiculo</span>
-            <span className="modal-reserva-field-value">{reservaNorm?.plaza || "—"}</span>
+            <span className="modal-reserva-field-label">Vehículo</span>
+            <span className="modal-reserva-field-value">{vehiculoTexto}</span>
           </div>
 
           <div className="modal-reserva-divider" />

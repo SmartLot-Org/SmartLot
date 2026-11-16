@@ -15,6 +15,7 @@ import { UsuariosGetById } from "../servicies/API_Usuario";
 import { GaragesGetAll } from "../servicies/API_Garage";
 import useLiveValidation from "../hooks/useLiveValidation";
 import FieldValidation from "../components/FieldValidation";
+import "./duenio_garage.css";
 import "./perfil_dueño_garage.css";
 
 gsap.registerPlugin(useGSAP);

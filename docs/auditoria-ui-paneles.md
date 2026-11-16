@@ -172,7 +172,7 @@ Severidad: **P1** dificulta la tarea o se ve roto; **P2** molesta y tiene rodeo;
 |---|---|---|---|
 | P1 | No hay versión de escritorio: una columna de 404 a 540 px centrada en 1440 px, con el 72 % de la pantalla vacío. Las cinco pantallas usan tres anchos y tres bordes izquierdos (518, 500 y 450). | `empleados_dashboard.css:31`, `nueva_reserva.css:30`, `formulario_PerfilPersonal.css` | Un solo ancho de columna; desde 1024 px, dos columnas (reservas a la izquierda, vehículos y acciones a la derecha). |
 | P1 | El mes y el estado de la reserva se cortan con "…": "NOVIEM…", "COMPLETA…", "SIN REGIST…". Son textos de 7,5 a 9 px dentro de una caja de 52 a 58 px. | `componentesEmpleado/tarjeta_reserva.css:114-137` y `:182-191` | Mes abreviado ("NOV") a 11 px como mínimo; el estado como badge fuera de la caja de fecha. |
-| P1 | En el modal "Detalle de reserva", la etiqueta "Vehiculo" muestra el número de plaza. | `componentesEmpleado/modal_editar_reserva.jsx:153-154` | Mostrar marca, modelo y patente; la plaza en su propio campo. |
+| P1 | En el modal "Detalle de reserva", el campo "Vehiculo" muestra `reservaNorm.plaza`: el número de plaza cuando la reserva lo trae, y la patente solo cuando no. | `componentesEmpleado/modal_editar_reserva.jsx:153-154` | Mostrar patente, marca y modelo del vehículo. |
 | P1 | La misma tarjeta de reserva se titula con la dirección en el inicio y con el nombre del garage en el historial. | `vistasEmpleados/empleados_dashboard.jsx:221-237` | Nombre del garage como título; dirección como segunda línea. |
 | P2 | En el inicio, la acción principal ("Nueva reserva", 56 px) queda tercera, debajo de "Generar QR" y "Mostrar todas". Son tres controles de ancho completo con tres estilos. | `empleados_dashboard.jsx` | Un botón principal por pantalla; el QR dentro de la tarjeta de la reserva activa. |
 | P2 | El título de página cambia en cada pantalla: 34 px peso 900 a la izquierda, 28 px peso 700, 34 px centrado, 35,1 px. | ver 2.5 | `PageHeader` único. |
@@ -204,7 +204,7 @@ Severidad: **P1** dificulta la tarea o se ve roto; **P2** molesta y tiene rodeo;
 | P2 | Panel de control: métrica-héroe con degradado y franjas laterales de color en filas y tarjetas. | `admin_panel_de_control.css:804`, `:1070`, `:1252` | KPI en fila de tarjetas planas; prioridad como badge. |
 | P2 | Gestión de sedes: un KPI solo ("Total sedes 3") centrado como héroe; "Nueva sede" debajo y a la izquierda; texto centrado junto a ícono a la izquierda. | `gestion_sedes.jsx`, `gestion_sedes.css` | Conteo en el título ("Sedes · 3"); acción en la cabecera. |
 | P2 | Agregar garage: títulos de sección centrados; el campo "Nivel / Planta" corto deja un hueco a su derecha; `width: 200%` en una regla mobile. | `componentesAdmin/formulario_zona.css:322-324` | Grilla de dos columnas con campos de ancho coherente. |
-| P2 | Consumos: a 820 px de ancho la página desborda 128 px hacia la derecha. Causa probable: la grilla de filtros no colapsa entre 700 y 950 px. | `admin_pagos.css:23` | Colapsar la grilla en 960 px. |
+| P2 | Consumos: a 820 px de ancho la página desborda 128 px hacia la derecha. El texto oculto "Acciones" del encabezado de la tabla es `position: absolute` y se escapa del contenedor con scroll, que no está posicionado. | `admin_pagos.css:29` | `position: relative` en `.pagos-table-wrap`. |
 | P2 | Consumos: el subtítulo termina en una raya suelta ("…de tu empresa —"). | `admin_pagos.jsx:246` | Cerrar la frase. |
 | P2 | Modal de límite de reservas: "Cancelar" y "Guardar" son texto plano, sin jerarquía. La leyenda "Reservas vigentes" no describe el control. | `componentesAdmin/ReservationLimitFields.jsx:4`, `ReservationLimitFields.css:10` | Botones del sistema; leyenda "Límite de reservas activas". |
 
@@ -265,16 +265,24 @@ Antes de migrar hay que decidir cuál manda en cada punto, y actualizar los dos 
 
 ## 5. Plan de arreglo
 
-**Fase 0. Roturas (cambios chicos, sin rediseño).**
+**Fase 0. Roturas (cambios chicos, sin rediseño). Aplicada el 2026-11-16.**
 
-1. Importar el CSS faltante en las seis vistas de 2.1.
-2. `formulario_zona.css:332-336`: `flex: 0 0 auto` para la fila de horarios en celular.
-3. `superadmin_gestion_garages.css:121-122`: eliminar el desborde de 12 px.
-4. `admin_pagos.css:23`: colapsar los filtros en tablet.
-5. `modal_editar_reserva.jsx:153-154`: campo de vehículo.
-6. `agregar_empleado.jsx:253`: bloque de límite dentro de la tarjeta; estilo para `form-error`.
-7. `admin_panel_de_control.jsx:571` y `:602`: rótulos de los conteos.
-8. `tarjeta_reserva.css:114-137`: mes y estado sin corte.
+Verificada sobre un build nuevo, entrando directo a cada URL. `npm test`: 121 de 121. El lint de los archivos tocados no suma errores (los 8 de `empleados_dashboard.jsx` ya existían).
+
+1. **CSS faltante.** `cuentas_por_cobrar.jsx` y `perfil_dueño_garage.jsx` importan `duenio_garage.css`. Los estilos de precios pasaron a `componentesCompartidos/FormularioPreciosGarage.css`, que importa el propio componente. El esqueleto de `vistasAdmin/agregar_sede.css` y el botón "Actualizar" de `superadmin_reservas.css` tienen su regla local. "Agregar sede" del superadmin reutiliza el formulario y los botones de "Agregar empresa".
+2. **Horarios en celular.** `formulario_zona.css`: `flex: 0 0 auto` en la fila en columna. El hueco pasó de 102 a 16 px.
+3. **Desborde en garages del superadmin.** `superadmin_gestion_garages.css`: `position: relative` en `.stats-card`. El ícono decorativo no tenía tarjeta de referencia y se salía de la página.
+4. **Desborde en consumos a 820 px.** `admin_pagos.css:29`: `position: relative` en `.pagos-table-wrap`.
+5. **Modal de reserva.** `modal_editar_reserva.jsx`: "Vehículo" muestra patente, marca y modelo.
+6. **Agregar empleado.** El bloque de límite y el error quedan en una columna de 500 px, igual que la tarjeta. `form-error` tiene estilo y `role="alert"`.
+7. **Conteos de conflictos.** "Conflictos reportados (3 sin resolver)" y pestaña "Todos (5)", en admin y en superadmin.
+8. **Tarjeta de reserva.** Mes abreviado a 11 px; "Dentro" pasa a ser un badge de 12 px junto al título; el estado del historial va a 12 px (11 en celular) sin mayúsculas y sin corte.
+
+Se agregaron a `src/index.css` las variables `--border-strong`, `--error`, `--error-strong` y `--error-bg`, que `DESIGN.md` y el ADR-005 ya declaraban.
+
+Un cambio toca color en superadmin y conviene que lo sepas por ADR-007: el botón "Cancelar" de "Agregar sede" tenía un `backgroundColor: "grey"` en línea; se quitó para que use el mismo estilo que el "Cancelar" de "Agregar empresa".
+
+Quedó sin tocar: "Reservado" ya no se muestra en la tarjeta (era el estado por defecto de toda la lista); el copy de los errores de `agregar_empleado.jsx` (emoji y "Revisa la consola") va con la Fase 4.
 
 **Fase 1. Fundaciones.** Requiere spec en `docs/specs/` y un ADR, porque cambia la arquitectura de estilos.
 
@@ -289,9 +297,14 @@ Antes de migrar hay que decidir cuál manda en cada punto, y actualizar los dos 
 
 **Fase 4. Copy y pulido.** Voseo, tildes, nombres consistentes, objetivos táctiles, tamaños mínimos de texto.
 
+### Decisiones tomadas (2026-11-16)
+
+- **Navegación:** barra lateral con todas las secciones del rol desde 1024 px; barra inferior opaca en celular. Entra en la spec de la Fase 1.
+- **Landing:** se rehace como sitio inmersivo con 3D y scroll narrativo. Se planifica aparte.
+
 ## 6. Apéndice: mediciones por vista
 
-Medido a 1440 px sobre el build de producción. "Fuera de grilla" es el porcentaje de paddings, márgenes y gaps que no es múltiplo de 4 px.
+Medido a 1440 px sobre el build de producción, antes de aplicar la Fase 0. "Fuera de grilla" es el porcentaje de paddings, márgenes y gaps que no es múltiplo de 4 px.
 
 | Rol | Vista | Borde izq. y ancho del contenido | Título: px, peso, alineación | Tamaños de fuente | Fuera de grilla | Alturas de botón | Margen lateral a 390 px |
 |---|---|---|---|---|---|---|---|
