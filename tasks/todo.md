@@ -49,6 +49,7 @@ Cada tarea cierra con su verificación. Estado al 2026-11-16.
 ## Retoques del 2026-11-17
 
 - [x] Hero con una sola acción; "Para garages" como enlace simple en la barra y el pie (`design-taste-frontend`).
+- [x] Barra en tres niveles (principal, secundario con borde y navegación) y de 72 px; el brillo del botón de la barra no sale de ella. Revisado con `review-animations` y `vercel-react-best-practices`.
 - [x] Sin escala gráfica de metros.
 - [x] Brillo y barrido de luz en "Registrate", como el botón de la landing anterior (`emil-design-eng`).
 - [x] "Ver sin 3D" solo con movimiento reducido.

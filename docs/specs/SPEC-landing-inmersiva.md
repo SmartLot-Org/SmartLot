@@ -197,6 +197,7 @@ Decisión de arquitectura a registrar: un ADR nuevo para la landing con WebGL (s
 - **Tema (2026-11-17):** la landing es siempre clara. La variante en negativo ("cianotipo") del prototipo se retiró del código.
 - **Retoques del dueño del producto (2026-11-17):**
   - "Tengo un garage" salía como enlace azul subrayado en la barra y en el hero. Ahora el hero tiene una sola acción y el lado del garage es el enlace "Para garages", sin subrayado, en la barra y en el pie.
+  - Barra con jerarquía: "Registrate" es el botón principal; "Iniciar sesión", el secundario con borde; "Para garages" es navegación en gris junto a la marca. La barra vuelve a 72 px en escritorio (64 en celular) y el brillo del botón de la barra queda adentro.
   - Se retiró la escala gráfica de metros (abajo a la derecha en escritorio, arriba en celular). La cota de 300 m del recorrido queda.
   - El botón "Registrate" recupera el brillo de la landing anterior: una sombra azul en reposo, una más intensa en hover y un barrido de luz de 700 ms al pasar el mouse. Va contra la regla de `design-taste-frontend` de no poner brillos; manda el pedido del dueño. Sin barrido con movimiento reducido.
   - La opción "Ver sin 3D" del pie solo aparece con movimiento reducido (o si ya se está en esa versión, para poder volver). `?sin3d` sigue funcionando.

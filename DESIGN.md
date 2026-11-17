@@ -265,7 +265,7 @@ Cinco variantes —neutral, success, warning, error, info— con radio 6px, padd
 
 ### Navigation
 
-- **Home:** barra opaca de papel de 60px con borde inferior hairline (`.plano-barra`): marca, "Para garages" e "Iniciar sesión" como enlaces simples en tinta (subrayado solo en hover) y el botón "Registrate". El hero tiene una sola acción.
+- **Home:** barra opaca de papel con borde inferior hairline (`.plano-barra`), de 72px en escritorio y 64px en celular. Tres niveles: "Registrate" (botón principal con brillo), "Iniciar sesión" (botón secundario con borde, 44px como el principal) y "Para garages" (navegación en texto secundario, junto a la marca y separada de las acciones; en celular pasa al pie). El brillo del botón de la barra es más corto para no salir de la barra. El hero tiene una sola acción.
 - **`/para-garages`:** navbar de vidrio (`.glass-nav`: fondo `rgba(245, 247, 251, 0.75)`, blur 20px, borde inferior hairline).
 - **Producto:** sidebars y footers por rol; el estado activo se marca con azul señal, no solo con color de fondo.
 
