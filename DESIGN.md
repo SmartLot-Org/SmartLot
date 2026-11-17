@@ -210,7 +210,7 @@ Modelo **mobile-first** con retícula base de 4px.
 
 ## Elevation & Depth
 
-Sistema híbrido: los **paneles de producto son planos** —superficies blancas, borde hairline y sombra solo como respuesta al estado—; **`/para-garages` y la autenticación usan profundidad ambiental** con vidrio (blur) sobre el fondo y sombras amplias. La **home no usa sombras ni vidrio**: la profundidad la da el dibujo axonométrico, y las notas son papel opaco con borde hairline y radio de 2px.
+Sistema híbrido: los **paneles de producto son planos** —superficies blancas, borde hairline y sombra solo como respuesta al estado—; **`/para-garages` y la autenticación usan profundidad ambiental** con vidrio (blur) sobre el fondo y sombras amplias. La **home no usa sombras ni vidrio**: la profundidad la da el dibujo axonométrico, y las notas son papel opaco con borde hairline y radio de 2px. La única excepción es el botón principal, que lleva el brillo azul del CTA: sombra de la señal al 30% en reposo y al 40% en hover, con un barrido de luz al pasar el mouse (pedido del dueño del producto, 2026-11-17).
 
 ### Shadow Vocabulary
 
@@ -265,7 +265,7 @@ Cinco variantes —neutral, success, warning, error, info— con radio 6px, padd
 
 ### Navigation
 
-- **Home:** barra opaca de papel de 60px con borde inferior hairline (`.plano-barra`).
+- **Home:** barra opaca de papel de 60px con borde inferior hairline (`.plano-barra`): marca, "Para garages" e "Iniciar sesión" como enlaces simples en tinta (subrayado solo en hover) y el botón "Registrate". El hero tiene una sola acción.
 - **`/para-garages`:** navbar de vidrio (`.glass-nav`: fondo `rgba(245, 247, 251, 0.75)`, blur 20px, borde inferior hairline).
 - **Producto:** sidebars y footers por rol; el estado activo se marca con azul señal, no solo con color de fondo.
 

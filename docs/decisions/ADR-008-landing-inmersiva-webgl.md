@@ -44,10 +44,12 @@ Restricciones: la app es una SPA en JavaScript sin SSR (ADR-001), la landing es 
    primer render. El escenario 3D es decorativo (`aria-hidden`) y entra con un fundido cuando ya
    dibujó su primer frame. El contenido vive en `contenido/secciones.js`.
 5. **La versión se decide antes del primer render** (`asegurarInicio()` en `estado/store.js`), no en un efecto: así el layout no salta al pasar a la versión sin 3D y el chunk 3D no se pide cuando no se va a usar. Es posible porque la app no tiene SSR.
-6. **Cuatro versiones.** Normal; sin 3D (`?sin3d` o el botón del pie), con pósters de
+6. **Cuatro versiones.** Normal; sin 3D (`?sin3d`, o el botón del pie, que solo aparece con movimiento reducido), con pósters de
    `public/landing/posters/`; movimiento reducido (la cámara salta por sección y el Canvas renderiza
    a demanda); y estática (sin WebGL2, con ahorro de datos o si se pierde el contexto). En las
-   versiones sin 3D el chunk 3D no se descarga.
+   versiones sin 3D el chunk 3D no se descarga. Al salir de la landing, R3F libera el contexto a
+   propósito con el lienzo ya fuera de la página: ese evento se ignora. Una pérdida real deja la
+   versión estática solo hasta la próxima visita a la landing.
 7. **Estilos.** Tokens nuevos en `@theme` (`--color-plano-*`) y un CSS propio,
    `inmersiva/inmersiva.css`, con todos los selectores bajo `.plano`. Los colores del dibujo salen
    de esos mismos tokens (`three/paleta.js` los lee del DOM).

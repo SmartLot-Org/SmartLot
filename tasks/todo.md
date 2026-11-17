@@ -46,6 +46,15 @@ Cada tarea cierra con su verificación. Estado al 2026-11-16.
 - [x] Repaso de rendimiento de React: el 3D entra por `lazy()`; la librería de Google Maps salió del bundle de entrada; los componentes leen campos sueltos del store; lo que cambia en cada frame se escribe por ref, sin estado de React. Falta la pasada formal con la skill `vercel-react-best-practices`.
 - [x] `npm test`, lint de lo tocado y `npm run build`.
 
+## Retoques del 2026-11-17
+
+- [x] Hero con una sola acción; "Para garages" como enlace simple en la barra y el pie (`design-taste-frontend`).
+- [x] Sin escala gráfica de metros.
+- [x] Brillo y barrido de luz en "Registrate", como el botón de la landing anterior (`emil-design-eng`).
+- [x] "Ver sin 3D" solo con movimiento reducido.
+- [x] Ida y vuelta de la landing sin caer en la versión estática: probado nueve veces seguidas (`web-inmersiva`).
+- [x] Textos de 12 px que se leen ("Datos de ejemplo", encabezados de la tabla) pasan a 13 px.
+
 ## Decisiones del dueño del producto (2026-11-17)
 
 - [x] La landing es siempre clara: se retiró la variante cianotipo (estilos, tokens y pósters).

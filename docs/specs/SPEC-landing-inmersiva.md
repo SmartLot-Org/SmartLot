@@ -55,7 +55,7 @@ Los títulos y cuerpos se aprobaron como base del copy. Los `weight` se ajustaro
 | `prueba` | El detalle de consumos, reserva por reserva | Cada consumo queda registrado | Tiempo, tarifa e importe por reserva, con exportación a PDF y Excel. El garage y la empresa ven el mismo detalle. | Pantalla `/admin_pagos` con datos de demostración | se apila | 1,6 |
 | `accion` | La ciudad otra vez, con más garages marcados | Pedí cocheras para tu equipo | Creá la cuenta de tu empresa y pedí plazas en los garages de tu zona. | — | asciende | 1,0 |
 
-CTA: "Registrate", igual en el hero y en `accion`, hacia `/register`. Enlace secundario, más callado: "Tengo un garage", hacia `/para-garages`.
+CTA: "Registrate", igual en el hero y en `accion`, hacia `/register`. El hero lleva solo esa acción. El lado del dueño de garage es un enlace simple, "Para garages", en la barra (escritorio) y en el pie (todos los tamaños), hacia `/para-garages`.
 
 ## Dirección de arte
 
@@ -195,6 +195,12 @@ Decisión de arquitectura a registrar: un ADR nuevo para la landing con WebGL (s
 - **`ogl`:** se quita de `package.json`.
 - **Dispositivos reales:** no se piden pruebas en celular físico; Core Web Vitals se miden con emulación.
 - **Tema (2026-11-17):** la landing es siempre clara. La variante en negativo ("cianotipo") del prototipo se retiró del código.
+- **Retoques del dueño del producto (2026-11-17):**
+  - "Tengo un garage" salía como enlace azul subrayado en la barra y en el hero. Ahora el hero tiene una sola acción y el lado del garage es el enlace "Para garages", sin subrayado, en la barra y en el pie.
+  - Se retiró la escala gráfica de metros (abajo a la derecha en escritorio, arriba en celular). La cota de 300 m del recorrido queda.
+  - El botón "Registrate" recupera el brillo de la landing anterior: una sombra azul en reposo, una más intensa en hover y un barrido de luz de 700 ms al pasar el mouse. Va contra la regla de `design-taste-frontend` de no poner brillos; manda el pedido del dueño. Sin barrido con movimiento reducido.
+  - La opción "Ver sin 3D" del pie solo aparece con movimiento reducido (o si ya se está en esa versión, para poder volver). `?sin3d` sigue funcionando.
+  - Ir a otra página y volver dejaba a veces la landing en la versión estática: la liberación intencional del contexto WebGL al salir se tomaba como una falla. Ahora se ignora si el lienzo ya no está en la página, y una pérdida real vale solo para esa visita.
 - **Datos inventados (2026-11-17):** se borraron las métricas por defecto de `StatsTicker.jsx` (4.9/5, 2 min, 4.8★, 24/7) y los tres testimonios de `/para-garages`. Las cuatro cifras de capacidades de `/para-garages` quedan porque se verificaron en el código: 24 meses en el selector de período, tres tarifas (auto, moto y pickup) y exportación a PDF y Excel.
 
 ## Preguntas abiertas
