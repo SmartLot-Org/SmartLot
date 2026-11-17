@@ -15,7 +15,7 @@ La app routea ~48 vistas, muchas de ellas paneles que un usuario promedio nunca 
 ## Decisión
 
 - Todas las vistas se registran con `lazy()` y se renderizan dentro de `<Suspense fallback={<RouteFallback />}>`, **excepto la Landing**, que se importa eager para evitar un round-trip antes del primer paint.
-- Dependencias pesadas se importan dinámicamente en el punto de uso: SweetAlert2 en el interceptor de errores; el SDK de Google Maps solo cuando una vista llama `requestMapsLoad()`.
+- Dependencias pesadas se importan dinámicamente en el punto de uso: SweetAlert2 en el interceptor de errores; el SDK de Google Maps solo cuando una vista llama `requestMapsLoad()` (desde 2026-11-16 también la librería `@react-google-maps/api`: el puente `MapsLoaderBridge` se importa con `lazy()`, ver ADR-008).
 - La configuración del loader de Google Maps es única y centralizada (`GoogleMapsProvider`), con idioma `es` y región `AR`.
 
 ## Alternativas consideradas

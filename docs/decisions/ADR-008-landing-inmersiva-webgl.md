@@ -43,18 +43,19 @@ Restricciones: la app es una SPA en JavaScript sin SSR (ADR-001), la landing es 
 4. **El HTML es el contenido.** El título, el texto y la CTA de cada sección son HTML y se ven en el
    primer render. El escenario 3D es decorativo (`aria-hidden`) y entra con un fundido cuando ya
    dibujó su primer frame. El contenido vive en `contenido/secciones.js`.
-5. **Cuatro versiones.** Normal; sin 3D (`?sin3d` o el botón del pie), con pósters de
+5. **La versión se decide antes del primer render** (`asegurarInicio()` en `estado/store.js`), no en un efecto: así el layout no salta al pasar a la versión sin 3D y el chunk 3D no se pide cuando no se va a usar. Es posible porque la app no tiene SSR.
+6. **Cuatro versiones.** Normal; sin 3D (`?sin3d` o el botón del pie), con pósters de
    `public/landing/posters/`; movimiento reducido (la cámara salta por sección y el Canvas renderiza
    a demanda); y estática (sin WebGL2, con ahorro de datos o si se pierde el contexto). En las
    versiones sin 3D el chunk 3D no se descarga.
-6. **Estilos.** Tokens nuevos en `@theme` (`--color-plano-*`) y un CSS propio,
+7. **Estilos.** Tokens nuevos en `@theme` (`--color-plano-*`) y un CSS propio,
    `inmersiva/inmersiva.css`, con todos los selectores bajo `.plano`. Los colores del dibujo salen
    de esos mismos tokens (`three/paleta.js` los lee del DOM).
-7. **Fuentes autoalojadas** para toda la app (`src/fuentes.css`, paquetes
+8. **Fuentes autoalojadas** para toda la app (`src/fuentes.css`, paquetes
    `@fontsource-variable/archivo` y `@fontsource-variable/dm-sans`). Se declara el mismo rango de
    pesos que servía Google Fonts (Archivo 400–900, DM Sans 400–700) para que los paneles no cambien
    de aspecto. `index.html` precarga los dos archivos de la primera pantalla.
-8. **Presupuestos.** Chunk 3D: hasta 350 kB gzip. JS propio de la landing antes del 3D (capa DOM,
+9. **Presupuestos.** Chunk 3D: hasta 350 kB gzip. JS propio de la landing antes del 3D (capa DOM,
    Lenis y zustand): hasta 150 kB gzip. El runtime compartido con el resto de la app (React, router,
    cliente HTTP, sesión, Google Maps) queda fuera de ese límite por decisión del dueño del producto.
 
@@ -72,6 +73,7 @@ Restricciones: la app es una SPA en JavaScript sin SSR (ADR-001), la landing es 
 ## Consecuencias
 
 - Seis dependencias nuevas de runtime y dos de fuentes. Se quitó `ogl`, que no se usaba.
+- Medido sobre el build del 2026-11-16: JS de entrada 159 kB gzip (antes de la landing nueva, 173 kB), de los cuales unos 12 kB son propios de la landing; chunk 3D 254 kB gzip. Para llegar a ese número, el puente de Google Maps (`contexts/MapsLoaderBridge.jsx`) pasó a cargarse con `lazy()`: la librería `@react-google-maps/api` estaba en el bundle de entrada de todas las rutas, en contra de lo que pide ADR-006.
 - `public/` baja 11 MB (los fotogramas del logo) y suma unos 0,7 MB de pósters.
 - La landing ya no depende de Google Fonts ni de ningún otro dominio.
 - `three` es grande: el chunk 3D pesa unos 250 kB gzip. Se descarga después del primer render y solo

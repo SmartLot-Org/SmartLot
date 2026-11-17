@@ -34,6 +34,8 @@ typography:
     fontFamily: "JetBrains Mono, Consolas, monospace"
     fontWeight: 400
 rounded:
+  plano-nota: "2px"
+  plano-senal: "3px"
   sm: "6px"
   md: "10px"
   lg: "14px"
@@ -227,6 +229,7 @@ Sistema híbrido: los **paneles de producto son planos** —superficies blancas,
 
 Lenguaje de esquinas suaves y consistentes: radios **6px** (badges, inputs), **10px** (botones, tarjetas), **14px** (paneles grandes) y **full** (pills, avatares). La landing usa radios más expresivos (hasta 24px) en sus tarjetas de vidrio.
 
+- **Home (Plano):** esquinas casi rectas, como en un plano: 2px en las notas (`plano-nota`) y 3px en el cartel "E" (`plano-senal`). Los botones de la home siguen en 10px.
 - Bordes de 1px, color tokenizado; el borde fuerte se reserva para foco.
 - Sin side-stripes de color, sin esquinas mezcladas dentro de un mismo grupo de controles.
 - Las pills (badges, CTAs de landing) usan radio full; los controles de formulario nunca son pills.

@@ -38,11 +38,13 @@ Cada tarea cierra con su verificación. Estado al 2026-11-16.
 
 ## Etapa 7 — Verificación
 
-- [ ] Recorrido hacia adelante, hacia atrás y con tirón rápido en ambos tamaños.
-- [ ] Presupuestos sobre el build y Core Web Vitals con emulación de celular.
-- [ ] Teclado, foco y contraste.
-- [ ] Pasada de `impeccable audit` y de `vercel-react-best-practices`.
-- [ ] `npm test`, lint de lo tocado y `npm run build`.
+- [x] Recorrido hacia adelante, hacia atrás y con tirón rápido: cada punto del relato se ve idéntico (comparación de píxeles en 1280×720); recorrido visual en 390×844.
+- [x] Presupuestos sobre el build: entrada 159 kB gzip, chunk 3D 254 kB gzip.
+- [x] Core Web Vitals con emulación (Pixel 7, CPU ×4, 1,6 Mbps): LCP 2,0 s y CLS 0,006 en la versión normal; LCP 2,4 s y CLS 0 sin 3D. Interacciones entre 24 y 290 ms con render por software; falta medir INP en un equipo con GPU.
+- [x] Teclado, foco y contraste: orden de tabulación igual al visual, foco visible en todos los controles, contraste mínimo 4,82:1, ningún control por debajo de 44 px.
+- [x] Detector de `impeccable` sobre el código y sobre la página servida (`?sin3d`, escritorio): sin hallazgos después de documentar los radios del plano y sumar `text-wrap` a títulos y párrafos. La versión con 3D no terminó de cargar dentro del límite del detector en este contenedor (render por software).
+- [x] Repaso de rendimiento de React: el 3D entra por `lazy()`; la librería de Google Maps salió del bundle de entrada; los componentes leen campos sueltos del store; lo que cambia en cada frame se escribe por ref, sin estado de React. Falta la pasada formal con la skill `vercel-react-best-practices`.
+- [x] `npm test`, lint de lo tocado y `npm run build`.
 
 ## Preguntas para el dueño del producto
 
