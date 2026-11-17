@@ -33,7 +33,7 @@ const PagosCrearPreferenciaReserva = async (idReserva) => {
 
 // Verifica el pago contra Mercado Pago y sincroniza el registro local. Es un POST porque
 // escribe: el GET del backend solo lee el estado que ya está guardado.
-const PagosGetById = async (paymentId, contexto = {}) => {
+const PagosVerificar = async (paymentId, contexto = {}) => {
 
     let returnObject = { respuesta: false, datos: null };
 
@@ -147,7 +147,7 @@ const PagosWebhookEventos = async () => {
 export {
     PagosCrearPreferencia,
     PagosCrearPreferenciaReserva,
-    PagosGetById,
+    PagosVerificar,
     PagosBuscar,
     PagosReembolsar,
     PagosWebhookEventos

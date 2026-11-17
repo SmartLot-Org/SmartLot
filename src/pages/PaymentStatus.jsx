@@ -16,7 +16,7 @@ import {
   XCircle,
 } from "lucide-react";
 import Swal from "sweetalert2";
-import { PagosBuscar, PagosGetById } from "../servicies/API_Pagos";
+import { PagosBuscar, PagosVerificar } from "../servicies/API_Pagos";
 import { ReservasGetById, ReservasLiberarRetencion } from "../servicies/API_Reserva";
 
 const formatearImporte = (importe) =>
@@ -127,7 +127,7 @@ export default function PaymentStatus() {
     setLoading(true);
     setError(null);
     setPago(null);
-    const res = await PagosGetById(String(pid).trim(), {
+    const res = await PagosVerificar(String(pid).trim(), {
       external_reference: fallbackExternalRef || params.externalReference || undefined,
       preference_id: params.preferenceId || undefined,
     });
@@ -184,7 +184,7 @@ export default function PaymentStatus() {
       return;
     }
     // Ahora verificar el detalle completo
-    const verif = await PagosGetById(pid);
+    const verif = await PagosVerificar(pid);
     setBuscandoPorOrder(false);
     if (!verif.respuesta) {
       setError({ tipo: "api", mensaje: verif.datos?.message || "Se encontró el pago pero no se pudo verificar el detalle" });
