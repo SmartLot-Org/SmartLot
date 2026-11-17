@@ -50,7 +50,7 @@ const M = 3.4;
 
 // Nodos de la capa HTML. Los registra Rotulos al montarse y los mueve Proyector
 // en cada frame; viven fuera de React porque se escriben 60 veces por segundo.
-const nodo = { capa: null, lente: null, haz: null, sello: null, pie: null, barra: null, escala: null };
+const nodo = { capa: null, lente: null, haz: null, sello: null, pie: null };
 const registrar = (clave) => (el) => { nodo[clave] = el; };
 
 function Lente() {
@@ -75,30 +75,22 @@ function Lente() {
   );
 }
 
-// Capa HTML de los rótulos, la lente de detalle y la escala gráfica.
+// Capa HTML de los rótulos y la lente de detalle.
 export function Rotulos() {
   return (
-    <>
-      <div ref={registrar('capa')} className="plano-rotulos">
-        {ROTULADOS.map((r) => <span key={r.id} className={r.clase}>{r.texto}</span>)}
-        <Lente />
-      </div>
-      <div className="plano-escala">
-        <i ref={registrar('barra')} />
-        <span ref={registrar('escala')} />
-      </div>
-    </>
+    <div ref={registrar('capa')} className="plano-rotulos">
+      {ROTULADOS.map((r) => <span key={r.id} className={r.clase}>{r.texto}</span>)}
+      <Lente />
+    </div>
   );
 }
-
-const TRAMOS = [1000, 500, 200, 100, 50, 20, 10, 5, 2, 1];
 
 // Va dentro del Canvas: proyecta las anclas con la cámara de cada frame y mueve
 // los rótulos por ref (transform y opacity), sin pasar por React.
 export function Proyector() {
   const size = useThree((s) => s.size);
   const v = useMemo(() => new Vector3(), []);
-  const previo = useRef({ escala: 0, ancho: 0, lado: 0 });
+  const previo = useRef({ lado: 0 });
 
   useEffect(() => { previo.current.lado = nodo.lente?.offsetWidth ?? 0; }, [size]);
 
@@ -138,19 +130,6 @@ export function Proyector() {
       nodo.sello.setAttribute('opacity', hecho.toFixed(2));
       nodo.sello.style.transform = `scale(${(0.9 + 0.1 * hecho).toFixed(3)})`;
       nodo.pie.style.opacity = hecho.toFixed(2);
-    }
-
-    // Escala gráfica: cuántos metros representa el segmento con el zoom actual.
-    const metrosPorPx = 10 / vivo.pxPorUnidad;
-    const tramo = TRAMOS.find((m) => m / metrosPorPx <= 120) ?? 1;
-    const ancho = Math.round(tramo / metrosPorPx);
-    if (tramo !== previo.current.escala) {
-      previo.current.escala = tramo;
-      nodo.escala.textContent = tramo >= 1000 ? `${tramo / 1000} km` : `${tramo} m`;
-    }
-    if (ancho !== previo.current.ancho) {
-      previo.current.ancho = ancho;
-      nodo.barra.style.width = `${ancho}px`;
     }
   });
   return null;

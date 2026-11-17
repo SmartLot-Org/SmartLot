@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../../../contexts/useAuth';
 import { getUserHomeRoute } from '../../../helpers/roles';
 import { NAVEGACION } from '../contenido/secciones';
-import { Cta, EnlaceGarage } from './Cta';
+import { BotonBrillo, Cta, EnlaceGarage } from './Cta';
 
 export function Nav() {
   const { usuario } = useAuth();
@@ -16,12 +16,10 @@ export function Nav() {
       <nav aria-label="Principal">
         <span className="plano-barra__ancho"><EnlaceGarage /></span>
         {usuario ? (
-          <Link to={getUserHomeRoute(usuario)} className="plano-boton plano-boton--chico">
-            {NAVEGACION.panel}
-          </Link>
+          <BotonBrillo to={getUserHomeRoute(usuario)} chico>{NAVEGACION.panel}</BotonBrillo>
         ) : (
           <>
-            <Link to={NAVEGACION.ingresar.destino} className="plano-enlace plano-enlace--tinta">
+            <Link to={NAVEGACION.ingresar.destino} className="plano-enlace">
               {NAVEGACION.ingresar.etiqueta}
             </Link>
             <Cta chico />

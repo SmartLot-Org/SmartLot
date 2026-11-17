@@ -7,8 +7,10 @@ export const useUI = create((set) => ({
   tier: 'high',
   sin3d: false,
   inicializado: false, // false hasta asegurarInicio: Landing no monta el 3D antes
+  contextoPerdido: false,
   setSeccion: (seccion) => set({ seccion }),
   setTier: (tier) => set({ tier }),
+  perderContexto: () => set({ tier: 'static', contextoPerdido: true }),
   alternarSin3d: () => set((s) => ({ sin3d: !s.sin3d })),
 }));
 
@@ -29,13 +31,23 @@ export function initialTier() {
 // que el chunk 3D se pida cuando no se va a usar (tier estático o ?sin3d) y que
 // el layout salte del modo con 3D al modo sin 3D después de pintar.
 export function asegurarInicio() {
-  if (!useUI.getState().inicializado) initUIFromBrowser();
+  const estado = useUI.getState();
+  if (!estado.inicializado) {
+    initUIFromBrowser();
+    return;
+  }
+  // Una pérdida del contexto WebGL vale para esa visita: al volver a la landing se
+  // intenta el 3D otra vez con el tier que se midió al llegar.
+  if (estado.contextoPerdido) useUI.setState({ tier: tierDeLlegada, contextoPerdido: false });
 }
+
+let tierDeLlegada = 'high';
 
 function initUIFromBrowser() {
   const q = new URLSearchParams(window.location.search);
+  tierDeLlegada = initialTier();
   useUI.setState({
-    tier: initialTier(),
+    tier: tierDeLlegada,
     sin3d: q.has('sin3d'),
     inicializado: true,
   });

@@ -11,7 +11,7 @@ export const META = {
 // Una sola acción principal, con la misma etiqueta en el hero, la barra y el cierre.
 export const CTA = {
   principal: { etiqueta: 'Registrate', destino: '/register' },
-  secundaria: { etiqueta: 'Tengo un garage', destino: '/para-garages' },
+  secundaria: { etiqueta: 'Para garages', destino: '/para-garages' },
 };
 
 export const NAVEGACION = {

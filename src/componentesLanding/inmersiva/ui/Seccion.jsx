@@ -2,7 +2,7 @@ import { useRef } from 'react';
 import { useGSAP } from '@gsap/react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { Cta, EnlaceGarage } from './Cta';
+import { Cta } from './Cta';
 import { Dato } from './Dato';
 import { TablaConsumos } from './TablaConsumos';
 
@@ -41,7 +41,6 @@ export function Seccion({ s, i, ultima, sinEscena }) {
         {s.cta && (
           <div className="plano-acciones">
             <Cta />
-            {i === 0 && <EnlaceGarage />}
           </div>
         )}
       </div>

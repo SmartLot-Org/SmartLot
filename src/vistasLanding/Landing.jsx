@@ -5,8 +5,10 @@ import 'lenis/dist/lenis.css';
 import '../componentesLanding/inmersiva/inmersiva.css';
 import { META, NAVEGACION, SECCIONES } from '../componentesLanding/inmersiva/contenido/secciones';
 import { initSmoothScroll } from '../componentesLanding/inmersiva/scroll/smoothScroll';
+import { useMovimientoReducido } from '../componentesLanding/inmersiva/estado/useMovimientoReducido';
 import { useStoryTimeline } from '../componentesLanding/inmersiva/scroll/useStoryTimeline';
 import { asegurarInicio, useUI } from '../componentesLanding/inmersiva/estado/store';
+import { EnlaceGarage } from '../componentesLanding/inmersiva/ui/Cta';
 import { Nav } from '../componentesLanding/inmersiva/ui/Nav';
 import { Seccion } from '../componentesLanding/inmersiva/ui/Seccion';
 import usePageMeta from '../hooks/usePageMeta';
@@ -20,6 +22,7 @@ export default function LandingPage() {
   const sin3d = useUI((s) => s.sin3d);
   const inicializado = useUI((s) => s.inicializado);
   const alternarSin3d = useUI((s) => s.alternarSin3d);
+  const reducido = useMovimientoReducido();
   // lazy() pide el chunk 3D recién cuando se renderiza Experience. Sin WebGL, con
   // ahorro de datos, con ?sin3d o si se pierde el contexto, queda la versión
   // estática y el chunk no se descarga.
@@ -48,7 +51,10 @@ export default function LandingPage() {
       <footer className="plano-pie">
         <p>© {new Date().getFullYear()} {NAVEGACION.marca}. {NAVEGACION.pie}</p>
         <div>
-          {tier !== 'static' && (
+          <EnlaceGarage />
+          {/* La versión sin 3D se ofrece solo con movimiento reducido. Si ya se está en
+              ella (por ejemplo con ?sin3d), el botón queda para poder volver. */}
+          {tier !== 'static' && (reducido || sin3d) && (
             <button type="button" className="plano-enlace" onClick={cambiarVersion} aria-pressed={sin3d}>
               {sin3d ? NAVEGACION.sin3d.desactivar : NAVEGACION.sin3d.activar}
             </button>

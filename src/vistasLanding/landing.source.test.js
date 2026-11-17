@@ -10,6 +10,8 @@ const nav = await inmersiva('ui/Nav.jsx');
 const experience = await inmersiva('three/Experience.jsx');
 const store = await inmersiva('estado/store.js');
 const estilos = await inmersiva('inmersiva.css');
+const rotulos = await inmersiva('three/Rotulos.jsx');
+const cta = await inmersiva('ui/Cta.jsx');
 const ticker = await readFile(new URL('../componentesLanding/landing/StatsTicker.jsx', import.meta.url), 'utf8');
 const particles = await readFile(new URL('../componentesLanding/landing/InteractiveBackground.jsx', import.meta.url), 'utf8');
 const app = await readFile(new URL('../App.jsx', import.meta.url), 'utf8');
@@ -157,3 +159,33 @@ test('la landing vieja se retiró sin dejar archivos ni referencias', () => {
   assert.doesNotMatch(landing, /componentesLanding\/landing\//);
   assert.doesNotMatch(indexHtml, /fonts\.googleapis|fonts\.gstatic/);
 });
+
+test('el hero tiene una sola acción y el lado del garage es un enlace simple en la barra y el pie', () => {
+  assert.doesNotMatch(seccion, /EnlaceGarage/);
+  assert.match(nav, /<EnlaceGarage \/>/);
+  assert.match(landing, /<footer className="plano-pie">[\s\S]*<EnlaceGarage \/>/);
+  assert.doesNotMatch(estilos, /text-decoration: underline;\n {2}text-underline-offset/);
+});
+
+test('no queda la escala gráfica de metros', () => {
+  assert.doesNotMatch(rotulos, /plano-escala|TRAMOS/);
+  assert.doesNotMatch(estilos, /plano-escala/);
+});
+
+test('la opción sin 3D solo se ofrece con movimiento reducido (o para volver de ella)', () => {
+  assert.match(landing, /tier !== 'static' && \(reducido \|\| sin3d\) &&/);
+  assert.match(landing, /useMovimientoReducido\(\)/);
+});
+
+test('salir de la landing no la deja sin 3D: se ignora la liberación intencional del contexto', () => {
+  assert.match(experience, /if \(!lienzo\.isConnected\) return;/);
+  assert.match(store, /if \(estado\.contextoPerdido\) useUI\.setState\(\{ tier: tierDeLlegada, contextoPerdido: false \}\)/);
+});
+
+test('el botón principal tiene el brillo y el barrido de luz, solo con mouse y sin barrido con movimiento reducido', () => {
+  assert.match(cta, /plano-boton__brillo/);
+  assert.match(estilos, /@media \(hover: hover\) and \(pointer: fine\) \{[\s\S]*\.plano-boton:hover \.plano-boton__brillo::before \{[\s\S]*transform: translateX\(200%\)/);
+  assert.match(estilos, /@media \(prefers-reduced-motion: reduce\) \{[\s\S]*\.plano-boton__brillo \{ display: none; \}/);
+  assert.doesNotMatch(estilos, /transition:[^;]*box-shadow/);
+});
+

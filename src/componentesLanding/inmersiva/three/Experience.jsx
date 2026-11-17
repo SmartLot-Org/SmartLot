@@ -39,6 +39,7 @@ function FirstFrame({ onReady }) {
 export default function Experience() {
   const tier = useUI((s) => s.tier);
   const setTier = useUI((s) => s.setTier);
+  const perderContexto = useUI((s) => s.perderContexto);
   const [listo, setListo] = useState(false);
   const escenario = useRef(null);
   const reducido = useMemo(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches, []);
@@ -52,13 +53,6 @@ export default function Experience() {
   // El plano se dibuja de nuevo cada vez que se monta.
   useEffect(() => { vivo.intro = 0; vivo.listo = false; }, []);
 
-  // Al desmontar, R3F libera el contexto WebGL a propósito: eso no es una pérdida.
-  const montado = useRef(true);
-  useEffect(() => {
-    montado.current = true;
-    return () => { montado.current = false; };
-  }, []);
-
   return (
     <div ref={escenario} className="plano-escenario" data-listo={listo} aria-hidden="true">
       <Canvas
@@ -71,10 +65,13 @@ export default function Experience() {
         gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
         onCreated={({ gl }) => {
           // En celular el contexto WebGL se puede perder: se pasa a la versión estática.
-          gl.domElement.addEventListener('webglcontextlost', (e) => {
-            if (!montado.current) return;
+          // Al salir de la landing, R3F libera el contexto a propósito con el lienzo ya
+          // fuera de la página: eso no es una falla y no tiene que dejar la landing sin 3D.
+          const lienzo = gl.domElement;
+          lienzo.addEventListener('webglcontextlost', (e) => {
+            if (!lienzo.isConnected) return;
             e.preventDefault();
-            setTier('static');
+            perderContexto();
           }, { once: true });
         }}
       >

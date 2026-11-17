@@ -122,21 +122,6 @@ body:has(.plano) { overflow-x: clip; }
   white-space: nowrap;
 }
 
-.plano-escala {
-  position: absolute;
-  top: calc(var(--barra) + 14px + env(safe-area-inset-top, 0px));
-  right: max(16px, env(safe-area-inset-right, 0px));
-  display: grid;
-  justify-items: end;
-  gap: 5px;
-  padding: 6px 8px;
-  background: var(--papel);
-  color: var(--tinta);
-  font: 500 12px/1 var(--font-body);
-  font-variant-numeric: tabular-nums;
-}
-.plano-escala i { display: block; height: 6px; border: 1px solid var(--tinta); border-top: 0; }
-
 /* ── Barra ── */
 .plano-barra {
   position: fixed;
@@ -166,7 +151,14 @@ body:has(.plano) { overflow-x: clip; }
 .plano-barra__ancho { display: none; }
 
 /* ── Botones y enlaces (registro de interfaz: menos de 300 ms, una propiedad por transición) ── */
+/* El botón principal conserva el brillo de la landing anterior (pedido del dueño del
+   producto): una sombra azul en reposo, una más intensa en hover y un barrido de luz.
+   La sombra de hover no se anima: es una segunda capa que aparece por opacidad. */
 .plano-boton {
+  --brillo-reposo: color-mix(in srgb, var(--senal) 30%, transparent);
+  --brillo-hover: color-mix(in srgb, var(--senal) 40%, transparent);
+  position: relative;
+  isolation: isolate;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -180,8 +172,39 @@ body:has(.plano) { overflow-x: clip; }
   text-decoration: none;
   white-space: nowrap;
   cursor: pointer;
+  box-shadow: 0 10px 15px -3px var(--brillo-reposo), 0 4px 6px -4px var(--brillo-reposo);
   transition: transform 160ms var(--salida), background-color 160ms var(--salida);
 }
+.plano-boton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  box-shadow: 0 20px 25px -5px var(--brillo-hover), 0 8px 10px -6px var(--brillo-hover);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 300ms ease;
+}
+.plano-boton__brillo {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: inherit;
+  pointer-events: none;
+}
+.plano-boton__brillo::before {
+  content: '';
+  position: absolute;
+  inset-block: 0;
+  left: -100%;
+  width: 100%;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--senal-sobre) 50%, transparent), transparent);
+  opacity: 0;
+  /* Al salir, la luz se desvanece rápido y vuelve a su lugar sin verse: no hay barrido de regreso. */
+  transition: opacity 200ms ease, transform 0s linear 200ms;
+}
+.plano-boton__texto { position: relative; }
 .plano-boton:active { transform: scale(0.97); }
 /* La Regla del Pulgar de DESIGN.md: en la landing ningún CTA baja de 44px. */
 .plano-boton--chico { height: 44px; padding: 0 16px; font-size: 14px; }
@@ -192,17 +215,23 @@ body:has(.plano) { overflow-x: clip; }
   padding: 0;
   border: 0;
   background: none;
-  color: var(--senal);
+  color: var(--tinta);
   font: 500 15px/1.2 var(--font-body);
-  text-decoration: underline;
+  text-decoration: none;
   text-underline-offset: 4px;
   white-space: nowrap;
   cursor: pointer;
 }
-.plano-enlace--tinta { color: var(--tinta); text-decoration: none; }
 @media (hover: hover) and (pointer: fine) {
   .plano-boton:hover { background: var(--senal-activa); }
-  .plano-enlace:hover { text-decoration: underline; text-decoration-thickness: 2px; }
+  .plano-boton:hover::after { opacity: 1; }
+  /* La luz cruza el botón una vez al entrar el puntero, con la curva del botón anterior. */
+  .plano-boton:hover .plano-boton__brillo::before {
+    opacity: 1;
+    transform: translateX(200%);
+    transition: opacity 0s, transform 700ms cubic-bezier(0, 0, 0.2, 1);
+  }
+  .plano-enlace:hover { text-decoration: underline; text-decoration-thickness: 1px; }
 }
 
 /* ── Secciones: el alto es el weight; la nota es sticky ── */
@@ -264,7 +293,7 @@ body:has(.plano) { overflow-x: clip; }
 }
 .plano-dato strong { min-width: 2ch; color: var(--senal); font: 800 28px/1 var(--font-display); text-align: right; }
 .plano-dato small,
-.plano-planilla caption small { color: var(--texto-suave); font-size: 12px; font-weight: 400; }
+.plano-planilla caption small { color: var(--texto-suave); font-size: 13px; font-weight: 400; }
 .plano-dato small { flex-basis: 100%; }
 
 .plano-planilla { padding-top: 12px; border-top: 1px solid var(--borde); font-variant-numeric: tabular-nums; }
@@ -274,7 +303,7 @@ body:has(.plano) { overflow-x: clip; }
 .plano-planilla th,
 .plano-planilla td { padding: 5px 0 5px 10px; border-bottom: 1px solid var(--borde); color: var(--texto); font-weight: 400; text-align: left; white-space: nowrap; }
 .plano-planilla th:first-child { padding-left: 0; }
-.plano-planilla thead th { color: var(--texto-suave); font-size: 12px; font-weight: 500; }
+.plano-planilla thead th { color: var(--texto-suave); font-size: 13px; font-weight: 500; }
 .plano-planilla .num { text-align: right; }
 .plano-planilla tfoot th,
 .plano-planilla tfoot td { border-bottom: 0; color: var(--tinta); font-weight: 700; }
@@ -325,7 +354,6 @@ body:has(.plano) { overflow-x: clip; }
   }
   .plano-nota h1 { font-size: clamp(30px, min(3.7vw, 7.4vh), 54px); }
   .plano-nota h2 { font-size: clamp(24px, min(2.8vw, 5.6vh), 40px); }
-  .plano-escala { top: auto; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); right: max(24px, 4vw, env(safe-area-inset-right, 0px)); }
   .plano-lente { width: 208px; height: 208px; }
   .plano-pie { padding-right: max(24px, 4vw, env(safe-area-inset-right, 0px)); }
 
@@ -340,7 +368,9 @@ body:has(.plano) { overflow-x: clip; }
   .plano-barra nav { gap: 4px 12px; }
 }
 
+/* Movimiento reducido: sin barrido de luz. El brillo de hover queda, porque solo cambia la opacidad. */
 @media (prefers-reduced-motion: reduce) {
   .plano-escenario,
   .plano-boton { transition: none; }
+  .plano-boton__brillo { display: none; }
 }
