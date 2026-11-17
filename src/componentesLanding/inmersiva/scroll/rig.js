@@ -11,5 +11,6 @@ export const rig = {
   ...componer([1], false, nuevoEstado()),
   vertical: false,
   snap: false,              // con movimiento reducido la cámara salta, no viaja
+  velocidad: 0,             // velocidad del scroll: la cámara la acusa (inercia)
   requestFrame: () => {},   // lo conecta el Canvas (FrameBridge)
 };

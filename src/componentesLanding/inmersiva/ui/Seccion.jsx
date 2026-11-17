@@ -2,9 +2,12 @@ import { useRef } from 'react';
 import { useGSAP } from '@gsap/react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { Comparador } from './Comparador';
 import { Cta } from './Cta';
 import { Dato } from './Dato';
+import { ElegirDia } from './ElegirDia';
 import { TablaConsumos } from './TablaConsumos';
+import { useTituloCinetico } from './useTituloCinetico';
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
@@ -14,7 +17,7 @@ gsap.registerPlugin(useGSAP, ScrollTrigger);
 export function Seccion({ s, i, ultima, sinEscena }) {
   const ref = useRef(null);
   const Titulo = i === 0 ? 'h1' : 'h2';
-  const poster = `/landing/posters/${s.id}`;
+  const poster = `/landing/posters/${s.poster ?? s.id}`;
 
   useGSAP(() => {
     if (sinEscena || ultima) return;
@@ -23,6 +26,9 @@ export function Seccion({ s, i, ultima, sinEscena }) {
       scrollTrigger: { trigger: ref.current, start: 'bottom bottom', end: 'bottom 62%', scrub: true },
     });
   }, { scope: ref, dependencies: [sinEscena, ultima], revertOnUpdate: true });
+
+  // El hero (i === 0) no se anima: su h1 se ve desde el primer render.
+  useTituloCinetico(ref, { activo: i > 0, dependencias: [sinEscena] });
 
   return (
     <section
@@ -36,7 +42,9 @@ export function Seccion({ s, i, ultima, sinEscena }) {
       <div className="plano-nota">
         <Titulo id={`${s.id}-titulo`}>{s.titulo}</Titulo>
         <p>{s.cuerpo}</p>
+        {s.comparador && !sinEscena && <Comparador />}
         {s.dato && !sinEscena && <Dato />}
+        {s.elegirDia && !sinEscena && <ElegirDia />}
         {s.tabla && <TablaConsumos />}
         {s.cta && (
           <div className="plano-acciones">

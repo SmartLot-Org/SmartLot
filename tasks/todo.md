@@ -56,6 +56,12 @@ Cada tarea cierra con su verificación. Estado al 2026-11-16.
 - [x] Ida y vuelta de la landing sin caer en la versión estática: probado nueve veces seguidas (`web-inmersiva`).
 - [x] Textos de 12 px que se leen ("Datos de ejemplo", encabezados de la tabla) pasan a 13 px.
 
+## Mejoras de `posible-mejora-landing` (mergeadas el 2026-11-17)
+
+- [x] Entran todas: intro con cajetín, regla de progreso, texto cinético, pin, tráfico, ondas, deslizador "Hoy / Con SmartLot" con chats, "Elegí un día" con el celular, sección "Toda la jornada", red de rutas y botones magnéticos.
+- [x] Sin el interruptor día/noche: la landing sigue siempre clara (decisión del dueño). Las ventanas y los faros se encienden solo al atardecer de la jornada.
+- [x] El imán del botón vuelve sin rebote elástico (DESIGN.md no lo admite) y convive con el brillo.
+
 ## Decisiones del dueño del producto (2026-11-17)
 
 - [x] La landing es siempre clara: se retiró la variante cianotipo (estilos, tokens y pósters).

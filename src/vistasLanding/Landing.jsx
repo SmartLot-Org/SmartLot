@@ -9,7 +9,9 @@ import { useMovimientoReducido } from '../componentesLanding/inmersiva/estado/us
 import { useStoryTimeline } from '../componentesLanding/inmersiva/scroll/useStoryTimeline';
 import { asegurarInicio, useUI } from '../componentesLanding/inmersiva/estado/store';
 import { EnlaceGarage } from '../componentesLanding/inmersiva/ui/Cta';
+import { Intro } from '../componentesLanding/inmersiva/ui/Intro';
 import { Nav } from '../componentesLanding/inmersiva/ui/Nav';
+import { Regla } from '../componentesLanding/inmersiva/ui/Regla';
 import { Seccion } from '../componentesLanding/inmersiva/ui/Seccion';
 import usePageMeta from '../hooks/usePageMeta';
 
@@ -44,7 +46,9 @@ export default function LandingPage() {
     <div className="plano" data-sin3d={sinEscena}>
       <a className="plano-saltar" href="#contenido">{NAVEGACION.saltar}</a>
       {mostrar3d && <Suspense fallback={null}><Experience /></Suspense>}
+      <Intro />
       <Nav />
+      <Regla />
       <main id="contenido" ref={main} tabIndex={-1}>
         {SECCIONES.map((s, i) => (
           <Seccion key={s.id} s={s} i={i} ultima={i === SECCIONES.length - 1} sinEscena={sinEscena} />

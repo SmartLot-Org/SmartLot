@@ -1,5 +1,20 @@
 import { create } from 'zustand';
 
+// La intro (cajetín de plano) corre una vez por sesión y nunca con movimiento reducido.
+const CLAVE_INTRO = 'smartlot-plano-intro';
+function introPendiente() {
+  if (typeof window === 'undefined') return false;
+  try {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return false;
+    return window.sessionStorage.getItem(CLAVE_INTRO) !== 'vista';
+  } catch {
+    return false;
+  }
+}
+export function marcarIntroVista() {
+  try { window.sessionStorage.setItem(CLAVE_INTRO, 'vista'); } catch { /* sin storage: se vuelve a ver */ }
+}
+
 // Estado DISCRETO de la landing (lo continuo va en scroll/rig.js).
 // tier: 'high' | 'low' | 'static'
 export const useUI = create((set) => ({
@@ -8,10 +23,16 @@ export const useUI = create((set) => ({
   sin3d: false,
   inicializado: false, // false hasta asegurarInicio: Landing no monta el 3D antes
   contextoPerdido: false,
+  intro: introPendiente(), // true mientras corre (o está por correr) el cajetín de entrada
   setSeccion: (seccion) => set({ seccion }),
   setTier: (tier) => set({ tier }),
   perderContexto: () => set({ tier: 'static', contextoPerdido: true }),
   alternarSin3d: () => set((s) => ({ sin3d: !s.sin3d })),
+  setIntro: (intro) => set({ intro }),
+  comparar: 0,         // deslizador antes / con SmartLot (0 a 1)
+  setComparar: (comparar) => set({ comparar }),
+  diaElegido: null,    // selector de día de la reserva (0 = Lun); null: lo lleva el scroll
+  setDiaElegido: (diaElegido) => set({ diaElegido }),
 }));
 
 // Tier de arranque: sin WebGL o con ahorro de datos → 'static'; equipo modesto → 'low'.

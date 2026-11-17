@@ -16,6 +16,10 @@ export const FX_CERO = Object.freeze({
   ingreso: 0,   // el auto avanza y se escanea el QR
   consumos: 0,  // horas apiladas sobre cada plaza
   red: 0,       // más garages marcados
+  estaciona: 0, // un auto entra al garage y se estaciona en su plaza
+  pinFuera: 0,  // el pin del hero se guarda (vuelve en el cierre)
+  hora: 0,      // la jornada: de las 7 (0) a las 20 (1)
+  final: 0,     // cierre: ondas desde la oficina
 });
 
 export const COREOGRAFIA = {
@@ -27,7 +31,10 @@ export const COREOGRAFIA = {
   problema: {
     camara: { x: 2.4, z: 1.2, zoom: 2.9 },
     camaraVertical: { x: 0.6, z: 0.6, zoom: 2.3 },
-    fx: [{ clave: 'vueltas', valor: 1, desde: 0.3, hasta: 0.95 }],
+    fx: [
+      { clave: 'pinFuera', valor: 1, desde: 0, hasta: 0.6 },
+      { clave: 'vueltas', valor: 1, desde: 0.3, hasta: 0.95 },
+    ],
   },
   idea: {
     camara: { x: 13.5, z: 6.5, zoom: 2.8 },
@@ -43,6 +50,7 @@ export const COREOGRAFIA = {
     camaraVertical: { x: 24, z: 12, zoom: 5.2 },
     fx: [
       { clave: 'tapa', valor: 1, desde: 0.5, hasta: 1 },
+      { clave: 'estaciona', valor: 1, desde: 0.6, hasta: 1.1 },
       { clave: 'llenas', valor: 1, desde: 1, hasta: 1.52 },
     ],
   },
@@ -62,13 +70,22 @@ export const COREOGRAFIA = {
       { clave: 'consumos', valor: 1, desde: 0.8, hasta: 1.52 },
     ],
   },
+  jornada: {
+    camara: { x: 12, z: 5, zoom: 1.75 },
+    camaraVertical: { x: 11, z: 6, zoom: 1.2 },
+    fx: [
+      { clave: 'consumos', valor: 0, desde: 0, hasta: 0.35 },
+      { clave: 'tapa', valor: 0, desde: 0.2, hasta: 0.6 },
+      { clave: 'hora', valor: 1, desde: 0.65, hasta: 1.65 },
+    ],
+  },
   accion: {
     camara: { x: 6, z: -3, zoom: 0.95 },
     camaraVertical: { x: 4, z: 0, zoom: 0.74 },
     fx: [
-      { clave: 'consumos', valor: 0, desde: 0, hasta: 0.35 },
-      { clave: 'tapa', valor: 0, desde: 0.2, hasta: 0.6 },
-      { clave: 'red', valor: 1, desde: 0.55, hasta: 1 },
+      { clave: 'red', valor: 1, desde: 0.45, hasta: 0.85 },
+      { clave: 'pinFuera', valor: 0, desde: 0.5, hasta: 1 },
+      { clave: 'final', valor: 1, desde: 0.8, hasta: 1 },
     ],
   },
 };

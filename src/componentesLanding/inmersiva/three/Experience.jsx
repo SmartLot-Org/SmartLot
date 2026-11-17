@@ -8,10 +8,25 @@ import { rig } from '../scroll/rig';
 import { CameraRig } from './CameraRig';
 import { Acceso } from './escenas/Acceso';
 import { Ciudad } from './escenas/Ciudad';
+import { Clima } from './escenas/Clima';
+import { Estaciona } from './escenas/Estaciona';
 import { Garage } from './escenas/Garage';
+import { Jornada } from './escenas/Jornada';
+import { Noche } from './escenas/Noche';
+import { Onda } from './escenas/Onda';
+import { Pin } from './escenas/Pin';
+import { Pulsos } from './escenas/Pulsos';
+import { Red } from './escenas/Red';
+import { Realce } from './escenas/Realce';
+import { Trafico } from './escenas/Trafico';
 import { Trato } from './escenas/Trato';
 import { Vueltas } from './escenas/Vueltas';
 import { colorear } from './paleta';
+import { CapaCelular, ProyectorCelular } from './Celular';
+import { CapaEleccion, Eleccion, ProyectorEleccion } from './Eleccion';
+import { CapaChats, ProyectorChats } from './Chats';
+import { CapaInteraccion, ProyectorInteraccion } from './Interaccion';
+import { CapaReloj, ProyectorReloj } from './Reloj';
 import { Proyector, Rotulos } from './Rotulos';
 import { vivo } from './vivo';
 
@@ -80,16 +95,37 @@ export default function Experience() {
         {/* Geometrías y materiales son del módulo: no se descartan al desmontar una escena. */}
         <group dispose={null}>
           <Ciudad />
+          <Clima />
           <Trato />
           <Vueltas />
           <Garage />
+          <Estaciona />
           <Acceso />
+          <Trafico />
+          <Noche />
+          <Pulsos />
+          <Red />
+          <Jornada />
+          <Onda />
+          <Eleccion />
+          <Realce />
+          <Pin />
         </group>
         <Proyector />
+        <ProyectorInteraccion />
+        <ProyectorCelular />
+        <ProyectorChats />
+        <ProyectorReloj />
+        <ProyectorEleccion />
         <FrameBridge />
         <FirstFrame onReady={() => setListo(true)} />
       </Canvas>
       <Rotulos />
+      <CapaInteraccion />
+      <CapaCelular />
+      <CapaChats />
+      <CapaReloj />
+      <CapaEleccion />
     </div>
   );
 }

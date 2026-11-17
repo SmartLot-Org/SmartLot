@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { SECCIONES } from '../contenido/secciones.js';
 import { COREOGRAFIA, FX_CERO } from './coreografia.js';
+import { aplicarComparacion, pesoComparacion } from './estado.js';
 import { avancesFinales, componer, PESOS } from './estado.js';
 import { avancesEn, largoTotal, rangosDeScroll } from './rangos.js';
 
@@ -76,4 +77,22 @@ test('el guion cierra: la ruta queda trazada, el garage con techo y más garages
   assert.equal(fin.acceso, 0);
   assert.equal(fin.vueltas, 0);
   assert.equal(fin.red, 1);
+});
+
+test('antes / con SmartLot: solo pesa en el problema y lleva al estado del trato', () => {
+  const iProblema = SECCIONES.findIndex((s) => s.id === 'problema');
+  const enProblema = avancesFinales(iProblema);
+  assert.equal(pesoComparacion(avancesFinales(0)), 0);
+  assert.equal(pesoComparacion(enProblema), 1);
+  assert.equal(pesoComparacion(avancesFinales(SECCIONES.length - 1)), 0);
+
+  const antes = componer(enProblema, false);
+  const sinCambio = aplicarComparacion(componer(enProblema, false), 0, enProblema, false);
+  assert.deepEqual(sinCambio, antes);
+
+  const despues = aplicarComparacion(componer(enProblema, false), 1, enProblema, false);
+  assert.equal(despues.fx.vueltas, 0);
+  assert.equal(despues.fx.traza, 1);
+  assert.equal(despues.fx.trato, 1);
+  assert.ok(Math.abs(despues.cam.x - COREOGRAFIA.idea.camara.x) < 1e-9);
 });
