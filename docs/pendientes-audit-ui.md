@@ -12,7 +12,7 @@
 > **Falta** (detalle y orden en `auditoria-ui-paneles.md`, sección 5)
 > 1. Fase 1, fundaciones: tokens de espaciado y tipografía, contenedor y cabecera de página, una sola
 >    cabecera de app, navegación por rol (lateral desde 1024 px) y componentes compartidos. Spec en
->    `docs/specs/SPEC-fundaciones-ui.md`, pendiente de aprobación.
+>    `docs/specs/SPEC-fundaciones-ui.md`, aprobada el 2026-11-17 (ADR-009). Falta implementarla.
 > 2. Fase 2, migración de las vistas por rol a esas fundaciones. En superadmin no se tocan colores (ADR-007).
 > 3. Fase 3, jerarquía de cada pantalla según la tarea.
 > 4. Fase 4, copy y pulido.

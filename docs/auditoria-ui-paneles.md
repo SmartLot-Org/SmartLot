@@ -303,6 +303,7 @@ Quedó sin tocar: "Reservado" ya no se muestra en la tarjeta (era el estado por 
 - **Landing:** se rehace como sitio inmersivo con 3D y scroll narrativo. Construida según `docs/specs/SPEC-landing-inmersiva.md` y ADR-008.
 - **Base tipográfica:** la raíz queda en 18 px (16 px hasta 1024 px). La propuesta de bajarla a 16 px de la sección 2.2 no se aplica. Consecuencia para la Fase 1: los tokens de espaciado y de tipografía se definen en px, no en rem, para que la retícula de 4 px se cumpla con cualquier raíz.
 - **`DESIGN.md` contra el código (sección 4):** no hay una regla general. Cada diferencia se le consulta al dueño del producto antes de elegir qué manda.
+- **Sección 4, resuelta (2026-11-17):** el dueño del producto aprobó las siete recomendaciones de la tabla. Quedan escritas en `docs/specs/SPEC-fundaciones-ui.md` (aprobada) y en ADR-009.
 - **Fuentes:** Archivo y DM Sans pasaron a estar autoalojadas (`src/fuentes.css`), con los mismos rangos de peso que servía Google Fonts. Las pilas de fuentes que no se cargan siguen pendientes para la Fase 1.
 
 ## 6. Apéndice: mediciones por vista

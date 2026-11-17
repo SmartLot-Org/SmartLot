@@ -46,7 +46,7 @@ Cada tarea cierra con su verificación. Estado al 2026-11-16.
 - [x] Repaso de rendimiento de React: el 3D entra por `lazy()`; la librería de Google Maps salió del bundle de entrada; los componentes leen campos sueltos del store; lo que cambia en cada frame se escribe por ref, sin estado de React. Falta la pasada formal con la skill `vercel-react-best-practices`.
 - [x] `npm test`, lint de lo tocado y `npm run build`.
 
-## Preguntas para el dueño del producto
+## Decisiones del dueño del producto (2026-11-17)
 
-- ¿La landing queda siempre en claro o sigue el tema del sistema (variante cianotipo, hoy con `?tema=cianotipo`)?
-- ¿Se borran las métricas por defecto de `StatsTicker.jsx`, que ya no se usan?
+- [x] La landing es siempre clara: se retiró la variante cianotipo (estilos, tokens y pósters).
+- [x] Se borraron las métricas inventadas de `StatsTicker.jsx` y los testimonios de `/para-garages`.

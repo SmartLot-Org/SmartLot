@@ -1,6 +1,6 @@
 # Spec: Fundaciones de la UI de paneles (Fase 1 de la auditoría)
 
-> Estado: Borrador
+> Estado: Aprobada
 > Módulo: `fundaciones-ui`
 > Última actualización: 2026-11-17
 
@@ -35,14 +35,14 @@ Destinatarios: las personas que usan los paneles todos los días (empleados, gar
 
 ## Propuesta técnica
 
-### Escalas (valores a confirmar en "Preguntas abiertas")
+### Escalas
 
 | Escala | Valores | Nota |
 |---|---|---|
 | Espaciado | 4, 8, 12, 16, 24, 32, 48, 64 px | Base `--spacing: 4px` en `@theme`. Hoy Tailwind usa rem: con la raíz de 18 px, `p-4` mide 18 px y `px-6`, 27 px. |
 | Texto de producto | 12, 13, 14, 16, 20, 24, 30 px | Variables `--text-*` en px, con su interlineado. |
-| Títulos de página | 24 px (celular) y 30 px (escritorio) | Tracking en `em`, proporcional al tamaño. |
-| Radio | Según la pregunta 2 | `DESIGN.md` dice 6, 10, 14 y full; en el código dominan 12, 16, 18 y 24. |
+| Títulos de página | DM Sans 600, 24 px (celular) y 30 px (escritorio) | Tracking en `em`, proporcional al tamaño. |
+| Radio | 6, 10, 14 y full | Los de `DESIGN.md`. Hoy en el código dominan 12, 16, 18 y 24: se migran. |
 | Sombra | sm, md, lg, accent | Las cuatro de `DESIGN.md`. Hoy hay 194 valores distintos. |
 | Alturas de control | 32, 40, 48 px | 32 solo dentro de tablas y barras de filtros. |
 | Capas | Las de `src/helpers/zIndex.js` | Se suman `NAV` y `DROPDOWN`; nada fuera de esa tabla. |
@@ -64,9 +64,9 @@ Destinatarios: las personas que usan los paneles todos los días (empleados, gar
 
 ### Estrategia de estilos
 
-Propuesta: las piezas nuevas se escriben con utilidades de Tailwind sobre los tokens de `@theme`, como pide `AGENTS.md`. Para lo que no entra cómodo en utilidades (estados complejos, animaciones), un CSS Module junto al componente. El CSS global por vista se va retirando en la Fase 2, vista por vista; mientras tanto, ninguna pieza nueva usa nombres de clase globales.
+Las piezas nuevas se escriben con utilidades de Tailwind sobre los tokens de `@theme`, como pide `AGENTS.md`. Para lo que no entra cómodo en utilidades (estados complejos, animaciones), un CSS Module junto al componente. El CSS global por vista se va retirando en la Fase 2, vista por vista; mientras tanto, ninguna pieza nueva usa nombres de clase globales.
 
-Se registra en un ADR nuevo (ADR-009) cuando esta spec se apruebe, porque cambia la arquitectura de estilos y es costoso de revertir.
+Registrado en `docs/decisions/ADR-009-estilos-por-componente-escala-px.md`, porque cambia la arquitectura de estilos y es costoso de revertir.
 
 ### Limpieza global
 
@@ -143,14 +143,18 @@ export const NAVEGACION = {
 - La landing (`/`), que ya tiene su propio sistema (ADR-008). Login, registro y `/para-garages` solo se tocan si el cambio de escala los rompe.
 - Cambios de color.
 
+## Decisiones tomadas (2026-11-17)
+
+Respuestas del dueño del producto a las diferencias entre `DESIGN.md` y el código (sección 4 de la auditoría). Las siete siguieron la recomendación.
+
+- **Títulos de panel:** DM Sans 600. Archivo queda para las páginas públicas.
+- **Radios:** 6, 10, 14 y full, los de `DESIGN.md`.
+- **Título de página:** 24 px en celular y 30 px en escritorio; se corrige `DESIGN.md`, que decía 56 px.
+- **Padding de tarjeta:** 16 o 24 px.
+- **Alturas de control:** 32, 40 y 48 px; 32 solo en tablas y filtros.
+- **Estilos:** utilidades de Tailwind sobre los tokens, con un CSS Module al lado del componente para lo complejo (ADR-009).
+- **Escala en px para toda la app:** se fija `--spacing: 4px`, aunque login, registro y `/para-garages` se achiquen un poco en escritorio.
+
 ## Preguntas abiertas
 
-Son las diferencias entre `DESIGN.md` y el código que la auditoría dejó para decidir (sección 4). Cada una tiene una recomendación.
-
-- [ ] **Fuente de los títulos de panel:** `DESIGN.md` dice DM Sans; el código usa Archivo por la regla global. Recomendación: DM Sans 600 en paneles y Archivo solo en las páginas públicas, para separar los dos registros.
-- [ ] **Escala de radios:** mantener la de `DESIGN.md` (6, 10, 14, full) o adoptar la que domina en el código (8, 12, 16, full). Recomendación: la de `DESIGN.md`; es la que ya usan los componentes documentados.
-- [ ] **Título de producto:** `DESIGN.md` dice 56 px; el código va de 24 a 54. Recomendación: corregir el documento a 24 y 30 px.
-- [ ] **Padding de tarjeta:** `DESIGN.md` dice 16 px; el código va de 14 a 40. Recomendación: 16 y 24.
-- [ ] **Alturas de botón:** `DESIGN.md` dice 40 y 48; el código va de 20 a 60. Recomendación: sumar 32 solo para tablas y filtros.
-- [ ] **Estrategia de estilos:** utilidades de Tailwind con CSS Modules para lo complejo (recomendado, sigue a `AGENTS.md`) o solo CSS Modules.
-- [ ] **Escala de Tailwind en px:** acepta que login, registro y `/para-garages` se achiquen un poco en escritorio al fijar `--spacing: 4px`.
+Ninguna.

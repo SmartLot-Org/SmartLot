@@ -147,7 +147,7 @@ Un solo acento cromático sobre una base neutra fría; los estados usan semánti
 - **Papel**: el fondo (#F5F7FB). **Tinta plena**: azul profundo (#0C1E3F), para títulos y para los objetos que importan del dibujo.
 - **Tinta media** (#7C8BAA) y **tinta tenue** (#CDD6E5): edificios de contexto y manzanas. Son para líneas, nunca para texto.
 - **Azul señal**: en el dibujo marca una sola cosa, un lugar disponible o reservado para vos (contorno de un garage con plazas, recorrido del trato, plazas reservadas).
-- **Cianotipo**: el mismo plano en negativo (papel #0C1E3F, tinta #EAF0FB, tinta media #7389B4, tinta tenue #24406F, señal #8AB4FF, texto secundario #B7C4DD). Hoy solo se ve con `?tema=cianotipo`.
+- La home es siempre clara: no tiene variante oscura (decisión del 2026-11-17).
 
 ### Neutral
 

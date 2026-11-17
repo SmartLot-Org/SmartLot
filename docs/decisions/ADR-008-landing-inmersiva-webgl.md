@@ -74,7 +74,7 @@ Restricciones: la app es una SPA en JavaScript sin SSR (ADR-001), la landing es 
 
 - Seis dependencias nuevas de runtime y dos de fuentes. Se quitó `ogl`, que no se usaba.
 - Medido sobre el build del 2026-11-16: JS de entrada 159 kB gzip (antes de la landing nueva, 173 kB), de los cuales unos 12 kB son propios de la landing; chunk 3D 254 kB gzip. Para llegar a ese número, el puente de Google Maps (`contexts/MapsLoaderBridge.jsx`) pasó a cargarse con `lazy()`: la librería `@react-google-maps/api` estaba en el bundle de entrada de todas las rutas, en contra de lo que pide ADR-006.
-- `public/` baja 11 MB (los fotogramas del logo) y suma unos 0,7 MB de pósters.
+- `public/` baja 11 MB (los fotogramas del logo) y suma unos 497 kB de pósters (siete imágenes en dos tamaños) y la marca.
 - La landing ya no depende de Google Fonts ni de ningún otro dominio.
 - `three` es grande: el chunk 3D pesa unos 250 kB gzip. Se descarga después del primer render y solo
   si hay WebGL2.

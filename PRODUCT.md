@@ -103,11 +103,11 @@ Detalle de rutas y autorización: `docs/architecture.md`. Flujos por rol: `docs/
 
 Usados en la landing; **no inventar nuevos ni alterarlos sin pedido** (regla de `docs/pendientes-audit-ui.md`):
 
-- Landing general: ninguno. La home nueva no muestra métricas; su prueba es el producto (`docs/specs/SPEC-landing-inmersiva.md`). Los valores 4.9/5, 2 min, 4.8★ y 24/7 siguen como valores por defecto de `StatsTicker.jsx`, sin uso.
-- Para garages: 24 meses de historial, 3 tarifas por vehículo, 100% online sin hardware, exportación PDF+XLS (`ParaGarages.jsx`).
-- Testimonios y casos: sección "Dueños que ya aparecen en el mapa" (`ParaGaragesSocial.jsx`).
+- Landing general: ninguno. La home no muestra métricas; su prueba es el producto (`docs/specs/SPEC-landing-inmersiva.md`).
+- Para garages: 24 meses de historial, 3 tarifas por vehículo, 100% online sin hardware, exportación PDF+XLS (`ParaGarages.jsx`). Verificados en el código el 2026-11-17: selector de 24 meses en consumos y cuentas por cobrar, tarifas de auto, moto y pickup, y exportadores en `src/util/`.
+- Testimonios y casos: ninguno.
 
-> Decisión (2026-10-10): estas métricas y testimonios se presentan en la UI como **datos de ejemplo** (no como hechos verificados). Implementación en curso.
+> Decisión (2026-11-17): se borraron las métricas de satisfacción, respuesta y soporte (4.9/5, 2 min, 4.8★, 24/7) y los tres testimonios de `/para-garages`, porque eran inventados. Las pantallas de demostración que muestran datos de ejemplo los rotulan como tales.
 
 ## Alcance actual (lo que el producto NO es)
 

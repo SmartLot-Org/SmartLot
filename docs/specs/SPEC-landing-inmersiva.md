@@ -194,10 +194,10 @@ Decisión de arquitectura a registrar: un ADR nuevo para la landing con WebGL (s
 - **Presupuesto de JS:** los 150 kB gzip aplican solo a la landing. Se mide el JS propio de la landing antes del 3D; el runtime compartido de la app no cuenta.
 - **`ogl`:** se quita de `package.json`.
 - **Dispositivos reales:** no se piden pruebas en celular físico; Core Web Vitals se miden con emulación.
-- **Tema:** la landing se entrega en claro, como define esta spec. La variante en negativo ("cianotipo") que tenía el prototipo queda disponible con `?tema=cianotipo` para decidir si se adopta.
+- **Tema (2026-11-17):** la landing es siempre clara. La variante en negativo ("cianotipo") del prototipo se retiró del código.
+- **Datos inventados (2026-11-17):** se borraron las métricas por defecto de `StatsTicker.jsx` (4.9/5, 2 min, 4.8★, 24/7) y los tres testimonios de `/para-garages`. Las cuatro cifras de capacidades de `/para-garages` quedan porque se verificaron en el código: 24 meses en el selector de período, tres tarifas (auto, moto y pickup) y exportación a PDF y Excel.
 
 ## Preguntas abiertas
 
-- ¿La landing queda siempre en claro o sigue el tema del sistema con la variante cianotipo?
-- Las métricas por defecto de `StatsTicker.jsx` (4.9/5, 2 min, 4.8★, 24/7) ya no se muestran en ninguna página. ¿Se borran del componente?
+Ninguna.
 

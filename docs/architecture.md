@@ -73,7 +73,7 @@ Fuente: `src/App.jsx`. Al agregar rutas, actualizar esta tabla en el mismo cambi
 
 | Ruta | Vista | Notas |
 |---|---|---|
-| `/` | `vistasLanding/Landing.jsx` | Única vista eager (primer paint). Es solo la capa DOM; el 3D se carga con `lazy()` desde `componentesLanding/inmersiva/three/` (ADR-008). Acepta `?sin3d` y `?tema=cianotipo`. |
+| `/` | `vistasLanding/Landing.jsx` | Única vista eager (primer paint). Es solo la capa DOM; el 3D se carga con `lazy()` desde `componentesLanding/inmersiva/three/` (ADR-008). Acepta `?sin3d`. |
 | `/para-garages` | `vistasLanding/ParaGarages.jsx` | Lazy. |
 | `/login` | `vistasLanding/Auth.jsx` | Acepta `?redirect=`. |
 | `/register` | `pages/Register.jsx` | Alta pública. |

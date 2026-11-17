@@ -18,7 +18,7 @@ Los ADRs registran decisiones técnicas significativas: contexto, decisión, alt
 
 ## Nota sobre ADRs retrospectivos
 
-Los ADRs de esta carpeta son **retrospectivos**: documentan decisiones ya implementadas, reconstruidas a partir del código y de los documentos del repositorio (2026-10-09) — excepto **ADR-007** (2026-10-10), que registra una decisión viva del dueño del producto tomada durante la ejecución de la auditoría UI, y **ADR-008** (2026-11-16), que acompaña a la landing nueva. El contexto refleja lo verificable; las alternativas listadas son las razonables en el momento de la decisión, no un registro literal de la discusión original.
+Los ADRs de esta carpeta son **retrospectivos**: documentan decisiones ya implementadas, reconstruidas a partir del código y de los documentos del repositorio (2026-10-09) — excepto **ADR-007** (2026-10-10), que registra una decisión viva del dueño del producto tomada durante la ejecución de la auditoría UI, **ADR-008** (2026-11-16), que acompaña a la landing nueva, y **ADR-009** (2026-11-17), aprobado antes de implementarse. El contexto refleja lo verificable; las alternativas listadas son las razonables en el momento de la decisión, no un registro literal de la discusión original.
 
 ## Índice
 
@@ -32,3 +32,4 @@ Los ADRs de esta carpeta son **retrospectivos**: documentan decisiones ya implem
 | [ADR-006](./ADR-006-code-splitting-por-ruta.md) | Code splitting por ruta e imports diferidos de dependencias pesadas | Aceptado |
 | [ADR-007](./ADR-007-paleta-propia-superadmin.md) | Paleta propia del panel superadmin (excepción deliberada a la Regla del Token) | Aceptado |
 | [ADR-008](./ADR-008-landing-inmersiva-webgl.md) | Landing inmersiva con WebGL (React Three Fiber, GSAP y Lenis) y fuentes autoalojadas | Aceptado |
+| [ADR-009](./ADR-009-estilos-por-componente-escala-px.md) | Estilos por componente con Tailwind y escalas en px (Fase 1 de la auditoría UI) | Aceptado |
