@@ -9,6 +9,10 @@ import { CameraRig } from './CameraRig';
 import { Acceso } from './escenas/Acceso';
 import { Ciudad } from './escenas/Ciudad';
 import { Garage } from './escenas/Garage';
+import { Pin } from './escenas/Pin';
+import { Pulsos } from './escenas/Pulsos';
+import { Realce } from './escenas/Realce';
+import { Trafico } from './escenas/Trafico';
 import { Trato } from './escenas/Trato';
 import { Vueltas } from './escenas/Vueltas';
 import { colorear } from './paleta';
@@ -77,6 +81,10 @@ export default function Experience() {
           <Vueltas />
           <Garage />
           <Acceso />
+          <Trafico />
+          <Pulsos />
+          <Realce />
+          <Pin />
         </group>
         <Proyector />
         <FrameBridge />

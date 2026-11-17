@@ -32,6 +32,14 @@ export const MAT = {
   losaLado: cara(),
   losaTapa: relleno({ polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 }),
   losaLinea: linea(),
+  papelTrafico: cara({ transparent: true, opacity: 0 }),
+  tintaTrafico: linea({ transparent: true, opacity: 0 }),
+  pulso: relleno({ transparent: true, depthWrite: false }),
+  pinCara: relleno({ polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1, transparent: true }),
+  pinLado: relleno({ polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1, transparent: true }),
+  pinLinea: linea({ transparent: true }),
+  realce: linea({ transparent: true, opacity: 0, depthTest: false }),
+  realceTecho: relleno({ transparent: true, opacity: 0, depthWrite: false }),
 };
 
 const tono = { media: new Color(), senal: new Color() };
@@ -44,11 +52,13 @@ export function colorear(raiz) {
   const senal = token('--senal');
   const media = token('--tinta-media');
   const tenue = token('--tinta-tenue');
-  for (const m of [MAT.papel, MAT.papelTrato, MAT.papelAcceso, MAT.papelVuelta, MAT.losaLado]) m.color.set(papel);
-  for (const m of [MAT.tinta, MAT.tintaAcceso, MAT.plantaLinea, MAT.tintaVuelta, MAT.losaLinea]) m.color.set(tinta);
+  for (const m of [MAT.papel, MAT.papelTrato, MAT.papelAcceso, MAT.papelVuelta, MAT.losaLado, MAT.papelTrafico]) m.color.set(papel);
+  for (const m of [MAT.tinta, MAT.tintaAcceso, MAT.plantaLinea, MAT.tintaVuelta, MAT.losaLinea, MAT.pinLinea]) m.color.set(tinta);
+  MAT.tintaTrafico.color.set(media);
+  MAT.pinLado.color.set(token('--senal-activa'));
   for (const m of [MAT.contexto, MAT.plantaTenue, MAT.vueltaLinea]) m.color.set(media);
   for (const m of [MAT.tenue, MAT.lejos]) m.color.set(tenue);
-  for (const m of [MAT.senalLinea, MAT.tratoLinea, MAT.techoTrato, MAT.techoOtros, MAT.ruta, MAT.plazas, MAT.losaTapa]) m.color.set(senal);
+  for (const m of [MAT.senalLinea, MAT.tratoLinea, MAT.techoTrato, MAT.techoOtros, MAT.ruta, MAT.plazas, MAT.losaTapa, MAT.pulso, MAT.pinCara, MAT.realce, MAT.realceTecho]) m.color.set(senal);
   tono.media.set(media);
   tono.senal.set(senal);
   MAT.sumadosLinea.color.copy(tono.media);

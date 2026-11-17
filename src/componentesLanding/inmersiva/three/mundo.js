@@ -103,7 +103,7 @@ function construirCiudad() {
   const cerca = [];
   const lejos = [];
   for (const e of edificios) caja(caras, e.d < 46 ? cerca : lejos, e.x0, e.z0, e.x1, e.z1, e.h);
-  return { manzanas, caras, cerca, lejos };
+  return { manzanas, caras, cerca, lejos, edificios };
 }
 
 function construirHitos() {
@@ -224,7 +224,7 @@ function construirPlanta() {
       consumos.losas++;
     }
   }
-  return { lineas, muro, flechas, rellenos, ajenos, consumos };
+  return { lineas, muro, flechas, rellenos, ajenos, consumos, reservadas };
 }
 
 // ── La llegada al portón ─────────────────────────────────────────────────────
@@ -318,6 +318,22 @@ const ciudad = construirCiudad();
 const hitos = construirHitos();
 const ruta = construirRuta();
 const planta = construirPlanta();
+
+// Edificios en el mismo orden que sus caras (10 triángulos cada uno): sirve para
+// saber cuál está bajo el cursor a partir del índice del triángulo.
+export const EDIFICIOS = ciudad.edificios;
+delete ciudad.edificios;
+// Plazas del trato en el orden en que se reservan.
+export const PLAZAS_RESERVADAS = planta.reservadas;
+delete planta.reservadas;
+// Calles con tráfico ambiental: ejes entre manzanas (c * PASO + 6), lejos de la
+// manzana de la oficina y del recorrido del trato.
+export const CALLES = [
+  { eje: 'x', en: -30, sentido: 1 }, { eje: 'x', en: 42, sentido: -1 }, { eje: 'x', en: -66, sentido: 1 },
+  { eje: 'z', en: -18, sentido: -1 }, { eje: 'z', en: 30, sentido: 1 }, { eje: 'z', en: -54, sentido: 1 },
+  { eje: 'x', en: 66, sentido: 1 }, { eje: 'z', en: 54, sentido: -1 },
+];
+export const LIMITE_CIUDAD = RADIO * PASO + 6;
 
 export const MUNDO = {
   ciudad: empacar(ciudad),

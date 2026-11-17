@@ -352,3 +352,7 @@ body:has(.plano) { overflow-x: clip; }
   .plano-escenario,
   .plano-boton { transition: none; }
 }
+
+/* ── Texto cinético (SplitText): la máscara deja lugar a los descendentes ── */
+.plano-palabra-mask { padding-bottom: 0.14em; margin-bottom: -0.14em; }
+.plano-palabra { will-change: transform; }

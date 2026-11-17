@@ -16,6 +16,7 @@ export const FX_CERO = Object.freeze({
   ingreso: 0,   // el auto avanza y se escanea el QR
   consumos: 0,  // horas apiladas sobre cada plaza
   red: 0,       // más garages marcados
+  pinFuera: 0,  // el pin del hero se guarda (vuelve en el cierre)
 });
 
 export const COREOGRAFIA = {
@@ -27,7 +28,10 @@ export const COREOGRAFIA = {
   problema: {
     camara: { x: 2.4, z: 1.2, zoom: 2.9 },
     camaraVertical: { x: 0.6, z: 0.6, zoom: 2.3 },
-    fx: [{ clave: 'vueltas', valor: 1, desde: 0.3, hasta: 0.95 }],
+    fx: [
+      { clave: 'pinFuera', valor: 1, desde: 0, hasta: 0.6 },
+      { clave: 'vueltas', valor: 1, desde: 0.3, hasta: 0.95 },
+    ],
   },
   idea: {
     camara: { x: 13.5, z: 6.5, zoom: 2.8 },
@@ -69,6 +73,7 @@ export const COREOGRAFIA = {
       { clave: 'consumos', valor: 0, desde: 0, hasta: 0.35 },
       { clave: 'tapa', valor: 0, desde: 0.2, hasta: 0.6 },
       { clave: 'red', valor: 1, desde: 0.55, hasta: 1 },
+      { clave: 'pinFuera', valor: 0, desde: 0.5, hasta: 1 },
     ],
   },
 };
