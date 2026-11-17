@@ -86,6 +86,7 @@
 }
 
 .agregar-empresa-form .input-group-superadmin input,
+.agregar-empresa-form .input-group-superadmin select,
 .agregar-empresa-form .input-group-superadmin textarea {
   width: 100%;
   min-width: 0;
@@ -110,6 +111,7 @@
 }
 
 .agregar-empresa-form .input-group-superadmin input:focus,
+.agregar-empresa-form .input-group-superadmin select:focus,
 .agregar-empresa-form .input-group-superadmin textarea:focus {
   border-color: #f59e0b;
   box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15);

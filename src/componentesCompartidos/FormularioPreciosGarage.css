@@ -1,0 +1,45 @@
+/* Precios por hora del garage. Los estilos viven junto al componente porque lo
+   usan las vistas de dueño, admin y superadmin; antes estaban solo en
+   duenio_garage.css y el formulario quedaba sin grilla fuera del panel del dueño. */
+.garage-price-fields {
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 1rem;
+}
+
+.garage-price-fields legend {
+  padding: 0 0.5rem;
+  font-weight: 700;
+  color: var(--color-brand-warm);
+}
+
+.garage-price-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+}
+
+.garage-price-grid label {
+  display: grid;
+  gap: 0.4rem;
+  color: var(--color-brand-muted);
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-align: left;
+}
+
+.garage-price-grid input {
+  min-height: 44px;
+  padding: 0 0.8rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 12px;
+  background: var(--color-brand-surface);
+  color: var(--color-brand-warm);
+  font: inherit;
+}
+
+@media (max-width: 640px) {
+  .garage-price-grid {
+    grid-template-columns: 1fr;
+  }
+}

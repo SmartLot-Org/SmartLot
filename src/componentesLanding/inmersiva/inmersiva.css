@@ -1,0 +1,830 @@
+/* Landing "Plano" (ADR-008). Todo cuelga de .plano para no chocar con los CSS
+   globales de los paneles. Medidas en px: la raíz de la app es de 18px y acá
+   la retícula es de 4px.
+   Composición: el dibujo técnico queda fijo detrás; el texto vive en notas
+   opacas, a la izquierda en horizontal y abajo en vertical. El azul señal marca
+   una sola cosa: un lugar disponible o reservado para vos. */
+
+.plano {
+  --papel: var(--color-brand-bg);
+  --tinta: var(--color-brand-deep);
+  --tinta-media: var(--color-plano-tinta-media);
+  --tinta-tenue: var(--color-plano-tinta-tenue);
+  --senal: var(--color-brand-blue);
+  --senal-activa: var(--color-brand-accent-hover);
+  --senal-sobre: var(--color-brand-surface);
+  --texto: var(--color-brand-warm);
+  --texto-suave: var(--color-brand-muted);
+  --borde: color-mix(in srgb, var(--tinta) 20%, transparent);
+  --salida: cubic-bezier(0.23, 1, 0.32, 1);
+  --barra: 64px;
+  --margen: max(16px, env(safe-area-inset-left, 0px));
+
+  position: relative;
+  flex: 1;
+  min-height: 100svh;
+  background: var(--papel);
+  color: var(--texto);
+  font: 400 16px/1.55 var(--font-body);
+  letter-spacing: 0;
+  text-align: left;
+}
+
+/* index.css pone overflow-x: hidden en body, y eso lo vuelve contenedor de scroll:
+   las notas sticky dejarían de pegarse. clip recorta igual sin ese efecto. */
+body:has(.plano) { overflow-x: clip; }
+
+.plano *,
+.plano *::before,
+.plano *::after { box-sizing: border-box; }
+.plano ::selection { background: var(--senal); color: var(--senal-sobre); }
+.plano :focus-visible { outline: 2px solid var(--senal); outline-offset: 3px; }
+
+.plano-saltar {
+  position: absolute;
+  left: var(--margen);
+  top: -80px;
+  z-index: 40;
+  padding: 10px 14px;
+  background: var(--tinta);
+  color: var(--papel);
+  font-weight: 500;
+}
+.plano-saltar:focus-visible { top: 8px; }
+/* main recibe el foco del enlace de salto; no es un control, no necesita anillo. */
+.plano main:focus { outline: none; }
+
+/* ── Escenario: el dibujo fijo, que entra con un fundido al primer frame ── */
+.plano-escenario {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 600ms var(--salida);
+}
+.plano-escenario[data-listo='true'] { opacity: 1; }
+.plano-escenario canvas { display: block; }
+
+.plano-rotulos { position: absolute; inset: 0; overflow: hidden; }
+.plano-rotulos > * { position: absolute; left: 0; top: 0; white-space: nowrap; opacity: 0; will-change: transform, opacity; }
+.plano-rotulo {
+  padding: 4px 7px;
+  border: 1px solid var(--borde);
+  background: var(--papel);
+  color: var(--tinta);
+  font: 500 12px/1 var(--font-body);
+}
+.plano-senal-e {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 3px;
+  background: var(--senal);
+  color: var(--senal-sobre);
+  font: 800 14px/1 var(--font-display);
+}
+.plano-cota {
+  padding: 3px 6px;
+  background: var(--papel);
+  color: var(--senal);
+  font: 700 12px/1 var(--font-body);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Detalle ampliado del celular con el QR, como los detalles de un plano. */
+.plano-lente {
+  width: 168px;
+  height: 168px;
+  border: 1px solid var(--tinta);
+  border-radius: 50%;
+  background: var(--papel);
+  color: var(--tinta);
+}
+.plano-lente svg { display: block; width: 100%; height: 100%; }
+.plano-lente__guia { stroke: var(--tinta); stroke-width: 1; fill: none; }
+.plano-lente__equipo { fill: var(--papel); stroke: var(--tinta); stroke-width: 1.5; }
+.plano-lente__qr { fill: var(--tinta); }
+.plano-lente__haz { fill: var(--senal); }
+.plano-lente__sello { fill: var(--senal); }
+.plano-lente__tilde { fill: none; stroke: var(--senal-sobre); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+.plano-lente__pie {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 8px);
+  transform: translateX(-50%);
+  padding: 3px 6px;
+  background: var(--papel);
+  color: var(--senal);
+  font: 700 12px/1 var(--font-body);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* ── Barra ── */
+.plano-barra {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: calc(var(--barra) + env(safe-area-inset-top, 0px));
+  padding: env(safe-area-inset-top, 0px) max(16px, env(safe-area-inset-right, 0px)) 0 var(--margen);
+  border-bottom: 1px solid var(--borde);
+  background: var(--papel);
+}
+.plano-marca {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  color: var(--tinta);
+  font: 800 18px/1 var(--font-display);
+  letter-spacing: -0.01em;
+  text-decoration: none;
+}
+.plano-marca img { display: block; width: auto; height: 32px; }
+.plano-barra__inicio { display: flex; align-items: center; gap: 32px; min-width: 0; }
+.plano-barra__nav { display: none; }
+.plano-barra__acciones { display: flex; align-items: center; gap: 8px; }
+
+/* Navegación de la barra: tercer nivel. Gris, sin borde ni subrayado; en hover pasa a tinta. */
+.plano-navlink {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--texto-suave);
+  font: 500 15px/1.2 var(--font-body);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 150ms ease;
+}
+
+/* Segundo nivel: el button-secondary de DESIGN.md. Mismo alto que el principal para que la
+   fila quede alineada; la diferencia la marcan el relleno y el peso visual, no el tamaño. */
+.plano-boton-secundario {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--borde);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--tinta);
+  font: 600 14px/1 var(--font-body);
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: transform 160ms var(--salida), border-color 150ms ease, background-color 150ms ease;
+}
+.plano-boton-secundario:active { transform: scale(0.97); }
+
+/* ── Botones y enlaces (registro de interfaz: menos de 300 ms, una propiedad por transición) ── */
+/* El botón principal conserva el brillo de la landing anterior (pedido del dueño del
+   producto): una sombra azul en reposo, una más intensa en hover y un barrido de luz.
+   La sombra de hover no se anima: es una segunda capa que aparece por opacidad. */
+.plano-boton {
+  --brillo-reposo: color-mix(in srgb, var(--senal) 30%, transparent);
+  --brillo-hover: color-mix(in srgb, var(--senal) 40%, transparent);
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 48px;
+  padding: 0 24px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--senal);
+  color: var(--senal-sobre);
+  font: 700 16px/1 var(--font-body);
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  box-shadow: 0 10px 15px -3px var(--brillo-reposo), 0 4px 6px -4px var(--brillo-reposo);
+  /* La presión usa `scale` y no `transform`: el imán (useMagnetico) mueve el botón con transform. */
+  transition: scale 160ms var(--salida), background-color 150ms ease;
+}
+.plano-boton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  box-shadow: 0 20px 25px -5px var(--brillo-hover), 0 8px 10px -6px var(--brillo-hover);
+  opacity: 0;
+  pointer-events: none;
+  /* Sale más rápido de lo que entra (250 ms en hover). */
+  transition: opacity 200ms ease;
+}
+.plano-boton__brillo {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: inherit;
+  pointer-events: none;
+}
+.plano-boton__brillo::before {
+  content: '';
+  position: absolute;
+  inset-block: 0;
+  left: -100%;
+  width: 100%;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--senal-sobre) 50%, transparent), transparent);
+  opacity: 0;
+  /* Al salir, la luz se desvanece rápido y vuelve a su lugar sin verse: no hay barrido de regreso. */
+  transition: opacity 200ms ease, transform 0s linear 200ms;
+}
+.plano-boton__texto { position: relative; }
+.plano-boton:active { scale: 0.97; }
+/* La Regla del Pulgar de DESIGN.md: en la landing ningún CTA baja de 44px. */
+.plano-boton--chico {
+  height: 44px;
+  padding: 0 16px;
+  font-size: 14px;
+  /* En la barra el brillo es más corto: con 14 px libres debajo del botón, tiene que
+     terminar antes del borde de la barra en reposo y en hover. */
+  box-shadow: 0 4px 8px -3px var(--brillo-reposo);
+}
+.plano-boton--chico::after { box-shadow: 0 6px 12px -4px var(--brillo-hover), 0 2px 4px -2px var(--brillo-hover); }
+.plano-enlace {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--tinta);
+  font: 500 15px/1.2 var(--font-body);
+  text-decoration: none;
+  text-underline-offset: 4px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+@media (hover: hover) and (pointer: fine) {
+  .plano-boton:hover { background: var(--senal-activa); }
+  .plano-boton:hover::after { opacity: 1; transition-duration: 250ms; }
+  /* La luz cruza el botón una vez al entrar el puntero, con la curva del botón anterior. */
+  .plano-boton:hover .plano-boton__brillo::before {
+    opacity: 1;
+    transform: translateX(200%);
+    transition: opacity 0s, transform 700ms cubic-bezier(0, 0, 0.2, 1);
+  }
+  .plano-enlace:hover { text-decoration: underline; text-decoration-thickness: 1px; }
+  .plano-navlink:hover { color: var(--tinta); }
+  .plano-boton-secundario:hover {
+    border-color: color-mix(in srgb, var(--tinta) 45%, transparent);
+    background: color-mix(in srgb, var(--tinta) 4%, transparent);
+  }
+}
+
+/* ── Secciones: el alto es el weight; la nota es sticky ── */
+.plano main {
+  position: relative;
+  z-index: 10;
+  padding-inline: var(--margen) max(16px, env(safe-area-inset-right, 0px));
+  pointer-events: none;
+}
+.plano-seccion {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  height: calc(var(--peso) * 100vh);
+  height: calc(var(--peso) * 100svh);
+  padding-bottom: 16px;
+  scroll-margin-top: var(--barra);
+}
+.plano-nota {
+  position: sticky;
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  display: grid;
+  gap: 12px;
+  width: 100%;
+  max-width: 520px;
+  padding: 20px;
+  border: 1px solid var(--borde);
+  border-radius: 2px;
+  background: var(--papel);
+  pointer-events: auto;
+}
+.plano-nota h1,
+.plano-nota h2 {
+  margin: 0;
+  color: var(--tinta);
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+/* Los títulos no se animan con SplitText: balance es seguro y evita una palabra sola abajo. */
+.plano-nota h1,
+.plano-nota h2 { text-wrap: balance; }
+.plano-nota h1 { font-size: clamp(32px, 8.6vw, 52px); line-height: 1.03; }
+.plano-nota h2 { font-size: clamp(25px, 6.4vw, 38px); line-height: 1.07; }
+.plano-nota > p { margin: 0; max-width: 46ch; color: var(--texto-suave); font-size: 17px; line-height: 1.5; text-wrap: pretty; }
+.plano-acciones { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; padding-top: 4px; }
+
+.plano-nota > .plano-dato {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 8px;
+  max-width: none;
+  padding-top: 12px;
+  border-top: 1px solid var(--borde);
+  color: var(--texto);
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+}
+.plano-dato strong { min-width: 2ch; color: var(--senal); font: 800 28px/1 var(--font-display); text-align: right; }
+.plano-dato small,
+.plano-planilla caption small { color: var(--texto-suave); font-size: 13px; font-weight: 400; }
+.plano-dato small { flex-basis: 100%; }
+
+.plano-planilla { padding-top: 12px; border-top: 1px solid var(--borde); font-variant-numeric: tabular-nums; }
+.plano-planilla table { width: 100%; border-collapse: collapse; font-size: 13px; line-height: 1.3; }
+.plano-planilla caption { padding-bottom: 6px; color: var(--tinta); font-weight: 700; text-align: left; }
+.plano-planilla caption small { margin-left: 6px; }
+.plano-planilla th,
+.plano-planilla td { padding: 5px 0 5px 10px; border-bottom: 1px solid var(--borde); color: var(--texto); font-weight: 400; text-align: left; white-space: nowrap; }
+.plano-planilla th:first-child { padding-left: 0; }
+.plano-planilla thead th { color: var(--texto-suave); font-size: 13px; font-weight: 500; }
+.plano-planilla .num { text-align: right; }
+.plano-planilla tfoot th,
+.plano-planilla tfoot td { border-bottom: 0; color: var(--tinta); font-weight: 700; }
+.plano-planilla p { margin: 6px 0 0; color: var(--texto-suave); font-size: 13px; }
+
+.plano-figura { margin: 0; border: 1px solid var(--borde); background: var(--papel); }
+.plano-figura img { display: block; width: 100%; height: auto; }
+
+.plano-pie {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px 24px;
+  padding: 10px max(16px, env(safe-area-inset-right, 0px)) calc(10px + env(safe-area-inset-bottom, 0px)) var(--margen);
+  border-top: 1px solid var(--borde);
+  background: var(--papel);
+  color: var(--texto-suave);
+  font-size: 14px;
+}
+.plano-pie p { margin: 0; }
+.plano-pie div { display: flex; flex-wrap: wrap; align-items: center; gap: 0 20px; }
+.plano-pie .plano-enlace { font-size: 14px; }
+
+/* ── Versión sin 3D (botón, ?sin3d, sin WebGL): flujo normal y figuras ── */
+.plano[data-sin3d='true'] main { display: grid; gap: 40px; padding-block: calc(var(--barra) + 28px) 40px; pointer-events: auto; }
+.plano[data-sin3d='true'] .plano-seccion { display: grid; gap: 16px; height: auto; padding-bottom: 0; }
+.plano[data-sin3d='true'] .plano-nota { position: static; max-width: 640px; padding: 0; border: 0; }
+.plano[data-sin3d='true'] .plano-figura { max-width: 640px; }
+
+/* ── Horizontal: nota a la izquierda, dibujo a la derecha ──
+   Es el complemento de CONSULTA_VERTICAL (scroll/rig.js). */
+@media (min-width: 900px), (min-width: 600px) and (orientation: landscape) {
+  .plano { --margen: max(24px, 6vw, env(safe-area-inset-left, 0px)); }
+  .plano-barra { padding-right: max(24px, 4vw, env(safe-area-inset-right, 0px)); }
+  .plano { --barra: 72px; }
+  .plano-barra__nav { display: flex; }
+  .plano-barra__acciones { gap: 12px; }
+  .plano-seccion { justify-content: flex-start; padding-bottom: 0; }
+  .plano-nota {
+    --alto-nota: clamp(calc(var(--barra) + 16px), 23vh, 240px);
+    top: var(--alto-nota);
+    bottom: auto;
+    width: min(480px, 44vw);
+    margin-top: var(--alto-nota);
+    padding: clamp(18px, 3.2vh, 30px) 32px clamp(20px, 3.4vh, 32px);
+    gap: clamp(10px, 1.8vh, 18px);
+  }
+  .plano-nota h1 { font-size: clamp(30px, min(3.7vw, 7.4vh), 54px); }
+  .plano-nota h2 { font-size: clamp(24px, min(2.8vw, 5.6vh), 40px); }
+  .plano-lente { width: 208px; height: 208px; }
+  .plano-pie { padding-right: max(24px, 4vw, env(safe-area-inset-right, 0px)); }
+
+  .plano[data-sin3d='true'] main { gap: 72px; padding-block: calc(var(--barra) + 56px) 72px; }
+  .plano[data-sin3d='true'] .plano-seccion { grid-template-columns: minmax(0, 480px) minmax(0, 1fr); align-items: center; gap: 48px; }
+  .plano[data-sin3d='true'] .plano-nota { width: auto; margin-top: 0; }
+  .plano[data-sin3d='true'] .plano-figura { max-width: 720px; justify-self: end; width: 100%; }
+}
+
+@media (max-width: 399px) {
+  .plano-marca span { display: none; }
+  .plano-boton-secundario,
+  .plano-boton--chico { padding: 0 14px; }
+}
+
+/* Movimiento reducido: sin barrido de luz. El brillo de hover queda, porque solo cambia la opacidad. */
+@media (prefers-reduced-motion: reduce) {
+  .plano-escenario { transition: none; }
+  /* Menos movimiento, no cero: se van el barrido y la escala al presionar; quedan color y opacidad. */
+  .plano-boton { transition: background-color 150ms ease; }
+  .plano-boton-secundario { transition: border-color 150ms ease, background-color 150ms ease; }
+  .plano-boton:active { scale: none; }
+  .plano-boton-secundario:active { transform: none; }
+  .plano-boton__brillo { display: none; }
+}
+
+/* ── Texto cinético (SplitText): la máscara deja lugar a los descendentes ── */
+.plano-palabra-mask { padding-bottom: 0.14em; margin-bottom: -0.14em; }
+.plano-palabra { will-change: transform; }
+
+/* ── Ficha del garage: anclada al plano, con una línea de llamada ── */
+.plano-ficha {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 2px 10px;
+  min-width: 210px;
+  padding: 12px 14px;
+  border: 1px solid var(--tinta);
+  background: var(--papel);
+  color: var(--texto);
+  font: 400 13px/1.35 var(--font-body);
+  opacity: 0;
+  transform: translate(var(--x, 0), var(--y, 0)) translate(-50%, calc(-100% - 26px)) scale(0.94);
+  transform-origin: 50% 100%;
+  transition: opacity 220ms var(--salida), transform 320ms var(--salida);
+  will-change: transform, opacity;
+}
+.plano-ficha[data-visible='true'] {
+  opacity: 1;
+  transform: translate(var(--x, 0), var(--y, 0)) translate(-50%, calc(-100% - 26px));
+}
+.plano-ficha[data-fijada='true'] { border-color: var(--senal); box-shadow: 4px 4px 0 color-mix(in srgb, var(--senal) 28%, transparent); }
+.plano-ficha::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  width: 1px;
+  height: 26px;
+  background: var(--tinta);
+}
+.plano-ficha .plano-senal-e { grid-row: span 2; }
+.plano-ficha strong { color: var(--tinta); font: 800 15px/1.2 var(--font-display); }
+.plano-ficha p { grid-column: 2; margin: 0; color: var(--texto-suave); }
+.plano-ficha p b { color: var(--senal); font: 800 15px/1 var(--font-display); }
+.plano-ficha small { grid-column: 1 / -1; margin-top: 4px; color: var(--texto-suave); font-size: 11px; }
+
+/* ── Mira de plano: acompaña al cursor (que se sigue viendo) sobre el dibujo ── */
+.plano-mira__cruz { display: none; }
+.plano-mira { position: absolute; inset: 0; overflow: hidden; opacity: 0; transition: opacity 160ms var(--salida); }
+.plano-mira[data-visible='true'] { opacity: 1; }
+.plano-mira > * { position: absolute; left: 0; top: 0; will-change: transform; }
+.plano-mira__cruz::before,
+.plano-mira__cruz::after {
+  content: '';
+  position: absolute;
+  background: var(--tinta);
+  transition: background-color 160ms var(--salida), scale 200ms var(--salida);
+}
+.plano-mira__cruz::before { left: -11px; top: 0; width: 22px; height: 1px; }
+.plano-mira__cruz::after { left: 0; top: -11px; width: 1px; height: 22px; }
+.plano-mira__dato {
+  margin: 14px 0 0 14px;
+  padding: 3px 6px;
+  background: var(--papel);
+  color: var(--tinta);
+  font: 500 11px/1 var(--font-body);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.plano-mira__dato:empty { display: none; }
+.plano-mira[data-modo='edificio'] .plano-mira__dato { color: var(--senal); font-weight: 700; }
+.plano-mira[data-modo='garage'] .plano-mira__cruz::before,
+.plano-mira[data-modo='garage'] .plano-mira__cruz::after { background: var(--senal); scale: 1.5; }
+.plano-mira[data-modo='garage'] .plano-mira__dato { background: var(--senal); color: var(--senal-sobre); font-weight: 700; }
+
+/* ── Intro: el cajetín del plano ── */
+.plano-intro {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  background:
+    linear-gradient(color-mix(in srgb, var(--tinta) 6%, transparent) 1px, transparent 1px) 0 0 / 24px 24px,
+    linear-gradient(90deg, color-mix(in srgb, var(--tinta) 6%, transparent) 1px, transparent 1px) 0 0 / 24px 24px,
+    var(--papel);
+  clip-path: inset(0% 0% 0% 0%);
+}
+.plano-intro__cajetin { position: relative; width: min(360px, calc(100vw - 48px)); height: 200px; color: var(--tinta); }
+.plano-intro__trazo { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.plano-intro__trazo * { fill: none; stroke: var(--tinta); stroke-width: 1.2; vector-effect: non-scaling-stroke; }
+.plano-intro__cabecera { position: absolute; inset: 0 0 auto 0; height: 96px; display: flex; align-items: center; justify-content: center; gap: 12px; }
+.plano-intro__logo { display: block; width: auto; height: 44px; }
+.plano-intro__titulo { min-width: 6ch; font: 800 34px/1 var(--font-display); letter-spacing: -0.02em; }
+.plano-intro__filas { position: absolute; inset: 96px 0 0 0; display: grid; grid-auto-rows: 34px; margin: 0; }
+.plano-intro__filas > div { display: grid; grid-template-columns: 96px 1fr; align-items: center; }
+.plano-intro__clave { padding-left: 12px; color: var(--texto-suave); font: 500 11px/1 var(--font-body); letter-spacing: 0.08em; text-transform: uppercase; }
+.plano-intro__valor { margin: 0; padding-left: 12px; font: 600 13px/1 var(--font-body); font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; }
+
+/* ── Enlaces: el subrayado se vuelve a trazar al pasar ── */
+.plano-enlace:not(.plano-enlace--tinta) {
+  text-decoration: none;
+  background: linear-gradient(currentColor, currentColor) 0 calc(100% - 9px) / 100% 1px no-repeat;
+}
+.plano-enlace--tinta { background: linear-gradient(currentColor, currentColor) 0 calc(100% - 9px) / 0% 1px no-repeat; }
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .plano-enlace:hover { text-decoration: none; animation: plano-trazo 520ms var(--salida); background-size: 100% 2px; }
+}
+@keyframes plano-trazo {
+  0% { background-size: 100% 1px; background-position: 100% calc(100% - 9px); }
+  45% { background-size: 0% 1px; background-position: 100% calc(100% - 9px); }
+  46% { background-size: 0% 2px; background-position: 0 calc(100% - 9px); }
+  100% { background-size: 100% 2px; background-position: 0 calc(100% - 9px); }
+}
+
+/* ── Regla de progreso (solo en horizontal) ── */
+.plano-regla { display: none; }
+@media (min-width: 900px), (min-width: 600px) and (orientation: landscape) {
+  .plano-regla {
+    position: fixed;
+    top: 50%;
+    right: max(18px, 1.6vw);
+    z-index: 20;
+    display: block;
+    width: 12px;
+    height: min(46vh, 420px);
+    translate: 0 -50%;
+  }
+}
+.plano-regla__carril {
+  position: absolute;
+  inset: 0 auto 0 5px;
+  width: 1px;
+  background: repeating-linear-gradient(to bottom, var(--tinta-media) 0 1px, transparent 1px 8px);
+}
+.plano-regla__avance { position: absolute; inset: 0; width: 1px; background: var(--senal); transform-origin: top; transform: scaleY(0); }
+.plano-regla ol { position: absolute; inset: 0; margin: 0; padding: 0; list-style: none; }
+.plano-regla li { position: absolute; top: calc(var(--en) * 100%); right: 0; translate: 0 -50%; }
+.plano-regla a {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  min-height: 24px;
+  color: var(--texto-suave);
+  text-decoration: none;
+}
+.plano-regla a::after {
+  content: '';
+  width: 11px;
+  height: 1px;
+  background: currentColor;
+  transition: width 220ms var(--salida), background-color 220ms var(--salida);
+}
+.plano-regla__num { font: 600 10px/1 var(--font-body); font-variant-numeric: tabular-nums; letter-spacing: 0.06em; }
+.plano-regla__titulo {
+  position: absolute;
+  right: calc(100% + 34px);
+  padding: 4px 8px;
+  border: 1px solid var(--borde);
+  background: var(--papel);
+  color: var(--tinta);
+  font: 500 12px/1.2 var(--font-body);
+  white-space: nowrap;
+  opacity: 0;
+  translate: 6px 0;
+  pointer-events: none;
+  transition: opacity 180ms var(--salida), translate 220ms var(--salida);
+}
+.plano-regla a[aria-current='step'] { color: var(--senal); }
+.plano-regla a[aria-current='step']::after { width: 18px; background: var(--senal); }
+.plano-regla a:hover .plano-regla__titulo,
+.plano-regla a:focus-visible .plano-regla__titulo { opacity: 1; translate: 0 0; }
+.plano-regla a:hover { color: var(--tinta); }
+
+/* ── Inercia: las notas acusan la velocidad del scroll y vuelven al frenar ── */
+.plano-nota { transform: translate3d(0, calc(var(--inercia, 0) * -12px), 0) skewY(calc(var(--inercia, 0) * -1.4deg)); }
+
+/* ── Celular de la reserva: pantalla de ejemplo junto al garage ── */
+.plano-celular {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 168px;
+  padding: 9px;
+  border: 1.5px solid var(--tinta);
+  border-radius: 22px;
+  background: var(--papel);
+  will-change: transform, opacity;
+}
+.plano-celular::before {
+  content: '';
+  display: block;
+  width: 36px;
+  height: 4px;
+  margin: 0 auto 8px;
+  border-radius: 2px;
+  background: var(--tinta-tenue);
+}
+.plano-celular__pantalla { display: grid; gap: 8px; color: var(--texto); font: 400 11px/1.3 var(--font-body); }
+.plano-celular header { display: grid; gap: 1px; }
+.plano-celular header b { color: var(--tinta); font: 800 14px/1.2 var(--font-display); }
+.plano-celular header small { color: var(--texto-suave); font-size: 10px; }
+.plano-celular ol { display: grid; grid-template-columns: repeat(5, 1fr); gap: 3px; margin: 0; padding: 0; list-style: none; }
+.plano-celular li {
+  display: grid;
+  justify-items: center;
+  padding: 4px 0;
+  border: 1px solid var(--borde);
+  border-radius: 6px;
+  color: var(--texto-suave);
+  font-size: 9px;
+  transition: background-color 200ms var(--salida), color 200ms var(--salida), border-color 200ms var(--salida);
+}
+.plano-celular li b { color: var(--tinta); font: 700 12px/1.2 var(--font-body); transition: color 200ms var(--salida); }
+.plano-celular li[data-activo] { border-color: var(--senal); background: var(--senal); color: var(--senal-sobre); }
+.plano-celular li[data-activo] b { color: var(--senal-sobre); }
+.plano-celular p { margin: 0; }
+.plano-celular__horario { padding: 6px 8px; border: 1px solid var(--borde); border-radius: 6px; color: var(--tinta); font-weight: 600; font-variant-numeric: tabular-nums; }
+.plano-celular__plaza { color: var(--texto-suave); font-size: 10px; }
+.plano-celular__boton {
+  display: grid;
+  place-items: center;
+  height: 30px;
+  border-radius: 8px;
+  background: var(--senal);
+  color: var(--senal-sobre);
+  font: 700 12px/1 var(--font-body);
+  transition: background-color 220ms var(--salida), color 220ms var(--salida), scale 220ms var(--salida);
+}
+.plano-celular__boton[data-hecho] { background: var(--tinta); color: var(--papel); scale: 0.97; }
+.plano-celular__cuenta { color: var(--senal); font-weight: 700; font-variant-numeric: tabular-nums; }
+.plano-celular__aviso { color: var(--texto-suave); font-size: 9px; }
+@media (max-width: 899px) and (orientation: portrait), (max-width: 599px) {
+  .plano-celular { display: none; }
+}
+
+/* ── Deslizador hoy / con SmartLot ── */
+.plano-comparar { display: grid; gap: 6px; padding-top: 12px; border-top: 1px solid var(--borde); }
+.plano-comparar__rotulos { display: flex; justify-content: space-between; font: 600 13px/1 var(--font-body); }
+.plano-comparar__rotulos span { color: var(--texto-suave); transition: color 200ms var(--salida); }
+.plano-comparar__rotulos span[data-activo='true'] { color: var(--tinta); }
+.plano-comparar__rotulos span:last-child[data-activo='true'] { color: var(--senal); }
+.plano-comparar small { color: var(--texto-suave); font-size: 12px; }
+.plano-comparar input {
+  --lleno: calc(var(--valor, 0) * 100%);
+  width: 100%;
+  height: 28px;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+  appearance: none;
+}
+.plano-comparar input::-webkit-slider-runnable-track {
+  height: 2px;
+  background: linear-gradient(to right, var(--senal) var(--lleno), var(--borde) var(--lleno));
+}
+.plano-comparar input::-moz-range-track { height: 2px; background: var(--borde); }
+.plano-comparar input::-moz-range-progress { height: 2px; background: var(--senal); }
+.plano-comparar input::-webkit-slider-thumb {
+  width: 22px;
+  height: 22px;
+  margin-top: -10px;
+  border: 2px solid var(--senal);
+  border-radius: 4px;
+  background: var(--papel);
+  box-shadow: 3px 3px 0 color-mix(in srgb, var(--senal) 25%, transparent);
+  appearance: none;
+  transition: scale 160ms var(--salida);
+}
+.plano-comparar input::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--senal);
+  border-radius: 4px;
+  background: var(--papel);
+}
+.plano-comparar input:active::-webkit-slider-thumb { scale: 1.12; }
+
+/* ── Chats del "hoy": globos sobre la oficina ── */
+.plano-chats {
+  position: absolute; left: 0; top: 0;
+  width: 460px; height: 330px;
+  opacity: 0; transform-origin: 0 0;
+  pointer-events: none; will-change: transform, opacity;
+}
+.plano-chat {
+  position: absolute;
+  max-width: 210px;
+  margin: 0;
+  padding: 7px 10px;
+  border: 1px solid var(--borde);
+  border-radius: 12px 12px 12px 3px;
+  background: var(--papel);
+  box-shadow: 3px 3px 0 color-mix(in srgb, var(--tinta) 8%, transparent);
+  color: var(--texto);
+  font: 400 12px/1.35 var(--font-body);
+  opacity: 0;
+  scale: 0.6;
+  rotate: 0deg;
+  translate: 0 10px;
+  transform-origin: 0 100%;
+  /* Al irse, todos juntos y rápido. */
+  transition: opacity 160ms var(--salida), scale 160ms var(--salida), translate 160ms var(--salida), rotate 160ms var(--salida);
+}
+.plano-chat:nth-child(even) { border-radius: 12px 12px 3px 12px; border-color: var(--tinta-tenue); transform-origin: 100% 100%; }
+.plano-chat b { display: block; color: var(--texto-suave); font-size: 10px; font-weight: 600; }
+/* Al llegar, en cascada rápida y con rebote: uno atrás del otro, sin respiro. */
+.plano-chats[data-caos] .plano-chat {
+  opacity: 1; scale: 1; rotate: var(--giro); translate: 0 0;
+  transition: opacity 140ms ease-out, scale 320ms cubic-bezier(0.3, 1.7, 0.5, 1), rotate 320ms cubic-bezier(0.3, 1.7, 0.5, 1), translate 320ms cubic-bezier(0.3, 1.7, 0.5, 1);
+  transition-delay: calc(var(--orden) * 85ms);
+}
+.plano-chats[data-asentado] .plano-chat { transition-delay: 0ms; }
+/* Al deslizar hacia "con SmartLot", los que sobran se van hacia arriba. */
+.plano-chats .plano-chat[data-fuera] {
+  opacity: 0; scale: 0.7; translate: 0 -14px;
+  transition: opacity 200ms var(--salida), scale 200ms var(--salida), translate 200ms var(--salida);
+  transition-delay: 0ms;
+}
+@media (max-width: 899px) and (orientation: portrait), (max-width: 599px) {
+  .plano-chats { scale: 0.7; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .plano-chat, .plano-chats[data-caos] .plano-chat { scale: 1; translate: 0 0; transition: opacity 120ms linear; transition-delay: 0ms; }
+}
+
+/* ── Reloj de la jornada ── */
+.plano-reloj {
+  position: absolute; left: 0; top: 0;
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 12px 8px 8px;
+  border: 1px solid var(--borde); border-radius: 10px;
+  background: color-mix(in srgb, var(--papel) 92%, transparent);
+  box-shadow: 4px 4px 0 color-mix(in srgb, var(--tinta) 10%, transparent);
+  font-variant-numeric: tabular-nums;
+  pointer-events: none; will-change: transform, opacity;
+}
+.plano-reloj svg { flex: none; stroke: var(--tinta); stroke-linecap: round; }
+.plano-reloj__esfera { fill: var(--papel); stroke-width: 1.5; }
+.plano-reloj line { stroke-width: 1.2; }
+.plano-reloj__horario { stroke-width: 2.6 !important; }
+.plano-reloj__minutero { stroke: var(--senal); stroke-width: 1.6 !important; }
+.plano-reloj__eje { fill: var(--senal); stroke: none; }
+.plano-reloj p { display: grid; margin: 0; color: var(--texto-suave); font-size: 11px; line-height: 1.3; }
+.plano-reloj b { color: var(--tinta); font: 800 20px/1 var(--font-display); }
+
+
+
+/* ── Elegí un día (reserva) ── */
+.plano-dias { display: grid; gap: 8px; padding-top: 12px; border-top: 1px solid var(--borde); }
+.plano-dias__titulo { margin: 0; color: var(--tinta); font: 700 14px/1.2 var(--font-body); }
+.plano-dias__botones { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+.plano-dias__botones button {
+  display: grid; justify-items: center; gap: 2px;
+  min-height: 48px; padding: 6px 0;
+  border: 1px solid var(--borde); border-radius: 8px;
+  background: var(--papel); color: var(--texto-suave);
+  font: 500 11px/1 var(--font-body);
+  cursor: pointer;
+  transition: background-color 160ms var(--salida), border-color 160ms var(--salida), color 160ms var(--salida), translate 160ms var(--salida);
+}
+.plano-dias__botones button b { color: var(--tinta); font: 800 17px/1 var(--font-display); }
+.plano-dias__botones button:hover { border-color: var(--senal); translate: 0 -2px; }
+.plano-dias__botones button[aria-pressed='true'] { border-color: var(--senal); background: var(--senal); color: var(--senal-sobre); }
+.plano-dias__botones button[aria-pressed='true'] b { color: var(--senal-sobre); }
+.plano-dias__botones button:active { translate: 0 0; }
+.plano-dias__ayuda { margin: 0; min-height: 1.4em; color: var(--texto-suave); font-size: 13px; }
+.plano-dias__ayuda strong { color: var(--senal); }
+@media (prefers-reduced-motion: reduce) {
+  .plano-dias__botones button, .plano-dias__botones button:hover { translate: none; transition: none; }
+}
+/* Etiqueta sobre la plaza elegida: un globo con la punta en la plaza. */
+.plano-eleccion { position: absolute; left: 0; top: 0; width: 0; height: 0; pointer-events: none; will-change: translate, opacity; }
+.plano-eleccion span {
+  position: absolute; left: 0; bottom: 10px;
+  translate: -50% 0;
+  padding: 4px 9px;
+  border-radius: 6px;
+  background: var(--tinta); color: var(--papel);
+  font: 700 12px/1.2 var(--font-body); white-space: nowrap;
+  box-shadow: 2px 2px 0 color-mix(in srgb, var(--tinta) 25%, transparent);
+}
+.plano-eleccion span::after {
+  content: ''; position: absolute; left: 50%; top: 100%;
+  border: 5px solid transparent; border-top-color: var(--tinta);
+  translate: -50% 0;
+}
+.plano-eleccion[data-salta] span { animation: plano-eleccion-salta 420ms cubic-bezier(0.3, 1.7, 0.5, 1); }
+@keyframes plano-eleccion-salta { from { opacity: 0; scale: 0.6; translate: -50% 8px; } }
+@media (prefers-reduced-motion: reduce) {
+  .plano-eleccion[data-salta] span { animation: none; }
+}
+/* En vertical la nota tapa la planta: con el selector de día, el contador sobra. */
+@media (max-width: 899px) and (orientation: portrait), (max-width: 599px) {
+  .plano-nota:has(.plano-dias) > .plano-dato { display: none; }
+  .plano-dias__botones button { min-height: 44px; }
+}

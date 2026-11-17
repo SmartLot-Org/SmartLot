@@ -568,7 +568,7 @@ export default function AdminPanelControl() {
           <MessageSquareWarning className="conflicts-section__alert-icon" />
           <div>
             <h2 className="conflicts-section__title">
-              Conflictos reportados ({pendientes})
+              Conflictos reportados ({pendientes} sin resolver)
             </h2>
             <p className="conflicts-section__subtitle">Casos abiertos por empleados y estado de seguimiento.
               <span className={`last-updated ${isStale ? "last-updated--stale" : ""}`}>
@@ -599,7 +599,7 @@ export default function AdminPanelControl() {
             className={`conflicts-toolbar__btn ${!mostrarPapelera ? "active" : ""}`}
             onClick={() => setMostrarPapelera(false)}
           >
-            Activos ({conflictosTenant.length})
+            Todos ({conflictosTenant.length})
           </button>
           <button
             type="button"

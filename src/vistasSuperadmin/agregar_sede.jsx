@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ArrowLeft, CircleCheck } from "lucide-react";
 import { Autocomplete } from '@react-google-maps/api';
+import "./agregar_empresa.css";
 import "./agregar_sede.css";
 import HeaderSuperadmin from "../componentesSuperadmin/header_superadmin";
 import BotonGenerico from "../componentesAdmin/boton_generico";
@@ -29,14 +30,14 @@ const obtenerListado = (datos) => {
 };
 
 const AgregarSedeSkeleton = () => (
-  <section className="agregar-sede-form agregar-sede-form-skeleton" aria-label="Cargando formulario">
+  <section className="agregar-sede-form agregar-empresa-form agregar-sede-form-skeleton" aria-label="Cargando formulario">
     {Array.from({ length: 4 }).map((_, index) => (
       <div className="input-skeleton-superadmin" key={index}>
         <span className="skeleton-line skeleton-form-label" />
         <span className={`skeleton-line ${index === 2 ? "skeleton-form-textarea" : "skeleton-form-control"}`} />
       </div>
     ))}
-    <div className="agregar-sede-actions">
+    <div className="agregar-sede-actions agregar-empresa-actions">
       <span className="skeleton-line skeleton-form-button" />
       <span className="skeleton-line skeleton-form-button secondary" />
     </div>
@@ -147,7 +148,7 @@ function AgregarSede() {
         {loadingEmpresas ? (
           <AgregarSedeSkeleton />
         ) : (
-        <section className="agregar-sede-form">
+        <section className="agregar-sede-form agregar-empresa-form">
           <div className="input-group-superadmin">
             <label>Empresa</label>
             <select value={formData.idEmpresa} onChange={(e) => setFormData((prev) => ({ ...prev, idEmpresa: e.target.value }))} autoComplete="off" required>
@@ -173,14 +174,13 @@ function AgregarSede() {
           </div>
 
           <div className="input-group-superadmin">
-            <label>Descripción</label>
+            <label className="label-optional">Descripción</label>
             <textarea
               placeholder="Descripción de la sede (opcional)"
               value={formData.descripcion}
               onChange={(e) => setFormData((prev) => ({ ...prev, descripcion: e.target.value }))}
               rows={3}
               autoComplete="off"
-              required
             />
           </div>
 
@@ -212,9 +212,9 @@ function AgregarSede() {
             )}
           </div>
 
-          {error && <p className="form-error-superadmin">{error}</p>}
+          {error && <p className="form-error-superadmin" role="alert">{error}</p>}
 
-          <div className="agregar-sede-actions">
+          <div className="agregar-sede-actions agregar-empresa-actions">
             <BotonGenerico
               className="btn-guardar-grande"
               onClick={handleGuardar}
@@ -225,7 +225,6 @@ function AgregarSede() {
             </BotonGenerico>
 
             <BotonGenerico
-              style={{ backgroundColor: "grey" }}
               className="btn-cancelar-grande"
               onClick={() => navigate("/superadmin/gestion_empresas", { replace: true, state: { empresaId: Number(formData.idEmpresa) || undefined } })}
             >

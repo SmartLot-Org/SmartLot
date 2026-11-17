@@ -1,3 +1,5 @@
+import './FormularioPreciosGarage.css';
+
 const PRICE_FIELDS = [
   ['precio_auto', 'Precio por hora - Auto'],
   ['precio_moto', 'Precio por hora - Moto'],

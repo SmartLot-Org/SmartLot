@@ -1,31 +1,10 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useJsApiLoader } from '@react-google-maps/api';
+import { lazy, Suspense, useCallback, useMemo, useState } from 'react';
 import { GoogleMapsContext } from './googleMapsContext';
 
-// Configuración canónica de la API de Google Maps.
-// Toda la app carga el script exclusivamente por acá: centralizar la llamada
-// evita que varios componentes montados en paralelo inyecten el script con
-// configuraciones distintas (libraries distintas → colisiones de carga).
-const API_KEY = import.meta.env.VITE_GOOGLE_MAPS_FRONTEND_KEY || '';
-const LIBRARIES = ['places'];
-const SCRIPT_ID = 'smartlot-google-maps-script';
-
-// Único call-site de useJsApiLoader de la aplicación.
-function MapsLoaderBridge({ onStateChange }) {
-  const { isLoaded, loadError } = useJsApiLoader({
-    googleMapsApiKey: API_KEY,
-    libraries: LIBRARIES,
-    language: 'es',
-    region: 'AR',
-    id: SCRIPT_ID,
-  });
-
-  useEffect(() => {
-    onStateChange({ isLoaded, loadError });
-  }, [isLoaded, loadError, onStateChange]);
-
-  return null;
-}
+// El puente que llama a useJsApiLoader vive en su propio módulo y se importa
+// con lazy(): así @react-google-maps/api no entra al bundle de entrada y solo
+// se descarga cuando una pantalla pide el mapa (ADR-006).
+const MapsLoaderBridge = lazy(() => import('./MapsLoaderBridge'));
 
 export function GoogleMapsProvider({ children }) {
   const [mapsState, setMapsState] = useState({ isLoaded: false, loadError: null });
@@ -44,7 +23,11 @@ export function GoogleMapsProvider({ children }) {
   // no se desmonten/remonten cuando arranca la carga del script.
   return (
     <GoogleMapsContext.Provider value={value}>
-      {requested && <MapsLoaderBridge onStateChange={setMapsState} />}
+      {requested && (
+        <Suspense fallback={null}>
+          <MapsLoaderBridge onStateChange={setMapsState} />
+        </Suspense>
+      )}
       {children}
     </GoogleMapsContext.Provider>
   );

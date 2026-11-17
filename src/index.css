@@ -18,6 +18,11 @@
   --color-brand-muted:   #475569;
   --color-brand-cream:   #F5F7FB;
 
+  /* ── Landing "Plano" (ADR-008): tintas del dibujo técnico ──
+     El papel es brand-bg, la tinta plena es brand-deep y la señal es brand-blue. */
+  --color-plano-tinta-media: #7C8BAA;
+  --color-plano-tinta-tenue: #CDD6E5;
+
   /* ── Font Families ── */
   --font-display: 'Archivo', system-ui, sans-serif;
   --font-body:    'DM Sans', system-ui, sans-serif;
@@ -58,6 +63,10 @@ html:has(.landing-page) {
   --text-h: #1E293B;
   --bg:     #F5F7FB;
   --border: #E2E8F0;
+  --border-strong: #CBD5E1;
+  --error: #EF4444;
+  --error-strong: #B91C1C;
+  --error-bg: #FEF2F2;
   --code-bg: #f4f3ec;
   --accent: #2563EB;
   --accent-hover: #156FE5;
@@ -118,12 +127,6 @@ body[style*="padding-right"] {
 /* ═══════════════════════════════════════════════════════════════════
    Utility Classes (used in components)
    ═══════════════════════════════════════════════════════════════════ */
-
-/* Body scroll lock during intro animation */
-.no-scroll {
-  overflow: hidden !important;
-  height: 100vh !important;
-}
 
 /* Subtle film-grain noise texture overlay */
 .bg-noise::after {

@@ -9,8 +9,8 @@ gsap.registerPlugin(ScrollTrigger);
 // vuelve arriba solo. El scroll debe ser instantáneo: con el
 // `scroll-behavior: smooth` global (index.css) un scrollTo(0,0) común se
 // convierte en una glidiada animada que atraviesa la zona activa de los
-// ScrollTrigger recién creados (el LogoWatermark del landing se scrubea
-// entero en fast-forward al volver de /para-garages). `behavior: 'instant'`
+// ScrollTrigger recién creados (el relato de la landing se recorrería entero
+// en fast-forward al volver de /para-garages). `behavior: 'instant'`
 // gana sobre el CSS, y el layout effect corre antes de que la ruta nueva
 // monte sus triggers, así nacen ya en scroll 0.
 export default function ScrollToTop() {

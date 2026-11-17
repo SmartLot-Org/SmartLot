@@ -31,7 +31,9 @@ Los ADRs de esta carpeta son **retrospectivos**: documentan decisiones ya implem
 | [ADR-005](./ADR-005-sistema-diseno-azul-senal.md) | Sistema de diseño "Azul Señal" con tokens de Tailwind v4 | Aceptado |
 | [ADR-006](./ADR-006-code-splitting-por-ruta.md) | Code splitting por ruta e imports diferidos de dependencias pesadas | Aceptado |
 | [ADR-007](./ADR-007-paleta-propia-superadmin.md) | Paleta propia del panel superadmin (excepción deliberada a la Regla del Token) | Aceptado |
-| [ADR-008](./ADR-008-politica-de-errores-de-la-api.md) | Política de errores de la API: la base falla con excepciones y un solo `errorHandler` traduce | Aceptado |
-| [ADR-009](./ADR-009-put-reemplazo-completo-patch-parcial.md) | `PUT` reemplaza el recurso completo y `PATCH` actualiza parcialmente | Aceptado |
-| [ADR-010](./ADR-010-pagos-verificacion-post-y-fallas-del-proveedor-502.md) | La verificación de pagos es una acción `POST`; las fallas del proveedor son `502` | Aceptado |
-| [ADR-011](./ADR-011-ids-de-ruta-validados-con-router-param.md) | Los `:id` de ruta se validan una vez con `router.param` | Aceptado |
+| [ADR-008](./ADR-008-landing-inmersiva-webgl.md) | Landing inmersiva con WebGL (React Three Fiber, GSAP y Lenis) y fuentes autoalojadas | Aceptado |
+| [ADR-009](./ADR-009-estilos-por-componente-escala-px.md) | Estilos por componente con Tailwind y escalas en px (Fase 1 de la auditoría UI) | Aceptado |
+| [ADR-010](./ADR-010-politica-de-errores-de-la-api.md) | Política de errores de la API: la base falla con excepciones y un solo `errorHandler` traduce | Aceptado |
+| [ADR-011](./ADR-011-put-reemplazo-completo-patch-parcial.md) | `PUT` reemplaza el recurso completo y `PATCH` actualiza parcialmente | Aceptado |
+| [ADR-012](./ADR-012-pagos-verificacion-post-y-fallas-del-proveedor-502.md) | La verificación de pagos es una acción `POST`; las fallas del proveedor son `502` | Aceptado |
+| [ADR-013](./ADR-012-ids-de-ruta-validados-con-router-param.md) | Los `:id` de ruta se validan una vez con `router.param` | Aceptado |

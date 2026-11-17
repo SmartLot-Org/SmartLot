@@ -1,4 +1,4 @@
-.reservation-limit-fields { border: 1px solid #e2e8f0; border-radius: 16px; padding: 18px; margin: 16px 0; display: flex; flex-direction: column; gap: 12px; color: #334155; background: #fff; }
+.reservation-limit-fields { border: 1px solid #e2e8f0; border-radius: 16px; padding: 18px; margin: 16px 0; display: flex; flex-direction: column; gap: 12px; color: #334155; background: #fff; text-align: left; }
 .reservation-limit-fields legend { font-weight: 600; padding: 0 6px; }
 .reservation-limit-fields label { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .reservation-limit-fields input[type="number"] { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font: inherit; }

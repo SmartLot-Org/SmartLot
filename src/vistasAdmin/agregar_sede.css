@@ -286,3 +286,31 @@
     gap: 0.45rem;
   }
 }
+
+/* Base del esqueleto: estaba solo en gestion_sedes.css y se perdía al entrar directo. */
+.agregar-sede-admin-form-skeleton .skl-line {
+  display: block;
+  position: relative;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--border);
+}
+
+.agregar-sede-admin-form-skeleton .skl-line::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent 0%, color-mix(in srgb, var(--color-brand-surface) 65%, transparent) 50%, transparent 100%);
+  animation: agregar-sede-admin-shimmer 1.35s infinite;
+}
+
+@keyframes agregar-sede-admin-shimmer {
+  100% { transform: translateX(100%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .agregar-sede-admin-form-skeleton .skl-line::after {
+    animation: none;
+  }
+}

@@ -100,7 +100,8 @@
 }
 
  .stats-card {
- 
+  /* Ancla el ícono decorativo a la tarjeta; sin esto se salía de la página. */
+  position: relative;
   background: #ffffff !important;
   border-radius: 20px;
   

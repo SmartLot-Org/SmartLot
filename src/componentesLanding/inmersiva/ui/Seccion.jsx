@@ -1,0 +1,72 @@
+import { useRef } from 'react';
+import { useGSAP } from '@gsap/react';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { Comparador } from './Comparador';
+import { Cta } from './Cta';
+import { Dato } from './Dato';
+import { ElegirDia } from './ElegirDia';
+import { TablaConsumos } from './TablaConsumos';
+import { useTituloCinetico } from './useTituloCinetico';
+
+gsap.registerPlugin(useGSAP, ScrollTrigger);
+
+// Una sección = una idea = un encuadre. La nota viaja con el scroll, se queda
+// quieta durante la estadía y se desvanece al irse para dejar ver el dibujo.
+// El hero (i === 0) lleva el único h1 y no espera ninguna animación.
+export function Seccion({ s, i, ultima, sinEscena }) {
+  const ref = useRef(null);
+  const Titulo = i === 0 ? 'h1' : 'h2';
+  const poster = `/landing/posters/${s.poster ?? s.id}`;
+
+  useGSAP(() => {
+    if (sinEscena || ultima) return;
+    gsap.fromTo(ref.current.querySelector('.plano-nota'), { autoAlpha: 1 }, {
+      autoAlpha: 0, ease: 'none', immediateRender: false,
+      scrollTrigger: { trigger: ref.current, start: 'bottom bottom', end: 'bottom 62%', scrub: true },
+    });
+  }, { scope: ref, dependencies: [sinEscena, ultima], revertOnUpdate: true });
+
+  // El hero (i === 0) no se anima: su h1 se ve desde el primer render.
+  useTituloCinetico(ref, { activo: i > 0, dependencias: [sinEscena] });
+
+  return (
+    <section
+      ref={ref}
+      id={s.id}
+      data-seccion={i}
+      className="plano-seccion"
+      style={{ '--peso': s.weight }}
+      aria-labelledby={`${s.id}-titulo`}
+    >
+      <div className="plano-nota">
+        <Titulo id={`${s.id}-titulo`}>{s.titulo}</Titulo>
+        <p>{s.cuerpo}</p>
+        {s.comparador && !sinEscena && <Comparador />}
+        {s.dato && !sinEscena && <Dato />}
+        {s.elegirDia && !sinEscena && <ElegirDia />}
+        {s.tabla && <TablaConsumos />}
+        {s.cta && (
+          <div className="plano-acciones">
+            <Cta />
+          </div>
+        )}
+      </div>
+      {sinEscena && (
+        <figure className="plano-figura">
+          <img
+            src={`${poster}.webp`}
+            srcSet={`${poster}-600.webp 600w, ${poster}.webp 1200w`}
+            sizes="(min-width: 900px) 720px, 45vw"
+            alt={s.figura}
+            width={1200}
+            height={900}
+            loading={i === 0 ? 'eager' : 'lazy'}
+            fetchPriority={i === 0 ? 'high' : 'auto'}
+            decoding="async"
+          />
+        </figure>
+      )}
+    </section>
+  );
+}

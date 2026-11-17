@@ -354,7 +354,7 @@ export default function SuperadminConflictos() {
         <div className="conflicts-section__title-container">
           <MessageSquareWarning className="conflicts-section__alert-icon" />
           <div>
-            <h2 className="conflicts-section__title">Conflictos recibidos ({pendientes})</h2>
+            <h2 className="conflicts-section__title">Conflictos recibidos ({pendientes} sin resolver)</h2>
             <p className="conflicts-section__subtitle">Reportes activos enviados por administradores.
               <span className={`last-updated ${isStale ? "last-updated--stale" : ""}`}>
                 <span className="last-updated__dot" />
@@ -376,7 +376,7 @@ export default function SuperadminConflictos() {
             className={`conflicts-toolbar__btn ${!mostrarPapelera ? "active" : ""}`}
             onClick={() => setMostrarPapelera(false)}
           >
-            Activos ({conflictos.length})
+            Todos ({conflictos.length})
           </button>
           <button
             type="button"

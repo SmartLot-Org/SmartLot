@@ -101,4 +101,4 @@ npm run build
 
 - Salida estática en `dist/`, pensada para Vercel (`vercel.json` reescribe todas las rutas a `index.html` y define cachés de assets).
 - Configurar `VITE_API_URL` (HTTPS) en el entorno de producción. El cliente HTTP avisa por consola si la URL no es HTTPS.
-- Los headers de caché de `vercel.json` aplican a `/assets/*` (inmutable) y `/GIF_IMGS_LOGO/*` (larga + revalidate).
+- Los headers de caché de `vercel.json` aplican a `/assets/*` (inmutable) y `/landing/*` (larga + revalidate).
