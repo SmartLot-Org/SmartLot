@@ -61,6 +61,22 @@ function processQueue(error) {
   failedQueue = [];
 }
 
+// Endpoints donde un 401 significa "credenciales rechazadas", no "sesión vencida":
+// no se intenta refresh, así el usuario ve el error real del login (antes se
+// mostraba "No hay sesión de refresco" en lugar de "Credenciales incorrectas").
+const ENDPOINTS_DE_CREDENCIALES = [
+  '/refresh',
+  '/auth/',
+  '/api/usuario/login',
+  '/api/usuario/login-con-codigo',
+  '/api/usuario/restablecer-clave',
+  '/api/usuario/recuperar-clave',
+];
+
+function esEndpointDeCredenciales(url = '') {
+  return ENDPOINTS_DE_CREDENCIALES.some((endpoint) => url.includes(endpoint));
+}
+
 function shouldClearCacheForAuthUrl(url = '') {
   return url.includes('/api/usuario/login')
     || url.includes('/api/usuario/logout')
@@ -181,7 +197,7 @@ apiClient.interceptors.response.use(
     // 401 → intentar refresh automático (excepto refresh y auth endpoints).
     // Se ejecuta antes del chequeo de _skipToast: ese flag solo silencia toasts,
     // no debe impedir la renovación de sesión ni el reintento.
-    if (status === 401 && !originalRequest._isRetry && !originalRequest.url?.includes('/refresh') && !originalRequest.url?.includes('/auth/')) {
+    if (status === 401 && !originalRequest._isRetry && !esEndpointDeCredenciales(originalRequest.url)) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
