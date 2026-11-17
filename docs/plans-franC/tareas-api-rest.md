@@ -107,4 +107,8 @@ Convenciones: **BE** = backend `SmartLot_API`, **FE** = este repo. Salvo que se 
   - `test/conflicto-repository.test.js` (agregado en `ef940a1`) no corría: mockeaba `db.js` con `exports`, opción que `mock.module` no reconoce. Ahora usa `defaultExport`; sus 4 casos pasan sobre PGlite y confirman la corrección de placeholders de `ef940a1`. BE `ef0a46d`.
   - `cookies.txt` versionado en la raíz del BE, sin uso: eliminado (BE `99677e5`). Si tenía sesiones reales, rotarlas (quedan en el historial).
   - Lint del FE: `.agents/` (scripts de skills de terceros) excluido en `eslint.config.js`; `npm run lint` pasa de 112 a 63 problemas, todos preexistentes. FE `454f232`.
+- [x] **T7.7 Perfiles: guardado de teléfono y contraseña** (2026-11-17, pedido del dueño; mejora de UX fuera del plan original)
+  - Aceptación: si falla el cambio de contraseña no se guarda el teléfono; si la contraseña se guardó y falla el teléfono, la pantalla lo dice y cierra la sesión (el backend ya la revocó); solo se envía lo que cambió; el error muestra el mensaje del backend, no el genérico de axios.
+  - Hecho: `src/helpers/perfilGuardado.js` (`guardarCambiosPerfil`, `mensajeErrorServidor`) usado por `perfil_empleado.jsx` y `perfil_dueño_garage.jsx`. No se usó un solo `PUT` con la contraseña porque ese camino no revoca sesiones ni avisa por correo, y `PATCH …/contrasenia` sí.
+  - Verificación: `src/helpers/perfilGuardado.test.js` (4 tests); FE `npm test` 125 ok, `npm run build` OK, lint dirigido sin problemas nuevos. Falta probarlo en el navegador (T7.2).
 - [ ] **T7.5 Actualizar la tabla final de `docs/plans-franC/api-errores.md`, `estado-api-rest.md` y la bitácora** al cerrar.

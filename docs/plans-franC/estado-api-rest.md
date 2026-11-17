@@ -85,7 +85,7 @@ Frontend (`cd C:\Users\TOTO\OneDrive\Desktop\Proyectos\SmartLot`):
 | BE | `npm test -- --test-timeout=120000` | 798 tests, **789 ok, 0 fallos, 9 skipped** |
 | BE | `npm run test:mp` | 42 tests, 36 ok, **3 fallos de entorno** (`fetch failed` y `ECONNREFUSED 127.0.0.1:5432`), 3 skipped. **Correrlo en la máquina del dueño** |
 | BE | `npm run routes:inventory -- --write` / `postman:generate` | 137 endpoints; `api.md` sin cambios; colección con los bodies nuevos de modelo |
-| FE | `npm test` / `npm run build` | 121 ok / OK |
+| FE | `npm test` / `npm run build` | 125 ok (121 + 4 de T7.7) / OK |
 | FE | `npm run lint` | 63 problemas (59 errores, 4 warnings), todos preexistentes; ninguno en los archivos tocados por la sesión |
 
 Línea base del backend al empezar: 668 tests, 663 ok, 1 fallo, 4 skipped. El único fallo (`webhook HTTP con firma valida pero pago inexistente…`) era una aserción desactualizada de `mp-integration.test.js` (faltaba `data.id` en la query desde SEG-08); se corrigió y ahora pasa.
@@ -164,7 +164,7 @@ Se hicieron **2 commits en el backend en lugar de uno por fase**: los archivos s
 Queda solo lo que **requiere al dueño** (ver `tareas-api-rest.md` → Cierre):
 
 1. ~~Autorización de commits (T7.1)~~ Hecho (sección 12).
-2. **Prueba manual (T7.2)** en la máquina del dueño: los `curl` de `api-errores.md` §11, la colección Postman contra el backend local y el recorrido del FE (perfil con cambio de contraseña, retorno de pago, gestión de empresas y sedes). Antes, `npm run test:mp` con el `.env` real.
+2. **Prueba manual (T7.2)** en la máquina del dueño: los `curl` de `api-errores.md` §11, la colección Postman contra el backend local y el recorrido del FE (perfil con cambio de teléfono y contraseña —incluido el nuevo flujo de T7.7—, retorno de pago, gestión de empresas y sedes). Antes, `npm run test:mp` con el `.env` real.
 3. ~~Deuda (T7.4)~~ Hecho en la sesión 2.
 4. Rotar las cookies de `cookies.txt` si eran reales (§9.6).
 5. Al cerrar: T7.5 (este documento, la bitácora y la tabla final).
