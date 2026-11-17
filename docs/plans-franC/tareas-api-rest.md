@@ -1,7 +1,7 @@
 # Tareas del plan "API REST"
 
 > Lista de tareas en el formato de la fase *Tasks* de `spec-driven-development`: cada tarea con **Aceptación** (qué debe ser cierto) y **Verificación** (cómo se comprueba). Alcance y justificación: [`plan-api-rest.md`](./plan-api-rest.md). Estado general y traspaso: [`estado-api-rest.md`](./estado-api-rest.md).
-> **Última actualización:** 2026-10-25 (cierre de la Fase 6; queda el cierre administrativo). `[x]` = hecha y verificada; `[ ]` = pendiente. Marcar la tarea **en el mismo punto** en que se cierra (protocolo en [`README.md`](./README.md)).
+> **Última actualización:** 2026-11-17 (sesión 2: deuda de T7.4 resuelta; queda la prueba manual T7.2). `[x]` = hecha y verificada; `[ ]` = pendiente. Marcar la tarea **en el mismo punto** en que se cierra (protocolo en [`README.md`](./README.md)).
 
 Convenciones: **BE** = backend `SmartLot_API`, **FE** = este repo. Salvo que se diga otra cosa, la verificación de las tareas del BE es `npm test` (con `--test-timeout=120000` desde automatización) y la del FE es `npm test` más lint dirigido.
 
@@ -96,6 +96,15 @@ Convenciones: **BE** = backend `SmartLot_API`, **FE** = este repo. Salvo que se 
 
 - [x] **T7.1 Autorización de commits** *(autorizados el 2026-10-25; ver hashes en `estado-api-rest.md` §12)* — y, una vez dada, un commit por fase por repo; completar la columna "Resuelto en" de `docs/plans-franC/api-errores.md` con los hashes. *(Requiere aprobación explícita del dueño.)*
 - [ ] **T7.2 Prueba manual** (sección "Verificación" del plan): `PUT /api/marca/5 -d '{}'` → 400; `GET /api/marca/7abc` → 400; `PATCH /api/notificacion/999999/leer` → 404 y `GET /api/usuario/me` → 200; marca duplicada → 409; con `DATABASE_URL` inválido, request autenticada → 500. En el FE: perfil (cambio de contraseña), retorno de pago, gestión de empresas, marcas y sedes.
-- [ ] **T7.3 `npm run build` del FE** (opcional; el cambio no es grande).
-- [ ] **T7.4 Decidir deuda de `estado-api-rest.md` §8–9** (modelo `tipo_vehiculo`, renombrar `PagosGetById`, podar `TratosCreate`, aislar `mp-integration`).
+- [x] **T7.3 `npm run build` del FE** — OK el 2026-11-17 (solo la advertencia preexistente de chunks > 500 kB).
+- [x] **T7.4 Deuda de `estado-api-rest.md` §8–9** — el dueño pidió trabajar lo pendiente (2026-11-17). Resuelto:
+  - Modelo `tipo_vehiculo`: `POST` y `PUT /api/modelo` lo exigen (`auto`/`moto`/`pickup`) y el repositorio lo persiste. BE `4633989`. Verificación: `test/api-validacion.test.js` (PUT sin tipo o con tipo inválido → 400 sin `UPDATE`; POST lo inserta).
+  - `mp-integration` fuera de `npm test`: corre solo con `npm run test:mp` o `MP_INTEGRATION=1`. BE `9d4e1f8`. Verificación: `npm test` sin fallos en un entorno sin red ni base.
+  - `PagosGetById` → `PagosVerificar` (4 pantallas) y `TratosCreate` eliminado. FE `12f9260`. Verificación: FE `npm test`, `npm run build` y lint dirigido sin problemas nuevos.
+  - Extra de §8: patente duplicada → 409 (BE `bf19325`, `test/vehiculo-tipo.test.js`) y `revocarRefreshTokensAsync` (más sus dos helpers del repositorio) eliminados por no tener llamadores (BE `af9b622`).
+  - Queda como deuda **documentada y fuera de alcance**: PUT parciales heredados (`api-errores.md` §6), `/me` vs. login (`api.md` §5), códigos de services listados a mano (`api.md` §7).
+- [x] **T7.6 Sesión 2 — limpieza encontrada al verificar** (2026-11-17)
+  - `test/conflicto-repository.test.js` (agregado en `ef940a1`) no corría: mockeaba `db.js` con `exports`, opción que `mock.module` no reconoce. Ahora usa `defaultExport`; sus 4 casos pasan sobre PGlite y confirman la corrección de placeholders de `ef940a1`. BE `ef0a46d`.
+  - `cookies.txt` versionado en la raíz del BE, sin uso: eliminado (BE `99677e5`). Si tenía sesiones reales, rotarlas (quedan en el historial).
+  - Lint del FE: `.agents/` (scripts de skills de terceros) excluido en `eslint.config.js`; `npm run lint` pasa de 112 a 63 problemas, todos preexistentes. FE `454f232`.
 - [ ] **T7.5 Actualizar la tabla final de `docs/plans-franC/api-errores.md`, `estado-api-rest.md` y la bitácora** al cerrar.

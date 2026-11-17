@@ -1,20 +1,20 @@
 # Estado del plan "API REST" — traspaso entre sesiones
 
-> **Última actualización:** 2026-10-25, cierre de la Fase 6 (sesión 1). Documento vivo: se actualiza al cerrar cada punto (protocolo en [`README.md`](./README.md)).
+> **Última actualización:** 2026-11-17, sesión 2 (deuda de T7.4 resuelta y verificación completa en un entorno sin base ni red). Documento vivo: se actualiza al cerrar cada punto (protocolo en [`README.md`](./README.md)).
 > **Si el árbol real contradice este documento, gana el árbol:** corregir acá y anotarlo en la bitácora.
 
 ## 1. Resumen
 
 - **Objetivo:** subir API REST de 6/10 a 8/10 (+0,26 en la ponderada) cerrando los 3 hallazgos ALTO y todos los MEDIO del Informe Docente 2.3 y publicando un contrato verificable. Plan: [`plan-api-rest.md`](./plan-api-rest.md).
-- **Avance:** Fases **1 a 6 implementadas y verificadas** (backend + los cambios mínimos del frontend). Queda el **cierre administrativo**: autorización de commits, columna "Resuelto en" con hashes, prueba manual y decisiones sobre la deuda.
+- **Avance:** Fases **1 a 6 implementadas y verificadas**; deuda de §8 resuelta en la sesión 2 (T7.4). Queda **solo la prueba manual (T7.2)**, que necesita la base y el backend locales del dueño.
 - **Commiteado y pusheado el 2026-10-25** (autorizado por el dueño): ver sección 12.
-- **Estado de las pruebas:** backend 792 tests, 788 ok, 0 fallos, 4 skipped (línea base al empezar: 668 / 663 ok / 1 fallo / 4 skipped). Frontend 121/121.
+- **Estado de las pruebas (2026-11-17):** backend 798 tests, 789 ok, 0 fallos, 9 skipped (8 son de `mp-integration`, que ya no corre en `npm test`). Frontend 121/121, build OK. Línea base al empezar: 668 / 663 ok / 1 fallo / 4 skipped.
 
 ## 2. Dónde está cada cosa
 
 | Qué | Dónde |
 |---|---|
-| Frontend (este repo) | `C:\Users\TOTO\OneDrive\Desktop\Proyectos\SmartLot` — rama `docs/plan-api-rest` |
+| Frontend (este repo) | `C:\Users\TOTO\OneDrive\Desktop\Proyectos\SmartLot` — rama `docs/api-rest-improvement` (antes `docs/plan-api-rest`; el dueño la renombró) |
 | Backend `SmartLot_API` | `C:\Users\TOTO\OneDrive\Desktop\Proyectos\SmartLot_API\SmartLot_API` — rama `api-rest-improvement` |
 | Raíz git del backend | `…\SmartLot_API` (un nivel arriba): en `git status`/`git diff` los paths salen como `SmartLot_API/src/...` |
 | Ruta del plan para el backend | El plan dice `C:\Users\49123639\SmartLot_API\SmartLot_API\src` (otra máquina). **En esta máquina es la de arriba.** |
@@ -32,7 +32,7 @@
 | 4 | Pagos con las convenciones del resto (MEDIO) | ✅ (backend + `API_Pagos.js`) | `test/payment-read-access.test.js`, `payment-read-sql…`, `mp-webhook-auth…`, `mp-service…`; `npm run test:mp` verde. ADR-010 |
 | 5 | BAJO: status puntuales, contrato, naming | ✅ (backend + 3 archivos del frontend) | `test/api-contrato.test.js` (14 tests) |
 | 6 | Contrato publicado: `docs/plans-franC/api.md` + Postman | ✅ | `test/api-inventario.test.js` (9 tests); inventario de 137 endpoints generado del router real; Postman generado |
-| Cierre | Commits, "Resuelto en", prueba manual, tabla final | ⏳ **Pendiente** | — |
+| Cierre | Commits, deuda, prueba manual, tabla final | ⏳ Falta la prueba manual (T7.2) | Commits ✅ (§12); deuda T7.4 ✅; build FE ✅ |
 
 Detalle tarea por tarea: [`tareas-api-rest.md`](./tareas-api-rest.md).
 
@@ -46,7 +46,7 @@ Modificados, por carpeta: `src/controllers` (16), `src/repositories` (13), `src/
 
 Tests existentes que se **modificaron** porque fijaban el comportamiento anterior (contratos que cambian a propósito): `password-login-sql.integration` (SEG-10A: `getByEmailAsync` ya no devuelve `null` ante error SQL), `tenant-writes-sql.integration` (sede: parcial → `PATCH`; alias de contraseña), `mp-webhook-auth`, `mp-controller`, `mp-integration`, `mp-service` (ampliado), `payment-read-access`, `payment-read-sql.integration`, `enterprise-payment-sql.integration` (GET → POST de verificación) y `solicitud-empresa-garage` (se eliminó un test de regex sobre el código fuente; lo cubre `api-contrato.test.js` por comportamiento).
 
-### Frontend (`docs/plan-api-rest`)
+### Frontend (`docs/api-rest-improvement`)
 
 Código (4 archivos, todos con el cambio mínimo del plan):
 
@@ -77,6 +77,17 @@ Frontend (`cd C:\Users\TOTO\OneDrive\Desktop\Proyectos\SmartLot`):
 | `npm run build` | **No se corrió** (el cambio no es grande) |
 | Prueba manual con `curl`/navegador (sección "Verificación" del plan) | **No se hizo** |
 
+**Sesión 2 (2026-11-17), en un sandbox Linux sin base ni red hacia Mercado Pago:**
+
+| Repo | Comando | Resultado |
+|---|---|---|
+| BE | `npm run check:syntax` / `check:routes` | OK (100 archivos) / OK |
+| BE | `npm test -- --test-timeout=120000` | 798 tests, **789 ok, 0 fallos, 9 skipped** |
+| BE | `npm run test:mp` | 42 tests, 36 ok, **3 fallos de entorno** (`fetch failed` y `ECONNREFUSED 127.0.0.1:5432`), 3 skipped. **Correrlo en la máquina del dueño** |
+| BE | `npm run routes:inventory -- --write` / `postman:generate` | 137 endpoints; `api.md` sin cambios; colección con los bodies nuevos de modelo |
+| FE | `npm test` / `npm run build` | 121 ok / OK |
+| FE | `npm run lint` | 63 problemas (59 errores, 4 warnings), todos preexistentes; ninguno en los archivos tocados por la sesión |
+
 Línea base del backend al empezar: 668 tests, 663 ok, 1 fallo, 4 skipped. El único fallo (`webhook HTTP con firma valida pero pago inexistente…`) era una aserción desactualizada de `mp-integration.test.js` (faltaba `data.id` en la query desde SEG-08); se corrigió y ahora pasa.
 
 ## 6. Decisiones aceptadas (resumen; el porqué está en los ADRs)
@@ -106,13 +117,13 @@ Línea base del backend al empezar: 668 tests, 663 ok, 1 fallo, 4 skipped. El ú
 
 ## 8. Hallazgos y deuda fuera del alcance (para decidir)
 
-- **`POST/PUT /api/modelo` no puede funcionar según `docs/schema.sql`:** `modelos.tipo_vehiculo` es `NOT NULL` y ni el repository ni el controller lo envían. El `catch` viejo escondía el error. Ahora devuelve 400 `DB_NOT_NULL_VIOLATION`. El frontend no usa estos endpoints. Falta decidir si se corrige (agregar `tipo_vehiculo` al alta, con trigger que impide cambiarlo).
+- ✅ *(sesión 2, BE `4633989`)* **`POST/PUT /api/modelo` no podía funcionar según `docs/schema.sql`:** `modelos.tipo_vehiculo` es `NOT NULL` y ni el repository ni el controller lo envían. El `catch` viejo escondía el error. Ahora devuelve 400 `DB_NOT_NULL_VIOLATION`. El frontend no usa estos endpoints. Falta decidir si se corrige (agregar `tipo_vehiculo` al alta, con trigger que impide cambiarlo).
 - **Fuga de tenant retirada:** `GET /api/garage/:id/cercanos` consultaba la sede sin pasar el usuario (sin filtro de empresa). Se eliminó (el frontend usa `/cercanos`).
 - **PUT parciales heredados sin migrar a PATCH:** `garage`, `vehiculo`, `usuario`, `reserva`, `conflicto`, `trato-empresa-garage` (documentado en `docs/plans-franC/api-errores.md` §6).
-- `vehiculoService`: patente duplicada responde 400 (el resto de los duplicados usa 409). BAJO.
-- Frontend: `TratosCreate` (`API_TratoEmpresaGarage.js`) sigue exportado sin llamadores y ahora el alta directa es solo superadmin → candidata a poda. `PagosGetById` ya no es un GET: conviene renombrarla a `PagosVerificar` (toca 4 pantallas).
-- `test/mp-integration.test.js` golpea el sandbox real de Mercado Pago y la base real de `.env` dentro de `npm test`. Conviene aislarlo (o marcarlo como suite aparte).
-- `revocarRefreshTokensAsync` en `usuarioService` no tiene llamadores.
+- ✅ *(sesión 2, BE `bf19325`)* `vehiculoService`: patente duplicada respondía 400; ahora 409.
+- ✅ *(sesión 2, FE `12f9260`)* Frontend: `TratosCreate` (`API_TratoEmpresaGarage.js`) seguía exportado sin llamadores y ahora el alta directa es solo superadmin → candidata a poda. `PagosGetById` ya no es un GET: conviene renombrarla a `PagosVerificar` (toca 4 pantallas).
+- ✅ *(sesión 2, BE `9d4e1f8`)* `test/mp-integration.test.js` golpeaba el sandbox real de Mercado Pago y la base real de `.env` dentro de `npm test`. Conviene aislarlo (o marcarlo como suite aparte).
+- ✅ *(sesión 2, BE `af9b622`)* `revocarRefreshTokensAsync` en `usuarioService` no tenía llamadores: eliminado.
 - Diferencia `GET /api/usuario/me` (claims del token) vs. login (entidad de usuario): documentada en `docs/plans-franC/api.md` §5. Unificarlas toca `AuthProvider` (área frontend) y queda fuera del plan.
 - El inventario no ve los códigos que lanzan los **services**: `docs/plans-franC/api.md` §7 los lista a mano para los endpoints principales; puede quedar corto.
 - La colección Postman es generada: no se ejecutó con Postman/Newman contra un backend real.
@@ -121,8 +132,9 @@ Línea base del backend al empezar: 668 tests, 663 ok, 1 fallo, 4 skipped. El ú
 
 1. **¿Se autorizan los commits?** Propuesta: un commit por fase (1 a 5) en cada repo, y luego completar la columna "Resuelto en" de `docs/plans-franC/api-errores.md` con los hashes. Sin autorización explícita no se commitea.
 2. **Prueba manual** (plan, sección Verificación): pendiente en el backend local con `curl` y recorrido en el frontend (perfil/cambio de contraseña, retorno de pago, gestión de empresas, marcas y sedes). La hace el dueño o se acuerda cómo hacerla.
-3. **Modelo `tipo_vehiculo`** (sección 8): ¿se corrige dentro de este plan o se anota como deuda?
-4. **Renombrar `PagosGetById` → `PagosVerificar`** y podar `TratosCreate`: ¿ahora o después?
+3. ~~Modelo `tipo_vehiculo`~~ **Resuelto en la sesión 2** (corregido).
+4. ~~Renombrar `PagosGetById` y podar `TratosCreate`~~ **Resuelto en la sesión 2**.
+6. **Rotar las cookies de `cookies.txt`** si eran sesiones reales: el archivo se borró (BE `99677e5`) pero sigue en el historial.
 5. ~~CodeGraph~~ **Resuelto:** se inicializó (`codegraph init -i`) en ambos repos (frontend 197 archivos; backend 140). `.codegraph/` es un índice local y se excluye en `.git/info/exclude` (no se versiona); tras cambios grandes, `codegraph sync`.
 
 ## 10. Trampas del entorno (para no redescubrirlas)
@@ -133,22 +145,26 @@ Línea base del backend al empezar: 668 tests, 663 ok, 1 fallo, 4 skipped. El ú
 - Hay servidores del dueño corriendo: `npm run app` (backend, `node ./src/app.js`) y `npm run dev` (Vite). **No matarlos**: para limpiar una corrida de tests colgada, identificar el proceso por su línea de comandos (`--test`).
 - `supabase` (MCP) falló al conectar en la sesión 1; no se usó. Ninguna comprobación se hizo contra Supabase.
 - Los scripts de transformación usados (codemods) eran temporales y **no se conservaron**; el resultado está en el árbol y en los diffs.
+- **`npm test` ya no habla con Mercado Pago ni con la base real** (sesión 2). Para la integración: `npm run test:mp` (npm expone el nombre del script en `npm_lifecycle_event`) o `MP_INTEGRATION=1`.
+- **El inventario lee los códigos del cuerpo de cada handler:** si la validación se mueve a una función auxiliar, `api.md` pierde el 400 de esa ruta (pasó con `POST /api/modelo` en la sesión 2). Dejar los `throwError` dentro del handler.
+- `mock.module` de `node:test` acepta `defaultExport`/`namedExports`; una opción desconocida (p. ej. `exports`) se ignora en silencio y el mock queda vacío.
 - `git stash` en el repo del dueño: evitarlo (se usó una vez para comparar lint contra `HEAD`; se restauró y quedó vacío).
 
 ## 12. Commits y ramas
 
 | Repo | Rama | Commits |
 |---|---|---|
-| Backend `SmartLot_API` | `api-rest-improvement` | `62cd310` código, tests y scripts · `6d22564` documentación (`docs/plans-franC/`, SEG-*, AGENTS.md) · un tercero con los hashes en la tabla de `api-errores.md` |
-| Frontend `SmartLot` | `docs/plan-api-rest` | un commit con ADR-008…011, esta carpeta y los 4 cambios de código (`git log --oneline -3`) |
+| Backend `SmartLot_API` | `api-rest-improvement` | `62cd310` código, tests y scripts · `6d22564` documentación · `92bc4e3` hashes en `api-errores.md` · `ef940a1` estados de conflictos · **sesión 2:** `ef0a46d` test de conflictos · `99677e5` cookies.txt · `9d4e1f8` mp-integration · `4633989` modelo · `bf19325` patente 409 · `af9b622` código muerto · `6f3a350` docs |
+| Frontend `SmartLot` | `docs/api-rest-improvement` | `5692c10` ADR-008…011, esta carpeta y los 4 cambios de código · **sesión 2:** `12f9260` `PagosVerificar` y `TratosCreate` · `454f232` lint sin `.agents` · el commit de esta documentación |
 
 Se hicieron **2 commits en el backend en lugar de uno por fase**: los archivos se tocaron en varias fases y no se podían separar sin reconstruir cada una. Los documentos del backend viven ahora en `docs/plans-franC/` (`api-errores.md`, `api.md`); `AGENTS.md` se quedó en la raíz del backend porque las herramientas de agentes lo cargan desde ahí.
 
 ## 11. Próximo paso exacto
 
-Quedan solo tareas que **requieren al dueño** (ver `tareas-api-rest.md` → Cierre):
+Queda solo lo que **requiere al dueño** (ver `tareas-api-rest.md` → Cierre):
 
 1. ~~Autorización de commits (T7.1)~~ Hecho (sección 12).
-2. Hacer (o acordar cómo hacer) la prueba manual (T7.2), incluyendo correr la colección Postman contra el backend local.
-3. Decidir la deuda de las secciones 8 y 9 (T7.4).
-4. Al cerrar: actualizar este documento, la bitácora y la nota de memoria del proyecto.
+2. **Prueba manual (T7.2)** en la máquina del dueño: los `curl` de `api-errores.md` §11, la colección Postman contra el backend local y el recorrido del FE (perfil con cambio de contraseña, retorno de pago, gestión de empresas y sedes). Antes, `npm run test:mp` con el `.env` real.
+3. ~~Deuda (T7.4)~~ Hecho en la sesión 2.
+4. Rotar las cookies de `cookies.txt` si eran reales (§9.6).
+5. Al cerrar: T7.5 (este documento, la bitácora y la tabla final).
