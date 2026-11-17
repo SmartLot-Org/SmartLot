@@ -18,7 +18,7 @@ Los ADRs registran decisiones técnicas significativas: contexto, decisión, alt
 
 ## Nota sobre ADRs retrospectivos
 
-Los ADRs de esta carpeta son **retrospectivos**: documentan decisiones ya implementadas, reconstruidas a partir del código y de los documentos del repositorio (2026-10-09) — excepto **ADR-007** (2026-10-10), que registra una decisión viva del dueño del producto tomada durante la ejecución de la auditoría UI, **ADR-008** (2026-11-16), que acompaña a la landing nueva, y **ADR-009** (2026-11-17), aprobado antes de implementarse. El contexto refleja lo verificable; las alternativas listadas son las razonables en el momento de la decisión, no un registro literal de la discusión original.
+Los ADRs de esta carpeta son **retrospectivos**: documentan decisiones ya implementadas, reconstruidas a partir del código y de los documentos del repositorio (2026-10-09) — excepto **ADR-007** (2026-10-10), que registra una decisión viva del dueño del producto tomada durante la ejecución de la auditoría UI, y **ADR-008 a ADR-011** (2026-10-25), que **no son retrospectivos**: se escribieron al ejecutar el plan "API REST" (`docs/plans-franC/`) y describen decisiones del **backend** (`SmartLot_API`) que afectan el contrato que consume este frontend. El contexto refleja lo verificable; las alternativas listadas son las razonables en el momento de la decisión, no un registro literal de la discusión original.
 
 ## Índice
 
@@ -33,3 +33,7 @@ Los ADRs de esta carpeta son **retrospectivos**: documentan decisiones ya implem
 | [ADR-007](./ADR-007-paleta-propia-superadmin.md) | Paleta propia del panel superadmin (excepción deliberada a la Regla del Token) | Aceptado |
 | [ADR-008](./ADR-008-landing-inmersiva-webgl.md) | Landing inmersiva con WebGL (React Three Fiber, GSAP y Lenis) y fuentes autoalojadas | Aceptado |
 | [ADR-009](./ADR-009-estilos-por-componente-escala-px.md) | Estilos por componente con Tailwind y escalas en px (Fase 1 de la auditoría UI) | Aceptado |
+| [ADR-010](./ADR-010-politica-de-errores-de-la-api.md) | Política de errores de la API: la base falla con excepciones y un solo `errorHandler` traduce | Aceptado |
+| [ADR-011](./ADR-011-put-reemplazo-completo-patch-parcial.md) | `PUT` reemplaza el recurso completo y `PATCH` actualiza parcialmente | Aceptado |
+| [ADR-012](./ADR-012-pagos-verificacion-post-y-fallas-del-proveedor-502.md) | La verificación de pagos es una acción `POST`; las fallas del proveedor son `502` | Aceptado |
+| [ADR-013](./ADR-012-ids-de-ruta-validados-con-router-param.md) | Los `:id` de ruta se validan una vez con `router.param` | Aceptado |

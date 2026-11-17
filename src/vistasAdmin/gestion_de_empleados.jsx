@@ -108,7 +108,7 @@ const normalizarEmpleado = (usuario, vehiculo = null, modeloNombre = null, sedes
     garage: obtenerGarage(usuario, garagesMap),
     vehicleModel: modeloLabel,
     activo: usuario.activo !== false,
-    limiteReservasActivas: usuario.limiteReservasActivas ?? usuario.limite_reservas_activas ?? null,
+    limiteReservasActivas: usuario.limiteReservasActivas ?? null,
   };
 };
 

@@ -32,7 +32,7 @@ import { SedesGetAll } from "../servicies/API_Sede";
 import { GaragesGetAll } from "../servicies/API_Garage";
 import {
   PagosCrearPreferencia,
-  PagosGetById,
+  PagosVerificar,
   PagosBuscar,
   PagosReembolsar,
   PagosWebhookEventos,
@@ -230,7 +230,7 @@ function CrearPagoTab({ onPagoVerificado }) {
           const pid = String(candidato.id || candidato.mp_payment_id || "").trim();
           if (!pid) return;
           // Verificación completa que además hace savePaymentRecord en backend y actualiza mp_payment_status
-          const verif = await PagosGetById(pid);
+          const verif = await PagosVerificar(pid);
           if (verif.respuesta) {
             detenerPolling();
             const pago = verif.datos?.payment || verif.datos;
@@ -316,7 +316,7 @@ function CrearPagoTab({ onPagoVerificado }) {
     }
 
     setVerificando(true);
-    const res = await PagosGetById(id, {
+    const res = await PagosVerificar(id, {
       external_reference: orderId.trim() || undefined,
       preference_id: preferencia?.preferenceId || preferencia?.preference_id || localStorage.getItem("mp_last_preferenceId") || undefined,
     });
@@ -372,7 +372,7 @@ function CrearPagoTab({ onPagoVerificado }) {
       return;
     }
     setPaymentIdVerificar(pid);
-    const verif = await PagosGetById(pid);
+    const verif = await PagosVerificar(pid);
     setBuscandoPorOrder(false);
     if (!verif.respuesta) {
       Swal.fire({ toast: true, position: "top-end", icon: "error", title: verif.datos?.message || "No se pudo verificar el pago encontrado", showConfirmButton: false, timer: 4000 });
@@ -396,7 +396,7 @@ function CrearPagoTab({ onPagoVerificado }) {
       if (ext) setOrderId(ext);
       detenerPolling();
       setVerificando(true);
-      PagosGetById(String(pid).trim(), {
+      PagosVerificar(String(pid).trim(), {
         external_reference: ext || undefined,
         preference_id: pref || undefined,
       }).then((res) => {
@@ -415,7 +415,7 @@ function CrearPagoTab({ onPagoVerificado }) {
               const pid2 = String(arr[0].id || arr[0].mp_payment_id || "").trim();
               if (pid2) {
                 setPaymentIdVerificar(pid2);
-                PagosGetById(pid2).then((verif) => {
+                PagosVerificar(pid2).then((verif) => {
                   if (verif.respuesta) {
                     const pago2 = verif.datos?.payment || verif.datos;
                     setPagoVerificado(pago2);

@@ -25,11 +25,6 @@ export const TratosGetAll = (options = {}) => result('tratos:all', () => apiClie
 export const TratosGetById = (id, options = {}) => { const safe = parsePositiveInteger(id); return result(`tratos:id:${safe}`, () => apiClient.get(`${base}/${safe}`), options); };
 export const TratosGetByEmpresa = (id, options = {}) => { const safe = parsePositiveInteger(id); return result(`tratos:empresa:${safe}`, () => apiClient.get(`${base}/empresa/${safe}`), options); };
 export const TratosGetByGarage = (id, options = {}) => { const safe = parsePositiveInteger(id); return result(`tratos:garage:${safe}`, () => apiClient.get(`${base}/garage/${safe}`), options); };
-export const TratosCreate = (trato) => mutate(() => apiClient.post(base, {
-  id_sede: parsePositiveInteger(trato.id_sede, 'Sede'),
-  id_garage: parsePositiveInteger(trato.id_garage, 'Garage'),
-  cantidad_cocheras: parsePositiveInteger(trato.cantidad_cocheras, 'Cantidad'),
-}));
 export const TratosUpdate = (id, trato) => { const safe = parsePositiveInteger(id); return mutate(() => apiClient.put(`${base}/${safe}`, { cantidad_cocheras: parsePositiveInteger(trato.cantidad_cocheras, 'Cantidad') })); };
 export const TratosCancelar = (id) => { const safe = parsePositiveInteger(id); return mutate(() => apiClient.patch(`${base}/${safe}/cancelar`)); };
 export const TratosUpdatePaymentModality = (id, modalidadPago) => {

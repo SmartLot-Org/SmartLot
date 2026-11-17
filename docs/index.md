@@ -2,7 +2,7 @@
 
 Este repositorio es el frontend SPA de SmartLot y consume la API del backend `SmartLot_API` bajo `/api`. La documentación se organiza en cuatro niveles: orientación, arquitectura, desarrollo y evolución.
 
-Última revisión de este índice: 2026-10-09.
+Última revisión de este índice: 2026-10-25.
 
 ## Mapa de documentos
 
@@ -17,6 +17,7 @@ Este repositorio es el frontend SPA de SmartLot y consume la API del backend `Sm
 | [`domain-flows.md`](./domain-flows.md) | Flujos de negocio por rol (reserva, pagos, acceso, paneles) | Producto, frontend |
 | [`decisions/README.md`](./decisions/README.md) | ADRs: decisiones arquitectónicas y su contexto | Arquitectos, agentes |
 | [`specs/README.md`](./specs/README.md) | Cómo se especifican features antes de codificar | Producto, frontend, agentes |
+| [`plans-franC/README.md`](./plans-franC/README.md) | Seguimiento del plan "API REST" (backend + frontend): estado, tareas, bitácora y protocolo de documentación sesión a sesión | Todos, agentes |
 | [`estados-vacios.md`](./estados-vacios.md) | Inventario de estados vacíos por pantalla y su acción | Frontend, QA |
 | [`reservation-limit.md`](./reservation-limit.md) | Informe del límite de reservas activas por empleado (frontend + backend revisado) | Producto, backend |
 | [`pendientes-audit-ui.md`](./pendientes-audit-ui.md) | Auditoría UI en curso: inventario de vistas y plan de trabajo | Frontend |
@@ -40,6 +41,7 @@ Ante contradicción entre documentos, prevalece en este orden:
 - **Cambian comandos, variables de entorno o estrategia de pruebas** → actualizar `README.md` y `development.md`.
 - **Cambia un flujo de negocio** → actualizar `domain-flows.md` y, si aplica, el documento funcional específico.
 - **Cambia el alcance del producto, una regla de negocio o el tono** → actualizar `PRODUCT.md`.
+- **Se avanza en el plan "API REST"** → seguir el protocolo de `plans-franC/README.md` (actualizar `estado-api-rest.md`, `tareas-api-rest.md` y la bitácora al cerrar cada punto).
 - **Se cierra la auditoría UI** → actualizar `pendientes-audit-ui.md` y quitar el estado "en curso" de este índice.
 
 ## Documentos funcionales existentes

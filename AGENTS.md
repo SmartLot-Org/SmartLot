@@ -45,6 +45,7 @@ Frontend SPA de gestión de estacionamientos: empresas, garages, reservas, pagos
 - Flujos de dominio: `docs/domain-flows.md`.
 - Guía de desarrollo y pruebas: `docs/development.md`.
 - Decisiones arquitectónicas: `docs/decisions/` (leer antes de proponer cambios estructurales).
+- Plan "API REST" en curso (backend + frontend): `docs/plans-franC/README.md`. **Empezar por ahí al retomar**, y documentar con las skills de `.claude/skills/` al cerrar cada punto (protocolo en ese README).
 - Sistema de diseño: `DESIGN.md` (raíz).
 - Gotchas: los roles se identifican por número **y** por nombre (`src/helpers/roles.js`); la sesión usa cookies + refresh automático con cola (`src/api/client.js`); la caché se invalida por prefijos en cada mutación; `npm run lint` arrastra errores preexistentes documentados en `docs/reservation-limit.md`.
 

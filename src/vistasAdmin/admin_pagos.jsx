@@ -7,7 +7,7 @@ import Header from "../componentesAdmin/header_admin";
 import EmptyState from "../componentesCompartidos/EmptyState";
 import FooterAdmin from "../componentesAdmin/footer_admin";
 import { CuentasCorrientesAdminGet, CuentasCorrientesSedesGet } from "../servicies/API_CuentasCorrientes";
-import { PagosBuscar, PagosCrearPreferencia, PagosGetById } from "../servicies/API_Pagos";
+import { PagosBuscar, PagosCrearPreferencia, PagosVerificar } from "../servicies/API_Pagos";
 import { exportarCuentasExcel, exportarCuentasPDF } from "../util/exportar_cuentas_corrientes";
 import "./admin_pagos.css";
 
@@ -90,7 +90,7 @@ function AdminPagos() {
 
     if (!resultado.respuesta || !paymentId) return { sincronizado: false, pago: null };
 
-    const verificacion = await PagosGetById(paymentId);
+    const verificacion = await PagosVerificar(paymentId);
     return {
       sincronizado: verificacion.respuesta,
       pago: verificacion.respuesta ? verificacion.datos?.payment || pagoEncontrado : null,
@@ -154,7 +154,7 @@ function AdminPagos() {
       let sincronizado = false;
 
       if (pid) {
-        const resultado = await PagosGetById(pid, {
+        const resultado = await PagosVerificar(pid, {
           external_reference: externalReference || undefined,
           preference_id: preferenceId || undefined,
         });
