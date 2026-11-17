@@ -17,10 +17,10 @@ export function Cta({ chico = false }) {
   return <BotonBrillo to={CTA.principal.destino} chico={chico}>{CTA.principal.etiqueta}</BotonBrillo>;
 }
 
-// El lado del dueño de garage: un enlace simple, en la barra y en el pie.
-export function EnlaceGarage() {
+// El lado del dueño de garage: navegación en la barra y enlace simple en el pie.
+export function EnlaceGarage({ className = 'plano-enlace' }) {
   return (
-    <Link to={CTA.secundaria.destino} className="plano-enlace">
+    <Link to={CTA.secundaria.destino} className={className}>
       {CTA.secundaria.etiqueta}
     </Link>
   );

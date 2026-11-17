@@ -127,7 +127,8 @@ test('el hero es HTML desde el primer render: h1 propio, sin animación de entra
 });
 
 test('el 3D no se pide antes de inicializar, con ?sin3d ni sin WebGL', () => {
-  assert.match(landing, /const mostrar3d = inicializado && tier !== 'static' && !sin3d/);
+  assert.match(landing, /const mostrar3d = inicializado && !estatico && !sin3d/);
+  assert.match(landing, /const estatico = useUI\(\(s\) => s\.tier === 'static'\)/);
   assert.match(store, /sin3d: q\.has\('sin3d'\)/);
   assert.match(landing, /export default function LandingPage\(\) \{\n {2}asegurarInicio\(\);/);
   assert.match(store, /if \(!webgl\) return 'static'/);
@@ -162,7 +163,7 @@ test('la landing vieja se retiró sin dejar archivos ni referencias', () => {
 
 test('el hero tiene una sola acción y el lado del garage es un enlace simple en la barra y el pie', () => {
   assert.doesNotMatch(seccion, /EnlaceGarage/);
-  assert.match(nav, /<EnlaceGarage \/>/);
+  assert.match(nav, /<EnlaceGarage className="plano-navlink" \/>/);
   assert.match(landing, /<footer className="plano-pie">[\s\S]*<EnlaceGarage \/>/);
   assert.doesNotMatch(estilos, /text-decoration: underline;\n {2}text-underline-offset/);
 });
@@ -173,7 +174,7 @@ test('no queda la escala gráfica de metros', () => {
 });
 
 test('la opción sin 3D solo se ofrece con movimiento reducido (o para volver de ella)', () => {
-  assert.match(landing, /tier !== 'static' && \(reducido \|\| sin3d\) &&/);
+  assert.match(landing, /!estatico && \(reducido \|\| sin3d\) &&/);
   assert.match(landing, /useMovimientoReducido\(\)/);
 });
 
@@ -187,5 +188,19 @@ test('el botón principal tiene el brillo y el barrido de luz, solo con mouse y 
   assert.match(estilos, /@media \(hover: hover\) and \(pointer: fine\) \{[\s\S]*\.plano-boton:hover \.plano-boton__brillo::before \{[\s\S]*transform: translateX\(200%\)/);
   assert.match(estilos, /@media \(prefers-reduced-motion: reduce\) \{[\s\S]*\.plano-boton__brillo \{ display: none; \}/);
   assert.doesNotMatch(estilos, /transition:[^;]*box-shadow/);
+});
+
+test('la barra tiene tres niveles: Registrate, Iniciar sesión y la navegación a garages', () => {
+  assert.match(nav, /className="plano-boton-secundario"[\s\S]*NAVEGACION\.ingresar\.etiqueta/);
+  assert.match(nav, /<Cta chico \/>/);
+  assert.match(nav, /<nav aria-label="Principal" className="plano-barra__nav">\s*<EnlaceGarage className="plano-navlink" \/>/);
+  assert.match(estilos, /\.plano-navlink \{[\s\S]*color: var\(--texto-suave\)/);
+  assert.match(estilos, /\.plano-boton-secundario \{[\s\S]*border: 1px solid var\(--borde\)/);
+});
+
+test('el brillo del botón de la barra queda dentro de la barra', () => {
+  assert.match(estilos, /\.plano-boton--chico \{[\s\S]*box-shadow: 0 4px 8px -3px var\(--brillo-reposo\)/);
+  assert.match(estilos, /\.plano-boton--chico::after \{ box-shadow: 0 6px 12px -4px/);
+  assert.match(estilos, /\.plano \{ --barra: 72px; \}/);
 });
 

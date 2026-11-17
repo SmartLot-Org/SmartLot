@@ -17,7 +17,7 @@
   --texto-suave: var(--color-brand-muted);
   --borde: color-mix(in srgb, var(--tinta) 20%, transparent);
   --salida: cubic-bezier(0.23, 1, 0.32, 1);
-  --barra: 60px;
+  --barra: 64px;
   --margen: max(16px, env(safe-area-inset-left, 0px));
 
   position: relative;
@@ -147,8 +147,41 @@ body:has(.plano) { overflow-x: clip; }
   text-decoration: none;
 }
 .plano-marca img { display: block; width: auto; height: 32px; }
-.plano-barra nav { display: flex; align-items: center; gap: 4px 16px; }
-.plano-barra__ancho { display: none; }
+.plano-barra__inicio { display: flex; align-items: center; gap: 32px; min-width: 0; }
+.plano-barra__nav { display: none; }
+.plano-barra__acciones { display: flex; align-items: center; gap: 8px; }
+
+/* Navegación de la barra: tercer nivel. Gris, sin borde ni subrayado; en hover pasa a tinta. */
+.plano-navlink {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--texto-suave);
+  font: 500 15px/1.2 var(--font-body);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 150ms ease;
+}
+
+/* Segundo nivel: el button-secondary de DESIGN.md. Mismo alto que el principal para que la
+   fila quede alineada; la diferencia la marcan el relleno y el peso visual, no el tamaño. */
+.plano-boton-secundario {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--borde);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--tinta);
+  font: 600 14px/1 var(--font-body);
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: transform 160ms var(--salida), border-color 150ms ease, background-color 150ms ease;
+}
+.plano-boton-secundario:active { transform: scale(0.97); }
 
 /* ── Botones y enlaces (registro de interfaz: menos de 300 ms, una propiedad por transición) ── */
 /* El botón principal conserva el brillo de la landing anterior (pedido del dueño del
@@ -173,7 +206,7 @@ body:has(.plano) { overflow-x: clip; }
   white-space: nowrap;
   cursor: pointer;
   box-shadow: 0 10px 15px -3px var(--brillo-reposo), 0 4px 6px -4px var(--brillo-reposo);
-  transition: transform 160ms var(--salida), background-color 160ms var(--salida);
+  transition: transform 160ms var(--salida), background-color 150ms ease;
 }
 .plano-boton::after {
   content: '';
@@ -184,7 +217,8 @@ body:has(.plano) { overflow-x: clip; }
   box-shadow: 0 20px 25px -5px var(--brillo-hover), 0 8px 10px -6px var(--brillo-hover);
   opacity: 0;
   pointer-events: none;
-  transition: opacity 300ms ease;
+  /* Sale más rápido de lo que entra (250 ms en hover). */
+  transition: opacity 200ms ease;
 }
 .plano-boton__brillo {
   position: absolute;
@@ -207,7 +241,15 @@ body:has(.plano) { overflow-x: clip; }
 .plano-boton__texto { position: relative; }
 .plano-boton:active { transform: scale(0.97); }
 /* La Regla del Pulgar de DESIGN.md: en la landing ningún CTA baja de 44px. */
-.plano-boton--chico { height: 44px; padding: 0 16px; font-size: 14px; }
+.plano-boton--chico {
+  height: 44px;
+  padding: 0 16px;
+  font-size: 14px;
+  /* En la barra el brillo es más corto: con 14 px libres debajo del botón, tiene que
+     terminar antes del borde de la barra en reposo y en hover. */
+  box-shadow: 0 4px 8px -3px var(--brillo-reposo);
+}
+.plano-boton--chico::after { box-shadow: 0 6px 12px -4px var(--brillo-hover), 0 2px 4px -2px var(--brillo-hover); }
 .plano-enlace {
   display: inline-flex;
   align-items: center;
@@ -224,7 +266,7 @@ body:has(.plano) { overflow-x: clip; }
 }
 @media (hover: hover) and (pointer: fine) {
   .plano-boton:hover { background: var(--senal-activa); }
-  .plano-boton:hover::after { opacity: 1; }
+  .plano-boton:hover::after { opacity: 1; transition-duration: 250ms; }
   /* La luz cruza el botón una vez al entrar el puntero, con la curva del botón anterior. */
   .plano-boton:hover .plano-boton__brillo::before {
     opacity: 1;
@@ -232,6 +274,11 @@ body:has(.plano) { overflow-x: clip; }
     transition: opacity 0s, transform 700ms cubic-bezier(0, 0, 0.2, 1);
   }
   .plano-enlace:hover { text-decoration: underline; text-decoration-thickness: 1px; }
+  .plano-navlink:hover { color: var(--tinta); }
+  .plano-boton-secundario:hover {
+    border-color: color-mix(in srgb, var(--tinta) 45%, transparent);
+    background: color-mix(in srgb, var(--tinta) 4%, transparent);
+  }
 }
 
 /* ── Secciones: el alto es el weight; la nota es sticky ── */
@@ -341,7 +388,9 @@ body:has(.plano) { overflow-x: clip; }
 @media (min-width: 900px), (min-width: 600px) and (orientation: landscape) {
   .plano { --margen: max(24px, 6vw, env(safe-area-inset-left, 0px)); }
   .plano-barra { padding-right: max(24px, 4vw, env(safe-area-inset-right, 0px)); }
-  .plano-barra__ancho { display: inline-flex; }
+  .plano { --barra: 72px; }
+  .plano-barra__nav { display: flex; }
+  .plano-barra__acciones { gap: 12px; }
   .plano-seccion { justify-content: flex-start; padding-bottom: 0; }
   .plano-nota {
     --alto-nota: clamp(calc(var(--barra) + 16px), 23vh, 240px);
@@ -365,12 +414,17 @@ body:has(.plano) { overflow-x: clip; }
 
 @media (max-width: 399px) {
   .plano-marca span { display: none; }
-  .plano-barra nav { gap: 4px 12px; }
+  .plano-boton-secundario,
+  .plano-boton--chico { padding: 0 14px; }
 }
 
 /* Movimiento reducido: sin barrido de luz. El brillo de hover queda, porque solo cambia la opacidad. */
 @media (prefers-reduced-motion: reduce) {
-  .plano-escenario,
-  .plano-boton { transition: none; }
+  .plano-escenario { transition: none; }
+  /* Menos movimiento, no cero: se van el barrido y la escala al presionar; quedan color y opacidad. */
+  .plano-boton { transition: background-color 150ms ease; }
+  .plano-boton-secundario { transition: border-color 150ms ease, background-color 150ms ease; }
+  .plano-boton:active,
+  .plano-boton-secundario:active { transform: none; }
   .plano-boton__brillo { display: none; }
 }

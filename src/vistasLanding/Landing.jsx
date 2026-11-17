@@ -18,7 +18,9 @@ const Experience = lazy(() => import('../componentesLanding/inmersiva/three/Expe
 export default function LandingPage() {
   asegurarInicio();
   const main = useRef(null);
-  const tier = useUI((s) => s.tier);
+  // Solo importa si el tier es estático: así, cuando el monitor de rendimiento alterna
+  // entre 'high' y 'low', la página no se vuelve a renderizar.
+  const estatico = useUI((s) => s.tier === 'static');
   const sin3d = useUI((s) => s.sin3d);
   const inicializado = useUI((s) => s.inicializado);
   const alternarSin3d = useUI((s) => s.alternarSin3d);
@@ -26,7 +28,7 @@ export default function LandingPage() {
   // lazy() pide el chunk 3D recién cuando se renderiza Experience. Sin WebGL, con
   // ahorro de datos, con ?sin3d o si se pierde el contexto, queda la versión
   // estática y el chunk no se descarga.
-  const mostrar3d = inicializado && tier !== 'static' && !sin3d;
+  const mostrar3d = inicializado && !estatico && !sin3d;
   const sinEscena = inicializado && !mostrar3d;
 
   usePageMeta({ title: META.titulo, description: META.descripcion });
@@ -54,7 +56,7 @@ export default function LandingPage() {
           <EnlaceGarage />
           {/* La versión sin 3D se ofrece solo con movimiento reducido. Si ya se está en
               ella (por ejemplo con ?sin3d), el botón queda para poder volver. */}
-          {tier !== 'static' && (reducido || sin3d) && (
+          {!estatico && (reducido || sin3d) && (
             <button type="button" className="plano-enlace" onClick={cambiarVersion} aria-pressed={sin3d}>
               {sin3d ? NAVEGACION.sin3d.desactivar : NAVEGACION.sin3d.activar}
             </button>
