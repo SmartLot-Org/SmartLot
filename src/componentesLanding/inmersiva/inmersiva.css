@@ -30,20 +30,6 @@
   text-align: left;
 }
 
-.plano[data-tema='cianotipo'] {
-  --papel: var(--color-brand-deep);
-  --tinta: var(--color-plano-cian-tinta);
-  --tinta-media: var(--color-plano-cian-tinta-media);
-  --tinta-tenue: var(--color-plano-cian-tinta-tenue);
-  --senal: var(--color-plano-cian-senal);
-  --senal-activa: var(--color-brand-sky);
-  --senal-sobre: var(--color-brand-deep);
-  --texto: var(--color-plano-cian-tinta);
-  --texto-suave: var(--color-plano-cian-texto-suave);
-  --borde: color-mix(in srgb, var(--tinta) 26%, transparent);
-  color-scheme: dark;
-}
-
 /* index.css pone overflow-x: hidden en body, y eso lo vuelve contenedor de scroll:
    las notas sticky dejarían de pegarse. clip recorta igual sin ese efecto. */
 body:has(.plano) { overflow-x: clip; }

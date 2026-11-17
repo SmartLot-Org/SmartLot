@@ -1,5 +1,5 @@
 // Colores de la escena: salen de los mismos tokens CSS que usa la capa DOM
-// (.plano en inmersiva.css), así el dibujo sigue al tema sin duplicar valores.
+// (.plano en inmersiva.css), así el dibujo y el texto no duplican valores.
 import { Color, DoubleSide, LineBasicMaterial, LineDashedMaterial, MeshBasicMaterial } from 'three';
 
 const cara = (extra) => new MeshBasicMaterial({ side: DoubleSide, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1, ...extra });

@@ -38,17 +38,16 @@ function FirstFrame({ onReady }) {
 
 export default function Experience() {
   const tier = useUI((s) => s.tier);
-  const tema = useUI((s) => s.tema);
   const setTier = useUI((s) => s.setTier);
   const [listo, setListo] = useState(false);
   const escenario = useRef(null);
   const reducido = useMemo(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches, []);
 
-  // Los materiales toman sus colores de los tokens CSS de .plano (según el tema).
+  // Los materiales toman sus colores de los tokens CSS de .plano.
   useEffect(() => {
     colorear(escenario.current.closest('.plano'));
     rig.requestFrame();
-  }, [tema]);
+  }, []);
 
   // El plano se dibuja de nuevo cada vez que se monta.
   useEffect(() => { vivo.intro = 0; vivo.listo = false; }, []);

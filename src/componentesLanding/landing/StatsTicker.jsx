@@ -2,15 +2,11 @@ import { useRef } from 'react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 
-const DEFAULT_STATS = [
-  { label: "Satisfacción del cliente", value: "4.9/5" },
-  { label: "Tiempo de respuesta", value: "2 min" },
-  { label: "Calificación en empresas", value: "4.8★" },
-  { label: "Soporte técnico", value: "24/7" },
-];
-
+// Sin valores por defecto: cada página pasa cifras que se puedan verificar en el
+// producto. Las métricas de satisfacción y soporte que traía eran inventadas y se
+// retiraron el 2026-11-17.
 export default function StatsTicker({
-  stats = DEFAULT_STATS,
+  stats = [],
   ariaLabel = "Estadísticas de la plataforma",
 }) {
   const tickerRef = useRef();
@@ -32,6 +28,8 @@ export default function StatsTicker({
     });
 
   }, { scope: tickerRef });
+
+  if (!stats.length) return null;
 
   return (
     <div ref={tickerRef} className="w-full bg-brand-deep py-6 overflow-hidden border-y border-white/5" aria-label={ariaLabel}>

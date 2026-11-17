@@ -18,7 +18,6 @@ export default function LandingPage() {
   const main = useRef(null);
   const tier = useUI((s) => s.tier);
   const sin3d = useUI((s) => s.sin3d);
-  const tema = useUI((s) => s.tema);
   const inicializado = useUI((s) => s.inicializado);
   const alternarSin3d = useUI((s) => s.alternarSin3d);
   // lazy() pide el chunk 3D recién cuando se renderiza Experience. Sin WebGL, con
@@ -37,13 +36,13 @@ export default function LandingPage() {
   useStoryTimeline(main);
 
   return (
-    <div className="plano" data-tema={tema} data-sin3d={sinEscena}>
+    <div className="plano" data-sin3d={sinEscena}>
       <a className="plano-saltar" href="#contenido">{NAVEGACION.saltar}</a>
       {mostrar3d && <Suspense fallback={null}><Experience /></Suspense>}
       <Nav />
       <main id="contenido" ref={main} tabIndex={-1}>
         {SECCIONES.map((s, i) => (
-          <Seccion key={s.id} s={s} i={i} ultima={i === SECCIONES.length - 1} sinEscena={sinEscena} tema={tema} />
+          <Seccion key={s.id} s={s} i={i} ultima={i === SECCIONES.length - 1} sinEscena={sinEscena} />
         ))}
       </main>
       <footer className="plano-pie">

@@ -6,7 +6,6 @@ export const useUI = create((set) => ({
   seccion: 0,
   tier: 'high',
   sin3d: false,
-  tema: 'claro',
   inicializado: false, // false hasta asegurarInicio: Landing no monta el 3D antes
   setSeccion: (seccion) => set({ seccion }),
   setTier: (tier) => set({ tier }),
@@ -38,7 +37,6 @@ function initUIFromBrowser() {
   useUI.setState({
     tier: initialTier(),
     sin3d: q.has('sin3d'),
-    tema: q.get('tema') === 'cianotipo' ? 'cianotipo' : 'claro',
     inicializado: true,
   });
 }

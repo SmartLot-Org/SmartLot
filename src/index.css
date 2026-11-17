@@ -22,12 +22,6 @@
      El papel es brand-bg, la tinta plena es brand-deep y la señal es brand-blue. */
   --color-plano-tinta-media: #7C8BAA;
   --color-plano-tinta-tenue: #CDD6E5;
-  /* Variante "cianotipo" (plano en negativo) */
-  --color-plano-cian-tinta:       #EAF0FB;
-  --color-plano-cian-tinta-media: #7389B4;
-  --color-plano-cian-tinta-tenue: #24406F;
-  --color-plano-cian-senal:       #8AB4FF;
-  --color-plano-cian-texto-suave: #B7C4DD;
 
   /* ── Font Families ── */
   --font-display: 'Archivo', system-ui, sans-serif;

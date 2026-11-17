@@ -13,7 +13,6 @@ const ParaGaragesBento = lazy(() => import("../componentesLanding/paraGarages/Pa
 const ParaGaragesShowcase = lazy(() => import("../componentesLanding/paraGarages/ParaGaragesShowcase"));
 const ParaGaragesReports = lazy(() => import("../componentesLanding/paraGarages/ParaGaragesReports"));
 const ParaGaragesSecurity = lazy(() => import("../componentesLanding/paraGarages/ParaGaragesSecurity"));
-const ParaGaragesSocial = lazy(() => import("../componentesLanding/paraGarages/ParaGaragesSocial"));
 const ParaGaragesCTA = lazy(() => import("../componentesLanding/paraGarages/ParaGaragesCTA"));
 
 const GARAGE_STATS = [
@@ -60,7 +59,6 @@ export default function ParaGarages() {
             <ParaGaragesShowcase />
             <ParaGaragesReports />
             <ParaGaragesSecurity />
-            <ParaGaragesSocial />
           </Suspense>
         </main>
         <Suspense fallback={<SkeletonFallback />}>

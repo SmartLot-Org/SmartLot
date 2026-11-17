@@ -36,11 +36,21 @@ test('las vistas pesadas se cargan por ruta y la landing no espera a la sesión'
   assert.match(app, /import LandingPage from "\.\/vistasLanding\/Landing"/);
 });
 
-test('el ticker conserva sus métricas de confianza', () => {
-  assert.match(ticker, /Satisfacción del cliente/);
-  assert.match(ticker, /4\.9\/5/);
-  assert.match(ticker, /Tiempo de respuesta/);
-  assert.match(ticker, /Soporte técnico/);
+test('el ticker no trae métricas inventadas por defecto', () => {
+  assert.doesNotMatch(ticker, /DEFAULT_STATS|Satisfacción del cliente|4\.9\/5|4\.8★|Tiempo de respuesta|Soporte técnico/);
+  assert.match(ticker, /stats = \[\]/);
+  assert.match(ticker, /if \(!stats\.length\) return null;/);
+});
+
+test('/para-garages ya no muestra testimonios inventados', () => {
+  assert.equal(existsSync(new URL('../componentesLanding/paraGarages/ParaGaragesSocial.jsx', import.meta.url)), false);
+  assert.doesNotMatch(paraGarages, /ParaGaragesSocial/);
+});
+
+test('la landing es siempre clara: no hay variante de tema', () => {
+  assert.doesNotMatch(store, /tema/);
+  assert.doesNotMatch(estilos, /cianotipo|data-tema/);
+  assert.doesNotMatch(landing, /data-tema|tema=/);
 });
 
 test('las partículas usan la familia del azul señal', () => {

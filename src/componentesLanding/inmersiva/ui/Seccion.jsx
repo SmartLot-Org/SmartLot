@@ -11,10 +11,10 @@ gsap.registerPlugin(useGSAP, ScrollTrigger);
 // Una sección = una idea = un encuadre. La nota viaja con el scroll, se queda
 // quieta durante la estadía y se desvanece al irse para dejar ver el dibujo.
 // El hero (i === 0) lleva el único h1 y no espera ninguna animación.
-export function Seccion({ s, i, ultima, sinEscena, tema }) {
+export function Seccion({ s, i, ultima, sinEscena }) {
   const ref = useRef(null);
   const Titulo = i === 0 ? 'h1' : 'h2';
-  const poster = `/landing/posters/${s.id}${tema === 'cianotipo' ? '-cianotipo' : ''}`;
+  const poster = `/landing/posters/${s.id}`;
 
   useGSAP(() => {
     if (sinEscena || ultima) return;
