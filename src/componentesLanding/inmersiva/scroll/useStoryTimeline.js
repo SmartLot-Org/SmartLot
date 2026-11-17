@@ -2,8 +2,9 @@ import { useGSAP } from '@gsap/react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useUI } from '../estado/store';
-import { avancesFinales, componer, PESOS } from './estado';
+import { aplicarComparacion, avancesFinales, componer, PESOS } from './estado';
 import { CONSULTA_VERTICAL, rig } from './rig';
+import { velocidadScroll } from './smoothScroll';
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
@@ -32,10 +33,17 @@ export function useStoryTimeline(scope) {
       vertical: CONSULTA_VERTICAL,
     }, (ctx) => {
       const { reducido, vertical } = ctx.conditions;
+      let ultimos = avancesFinales(0);
       const escribir = (avances) => {
+        ultimos = avances;
         componer(avances, vertical, rig);
+        aplicarComparacion(rig, useUI.getState().comparar, avances, vertical);
         rig.requestFrame();
       };
+      // El deslizador antes / con SmartLot recompone sin esperar al scroll.
+      const soltarComparar = useUI.subscribe((s, previo) => {
+        if (s.comparar !== previo.comparar) escribir(ultimos);
+      });
       rig.vertical = vertical;
       rig.snap = reducido;
 
@@ -46,8 +54,25 @@ export function useStoryTimeline(scope) {
           trigger: el, start: 'top center', end: 'bottom center',
           onToggle: (self) => { if (self.isActive) escribir(avancesFinales(i)); },
         }));
-        return;
+        return soltarComparar;
       }
+
+      // Inercia: la velocidad del scroll pasa al dibujo y a las notas (--inercia).
+      const raiz = scope.current?.closest('.plano');
+      let inercia = 0;
+      const medirVelocidad = () => {
+        rig.velocidad = velocidadScroll();
+        inercia += (Math.max(-1, Math.min(1, rig.velocidad / 45)) - inercia) * 0.18;
+        if (Math.abs(inercia) < 0.001) inercia = 0;
+        raiz?.style.setProperty('--inercia', inercia.toFixed(3));
+      };
+      gsap.ticker.add(medirVelocidad);
+      const soltarVelocidad = () => {
+        soltarComparar();
+        gsap.ticker.remove(medirVelocidad);
+        rig.velocidad = 0;
+        raiz?.style.removeProperty('--inercia');
+      };
 
       const entrada = PESOS.map((_, i) => (i === 0 ? 1 : 0));
       const estadia = PESOS.map(() => 0);
@@ -67,6 +92,7 @@ export function useStoryTimeline(scope) {
         }
       });
       actualizar();
+      return soltarVelocidad;
     });
   }, { scope, dependencies: [sin3d, mostrar3d], revertOnUpdate: true }); // la versión sin 3D cambia el layout
 }

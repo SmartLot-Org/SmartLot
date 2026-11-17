@@ -311,6 +311,28 @@ export function puntoEnVuelta(vuelta, s, destino) {
   return destino;
 }
 
+// ── El auto que estaciona: entra por el portón, toma la calle interna y se
+// mete de punta en la primera plaza del trato (la que se pinta primero). ──
+function redondear(puntos, radio) {
+  const pts = [puntos[0]];
+  for (let i = 1; i < puntos.length - 1; i++) {
+    const [a, p, b] = [puntos[i - 1], puntos[i], puntos[i + 1]];
+    const la = Math.hypot(p[0] - a[0], p[1] - a[1]);
+    const lb = Math.hypot(b[0] - p[0], b[1] - p[1]);
+    const r = Math.min(radio, la / 2, lb / 2);
+    const p0 = [p[0] + ((a[0] - p[0]) / la) * r, p[1] + ((a[1] - p[1]) / la) * r];
+    const p1 = [p[0] + ((b[0] - p[0]) / lb) * r, p[1] + ((b[1] - p[1]) / lb) * r];
+    for (let k = 0; k <= 8; k++) {
+      const t = k / 8;
+      const u = 1 - t;
+      pts.push([u * u * p0[0] + 2 * u * t * p[0] + t * t * p1[0], u * u * p0[1] + 2 * u * t * p[1] + t * t * p1[1]]);
+    }
+  }
+  pts.push(puntos.at(-1));
+  const acumulado = [0];
+  for (let i = 1; i < pts.length; i++) acumulado.push(acumulado[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
+  return { pts, acumulado, largo: acumulado.at(-1) };
+}
 const f32 = (a) => new Float32Array(a);
 const empacar = (o) => Object.fromEntries(Object.entries(o).map(([k, v]) => [k, Array.isArray(v) ? f32(v) : v]));
 
@@ -326,6 +348,24 @@ delete ciudad.edificios;
 // Plazas del trato en el orden en que se reservan.
 export const PLAZAS_RESERVADAS = planta.reservadas;
 delete planta.reservadas;
+// Entre las primeras plazas que se reservan, la más profunda: así el recorrido se luce.
+export const INDICE_PLAZA_DEL_AUTO = PLAZAS_RESERVADAS.slice(0, 4)
+  .reduce((mejor, p, i, lista) => (p[1] > lista[mejor][1] ? i : mejor), 0);
+export const PLAZA_DEL_AUTO = PLAZAS_RESERVADAS[INDICE_PLAZA_DEL_AUTO];
+export const ESTACIONA = (() => {
+  const [x0, z0, x1, z1] = PLAZA_DEL_AUTO;
+  const zc = (z0 + z1) / 2;
+  // Calle interna que da a la plaza (x = 23.2 o 24.8) y de qué lado entra.
+  const calle = x1 <= 24 ? 23.2 : 24.8;
+  const entra = x0 < calle ? x1 - 0.2 : x0 + 0.2;
+  return redondear([[24, PORTON.z - 1.6], [24, G1.z0 + 0.25], [calle, G1.z0 + 0.25], [calle, zc], [entra, zc]], 0.24);
+})();
+// Posición y rumbo sobre el trayecto para un avance t de 0 a 1 (sin vuelta cíclica).
+export function puntoEnEstaciona(t, destino) {
+  const s = Math.min(Math.max(t, 0), 1) * ESTACIONA.largo * 0.99999;
+  return puntoEnVuelta(ESTACIONA, s, destino);
+}
+
 // Calles con tráfico ambiental: ejes entre manzanas (c * PASO + 6), lejos de la
 // manzana de la oficina y del recorrido del trato.
 export const CALLES = [
@@ -334,6 +374,22 @@ export const CALLES = [
   { eje: 'x', en: 66, sentido: 1 }, { eje: 'z', en: 54, sentido: -1 },
 ];
 export const LIMITE_CIUDAD = RADIO * PASO + 6;
+
+// Garages con ficha, en el orden de GARAGES_DEMO.lista: el del trato, los dos
+// marcados desde el inicio y los que se suman en el cierre.
+export const GARAGES = [G1, G2, G3, ...SUMADOS].map((g, i) => {
+  const cx = (g.x0 + g.x1) / 2;
+  const cz = (g.z0 + g.z1) / 2;
+  // Distancia por la calle (en manzanas no se va en diagonal), en metros.
+  // El del trato usa el largo real de la ruta dibujada, para que coincida con la cota.
+  const metros = i === 0 ? ruta.metros : Math.round((Math.abs(cx) + Math.abs(cz)) * 10 / 50) * 50;
+  return { ...g, cx, cz, metros };
+});
+export const CARAS_GARAGES = (() => {
+  const caras = [];
+  for (const g of GARAGES) caja(caras, null, g.x0, g.z0, g.x1, g.z1, g.h);
+  return new Float32Array(caras);
+})();
 
 export const MUNDO = {
   ciudad: empacar(ciudad),

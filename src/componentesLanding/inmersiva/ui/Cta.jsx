@@ -1,10 +1,14 @@
+import { useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { CTA } from '../contenido/secciones';
+import { useMagnetico } from './useMagnetico';
 
 // La acción principal de la landing. Misma etiqueta en la barra, el hero y el cierre.
 export function Cta({ chico = false }) {
+  const ref = useRef(null);
+  useMagnetico(ref, chico ? 0.18 : 0.28);
   return (
-    <Link to={CTA.principal.destino} className={chico ? 'plano-boton plano-boton--chico' : 'plano-boton'}>
+    <Link ref={ref} to={CTA.principal.destino} className={chico ? 'plano-boton plano-boton--chico' : 'plano-boton'}>
       {CTA.principal.etiqueta}
     </Link>
   );

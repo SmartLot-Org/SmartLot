@@ -3,6 +3,8 @@ import { useGSAP } from '@gsap/react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { SplitText } from 'gsap/SplitText';
+import { useUI } from '../estado/store';
+import { Comparador } from './Comparador';
 import { Cta, EnlaceGarage } from './Cta';
 import { Dato } from './Dato';
 import { TablaConsumos } from './TablaConsumos';
@@ -42,7 +44,8 @@ export function Seccion({ s, i, ultima, sinEscena, tema }) {
         autoSplit: true,
         onSplit: (self) => {
           const tl = gsap.timeline({
-            delay: i === 0 ? 0.35 : 0,
+            // El hero espera a que se levante el cajetín de la intro.
+            delay: i === 0 ? (useUI.getState().intro ? 2.75 : 0.35) : 0,
             scrollTrigger: i === 0 ? undefined : { trigger: ref.current, start: 'top 82%', toggleActions: 'play none none reverse' },
           });
           tl.from(self.words, { yPercent: 110, rotate: 4, duration: 0.9, ease: 'expo.out', stagger: 0.06 })
@@ -65,6 +68,7 @@ export function Seccion({ s, i, ultima, sinEscena, tema }) {
       <div className="plano-nota">
         <Titulo id={`${s.id}-titulo`}>{s.titulo}</Titulo>
         <p>{s.cuerpo}</p>
+        {s.comparador && !sinEscena && <Comparador />}
         {s.dato && !sinEscena && <Dato />}
         {s.tabla && <TablaConsumos />}
         {s.cta && (

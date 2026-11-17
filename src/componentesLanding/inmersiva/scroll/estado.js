@@ -59,3 +59,29 @@ export function componer(avances, vertical, destino = nuevoEstado()) {
 export function avancesFinales(indice) {
   return PESOS.map((peso, i) => (i <= indice ? peso : 0));
 }
+
+// ── Antes / con SmartLot ──
+// En el problema, un deslizador (0 = antes, 1 = con SmartLot) lleva el dibujo
+// hacia el estado del trato: los autos dejan de dar vueltas, se traza la ruta,
+// el garage acepta y la cámara encuadra como en la idea. Pesa solo mientras se
+// está en el problema, así el relato sigue siendo continuo al entrar y al salir.
+const I_PROBLEMA = GUION.findIndex((g) => g.id === 'problema');
+const I_IDEA = GUION.findIndex((g) => g.id === 'idea');
+
+export function pesoComparacion(avances) {
+  return limitar(avances[I_PROBLEMA] ?? 0) * (1 - limitar((avances[I_IDEA] ?? 0) * 2));
+}
+
+export function aplicarComparacion(destino, comparar, avances, vertical) {
+  const k = suave(limitar(comparar)) * pesoComparacion(avances);
+  if (k <= 0) return destino;
+  const g = GUION[I_IDEA];
+  const c = vertical ? g.camaraVertical : g.camara;
+  destino.cam.x = mezcla(destino.cam.x, c.x, k);
+  destino.cam.z = mezcla(destino.cam.z, c.z, k);
+  destino.cam.lz = mezcla(destino.cam.lz, Math.log(c.zoom), k);
+  destino.fx.vueltas = mezcla(destino.fx.vueltas, 0, k);
+  destino.fx.traza = mezcla(destino.fx.traza, 1, k);
+  destino.fx.trato = mezcla(destino.fx.trato, 1, limitar((k - 0.3) / 0.7));   // acepta cuando la ruta ya avanzó
+  return destino;
+}

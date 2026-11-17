@@ -16,6 +16,7 @@ export const FX_CERO = Object.freeze({
   ingreso: 0,   // el auto avanza y se escanea el QR
   consumos: 0,  // horas apiladas sobre cada plaza
   red: 0,       // más garages marcados
+  estaciona: 0, // un auto entra al garage y se estaciona en su plaza
   pinFuera: 0,  // el pin del hero se guarda (vuelve en el cierre)
 });
 
@@ -47,6 +48,7 @@ export const COREOGRAFIA = {
     camaraVertical: { x: 24, z: 12, zoom: 5.2 },
     fx: [
       { clave: 'tapa', valor: 1, desde: 0.5, hasta: 1 },
+      { clave: 'estaciona', valor: 1, desde: 0.6, hasta: 1.1 },
       { clave: 'llenas', valor: 1, desde: 1, hasta: 1.52 },
     ],
   },

@@ -25,6 +25,11 @@ export function initSmoothScroll() {
   };
 }
 
+// Velocidad actual del scroll suave (px por frame, con signo). 0 sin Lenis.
+export function velocidadScroll() {
+  return lenis?.velocity ?? 0;
+}
+
 export function scrollToSection(id) {
   const el = document.getElementById(id);
   if (!el) return;

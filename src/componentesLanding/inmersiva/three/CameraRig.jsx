@@ -1,6 +1,7 @@
 import { useFrame, useThree } from '@react-three/fiber';
 import { easing } from 'maath';
 import { useEffect, useLayoutEffect } from 'react';
+import { useUI } from '../estado/store';
 import { rig } from '../scroll/rig';
 import { puntero, escucharPuntero } from './puntero';
 import { vivo } from './vivo';
@@ -47,7 +48,9 @@ export function CameraRig() {
       vivo.tiempo += dt;
     }
     vivo.listo = true;
-    vivo.intro = rig.snap ? 1 : Math.min(1, vivo.intro + dt / INTRO);
+    // Mientras corre el cajetín de entrada, el plano espera para dibujarse a la vista.
+    if (useUI.getState().intro) vivo.intro = 0;
+    else vivo.intro = rig.snap ? 1 : Math.min(1, vivo.intro + dt / INTRO);
     vivo.aparecen = Math.min(1, Math.max(0, (vivo.intro - 0.25) / 0.4));
 
     // Paralaje: el cursor gira apenas la axonometría (con inercia), así la
@@ -55,14 +58,16 @@ export function CameraRig() {
     const quieto = rig.snap;
     easing.damp(vivo.mira, 'x', quieto ? 0 : puntero.x, INERCIA, dt);
     easing.damp(vivo.mira, 'y', quieto ? 0 : puntero.y, INERCIA, dt);
+    // Inercia: al scrollear rápido la cámara se inclina y se aleja apenas.
+    easing.damp(vivo, 'velocidad', quieto ? 0 : Math.max(-1, Math.min(1, rig.velocidad / 45)), 0.3, dt);
     const az = AZIMUT - vivo.mira.x * GIRO;
-    const el = ELEVACION + vivo.mira.y * CABECEO;
+    const el = ELEVACION + vivo.mira.y * CABECEO + vivo.velocidad * 0.07;
     const dx = Math.cos(el) * Math.sin(az);
     const dy = Math.sin(el);
     const dz = Math.cos(el) * Math.cos(az);
 
     const { x, z, lz } = vivo.cam;
-    vivo.pxPorUnidad = (state.size.height / ALTO) * Math.exp(lz);
+    vivo.pxPorUnidad = (state.size.height / ALTO) * Math.exp(lz - Math.abs(vivo.velocidad) * 0.08);
     state.camera.zoom = vivo.pxPorUnidad;
     state.camera.position.set(x + dx * LEJOS, dy * LEJOS, z + dz * LEJOS);
     state.camera.lookAt(x, 0, z);

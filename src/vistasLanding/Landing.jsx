@@ -7,7 +7,9 @@ import { META, NAVEGACION, SECCIONES } from '../componentesLanding/inmersiva/con
 import { initSmoothScroll } from '../componentesLanding/inmersiva/scroll/smoothScroll';
 import { useStoryTimeline } from '../componentesLanding/inmersiva/scroll/useStoryTimeline';
 import { initUIFromBrowser, useUI } from '../componentesLanding/inmersiva/estado/store';
+import { Intro } from '../componentesLanding/inmersiva/ui/Intro';
 import { Nav } from '../componentesLanding/inmersiva/ui/Nav';
+import { Regla } from '../componentesLanding/inmersiva/ui/Regla';
 import { Seccion } from '../componentesLanding/inmersiva/ui/Seccion';
 import usePageMeta from '../hooks/usePageMeta';
 
@@ -38,7 +40,9 @@ export default function LandingPage() {
     <div className="plano" data-tema={tema} data-sin3d={sinEscena}>
       <a className="plano-saltar" href="#contenido">{NAVEGACION.saltar}</a>
       {mostrar3d && <Suspense fallback={null}><Experience /></Suspense>}
+      <Intro />
       <Nav />
+      <Regla />
       {/* Por defecto el layout es el de 3D; pasa al de sin 3D solo cuando ya se sabe que no hay. */}
       <main id="contenido" ref={main}>
         {SECCIONES.map((s, i) => (

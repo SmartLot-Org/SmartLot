@@ -20,6 +20,8 @@ export const NAVEGACION = {
   panel: 'Ir a mi panel',
   saltar: 'Saltar al contenido',
   sin3d: { activar: 'Ver sin 3D', desactivar: 'Volver al 3D' },
+  tema: { noche: 'Ver de noche', dia: 'Ver de día' },
+  regla: 'Recorrido de la página',
   pie: 'Gestión de estacionamientos para empresas y garages.',
 };
 
@@ -42,6 +44,61 @@ export const DEMO = {
     exportar: 'Se exporta a PDF y Excel',
   },
 };
+
+// Cajetín de la intro: el rótulo de un plano técnico.
+export const INTRO = {
+  titulo: 'SmartLot',
+  filas: [
+    ['Plano', 'N.º 1 · Cocheras cerca de la oficina'],
+    ['Escala', '1:5000'],
+    ['Hoja', '1 de 7'],
+  ],
+};
+
+// Deslizador antes / con SmartLot (en el problema) y los chats del "antes".
+export const COMPARAR = {
+  etiqueta: 'Comparar cómo es hoy y cómo es con SmartLot',
+  antes: 'Hoy',
+  despues: 'Con SmartLot',
+  ayuda: 'Deslizá para comparar',
+  chats: [
+    { de: 'Equipo', texto: '¿Queda lugar en la cochera hoy?' },
+    { de: 'Garage', texto: 'Creo que sí, fijate cuando llegues' },
+    { de: 'Equipo', texto: 'Di tres vueltas y nada…' },
+  ],
+};
+
+// Celular que acompaña a la reserva (pantalla de ejemplo de la app).
+export const CELULAR = {
+  titulo: 'Reservar plaza',
+  sede: 'Sede Centro',
+  dias: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie'],
+  horario: '08:30 – 18:00',
+  boton: 'Reservar',
+  hecho: 'Reservada',
+  plaza: 'Plaza',
+  plazas: ['14', '08', '21', '14', '05'],  // las mismas de la tabla de consumos
+};
+
+// Fichas de los garages del plano (datos de ejemplo, así se rotulan).
+export const GARAGES_DEMO = {
+  aviso: 'Datos de ejemplo',
+  libres: 'plazas libres',
+  desde: 'de tu oficina',
+  ver: 'Ver garage',
+  lista: [
+    { nombre: 'Garage del trato', libres: 25 },
+    { nombre: 'Garage Pasaje Norte', libres: 12 },
+    { nombre: 'Garage Las Tipas', libres: 8 },
+    { nombre: 'Garage Plaza Central', libres: 18 },
+    { nombre: 'Garage del Puerto', libres: 6 },
+    { nombre: 'Garage Oeste', libres: 14 },
+    { nombre: 'Garage Molinos', libres: 9 },
+  ],
+};
+
+// Mira del cursor: la cota del edificio apuntado.
+export const MIRA = { edificio: 'Edificio', alto: 'alto' };
 
 // Rótulos del dibujo (decorativos: el contenido real está en las secciones).
 export const ROTULOS = {
@@ -71,6 +128,7 @@ export const SECCIONES = [
       'Hoy los acuerdos se arreglan por WhatsApp o en papel, las cocheras quedan vacías y nadie sabe cuánto se usó cada lugar.',
     movimiento: 'orbita',
     weight: 1.3,
+    comparador: true,
     figura: 'La manzana de la oficina: varios autos dan vueltas alrededor sin encontrar lugar.',
   },
   {

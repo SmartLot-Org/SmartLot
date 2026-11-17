@@ -8,14 +8,21 @@ import { rig } from '../scroll/rig';
 import { CameraRig } from './CameraRig';
 import { Acceso } from './escenas/Acceso';
 import { Ciudad } from './escenas/Ciudad';
+import { Clima } from './escenas/Clima';
+import { Estaciona } from './escenas/Estaciona';
 import { Garage } from './escenas/Garage';
+import { Noche } from './escenas/Noche';
 import { Pin } from './escenas/Pin';
 import { Pulsos } from './escenas/Pulsos';
+import { Red } from './escenas/Red';
 import { Realce } from './escenas/Realce';
 import { Trafico } from './escenas/Trafico';
 import { Trato } from './escenas/Trato';
 import { Vueltas } from './escenas/Vueltas';
 import { colorear } from './paleta';
+import { CapaCelular, ProyectorCelular } from './Celular';
+import { CapaChats, ProyectorChats } from './Chats';
+import { CapaInteraccion, ProyectorInteraccion } from './Interaccion';
 import { Proyector, Rotulos } from './Rotulos';
 import { vivo } from './vivo';
 
@@ -26,6 +33,27 @@ function FrameBridge() {
     rig.requestFrame = () => invalidate();
     return () => { rig.requestFrame = () => {}; };
   }, [invalidate]);
+  return null;
+}
+
+// Día / noche: mientras los tokens CSS transicionan, los materiales se
+// recolorean en cada frame; y `vivo.noche` va de 0 a 1 para las luces.
+function CambioDeTema({ raiz, tema }) {
+  const cambio = useRef({ desde: 0, ultimo: '' });
+  useEffect(() => { cambio.current = { desde: performance.now(), ultimo: '' }; }, [tema]);
+  useFrame((_, delta) => {
+    const objetivo = tema === 'cianotipo' ? 1 : 0;
+    vivo.noche += (objetivo - vivo.noche) * Math.min(1, delta * 3);
+    const c = cambio.current;
+    if (!c.desde || !raiz.current) return;
+    // Se recolorea hasta que el token deja de cambiar (la transición CSS terminó),
+    // aunque los frames vengan lentos.
+    const plano = raiz.current.closest('.plano');
+    const papel = getComputedStyle(plano).getPropertyValue('--papel');
+    colorear(plano);
+    if (papel === c.ultimo && performance.now() - c.desde > 950) c.desde = 0;
+    c.ultimo = papel;
+  });
   return null;
 }
 
@@ -77,20 +105,31 @@ export default function Experience() {
         {/* Geometrías y materiales son del módulo: no se descartan al desmontar una escena. */}
         <group dispose={null}>
           <Ciudad />
+          <Clima />
           <Trato />
           <Vueltas />
           <Garage />
+          <Estaciona />
           <Acceso />
           <Trafico />
+          <Noche />
           <Pulsos />
+          <Red />
           <Realce />
           <Pin />
         </group>
+        <CambioDeTema raiz={escenario} tema={tema} />
         <Proyector />
+        <ProyectorInteraccion />
+        <ProyectorCelular />
+        <ProyectorChats />
         <FrameBridge />
         <FirstFrame onReady={() => setListo(true)} />
       </Canvas>
       <Rotulos />
+      <CapaInteraccion />
+      <CapaCelular />
+      <CapaChats />
     </div>
   );
 }

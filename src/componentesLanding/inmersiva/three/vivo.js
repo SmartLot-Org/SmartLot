@@ -10,6 +10,8 @@ export const vivo = {
   aparecen: 0,     // derivado de intro: tinta plena y señales
   tiempo: 0,       // segundos de movimiento ambiental (se detiene con movimiento reducido)
   pxPorUnidad: 1,
+  velocidad: 0,         // velocidad del scroll amortiguada (-1 a 1)
+  noche: 0,             // 0 día, 1 noche (cianotipo): ventanas y faros
   mira: { x: 0, y: 0 }, // cursor amortiguado (-1 a 1): paralaje y orientación del pin
   listo: false,
 };

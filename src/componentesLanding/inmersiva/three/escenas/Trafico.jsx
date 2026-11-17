@@ -1,5 +1,6 @@
 import { useFrame } from '@react-three/fiber';
 import { useMemo, useRef } from 'react';
+import { BufferAttribute, BufferGeometry } from 'three';
 import { geometria } from '../geometria';
 import { CALLES, LIMITE_CIUDAD, MUNDO } from '../mundo';
 import { MAT } from '../paleta';
@@ -17,6 +18,13 @@ const AUTOS = CALLES.flatMap((calle, c) => Array.from({ length: POR_CALLE }, (_,
   velocidad: 2.4 + ((c * 7 + k * 3) % 5) * 0.35,
 })));
 
+// Haz de los faros, en el suelo delante del auto (frente en +X): se ve de noche.
+const FARO = new BufferGeometry();
+FARO.setAttribute('position', new BufferAttribute(new Float32Array([
+  0.21, 0.04, -0.06, 0.95, 0.04, -0.26, 0.95, 0.04, 0.26,
+  0.21, 0.04, -0.06, 0.95, 0.04, 0.26, 0.21, 0.04, 0.06,
+]), 3));
+
 export function Trafico() {
   const geo = useMemo(() => ({ caras: geometria(MUNDO.coche.caras), aristas: geometria(MUNDO.coche.aristas) }), []);
   const grupo = useRef(null);
@@ -29,6 +37,7 @@ export function Trafico() {
     if (!grupo.current.visible) return;
     MAT.papelTrafico.opacity = presencia;
     MAT.tintaTrafico.opacity = presencia;
+    MAT.faro.opacity = presencia * vivo.noche * 0.4;
     AUTOS.forEach((a, i) => {
       const auto = autos.current[i];
       const d = (a.fase * largo + vivo.tiempo * a.velocidad) % largo;
@@ -54,6 +63,7 @@ export function Trafico() {
         <group key={i} ref={(el) => { autos.current[i] = el; }}>
           <mesh geometry={geo.caras} material={MAT.papelTrafico} />
           <lineSegments geometry={geo.aristas} material={MAT.tintaTrafico} />
+          <mesh geometry={FARO} material={MAT.faro} />
         </group>
       ))}
     </group>
