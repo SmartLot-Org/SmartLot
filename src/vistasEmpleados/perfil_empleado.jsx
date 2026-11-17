@@ -17,6 +17,7 @@ import { VehiculosGetAll } from "../servicies/API_Vehiculo";
 import { ModelosGetAll } from "../servicies/API_Modelo";
 import { MarcasGetAll } from "../servicies/API_Marca";
 import useLiveValidation from "../hooks/useLiveValidation";
+import { guardarCambiosPerfil, mensajeErrorServidor } from "../helpers/perfilGuardado";
 
 import FormularioInfoPersonal from "../componentesEmpleado/formulario_info_personal";
 import FieldValidation from "../components/FieldValidation";
@@ -242,8 +243,8 @@ export default function PerfilEmpleado() {
     if (!isValid) return;
 
     const telefonoLimpio = personalData.telefono?.replace(/\D/g, "") || "";
+    const telefonoOriginal = originalPersonalData.telefono?.replace(/\D/g, "") || "";
     const nuevaContraseña = personalData.contraseña?.trim() || "";
-    const contraseñaCambiada = nuevaContraseña.length > 0;
 
     setGuardando(true);
 
@@ -255,32 +256,44 @@ export default function PerfilEmpleado() {
         throw new Error("No se pudo detectar el ID del usuario activo en la sesión.");
       }
 
-      await apiClient.put(`/api/usuario/${idUsuarioFinal}`, {
-        telefono: telefonoLimpio
+      const { telefonoCambiado, contraseñaCambiada } = await guardarCambiosPerfil(apiClient, {
+        idUsuario: idUsuarioFinal,
+        telefono: telefonoLimpio,
+        telefonoOriginal,
+        contraseña: nuevaContraseña,
       });
 
-      if (contraseñaCambiada) {
-        await apiClient.patch(`/api/usuario/${idUsuarioFinal}/contrasenia`, {
-          contraseña: nuevaContraseña
+      if (!telefonoCambiado && !contraseñaCambiada) {
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'info',
+          title: 'No hay cambios para guardar',
+          showConfirmButton: false,
+          timer: 2000,
+          zIndex: Z_INDEX.SWAL_DIALOG,
         });
+        return;
       }
 
       const datosActualizados = { ...personalData, telefono: telefonoLimpio, contraseña: "" };
       setPersonalData(datosActualizados);
       setOriginalPersonalData(datosActualizados);
 
-      setUsuario((prev) => {
-        const actualizado = { ...prev };
-        if (actualizado.datos) actualizado.datos.telefono = telefonoLimpio;
-        if (actualizado.usuario) actualizado.usuario.telefono = telefonoLimpio;
-        actualizado.telefono = telefonoLimpio;
-        return actualizado;
-      });
+      if (telefonoCambiado) {
+        setUsuario((prev) => {
+          const actualizado = { ...prev };
+          if (actualizado.datos) actualizado.datos.telefono = telefonoLimpio;
+          if (actualizado.usuario) actualizado.usuario.telefono = telefonoLimpio;
+          actualizado.telefono = telefonoLimpio;
+          return actualizado;
+        });
+      }
 
       if (contraseñaCambiada) {
         await Swal.fire({
           icon: 'success',
-          title: 'Contraseña actualizada',
+          title: telefonoCambiado ? 'Cambios guardados' : 'Contraseña actualizada',
           text: 'Tu contraseña se actualizó correctamente. Por seguridad, vuelve a iniciar sesión.',
           confirmButtonColor: '#3b82f6',
           zIndex: Z_INDEX.SWAL_DIALOG,
@@ -301,10 +314,22 @@ export default function PerfilEmpleado() {
 
     } catch (error) {
       console.error("Error al guardar cambios:", error);
+      if (error.contraseñaGuardada) {
+        // La contraseña ya cambió y el backend cerró las sesiones: hay que volver a entrar.
+        await Swal.fire({
+          icon: 'warning',
+          title: 'Contraseña actualizada, teléfono no',
+          text: `Tu contraseña se cambió, pero el teléfono no se pudo guardar (${mensajeErrorServidor(error)}). Vuelve a iniciar sesión e intenta de nuevo con el teléfono.`,
+          confirmButtonColor: '#3b82f6',
+          zIndex: Z_INDEX.SWAL_DIALOG,
+        });
+        handleCerrarSesion();
+        return;
+      }
       Swal.fire({
         icon: 'error',
         title: 'Error al guardar',
-        text: error.message || error.response?.data?.message || 'Ocurrió un problema con el servidor.',
+        text: mensajeErrorServidor(error),
         confirmButtonColor: '#3b82f6',
         zIndex: Z_INDEX.SWAL_DIALOG,
       });
