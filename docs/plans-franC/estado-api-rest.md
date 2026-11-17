@@ -159,6 +159,10 @@ Línea base del backend al empezar: 668 tests, 663 ok, 1 fallo, 4 skipped. El ú
 
 Se hicieron **2 commits en el backend en lugar de uno por fase**: los archivos se tocaron en varias fases y no se podían separar sin reconstruir cada una. Los documentos del backend viven ahora en `docs/plans-franC/` (`api-errores.md`, `api.md`); `AGENTS.md` se quedó en la raíz del backend porque las herramientas de agentes lo cargan desde ahí.
 
+**Merges (2026-11-17, pedido del dueño):** antes de mergear se trajo a cada rama lo que la base tenía de más, para no pisarlo.
+- BE: `master` (`b4abf58`, diagnóstico de login con Google y contraseña) → `api-rest-improvement` en `447f4c5`. Un conflicto en `usuarioRepository.getByEmailAsync`: se conservó la versión sin `catch` (ADR-008) con la consulta nueva de `master`. El inventario marcaba el callback de Google como "sesión" por un comentario que nombra `authMiddleware`; `scripts/api-inventory.mjs` ahora ignora comentarios. Luego `master` avanzó a `447f4c5` (fast-forward). `npm test`: 800 / 791 ok / 0 fallos / 9 skipped.
+- FE: `main` (`65e2e2c` SEG-10B y `f0f8201` refresh ante 401 de login) → `docs/api-rest-improvement` sin conflictos (`fb518f2`); luego `main` avanzó por fast-forward. `npm test` 125 ok, build OK.
+
 ## 11. Próximo paso exacto
 
 Queda solo lo que **requiere al dueño** (ver `tareas-api-rest.md` → Cierre):
@@ -168,3 +172,4 @@ Queda solo lo que **requiere al dueño** (ver `tareas-api-rest.md` → Cierre):
 3. ~~Deuda (T7.4)~~ Hecho en la sesión 2.
 4. Rotar las cookies de `cookies.txt` si eran reales (§9.6).
 5. Al cerrar: T7.5 (este documento, la bitácora y la tabla final).
+6. Ya mergeado a `master`/`main`: la prueba manual (T7.2) se hace sobre las ramas principales.

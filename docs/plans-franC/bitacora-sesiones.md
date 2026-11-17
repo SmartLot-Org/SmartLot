@@ -75,6 +75,8 @@
 
 - **FE, UX de perfiles (T7.7):** el guardado manda primero la contraseña y solo lo que cambió; si el teléfono falla después de cambiar la contraseña, se avisa y se cierra la sesión; los errores muestran el mensaje del backend. Descartado: mandar la contraseña dentro del `PUT /api/usuario/:id`, porque ese camino no revoca sesiones ni envía el correo de aviso.
 
-**Estado al cerrar la sesión:** todo commiteado y pusheado en ambas ramas (ver `estado-api-rest.md` §12). BE `npm test`: 798 / 789 ok / 0 fallos / 9 skipped. FE: 121 ok, build OK, lint 63 problemas preexistentes.
+- **Merge a `master` y `main`** (pedido del dueño, cuidando que ninguna rama quedara atrás): se mergeó primero la base en cada rama, se resolvió el conflicto de `getByEmailAsync` (sin `catch`, con la consulta nueva) y se corrigió la detección de autenticación del inventario, que leía comentarios. Después, fast-forward de `master` y `main`.
+
+**Estado al cerrar la sesión:** todo commiteado, pusheado y mergeado en ambas ramas principales (ver `estado-api-rest.md` §12). BE `npm test`: 798 / 789 ok / 0 fallos / 9 skipped. FE: 121 ok, build OK, lint 63 problemas preexistentes.
 
 **Siguiente:** prueba manual (T7.2) y `npm run test:mp` en la máquina del dueño; rotar las cookies si eran reales; cerrar T7.5.
