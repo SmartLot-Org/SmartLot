@@ -53,6 +53,13 @@ export default function Experience() {
   // El plano se dibuja de nuevo cada vez que se monta.
   useEffect(() => { vivo.intro = 0; vivo.listo = false; }, []);
 
+  // Al desmontar, R3F libera el contexto WebGL a propósito: eso no es una pérdida.
+  const montado = useRef(true);
+  useEffect(() => {
+    montado.current = true;
+    return () => { montado.current = false; };
+  }, []);
+
   return (
     <div ref={escenario} className="plano-escenario" data-listo={listo} aria-hidden="true">
       <Canvas
@@ -65,7 +72,11 @@ export default function Experience() {
         gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
         onCreated={({ gl }) => {
           // En celular el contexto WebGL se puede perder: se pasa a la versión estática.
-          gl.domElement.addEventListener('webglcontextlost', (e) => { e.preventDefault(); setTier('static'); }, { once: true });
+          gl.domElement.addEventListener('webglcontextlost', (e) => {
+            if (!montado.current) return;
+            e.preventDefault();
+            setTier('static');
+          }, { once: true });
         }}
       >
         <PerformanceMonitor onDecline={() => setTier('low')} onIncline={() => setTier('high')} flipflops={3} onFallback={() => setTier('low')} />

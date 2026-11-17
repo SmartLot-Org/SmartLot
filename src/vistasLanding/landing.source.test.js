@@ -117,6 +117,7 @@ test('el hero es HTML desde el primer render: h1 propio, sin animación de entra
 test('el 3D no se pide antes de inicializar, con ?sin3d ni sin WebGL', () => {
   assert.match(landing, /const mostrar3d = inicializado && tier !== 'static' && !sin3d/);
   assert.match(store, /sin3d: q\.has\('sin3d'\)/);
+  assert.match(landing, /export default function LandingPage\(\) \{\n {2}asegurarInicio\(\);/);
   assert.match(store, /if \(!webgl\) return 'static'/);
   assert.match(experience, /webglcontextlost/);
 });

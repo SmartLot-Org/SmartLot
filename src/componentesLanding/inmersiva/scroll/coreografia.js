@@ -55,7 +55,7 @@ export const COREOGRAFIA = {
     ],
   },
   prueba: {
-    camara: { x: 24.3, z: 12.3, zoom: 8.4 },
+    camara: { x: 24.2, z: 12.2, zoom: 9.6 },
     camaraVertical: { x: 24.1, z: 12.2, zoom: 4.8 },
     fx: [
       { clave: 'acceso', valor: 0, desde: 0, hasta: 0.35 },

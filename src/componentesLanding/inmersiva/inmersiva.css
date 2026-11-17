@@ -65,6 +65,8 @@ body:has(.plano) { overflow-x: clip; }
   font-weight: 500;
 }
 .plano-saltar:focus-visible { top: 8px; }
+/* main recibe el foco del enlace de salto; no es un control, no necesita anillo. */
+.plano main:focus { outline: none; }
 
 /* ── Escenario: el dibujo fijo, que entra con un fundido al primer frame ── */
 .plano-escenario {
@@ -195,7 +197,8 @@ body:has(.plano) { overflow-x: clip; }
   transition: transform 160ms var(--salida), background-color 160ms var(--salida);
 }
 .plano-boton:active { transform: scale(0.97); }
-.plano-boton--chico { height: 40px; padding: 0 16px; font-size: 14px; }
+/* La Regla del Pulgar de DESIGN.md: en la landing ningún CTA baja de 44px. */
+.plano-boton--chico { height: 44px; padding: 0 16px; font-size: 14px; }
 .plano-enlace {
   display: inline-flex;
   align-items: center;
@@ -253,9 +256,12 @@ body:has(.plano) { overflow-x: clip; }
   font-weight: 800;
   letter-spacing: -0.02em;
 }
+/* Los títulos no se animan con SplitText: balance es seguro y evita una palabra sola abajo. */
+.plano-nota h1,
+.plano-nota h2 { text-wrap: balance; }
 .plano-nota h1 { font-size: clamp(32px, 8.6vw, 52px); line-height: 1.03; }
 .plano-nota h2 { font-size: clamp(25px, 6.4vw, 38px); line-height: 1.07; }
-.plano-nota > p { margin: 0; max-width: 46ch; color: var(--texto-suave); font-size: 17px; line-height: 1.5; }
+.plano-nota > p { margin: 0; max-width: 46ch; color: var(--texto-suave); font-size: 17px; line-height: 1.5; text-wrap: pretty; }
 .plano-acciones { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; padding-top: 4px; }
 
 .plano-nota > .plano-dato {

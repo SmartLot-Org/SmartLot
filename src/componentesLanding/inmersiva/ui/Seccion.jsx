@@ -14,7 +14,7 @@ gsap.registerPlugin(useGSAP, ScrollTrigger);
 export function Seccion({ s, i, ultima, sinEscena, tema }) {
   const ref = useRef(null);
   const Titulo = i === 0 ? 'h1' : 'h2';
-  const poster = `/landing/posters/${s.id}${tema === 'cianotipo' ? '-cianotipo' : ''}.webp`;
+  const poster = `/landing/posters/${s.id}${tema === 'cianotipo' ? '-cianotipo' : ''}`;
 
   useGSAP(() => {
     if (sinEscena || ultima) return;
@@ -47,7 +47,17 @@ export function Seccion({ s, i, ultima, sinEscena, tema }) {
       </div>
       {sinEscena && (
         <figure className="plano-figura">
-          <img src={poster} alt={s.figura} width={1200} height={900} loading={i === 0 ? 'eager' : 'lazy'} decoding="async" />
+          <img
+            src={`${poster}.webp`}
+            srcSet={`${poster}-600.webp 600w, ${poster}.webp 1200w`}
+            sizes="(min-width: 900px) 720px, 45vw"
+            alt={s.figura}
+            width={1200}
+            height={900}
+            loading={i === 0 ? 'eager' : 'lazy'}
+            fetchPriority={i === 0 ? 'high' : 'auto'}
+            decoding="async"
+          />
         </figure>
       )}
     </section>

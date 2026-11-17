@@ -7,7 +7,7 @@ export const useUI = create((set) => ({
   tier: 'high',
   sin3d: false,
   tema: 'claro',
-  inicializado: false, // false hasta initUIFromBrowser: Landing no monta el 3D antes
+  inicializado: false, // false hasta asegurarInicio: Landing no monta el 3D antes
   setSeccion: (seccion) => set({ seccion }),
   setTier: (tier) => set({ tier }),
   alternarSin3d: () => set((s) => ({ sin3d: !s.sin3d })),
@@ -25,9 +25,15 @@ export function initialTier() {
   return pocaMemoria || pocosNucleos ? 'low' : 'high';
 }
 
-// Se llama UNA vez en un efecto de Landing. Hasta entonces `inicializado` es false
-// y el chunk 3D no se pide: con tier estático o con ?sin3d no se descarga nunca.
-export function initUIFromBrowser() {
+// Se llama antes del primer render de Landing (la app no tiene SSR, así que el
+// navegador ya está disponible). Decidir acá, y no en un efecto, evita dos cosas:
+// que el chunk 3D se pida cuando no se va a usar (tier estático o ?sin3d) y que
+// el layout salte del modo con 3D al modo sin 3D después de pintar.
+export function asegurarInicio() {
+  if (!useUI.getState().inicializado) initUIFromBrowser();
+}
+
+function initUIFromBrowser() {
   const q = new URLSearchParams(window.location.search);
   useUI.setState({
     tier: initialTier(),
