@@ -77,6 +77,8 @@
 
 - **Merge a `master` y `main`** (pedido del dueño, cuidando que ninguna rama quedara atrás): se mergeó primero la base en cada rama, se resolvió el conflicto de `getByEmailAsync` (sin `catch`, con la consulta nueva) y se corrigió la detección de autenticación del inventario, que leía comentarios. Después, fast-forward de `master` y `main`.
 
-**Estado al cerrar la sesión:** todo commiteado, pusheado y mergeado en ambas ramas principales (ver `estado-api-rest.md` §12). BE `npm test`: 798 / 789 ok / 0 fallos / 9 skipped. FE: 121 ok, build OK, lint 63 problemas preexistentes.
+- **Auditoría contra el Informe 2.3 (T7.8):** quedaban dos puntos abiertos que la tabla de hallazgos daba por resueltos: el 403 que agrupaba tres causas en la preferencia de reserva y el `PUT` parcial de conflicto que dejaba columnas en `NULL`. Se corrigieron con tests. Conclusión: un "Resuelto" en la tabla no reemplaza volver a correr la prueba que propone el informe.
+
+**Estado al cerrar la sesión:** todo commiteado y pusheado; `master` y `main` mergeados hasta `447f4c5` / `187d270`. Los commits de T7.8 (BE `20fca6a`, `def75d9`, `0cf47e8`) están solo en `api-rest-improvement`, a la espera del OK del dueño para pasarlos a `master` (ver `estado-api-rest.md` §12). BE `npm test`: 798 / 789 ok / 0 fallos / 9 skipped. FE: 121 ok, build OK, lint 63 problemas preexistentes.
 
 **Siguiente:** prueba manual (T7.2) y `npm run test:mp` en la máquina del dueño; rotar las cookies si eran reales; cerrar T7.5.

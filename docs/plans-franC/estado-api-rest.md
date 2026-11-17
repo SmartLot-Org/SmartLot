@@ -173,3 +173,4 @@ Queda solo lo que **requiere al dueño** (ver `tareas-api-rest.md` → Cierre):
 4. Rotar las cookies de `cookies.txt` si eran reales (§9.6).
 5. Al cerrar: T7.5 (este documento, la bitácora y la tabla final).
 6. Ya mergeado a `master`/`main`: la prueba manual (T7.2) se hace sobre las ramas principales.
+7. **Pasar a `master` los 3 commits de T7.8** (`api-rest-improvement` va adelante de `master`; es un fast-forward). Requiere el OK del dueño.
