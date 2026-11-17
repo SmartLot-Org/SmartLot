@@ -18,6 +18,8 @@ export const FX_CERO = Object.freeze({
   red: 0,       // más garages marcados
   estaciona: 0, // un auto entra al garage y se estaciona en su plaza
   pinFuera: 0,  // el pin del hero se guarda (vuelve en el cierre)
+  hora: 0,      // la jornada: de las 7 (0) a las 20 (1)
+  final: 0,     // cierre: ondas desde la oficina
 });
 
 export const COREOGRAFIA = {
@@ -68,14 +70,22 @@ export const COREOGRAFIA = {
       { clave: 'consumos', valor: 1, desde: 0.8, hasta: 1.52 },
     ],
   },
+  jornada: {
+    camara: { x: 12, z: 5, zoom: 1.75 },
+    camaraVertical: { x: 11, z: 6, zoom: 1.2 },
+    fx: [
+      { clave: 'consumos', valor: 0, desde: 0, hasta: 0.35 },
+      { clave: 'tapa', valor: 0, desde: 0.2, hasta: 0.6 },
+      { clave: 'hora', valor: 1, desde: 0.65, hasta: 1.65 },
+    ],
+  },
   accion: {
     camara: { x: 6, z: -3, zoom: 0.95 },
     camaraVertical: { x: 4, z: 0, zoom: 0.74 },
     fx: [
-      { clave: 'consumos', valor: 0, desde: 0, hasta: 0.35 },
-      { clave: 'tapa', valor: 0, desde: 0.2, hasta: 0.6 },
-      { clave: 'red', valor: 1, desde: 0.55, hasta: 1 },
+      { clave: 'red', valor: 1, desde: 0.45, hasta: 0.85 },
       { clave: 'pinFuera', valor: 0, desde: 0.5, hasta: 1 },
+      { clave: 'final', valor: 1, desde: 0.8, hasta: 1 },
     ],
   },
 };

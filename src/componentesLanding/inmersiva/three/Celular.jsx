@@ -2,6 +2,7 @@ import { useFrame, useThree } from '@react-three/fiber';
 import { useMemo, useRef } from 'react';
 import { Vector3 } from 'three';
 import { CELULAR, DEMO } from '../contenido/secciones';
+import { useUI } from '../estado/store';
 import { G1 } from './mundo';
 import { vivo } from './vivo';
 
@@ -64,9 +65,11 @@ export function ProyectorCelular() {
     nodo.raiz.style.transform = `translate(${x.toFixed(1)}px,${y.toFixed(1)}px)`;
 
     // Un día por cada quinto del llenado; en la segunda mitad de cada tramo se confirma.
+    // Con un día elegido en la nota, el celular muestra esa reserva ya hecha.
+    const elegido = useUI.getState().diaElegido;
     const tramo = Math.min(4.999, llenas * 5);
-    const dia = Math.floor(tramo);
-    const hecho = llenas > 0.001 && (tramo - dia > 0.55 || llenas >= 1);
+    const dia = elegido ?? Math.floor(tramo);
+    const hecho = elegido != null || (llenas > 0.001 && (tramo - dia > 0.55 || llenas >= 1));
     const p = previo.current;
     if (dia !== p.dia) {
       nodo.dias.forEach((el, i) => el?.toggleAttribute('data-activo', i === dia));

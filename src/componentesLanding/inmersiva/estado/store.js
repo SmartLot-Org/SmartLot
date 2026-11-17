@@ -31,6 +31,8 @@ export const useUI = create((set) => ({
   setIntro: (intro) => set({ intro }),
   comparar: 0,         // deslizador antes / con SmartLot (0 a 1)
   setComparar: (comparar) => set({ comparar }),
+  diaElegido: null,    // selector de día de la reserva (0 = Lun); null: lo lleva el scroll
+  setDiaElegido: (diaElegido) => set({ diaElegido }),
 }));
 
 // Tier de arranque: sin WebGL o con ahorro de datos → 'static'; equipo modesto → 'low'.

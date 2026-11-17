@@ -2,6 +2,7 @@ import { useFrame } from '@react-three/fiber';
 import { useMemo, useRef } from 'react';
 import { BufferAttribute, BufferGeometry } from 'three';
 import { geometria } from '../geometria';
+import { atardecer, horaDe } from '../jornada';
 import { CALLES, LIMITE_CIUDAD, MUNDO } from '../mundo';
 import { MAT } from '../paleta';
 import { vivo } from '../vivo';
@@ -37,7 +38,7 @@ export function Trafico() {
     if (!grupo.current.visible) return;
     MAT.papelTrafico.opacity = presencia;
     MAT.tintaTrafico.opacity = presencia;
-    MAT.faro.opacity = presencia * vivo.noche * 0.4;
+    MAT.faro.opacity = presencia * Math.max(vivo.noche, atardecer(horaDe(vivo.fx.hora))) * 0.4;
     AUTOS.forEach((a, i) => {
       const auto = autos.current[i];
       const d = (a.fase * largo + vivo.tiempo * a.velocidad) % largo;

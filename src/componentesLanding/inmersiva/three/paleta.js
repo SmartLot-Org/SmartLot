@@ -49,6 +49,10 @@ export const MAT = {
   luz: relleno({ transparent: true, opacity: 0, depthWrite: false }),
   realce: linea({ transparent: true, opacity: 0, depthTest: false }),
   realceTecho: relleno({ transparent: true, opacity: 0, depthWrite: false }),
+  ocupa: relleno({ transparent: true, opacity: 0, depthWrite: false }),
+  eleccion: relleno({ transparent: true, opacity: 0, depthWrite: false, depthTest: false }),
+  eleccionLinea: linea({ transparent: true, opacity: 0, depthTest: false }),
+  onda: relleno({ transparent: true, opacity: 0, depthWrite: false, depthTest: false }),
 };
 
 const tono = { media: new Color(), senal: new Color() };
@@ -85,7 +89,10 @@ export function colorear(raiz) {
   MAT.pinLado.color.set(token('--senal-activa'));
   for (const m of [MAT.contexto, MAT.plantaTenue, MAT.vueltaLinea]) m.color.set(media);
   for (const m of [MAT.tenue, MAT.lejos]) m.color.set(tenue);
-  for (const m of [MAT.senalLinea, MAT.tratoLinea, MAT.techoTrato, MAT.techoOtros, MAT.ruta, MAT.plazas, MAT.losaTapa, MAT.pulso, MAT.pinCara, MAT.realce, MAT.realceTecho, MAT.luz, MAT.faro, MAT.red]) m.color.set(senal);
+  for (const m of [MAT.senalLinea, MAT.tratoLinea, MAT.techoTrato, MAT.techoOtros, MAT.ruta, MAT.plazas, MAT.losaTapa, MAT.pulso, MAT.pinCara, MAT.realce, MAT.realceTecho, MAT.luz, MAT.faro, MAT.red, MAT.onda]) m.color.set(senal);
+  MAT.ocupa.color.set(tinta);
+  MAT.eleccion.color.set(tinta);       // la plaza elegida se lee sobre las azules
+  MAT.eleccionLinea.color.set(tinta);   // la ocupación se lee sobre el techo azul del trato
   tono.media.set(media);
   tono.senal.set(senal);
   MAT.sumadosLinea.color.copy(tono.media);

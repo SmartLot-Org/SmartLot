@@ -51,7 +51,7 @@ export const INTRO = {
   filas: [
     ['Plano', 'N.º 1 · Cocheras cerca de la oficina'],
     ['Escala', '1:5000'],
-    ['Hoja', '1 de 7'],
+    ['Hoja', '1 de 8'],
   ],
 };
 
@@ -61,10 +61,18 @@ export const COMPARAR = {
   antes: 'Hoy',
   despues: 'Con SmartLot',
   ayuda: 'Deslizá para comparar',
+  // Ficticios: así se arregla hoy, por chat y de palabra.
   chats: [
     { de: 'Equipo', texto: '¿Queda lugar en la cochera hoy?' },
     { de: 'Garage', texto: 'Creo que sí, fijate cuando llegues' },
     { de: 'Equipo', texto: 'Di tres vueltas y nada…' },
+    { de: 'RR. HH.', texto: '¿Quién usó la plaza 14 ayer?' },
+    { de: 'Garage', texto: 'Hoy no hay lugar, mañana veo' },
+    { de: 'Equipo', texto: 'Me ocuparon el lugar otra vez' },
+    { de: 'Administración', texto: '¿Alguien tiene la planilla de cocheras?' },
+    { de: 'Garage', texto: 'Este mes se cobra distinto' },
+    { de: 'Equipo', texto: '¿A quién le aviso que llego tarde?' },
+    { de: 'Administración', texto: 'No me cierran las horas del garage' },
   ],
 };
 
@@ -96,6 +104,17 @@ export const GARAGES_DEMO = {
     { nombre: 'Garage Molinos', libres: 9 },
   ],
 };
+
+// Selector de día de la reserva: muestra en el celular y en la planta la
+// plaza de ese día (las mismas del celular y de la tabla de consumos).
+export const ELEGIR = {
+  titulo: 'Elegí un día',
+  ayuda: 'Tocá un día para ver qué plaza te toca',
+  etiqueta: 'Día de la reserva',
+};
+
+// Reloj de la jornada (decorativo): de la entrada a la salida del equipo.
+export const JORNADA = { desde: 7, hasta: 20, ocupadas: 'ocupadas' };
 
 // Mira del cursor: la cota del edificio apuntado.
 export const MIRA = { edificio: 'Edificio', alto: 'alto' };
@@ -148,6 +167,7 @@ export const SECCIONES = [
     movimiento: 'se llena',
     weight: 1.6,
     dato: 'reservadas',
+    elegirDia: true,
     figura: 'Planta del garage sin techo: cuatro filas de plazas, con las reservadas por el equipo pintadas de azul.',
   },
   {
@@ -168,6 +188,16 @@ export const SECCIONES = [
     weight: 1.6,
     tabla: 'consumos',
     figura: 'Sobre cada plaza usada se apila una columna con las horas de estadía.',
+  },
+  {
+    id: 'jornada',
+    titulo: 'Toda la jornada, a la vista',
+    cuerpo:
+      'Cada ingreso y salida se registra con el QR. La empresa y el garage saben qué plazas se usan en cada momento.',
+    movimiento: 'transcurre',
+    weight: 1.7,
+    poster: 'accion',
+    figura: 'La ciudad desde arriba con la oficina en el centro y los garages de la zona marcados en azul alrededor.',
   },
   {
     id: 'accion',

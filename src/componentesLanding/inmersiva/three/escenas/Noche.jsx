@@ -1,6 +1,7 @@
 import { useFrame } from '@react-three/fiber';
 import { useMemo, useRef } from 'react';
 import { geometria } from '../geometria';
+import { atardecer, horaDe } from '../jornada';
 import { azar, EDIFICIOS, OFICINA } from '../mundo';
 import { MAT } from '../paleta';
 import { vivo } from '../vivo';
@@ -54,7 +55,9 @@ export function Noche() {
   const malla = useRef(null);
 
   useFrame(() => {
-    const n = vivo.noche * vivo.aparecen * (1 - Math.min(1, vivo.fx.tapa * 2));
+    // De noche (tema) o al final de la jornada, cuando oscurece.
+    const luces = Math.max(vivo.noche, atardecer(horaDe(vivo.fx.hora)));
+    const n = luces * vivo.aparecen * (1 - Math.min(1, vivo.fx.tapa * 2));
     malla.current.visible = n > 0.01;
     // Un parpadeo muy leve, como luz de oficina.
     MAT.luz.opacity = n * (0.78 + Math.sin(vivo.tiempo * 0.7) * 0.04);

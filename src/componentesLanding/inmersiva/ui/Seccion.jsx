@@ -7,6 +7,7 @@ import { useUI } from '../estado/store';
 import { Comparador } from './Comparador';
 import { Cta, EnlaceGarage } from './Cta';
 import { Dato } from './Dato';
+import { ElegirDia } from './ElegirDia';
 import { TablaConsumos } from './TablaConsumos';
 
 gsap.registerPlugin(useGSAP, ScrollTrigger, SplitText);
@@ -17,7 +18,7 @@ gsap.registerPlugin(useGSAP, ScrollTrigger, SplitText);
 export function Seccion({ s, i, ultima, sinEscena, tema }) {
   const ref = useRef(null);
   const Titulo = i === 0 ? 'h1' : 'h2';
-  const poster = `/landing/posters/${s.id}${tema === 'cianotipo' ? '-cianotipo' : ''}.webp`;
+  const poster = `/landing/posters/${s.poster ?? s.id}${tema === 'cianotipo' ? '-cianotipo' : ''}.webp`;
 
   useGSAP(() => {
     if (sinEscena || ultima) return;
@@ -70,6 +71,7 @@ export function Seccion({ s, i, ultima, sinEscena, tema }) {
         <p>{s.cuerpo}</p>
         {s.comparador && !sinEscena && <Comparador />}
         {s.dato && !sinEscena && <Dato />}
+        {s.elegirDia && !sinEscena && <ElegirDia />}
         {s.tabla && <TablaConsumos />}
         {s.cta && (
           <div className="plano-acciones">

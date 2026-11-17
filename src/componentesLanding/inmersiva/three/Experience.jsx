@@ -11,7 +11,9 @@ import { Ciudad } from './escenas/Ciudad';
 import { Clima } from './escenas/Clima';
 import { Estaciona } from './escenas/Estaciona';
 import { Garage } from './escenas/Garage';
+import { Jornada } from './escenas/Jornada';
 import { Noche } from './escenas/Noche';
+import { Onda } from './escenas/Onda';
 import { Pin } from './escenas/Pin';
 import { Pulsos } from './escenas/Pulsos';
 import { Red } from './escenas/Red';
@@ -21,8 +23,10 @@ import { Trato } from './escenas/Trato';
 import { Vueltas } from './escenas/Vueltas';
 import { colorear } from './paleta';
 import { CapaCelular, ProyectorCelular } from './Celular';
+import { CapaEleccion, Eleccion, ProyectorEleccion } from './Eleccion';
 import { CapaChats, ProyectorChats } from './Chats';
 import { CapaInteraccion, ProyectorInteraccion } from './Interaccion';
+import { CapaReloj, ProyectorReloj } from './Reloj';
 import { Proyector, Rotulos } from './Rotulos';
 import { vivo } from './vivo';
 
@@ -115,6 +119,9 @@ export default function Experience() {
           <Noche />
           <Pulsos />
           <Red />
+          <Jornada />
+          <Onda />
+          <Eleccion />
           <Realce />
           <Pin />
         </group>
@@ -123,6 +130,8 @@ export default function Experience() {
         <ProyectorInteraccion />
         <ProyectorCelular />
         <ProyectorChats />
+        <ProyectorReloj />
+        <ProyectorEleccion />
         <FrameBridge />
         <FirstFrame onReady={() => setListo(true)} />
       </Canvas>
@@ -130,6 +139,8 @@ export default function Experience() {
       <CapaInteraccion />
       <CapaCelular />
       <CapaChats />
+      <CapaReloj />
+      <CapaEleccion />
     </div>
   );
 }
