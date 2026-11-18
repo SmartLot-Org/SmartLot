@@ -1,6 +1,5 @@
 import { useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { CTA } from '../contenido/secciones';
 import { useMagnetico } from './useMagnetico';
 
 // Botón principal: el brillo de la landing anterior (sombra azul en reposo, otra más
@@ -16,16 +15,18 @@ export function BotonBrillo({ to, chico = false, children }) {
   );
 }
 
-// La acción principal de la landing. Misma etiqueta en la barra, el hero y el cierre.
-export function Cta({ chico = false }) {
-  return <BotonBrillo to={CTA.principal.destino} chico={chico}>{CTA.principal.etiqueta}</BotonBrillo>;
+// La acción principal de la página ({ etiqueta, destino }). Misma etiqueta en la
+// barra, el hero y el cierre.
+export function Cta({ cta, chico = false }) {
+  return <BotonBrillo to={cta.destino} chico={chico}>{cta.etiqueta}</BotonBrillo>;
 }
 
-// El lado del dueño de garage: navegación en la barra y enlace simple en el pie.
-export function EnlaceGarage({ className = 'plano-enlace' }) {
+// La otra página del plano ({ etiqueta, destino }): es un destino, no una acción.
+// Navegación en la barra y enlace simple en el pie.
+export function EnlacePagina({ enlace, className = 'plano-enlace' }) {
   return (
-    <Link to={CTA.secundaria.destino} className={className}>
-      {CTA.secundaria.etiqueta}
+    <Link to={enlace.destino} className={className}>
+      {enlace.etiqueta}
     </Link>
   );
 }
