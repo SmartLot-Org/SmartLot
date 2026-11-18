@@ -141,16 +141,17 @@ export const BUSQUEDA = {
 
 // Pieza de `operacion`: las columnas de "Consumos por empresa" de la pantalla del dueño
 // (vistasDueñoGarage/cuentas_por_cobrar.jsx). Las tres filas van con la tarifa de auto,
-// así el tiempo por la tarifa da el importe; las filas suman el total.
+// así el tiempo por la tarifa da el importe; las filas suman el total. Los nombres son
+// cortos a propósito: en 390 px cada fila entra en un renglón y la nota no tapa el dibujo.
 export const CONSUMOS = {
   titulo: 'Consumos por empresa',
   aviso: AVISO,
   columnas: ['Empresa', 'Reservas', 'Tiempo', 'Importe generado'],
   tarifa: '$ 1.200/h',
   filas: [
-    { empresa: 'Distribuidora Norte', reservas: 18, tiempo: '142 h 30 min', importe: '$ 171.000' },
-    { empresa: 'Estudio Contable Sur', reservas: 9, tiempo: '64 h 15 min', importe: '$ 77.100' },
-    { empresa: 'Consultora Delta', reservas: 6, tiempo: '40 h 45 min', importe: '$ 48.900' },
+    { empresa: 'Grupo Norte', reservas: 18, tiempo: '142 h 30 min', importe: '$ 171.000' },
+    { empresa: 'Estudio Sur', reservas: 9, tiempo: '64 h 15 min', importe: '$ 77.100' },
+    { empresa: 'Delta Salud', reservas: 6, tiempo: '40 h 45 min', importe: '$ 48.900' },
   ],
   total: { etiqueta: 'Total', reservas: 33, tiempo: '247 h 30 min', importe: '$ 297.000' },
   // La pantalla real lo aclara igual: son consumos generados, no confirman cobros.
@@ -162,7 +163,7 @@ export const CONSUMOS = {
 // pendiente a aceptada con el scroll. La empresa es la primera fila de los consumos.
 export const SOLICITUD = {
   aviso: AVISO,
-  empresa: 'Distribuidora Norte',
+  empresa: 'Grupo Norte',
   estado: { pendiente: 'Pendiente', aceptado: 'Trato aceptado' },
   garage: { etiqueta: 'Garage solicitado', nombre: 'Tu garage' },
   sede: 'Sede Centro',
@@ -172,15 +173,15 @@ export const SOLICITUD = {
 };
 
 // Globos del chat en `problema` (decorativos, ficticios): así se arregla hoy desde el
-// garage, por chat y de palabra. "Vos" es el dueño.
+// garage, por chat y de palabra, con las mismas empresas de los consumos. "Vos" es el dueño.
 export const CHAT = [
-  { de: 'Distribuidora', texto: '¿Tenés lugar para cinco autos desde el lunes?' },
+  { de: 'Grupo Norte', texto: '¿Tenés lugar para cinco autos desde el lunes?' },
   { de: 'Vos', texto: 'Creo que sí, pasá y lo vemos' },
-  { de: 'Estudio contable', texto: '¿Cuántas cocheras habíamos quedado?' },
+  { de: 'Estudio Sur', texto: '¿Cuántas cocheras habíamos quedado?' },
   { de: 'Vos', texto: 'Lo anoté en un papel, ya lo busco' },
-  { de: 'Distribuidora', texto: '¿Cuántas horas usamos este mes?' },
+  { de: 'Grupo Norte', texto: '¿Cuántas horas usamos este mes?' },
   { de: 'Vos', texto: 'Te paso la planilla cuando la termine' },
-  { de: 'Consultora', texto: 'Hoy mandamos dos autos más, ¿hay lugar?' },
+  { de: 'Delta Salud', texto: 'Hoy mandamos dos autos más, ¿hay lugar?' },
   { de: 'Vos', texto: 'Avisame antes, que se llena' },
 ];
 
