@@ -71,7 +71,8 @@
 .plano [data-ui='consumos'] th,
 .plano [data-ui='consumos'] td { padding-block: 4px; }
 .plano [data-ui='consumos'] thead th { white-space: normal; }
-.plano [data-ui='consumos'] > p { margin-top: 4px; }
+/* pretty, como los párrafos de la nota: en 390 px "Excel." quedaba sola en el renglón. */
+.plano [data-ui='consumos'] > p { margin-top: 4px; text-wrap: pretty; }
 @media (max-width: 389px) {
   .plano [data-ui='consumos'] th[scope='row'] { white-space: normal; }
 }
