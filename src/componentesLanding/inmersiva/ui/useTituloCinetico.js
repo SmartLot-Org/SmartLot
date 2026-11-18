@@ -24,6 +24,10 @@ export function useTituloCinetico(ref, { activo, dependencias = [] }) {
         wordsClass: 'plano-palabra',
         autoSplit: true,
         onSplit: (self) => {
+          // Lo que ya está en pantalla al cargar no se esconde para revelarse: se
+          // pintaría tarde y sería el LCP (pasa en el flujo sin 3D del celular,
+          // donde la segunda sección asoma en la primera pantalla).
+          if (ScrollTrigger.isInViewport(ref.current, 0.01)) return undefined;
           const tl = gsap.timeline({
             scrollTrigger: { trigger: ref.current, start: 'top 82%', toggleActions: 'play none none reverse' },
           });
