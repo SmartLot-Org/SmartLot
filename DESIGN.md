@@ -119,7 +119,7 @@ El sistema es **preciso, funcional y consistente**. Prioriza la legibilidad oper
 
 SmartLot tiene dos registros deliberados: **persuadir** (landing y autenticación) y **operar** (paneles por rol, con densidad controlada, scanabilidad y estados claros). Ambos comparten los mismos tokens.
 
-Dentro de persuadir conviven hoy dos mundos: la home (`/`) es **"Plano"**, un dibujo técnico de la ciudad que se recorre con el scroll (ADR-008), y `/para-garages` y la autenticación conservan las superficies de vidrio hasta su propio rediseño.
+Dentro de persuadir conviven hoy dos mundos: las dos páginas públicas, la home (`/`) y `/para-garages`, son **"Plano"**, el mismo dibujo técnico de la ciudad que se recorre con el scroll (ADR-008), y la autenticación conserva las superficies de vidrio hasta su propio rediseño.
 
 **Key Characteristics:**
 
@@ -142,12 +142,16 @@ Un solo acento cromático sobre una base neutra fría; los estados usan semánti
 - **Azul presionado** (#1A73E8): estado active/pressed del acento.
 - **Azul cielo** (#93C5FD): bordes y hovers secundarios, avatares.
 
-### Plano (solo la home)
+### Plano (home y `/para-garages`)
 
 - **Papel**: el fondo (#F5F7FB). **Tinta plena**: azul profundo (#0C1E3F), para títulos y para los objetos que importan del dibujo.
 - **Tinta media** (#7C8BAA) y **tinta tenue** (#CDD6E5): edificios de contexto y manzanas. Son para líneas, nunca para texto.
-- **Azul señal**: en el dibujo marca una sola cosa, un lugar disponible o reservado para vos (contorno de un garage con plazas, recorrido del trato, plazas reservadas).
-- La home es siempre clara: no tiene variante oscura (decisión del 2026-11-17).
+- **Azul señal**: en el dibujo marca una sola cosa, un lugar disponible o reservado para vos (contorno de un garage con plazas, recorrido del trato, plazas reservadas). En `/para-garages`, tu garage es azul cuando las empresas lo ven.
+- **Sede** (`/para-garages`): volumen en tinta plena con líneas de piso, como la oficina de la home, y el rótulo "Sede". Nunca va en azul.
+- **Anillo de búsqueda**: un círculo fino en tinta media que crece desde la base de cada sede, como la marca de un compás. Con movimiento reducido queda quieto.
+- **Fuera del mapa**: línea de trazos en tinta tenue, la notación de lo que todavía no está (tu garage antes del alta o en borrador), sin cartel. El interruptor "Visible / En borrador" usa la misma notación: trazos en borrador, azul señal cuando se ve.
+- **Cotas**: los datos del dibujo van como cotas del plano (`.plano-cota`); la distancia hasta un lugar disponible, medida por la calle, va en azul.
+- Las páginas Plano son siempre claras: no tienen variante oscura (decisión del 2026-11-17).
 
 ### Neutral
 
@@ -181,7 +185,7 @@ Un solo acento cromático sobre una base neutra fría; los estados usan semánti
 
 ### Hierarchy
 
-- **Display** (Archivo 600–900, escala fluida): H1/H2 de landing y páginas públicas. En la home, Archivo 800 con tracking −0,02em: H1 de 32 a 54px y H2 de 24 a 40px.
+- **Display** (Archivo 600–900, escala fluida): H1/H2 de landing y páginas públicas. En las páginas Plano, Archivo 800 con tracking −0,02em: H1 de 32 a 54px y H2 de 24 a 40px.
 - **Carga**: Archivo y DM Sans están autoalojadas (`src/fuentes.css`), con los rangos 400–900 y 400–700.
 - **H1** (DM Sans 500; 56px, tracking −1.68px; ≤1024px: 36px): encabezado principal de producto.
 - **H2** (DM Sans 500; 24px, line-height 118%; ≤1024px: 20px).
@@ -198,19 +202,18 @@ Un solo acento cromático sobre una base neutra fría; los estados usan semánti
 
 Modelo **mobile-first** con retícula base de 4px.
 
-- **Home (Plano)**: el dibujo queda fijo detrás y el texto va en una nota opaca de hasta 480px, a la izquierda en horizontal y abajo en vertical. Cada sección mide su `weight` en pantallas. Medidas en px sobre retícula de 4.
-- **`/para-garages`**: contenedor centrado `max-w-6xl` (1152px) con padding lateral de 24px (`px-6`); grids que colapsan a una columna.
+- **Páginas Plano (home y `/para-garages`)**: el dibujo queda fijo detrás y el texto va en una nota opaca de hasta 480px, a la izquierda en horizontal y abajo en vertical; en 390 × 844 la nota ocupa como mucho el 60 % del alto. Cada sección mide su `weight` en pantallas. Medidas en px sobre retícula de 4. Las dos páginas comparten el armazón (`ui/PaginaPlano.jsx`) y `inmersiva.css`; `/para-garages` suma lo suyo en `inmersiva/garages.css`.
 - **Paneles de producto**: ancho completo con padding `40px 4%` (`.envoltorio-contenido`, `.admin-dashboard`, `.gestion-garages-container`).
-- **Ritmo espacial**: 4 / 8 / 16 / 24 / 32px para gaps y separaciones; las secciones de landing respiran con 80px verticales (`py-20`).
+- **Ritmo espacial**: 4 / 8 / 16 / 24 / 32px para gaps y separaciones.
 - **Breakpoints**: los de Tailwind (sm 640, md 768, lg 1024, xl 1280); el corte tipográfico documentado es 1024px.
-- **Tablas y contenido ancho**: overflow horizontal explícito en móvil; nunca romper el layout de la página.
+- **Tablas y contenido ancho**: overflow horizontal explícito en móvil; nunca romper el layout de la página. En las notas del plano, la tabla entra entera en 390px, sin scroll horizontal.
 - **Lectura**: textos de cuerpo con ancho máximo (`max-w-2xl`/`max-w-lg`, ~65–75 caracteres por línea).
 
 **La Regla del Pulgar.** En móvil, todo objetivo táctil mide al menos 44px; los CTAs de la landing usan mínimo 44px de alto.
 
 ## Elevation & Depth
 
-Sistema híbrido: los **paneles de producto son planos** —superficies blancas, borde hairline y sombra solo como respuesta al estado—; **`/para-garages` y la autenticación usan profundidad ambiental** con vidrio (blur) sobre el fondo y sombras amplias. La **home no usa sombras ni vidrio**: la profundidad la da el dibujo axonométrico, y las notas son papel opaco con borde hairline y radio de 2px. La única excepción es el botón principal, que lleva el brillo azul del CTA: sombra de la señal al 30% en reposo y al 40% en hover, con un barrido de luz al pasar el mouse (pedido del dueño del producto, 2026-11-17).
+Sistema híbrido: los **paneles de producto son planos** —superficies blancas, borde hairline y sombra solo como respuesta al estado—; **la autenticación usa profundidad ambiental** con vidrio (blur) sobre el fondo y sombras amplias. Las **páginas Plano no usan sombras ni vidrio**: la profundidad la da el dibujo axonométrico, y las notas son papel opaco con borde hairline y radio de 2px. La única excepción es el botón principal, que lleva el brillo azul del CTA: sombra de la señal al 30% en reposo y al 40% en hover, con un barrido de luz al pasar el mouse (pedido del dueño del producto, 2026-11-17).
 
 ### Shadow Vocabulary
 
@@ -223,16 +226,16 @@ Sistema híbrido: los **paneles de producto son planos** —superficies blancas,
 
 **La Regla Plano por Defecto.** Las superficies de producto son planas en reposo. La sombra aparece como respuesta a hover, elevación o foco; nunca decorativa.
 
-**La Regla del Vidrio Solo Landing.** El glassmorphism (`.glass-nav`, `.glass-card`, `bg-noise`) pertenece a `/para-garages` y a la autenticación. Ni los paneles de producto ni la home lo usan.
+**La Regla del Vidrio Solo Autenticación.** El vidrio (blur) queda solo en la autenticación, con sus estilos propios (`src/pages/Login.css`). Ni los paneles de producto ni las páginas Plano lo usan. Las clases globales `.glass-nav`, `.glass-card` y `.bg-noise` se retiraron con la página anterior de `/para-garages` (2026-11-18).
 
 ## Shapes
 
-Lenguaje de esquinas suaves y consistentes: radios **6px** (badges, inputs), **10px** (botones, tarjetas), **14px** (paneles grandes) y **full** (pills, avatares). La landing usa radios más expresivos (hasta 24px) en sus tarjetas de vidrio.
+Lenguaje de esquinas suaves y consistentes: radios **6px** (badges, inputs), **10px** (botones, tarjetas), **14px** (paneles grandes) y **full** (pills, avatares).
 
-- **Home (Plano):** esquinas casi rectas, como en un plano: 2px en las notas (`plano-nota`) y 3px en el cartel "E" (`plano-senal`). Los botones de la home siguen en 10px.
+- **Páginas Plano:** esquinas casi rectas, como en un plano: 2px en las notas (`plano-nota`) y 3px en el cartel "E" (`plano-senal`). Los botones siguen en 10px, y los fragmentos del producto que van en una nota (`data-ui`) conservan sus radios: 10px la tarjeta, 6px las insignias.
 - Bordes de 1px, color tokenizado; el borde fuerte se reserva para foco.
 - Sin side-stripes de color, sin esquinas mezcladas dentro de un mismo grupo de controles.
-- Las pills (badges, CTAs de landing) usan radio full; los controles de formulario nunca son pills.
+- Las pills usan radio full; los controles de formulario nunca son pills.
 
 ## Components
 
@@ -260,13 +263,12 @@ Cinco variantes —neutral, success, warning, error, info— con radio 6px, padd
 ### Cards / Containers
 
 - **Producto:** superficie blanca, radio 10–14px, borde hairline, sombra sm de reposo.
-- **Landing:** `glass-card` (fondo `rgba(253, 252, 249, 0.65)`, blur 16px, borde `rgba(12, 30, 63, 0.08)`).
-- Sin tarjetas anidadas.
+- **Páginas Plano:** la nota es papel opaco con borde hairline y 2px de radio (`plano-nota`). Lleva como mucho una pieza, y la pieza es un fragmento real del producto (`data-ui`), rotulado "Datos de ejemplo": en `/para-garages`, la tarjeta del listado de "Buscar garages", la tabla de consumos por empresa y el interruptor "Visible / En borrador". Sin tarjetas con ícono.
+- Sin tarjetas anidadas. El fragmento del producto dentro de una nota no cuenta: es una imagen del producto, no un contenedor de la página.
 
 ### Navigation
 
-- **Home:** barra opaca de papel con borde inferior hairline (`.plano-barra`), de 72px en escritorio y 64px en celular. Tres niveles: "Registrate" (botón principal con brillo), "Iniciar sesión" (botón secundario con borde, 44px como el principal) y "Para garages" (navegación en texto secundario, junto a la marca y separada de las acciones; en celular pasa al pie). El brillo del botón de la barra es más corto para no salir de la barra. El hero tiene una sola acción.
-- **`/para-garages`:** navbar de vidrio (`.glass-nav`: fondo `rgba(245, 247, 251, 0.75)`, blur 20px, borde inferior hairline).
+- **Páginas Plano:** barra opaca de papel con borde inferior hairline (`.plano-barra`), de 72px en escritorio y 64px en celular. Tres niveles: la CTA de la página ("Registrate" en la home, "Registrá tu garage" en `/para-garages`; botón principal con brillo), "Iniciar sesión" (botón secundario con borde, 44px como el principal) y el enlace a la otra página ("Para garages" o "Para empresas"; navegación en texto secundario, junto a la marca y separada de las acciones; en celular pasa al pie). Con sesión, la barra muestra "Ir a mi panel". El brillo del botón de la barra es más corto para no salir de la barra. El hero tiene una sola acción.
 - **Producto:** sidebars y footers por rol; el estado activo se marca con azul señal, no solo con color de fondo.
 
 ### Overlays & Feedback
@@ -293,7 +295,7 @@ Componente compartido `EmptyState` obligatorio para todo contenedor vacío, con 
 - **Do** reutilizar componentes compartidos (`EmptyState`, `ModalPortal`, botones y campos existentes) antes de crear nuevos.
 - **Do** acompañar todo estado con texto o ícono además del color.
 - **Do** envolver animaciones en `prefers-reduced-motion` y ofrecer siempre la versión sin movimiento.
-- **Do** en la home, mantener el texto en HTML sobre notas opacas: nunca texto directo sobre el dibujo, y nunca contenido que exista solo en el Canvas.
+- **Do** en las páginas Plano, mantener el texto en HTML sobre notas opacas: nunca texto directo sobre el dibujo, y nunca contenido que exista solo en el Canvas.
 - **Do** validar contraste AA (4.5:1 cuerpo, 3:1 grande/UI) antes de cerrar una pantalla.
 - **Do** mantener la copia en español rioplatense con voseo (ver `PRODUCT.md`).
 
