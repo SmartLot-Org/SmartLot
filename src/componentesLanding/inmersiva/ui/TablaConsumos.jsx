@@ -23,7 +23,8 @@ export function TablaConsumos() {
     mm.add('(prefers-reduced-motion: no-preference)', () => {
       const contador = { v: 0 };
       const tl = gsap.timeline({ scrollTrigger: { trigger: raiz.current, start: 'top 90%', toggleActions: 'play none none reverse' } });
-      tl.from(raiz.current.querySelectorAll('tbody tr'), { autoAlpha: 0, x: -12, duration: 0.45, ease: 'power2.out', stagger: 0.09 })
+      // Opacidad y no autoAlpha: las filas siguen en el árbol de accesibilidad antes de entrar.
+      tl.from(raiz.current.querySelectorAll('tbody tr'), { opacity: 0, x: -12, duration: 0.45, ease: 'power2.out', stagger: 0.09 })
         .to(contador, {
           v: aNumero(total.importe), duration: 1.1, ease: 'power3.out',
           onUpdate: () => { cifra.current.textContent = `$ ${formato.format(Math.round(contador.v))}`; },

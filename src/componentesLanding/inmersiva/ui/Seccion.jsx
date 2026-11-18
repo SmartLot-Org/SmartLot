@@ -21,10 +21,16 @@ export function Seccion({ s, i, ultima, sinEscena }) {
 
   useGSAP(() => {
     if (sinEscena || ultima) return;
-    gsap.fromTo(ref.current.querySelector('.plano-nota'), { autoAlpha: 1 }, {
-      autoAlpha: 0, ease: 'none', immediateRender: false,
+    const nota = ref.current.querySelector('.plano-nota');
+    // Solo opacidad, nunca autoAlpha: visibility: hidden sacaba la nota del árbol de
+    // accesibilidad y un lector de pantalla no podía volver a las secciones ya leídas.
+    // Del todo desvanecida deja pasar el cursor al dibujo, como antes (inmersiva.css).
+    gsap.fromTo(nota, { opacity: 1 }, {
+      opacity: 0, ease: 'none', immediateRender: false,
       scrollTrigger: { trigger: ref.current, start: 'bottom bottom', end: 'bottom 62%', scrub: true },
+      onUpdate() { nota.toggleAttribute('data-desvanecida', this.progress() === 1); },
     });
+    return () => nota.removeAttribute('data-desvanecida');
   }, { scope: ref, dependencies: [sinEscena, ultima], revertOnUpdate: true });
 
   // El hero (i === 0) no se anima: su h1 se ve desde el primer render.

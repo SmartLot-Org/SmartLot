@@ -326,6 +326,14 @@ body:has(.plano) { overflow-x: clip; }
 .plano-nota h2 { font-size: clamp(25px, 6.4vw, 38px); line-height: 1.07; }
 .plano-nota > p { margin: 0; max-width: 46ch; color: var(--texto-suave); font-size: 17px; line-height: 1.5; text-wrap: pretty; }
 .plano-acciones { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; padding-top: 4px; }
+/* La nota se desvanece solo con opacidad (ui/Seccion.jsx), así sigue en el árbol de
+   accesibilidad. Del todo desvanecida no toma el cursor: el hover y el clic llegan al
+   dibujo como cuando era visibility: hidden. Si el foco del teclado entra a una nota
+   desvanecida o todavía sin revelar, la nota se ve entera mientras dure el foco. */
+.plano-nota[data-desvanecida] { pointer-events: none; }
+.plano-nota:has(:focus-visible) { pointer-events: auto; }
+.plano-nota:has(:focus-visible),
+.plano-nota:has(:focus-visible) > * { opacity: 1 !important; }
 
 .plano-nota > .plano-dato {
   display: flex;
