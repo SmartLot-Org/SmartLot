@@ -279,14 +279,14 @@ npx vite preview --outDir <dir temporal> --port 4317 --strictPort
 - `src/vistasLanding/Landing.jsx` → sigue eager; arma la home con el armazón.
 - `src/componentesLanding/inmersiva/contenido/garages.js` (+ `garages.test.js`) → todo el texto de garages: `META`, `CTA`, `ENLACE`, `PIE`, `SECCIONES` y los datos de ejemplo de las piezas y del dibujo (búsqueda, solicitud, consumos, chat, rótulos, interruptor).
 - `inmersiva/contenido/comun.js` → la navegación común, que sale de `secciones.js` (que la reexporta).
-- `inmersiva/paginas/home.js` e `inmersiva/paginas/garages.js` → los objetos de página.
+- `inmersiva/paginas/home.js` e `inmersiva/paginas/garages.js` → los objetos de página. `paginas/garagesEscena.js` → la escena, el guion y los pósters de garages (un stub en `null` hasta la etapa 4).
 - `inmersiva/ui/PaginaPlano.jsx` → el armazón común.
 - `inmersiva/ui/garages/FichaBusqueda.jsx`, `TablaConsumosGarage.jsx` y `Visibilidad.jsx` → las piezas de la nota.
 - `inmersiva/estado/garages.js` → el store del interruptor.
 - `inmersiva/scroll/guion.js` (+ `guion.test.js`) → `crearGuion`.
 - `inmersiva/scroll/coreografiaGarages.js` y `ajustesGarages.js` → encuadres, fx, `inicial` y el ajuste del interruptor (etapa 4).
 - `inmersiva/three/Escenario.jsx`, `ExperienceGarages.jsx`, `trazos.js`, `Solicitud.jsx` y `escenas/{Sedes,Alta,Busqueda,Llegadas}.jsx` → el 3D de garages (etapas 4 y 5).
-- `inmersiva/garages.css` → estilos propios, todos bajo `.plano`.
+- `inmersiva/garages.css` → estilos de la página y de sus piezas; `inmersiva/three/garages.css` → estilos de las capas del dibujo (solicitud, rótulos de sede, cotas), que entran con el chunk 3D. Todos los selectores bajo `.plano`.
 - `public/landing/posters/garages/` → pósters de las versiones sin 3D (etapa 6).
 
 ## Estilo de código
@@ -298,6 +298,7 @@ import { CTA, ENLACE, META, PIE, SECCIONES } from '../contenido/garages';
 import { FichaBusqueda } from '../ui/garages/FichaBusqueda';
 import { TablaConsumosGarage } from '../ui/garages/TablaConsumosGarage';
 import { Visibilidad } from '../ui/garages/Visibilidad';
+import { ESCENA, GUION, POSTERS } from './garagesEscena';
 import '../garages.css';
 
 export const PAGINA_GARAGES = {
@@ -312,11 +313,14 @@ export const PAGINA_GARAGES = {
   piezas: {
     busqueda: { componente: FichaBusqueda },
     consumos: { componente: TablaConsumosGarage },
-    visibilidad: { componente: Visibilidad },
+    visibilidad: { componente: Visibilidad, reemplazaFigura: true },
   },
-  posters: null,      // '/landing/posters/garages' desde la etapa 6; null: sin figura
-  escena: null,       // lazy(() => import('../three/ExperienceGarages')) desde la etapa 4
-  guion: null,        // { coreografia, ajustar, suscribir } desde la etapa 4
+  // De paginas/garagesEscena.js (stub en null hasta la etapa 4):
+  // ESCENA = lazy(() => import('../three/ExperienceGarages')), GUION = { coreografia, ajustar, suscribir },
+  // POSTERS = '/landing/posters/garages' (etapa 6). Con null, la página va en el flujo sin 3D ni figuras.
+  escena: ESCENA,
+  guion: GUION,
+  posters: POSTERS,
   intro: false,       // el cajetín de entrada es de la home
 };
 ```
@@ -367,7 +371,8 @@ Las animaciones de la nota usan solo `opacity` (ver la propuesta 10). Movimiento
   - `aplicarVisibilidad` pesa solo en `control`, y con "En borrador" lleva `fuera` a 1.
 - `three/mundo.test.js` suma: las sedes son deterministas, caen sobre edificios existentes, quedan a entre 300 m y 1 km por la calle y no tapan tu garage; la ciudad de la home no cambió; los recorridos de la red de la home tienen la misma geometría que antes de `trazos.js`.
 - `landing_dom_sin_three.source.test.js` recorre también las subcarpetas de `ui/`, `paginas/`, el armazón y `ParaGarages.jsx`; el 3D entra solo por `lazy()`; las escenas nuevas leen `vivo` y no escriben `rig`.
-- `landing.source.test.js`: los contratos que hoy leen `Landing.jsx` pasan a leer el armazón con las mismas aserciones; se quitan los que leen archivos que se retiran; se suma que la nota no usa `autoAlpha` ni `visibility`.
+- `landing.source.test.js`: los contratos que hoy leen `Landing.jsx` pasan a leer el armazón con las mismas aserciones; se quitan los que leen archivos que se retiran.
+- `notas_accesibles.source.test.js` (ya existe): se extiende a las subcarpetas de `ui/` y a `paginas/`, así cubre las piezas de garages.
 - `vistasLanding/paraGarages.source.test.js` (nuevo): la ruta sigue en `lazy()`; la barra y la CTA llevan a `/register?modo=garage`; la página usa el armazón; no quedan archivos ni referencias de la página anterior ni clases de vidrio en `index.css`.
 - **Verificación en navegador.** El MCP `chrome-devtools` del hub no corre en este contenedor; se usan las herramientas de la línea base, que están fuera del repositorio, en el directorio temporal del agente: `medir/medir.cjs` (carga y JS por ruta) y `medir/a11y.cjs` (axe, encabezados, foco, objetivos táctiles y árbol ARIA). Si ya no están, se rehacen con Playwright y axe-core fuera del repositorio. Sobre la build de producción con `vite preview`:
   - recorrido hacia adelante, hacia atrás y con un tirón rápido en 390 y 1440 px, en las cuatro versiones;
@@ -377,32 +382,34 @@ Las animaciones de la nota usan solo `opacity` (ver la propuesta 10). Movimiento
 
 ## Etapas
 
-Cada etapa termina con su verificación y una revisión. El coordinador hace un commit por etapa verificada en `refactor-landing-garages`. La base y el esqueleto corren en paralelo; las escenas 3D esperan el OK al guion.
+Cada etapa termina con su verificación. El coordinador hace un commit por etapa verificada en `refactor-landing-garages`. Por decisión del usuario no se espera ninguna aprobación: el guion de esta spec y los "Por defecto" de las preguntas abiertas valen como decididos.
 
-1. **Aprobación de esta spec** y respuestas a las preguntas abiertas. Las etapas 2A y 2B no dependen de la pregunta sobre el nivel.
+1. **Spec entregada.** Se implementa con los supuestos por defecto.
 2. **En paralelo:**
-   - **2A. Base compartida (agente A):** el armazón, el guion por página y el arreglo de la nota, sin cambios visibles en la home.
-   - **2B. Esqueleto HTML de `/para-garages` (agente B):** la página con el contenido real, en el flujo sin 3D, y el retiro de la página anterior. Ya es publicable, aunque sin figuras deja vacía la columna derecha en escritorio.
-3. **OK al guion,** con el esqueleto en pantalla y las escenas descritas en esta spec.
-4. **Director de scroll y escena gris** de garages, para validar tiempos y encuadres, con capturas para el dueño.
+   - **2A. Base compartida (agente A):** el armazón y el guion por página, sin cambios visibles en la home.
+   - **2B. Esqueleto HTML de `/para-garages` (agente B):** la página con el contenido real (incluidos los textos del dibujo), en el flujo sin 3D, y el retiro de la página anterior. Ya es publicable, aunque sin figuras deja vacía la columna derecha en escritorio.
+3. **Revisión del guion con el esqueleto en pantalla.** No bloquea: si el dueño pide cambios, se ajustan el contenido y la coreografía antes del pase de arte.
+4. **Director de scroll y escena gris** de garages, para validar tiempos y encuadres, con capturas para el dueño. Puede arrancar en cuanto 2A está integrada, en paralelo con el final de 2B.
 5. **Escenas definitivas y pase de arte.**
 6. **Tiers y respaldos:** los pósters de garages, el movimiento reducido y la versión estática.
 7. **Verificación y entrega** (pasada de cierre del hub).
 
-### Reparto de archivos entre 2A y 2B
+### Reparto de archivos
 
-Cada archivo tiene un solo dueño en estas dos etapas.
+Cada archivo tiene un solo dueño por etapa, así 2A, 2B y el 3D pueden trabajar a la vez sin pisarse.
 
 | Etapa | Archivos |
 |---|---|
-| **2A, base** | `src/vistasLanding/Landing.jsx`; en `inmersiva/`: `ui/PaginaPlano.jsx` (nuevo), `ui/Seccion.jsx`, `ui/Nav.jsx`, `ui/Cta.jsx`, `ui/Regla.jsx`, `ui/ElegirDia.jsx`, `paginas/home.js` (nuevo), `contenido/comun.js` (nuevo), `contenido/secciones.js`, `scroll/guion.js` y `guion.test.js` (nuevos), `scroll/estado.js`, `scroll/useStoryTimeline.js`, `inmersiva.css` (solo el arreglo de la nota) y `landing_dom_sin_three.source.test.js`; `src/vistasLanding/landing.source.test.js`; `docs/architecture.md`; el ADR nuevo y el índice de `docs/decisions/` |
-| **2B, esqueleto** | `src/vistasLanding/ParaGarages.jsx`; en `inmersiva/`: `contenido/garages.js` y `garages.test.js`, `paginas/garages.js`, `ui/garages/*.jsx`, `estado/garages.js` y `garages.css` (todos nuevos); `src/vistasLanding/paraGarages.source.test.js` (nuevo); el retiro de `componentesLanding/paraGarages/`, `componentesLanding/landing/`, `CtaButton.jsx` y las reglas de vidrio de `src/index.css`; `DESIGN.md`; `PRODUCT.md`; el enlace en `docs/specs/SPEC-landing-inmersiva.md` |
+| **2A, base** | `src/vistasLanding/Landing.jsx`; en `inmersiva/`: `ui/PaginaPlano.jsx` (nuevo), `ui/Seccion.jsx`, `ui/Nav.jsx`, `ui/Cta.jsx`, `ui/Regla.jsx`, `ui/ElegirDia.jsx`, `paginas/home.js` (nuevo), `contenido/comun.js` (nuevo), `contenido/secciones.js`, `scroll/guion.js` y `guion.test.js` (nuevos), `scroll/estado.js`, `scroll/useStoryTimeline.js`, `inmersiva.css` (solo si el armazón lo necesita), `landing_dom_sin_three.source.test.js` y `notas_accesibles.source.test.js`; `src/vistasLanding/landing.source.test.js`; `docs/architecture.md`; el ADR nuevo y el índice de `docs/decisions/` |
+| **2B, esqueleto** | `src/vistasLanding/ParaGarages.jsx`; en `inmersiva/`: `contenido/garages.js` y `garages.test.js`, `paginas/garages.js`, `paginas/garagesEscena.js` (un stub que exporta `ESCENA`, `GUION` y `POSTERS` en `null`), `ui/garages/*.jsx`, `estado/garages.js` y `garages.css` (todos nuevos); `src/vistasLanding/paraGarages.source.test.js` (nuevo); el retiro de `componentesLanding/paraGarages/`, `componentesLanding/landing/`, `CtaButton.jsx` y las reglas de vidrio de `src/index.css`; `DESIGN.md`; `PRODUCT.md`; el enlace en `docs/specs/SPEC-landing-inmersiva.md` |
+| **Etapas 4 a 6, 3D** | `inmersiva/three/**` (incluidos `three/garages.css`, que importa `ExperienceGarages.jsx`, y `mundo.test.js`); `scroll/coreografia.js` (solo las claves nuevas de `FX_CERO`), `scroll/coreografiaGarages.js` y `scroll/ajustesGarages.js` con sus tests; `paginas/garagesEscena.js` (deja de ser stub); `public/landing/posters/garages/`. Lee el contenido del dibujo de `contenido/garages.js` sin editarlo: si hace falta un texto nuevo, se lo pide a B o espera a que 2B cierre |
 | **Nadie en 2A ni 2B** | `src/App.jsx`, `inmersiva/three/**`, `scroll/coreografia.js`, `scroll/rig.js`, `estado/store.js`, `src/pages/**` y `componentesLanding/auth/**` |
 
 **Interfaz compartida.** Ninguno la cambia sin avisar al otro:
 
 - el objeto de página (ver "Estilo de código");
-- `Seccion({ s, i, ultima, sinEscena, piezas, posters, cta })`: `h1` si `i === 0`; las piezas que nombra `s.piezas`; la CTA si `s.cta`; la figura solo si `sinEscena && posters`;
+- `Seccion({ s, i, ultima, sinEscena, piezas, posters, cta })`: `h1` si `i === 0`; las piezas que nombra `s.piezas`, cada una con las props `{ sinEscena, posters }`; la CTA si `s.cta`; la figura solo si `sinEscena && posters` y ninguna pieza de la sección declara `reemplazaFigura` (el interruptor dibuja la suya: el póster visible o el de borrador);
+- `paginas/garages.js` toma `escena`, `guion` y `posters` de `paginas/garagesEscena.js`, así el esqueleto y el 3D no editan el mismo archivo;
 - `Nav({ cta, enlace })`, `Cta({ cta, chico })`, `EnlacePagina({ enlace, className })` (hoy `EnlaceGarage`) y `Regla({ secciones })`;
 - las clases de `inmersiva.css` que usan las piezas: `plano-nota`, `plano-planilla`, `plano-boton`, `plano-boton-secundario` y `plano-enlace`.
 
@@ -414,7 +421,7 @@ Cada archivo tiene un solo dueño en estas dos etapas.
 
 ### Verificación de cada etapa
 
-- **2A:** `npm test` en verde, con `estado.test.js`, `secciones.test.js`, `mundo.test.js` y `jornada.test.js` sin cambios. La home idéntica: capturas con movimiento reducido del estado final de cada sección en 390 y 1440 (menos del 0,5 % de píxeles distintos), el recorrido normal sin diferencias a ojo y las cuatro versiones. axe en la home: `page-has-heading-one` pasa con el scroll al final y el árbol tiene los ocho `h2`. Entrada hasta 3 kB más; el 3D de la home no cambia (2A no toca `three/`). eslint limpio en lo tocado y `npm run build`.
+- **2A:** `npm test` en verde, con `estado.test.js`, `secciones.test.js`, `mundo.test.js` y `jornada.test.js` sin cambios. La home idéntica: capturas con movimiento reducido del estado final de cada sección en 390 y 1440 (menos del 0,5 % de píxeles distintos), el recorrido normal sin diferencias a ojo y las cuatro versiones. axe en la home: `page-has-heading-one` sigue pasando con el scroll al final y el árbol sigue teniendo los ocho `h2` (lo arregló `3011f5c`; el armazón no puede romperlo). Entrada hasta 3 kB más; el 3D de la home no cambia (2A no toca `three/`). eslint limpio en lo tocado y `npm run build`.
 - **2B:** `npm test` en verde, con `garages.test.js` y `paraGarages.source.test.js`. `/para-garages` en 390 y 1440: las ocho secciones en el flujo, con `h1`, cuerpo y CTA en el primer render de la ruta; la CTA y la barra llevan a `/register?modo=garage`; están "Iniciar sesión" y "Para empresas", y con sesión "Ir a mi panel". El interruptor funciona con teclado y anuncia el estado, todavía sin efecto en el dibujo. `a11y.cjs` sin serious ni critical, un `h1` y un `h2` por sección, objetivos de 44 px o más y la tabla sin scroll horizontal en 390. `medir.cjs`: LCP móvil menor a 2,5 s, JS inicial hasta 186 kB y chunk de ruta hasta 20 kB. No quedan los archivos retirados ni sus referencias, y login y registro se ven igual que antes (capturas en 390 y 1440). `DESIGN.md` y `PRODUCT.md` al día en lo que cambió.
 - **4:** la home idéntica otra vez, porque la extracción de `Escenario` y las props de las escenas compartidas tocan su 3D. Garages con cajas grises en las escenas nuevas, tiempos y encuadres validados con capturas hacia adelante y hacia atrás, y los tests del guion de garages.
 - **5:** escenas definitivas, capa de solicitud y rótulos; la home idéntica; presupuestos del 3D, fps y draw calls.
@@ -437,7 +444,7 @@ Cada archivo tiene un solo dueño en estas dos etapas.
 ## Documentos que se actualizan al implementar
 
 - **`DESIGN.md`** (2B, y en la 5 lo del dibujo): "Plano (solo la home)" pasa a "Plano (home y `/para-garages`)"; el resumen deja de decir que `/para-garages` conserva el vidrio; Layout, Elevation, Shapes, Cards y Navigation dejan de describir el contenedor, el vidrio, los radios de 24 px y la barra de vidrio de `/para-garages`; la Regla del Vidrio queda solo para la autenticación; las notaciones de sede, anillo y "fuera del mapa" entran en "Plano"; "Do" dice "en las páginas Plano" donde hoy dice "en la home".
-- **`PRODUCT.md`** (2B): la fuente de los claims de garages y del problema del garage pasa a `inmersiva/contenido/garages.js`. Si se acepta la pregunta sobre el cobro, cambian "Transparencia de cobro" y "cobrar consumos".
+- **`PRODUCT.md`** (2B): la fuente de los claims de garages y del problema del garage pasa a `inmersiva/contenido/garages.js`, y se aplica el "Por defecto" de la pregunta sobre el cobro.
 - **`docs/architecture.md`** (2A): la fila de `/para-garages` en la tabla de rutas, el armazón y los objetos de página, y la nota de estilos ("la home y `/para-garages` comparten `inmersiva.css`; `garages.css` suma lo propio").
 - **`docs/decisions/`** (2A): el ADR nuevo y su fila en el índice.
 - **`docs/specs/SPEC-landing-inmersiva.md`** (2B): en "Fuera de alcance", el enlace a esta spec.
@@ -446,7 +453,7 @@ Cada archivo tiene un solo dueño en estas dos etapas.
 ## Fuera de alcance
 
 - Login, registro y los paneles por rol.
-- Cambios en el contenido, el guion o la coreografía de la home. Solo entra el refactor que la vuelve parametrizable, sin cambios visibles, y el arreglo de accesibilidad de la nota.
+- Cambios en el contenido, el guion o la coreografía de la home. Solo entra el refactor que la vuelve parametrizable, sin cambios visibles (el arreglo de accesibilidad de la nota ya está en `3011f5c`).
 - En `/para-garages`: la mira, el realce y la ficha del mouse; el detalle del QR; la jornada; el cajetín de entrada.
 - SSR, prerender e imagen de Open Graph.
 - Claims nuevos de marketing.
@@ -454,6 +461,8 @@ Cada archivo tiene un solo dueño en estas dos etapas.
 
 ## Preguntas abiertas
 
-- [ ] **Nivel de intensidad.** La spec de la home anticipó "nivel 1 o 2" para esta página. ¿Nivel 3, el mundo continuo de la home visto desde el garage, o nivel 2, con 3D solo en el hero y en "aparecer"? Recomiendo el 3: el mensaje es un mapa, el mundo y el director ya existen y se comparten (el 2 obliga a construir un escenario nuevo), y quien llega desde la home ya tiene el 3D en caché. La base y el esqueleto no dependen de esta respuesta.
-- [ ] **Cobro.** `PRODUCT.md` habla de "transparencia de cobro" y de "cobrar consumos", pero la pantalla del dueño dice "No confirman cobros, vencimientos ni pagos recibidos" y "Cobros, estados y conciliación: pendiente de integración". ¿La landing habla solo de consumos generados? Recomiendo que sí, con la aclaración en la tabla de ejemplo, y ajustar esas dos frases de `PRODUCT.md` hasta que el cobro esté integrado.
-- [ ] **Etiqueta de la CTA.** ¿"Registrá tu garage" o "Registrate", la misma de la home, también hacia `/register?modo=garage`? Recomiendo "Registrá tu garage": dice qué se hace y anticipa el alta de dueño, y entra en la barra del celular (unos 350 px de 390 con "Iniciar sesión").
+Para el dueño del producto. Mientras no responda, rige el "Por defecto" de cada una, que es lo que esta spec ya describe.
+
+- [ ] **Nivel de intensidad.** La spec de la home anticipó "nivel 1 o 2" para esta página. ¿Nivel 3, el mundo continuo de la home visto desde el garage, o nivel 2, con 3D solo en el hero y en "aparecer"? Recomiendo el 3: el mensaje es un mapa, el mundo y el director ya existen y se comparten (el 2 obliga a construir un escenario nuevo), y quien llega desde la home ya tiene el 3D en caché. **Por defecto: nivel 3.** La base y el esqueleto no dependen de esta respuesta; si fuera el 2, cambian las etapas 4 a 6.
+- [ ] **Cobro.** `PRODUCT.md` habla de "transparencia de cobro" y de "cobrar consumos", pero la pantalla del dueño dice "No confirman cobros, vencimientos ni pagos recibidos" y "Cobros, estados y conciliación: pendiente de integración". ¿La landing habla solo de consumos generados? Recomiendo que sí, con la aclaración en la tabla de ejemplo. **Por defecto: la página dice "consumos generados" y nunca "cobro" ni "cobrá"; `PRODUCT.md` cambia "Transparencia de cobro" por "Transparencia de consumos" y, en la tabla de audiencias, "cobrar consumos" por "ver los consumos generados", con una nota de que el cobro está pendiente de integración.**
+- [ ] **Etiqueta de la CTA.** ¿"Registrá tu garage" o "Registrate", la misma de la home, también hacia `/register?modo=garage`? Recomiendo "Registrá tu garage": dice qué se hace y anticipa el alta de dueño, y entra en la barra del celular (unos 350 px de 390 con "Iniciar sesión"). **Por defecto: "Registrá tu garage" en el hero, la barra y el cierre.**
