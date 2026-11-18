@@ -78,8 +78,9 @@
 @media (max-width: 899px) and (orientation: portrait), (max-width: 599px) {
   .plano .plano-solicitud { scale: 0.86; transform-origin: 0 0; }
 }
+/* Movimiento reducido: menos, no cero. Se va la escala del botón presionado; el cambio
+   de color y de opacidad queda. */
 @media (prefers-reduced-motion: reduce) {
-  .plano .plano-solicitud__estado,
-  .plano .plano-solicitud__acciones span { transition: none; }
+  .plano .plano-solicitud__acciones span { transition: background-color 220ms var(--salida), color 220ms var(--salida), opacity 220ms var(--salida); }
   .plano .plano-solicitud[data-aceptada] [data-accion='aceptar'] { scale: none; }
 }
