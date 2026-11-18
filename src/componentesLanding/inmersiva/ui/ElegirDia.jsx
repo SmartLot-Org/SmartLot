@@ -3,7 +3,7 @@ import { CELULAR, ELEGIR, SECCIONES } from '../contenido/secciones';
 import { useUI } from '../estado/store';
 import { rig } from '../scroll/rig';
 
-const MI_SECCION = SECCIONES.findIndex((s) => s.elegirDia);
+const MI_SECCION = SECCIONES.findIndex((s) => s.piezas?.includes('elegirDia'));
 
 // Elegí un día: cinco botones (Lun a Vie). Al tocar uno, el celular muestra esa
 // reserva y en la planta se resalta su plaza. Tocar el mismo día otra vez lo
