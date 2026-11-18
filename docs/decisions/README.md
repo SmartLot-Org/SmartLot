@@ -37,3 +37,4 @@ Los ADRs de esta carpeta son **retrospectivos**: documentan decisiones ya implem
 | [ADR-011](./ADR-011-put-reemplazo-completo-patch-parcial.md) | `PUT` reemplaza el recurso completo y `PATCH` actualiza parcialmente | Aceptado |
 | [ADR-012](./ADR-012-pagos-verificacion-post-y-fallas-del-proveedor-502.md) | La verificación de pagos es una acción `POST`; las fallas del proveedor son `502` | Aceptado |
 | [ADR-013](./ADR-012-ids-de-ruta-validados-con-router-param.md) | Los `:id` de ruta se validan una vez con `router.param` | Aceptado |
+| [ADR-014](./ADR-014-modulo-inmersiva-varias-paginas.md) | El módulo `inmersiva` sirve a varias páginas: la página como parámetro de un armazón común | Aceptado |

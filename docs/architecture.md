@@ -1,6 +1,6 @@
 # Arquitectura — SmartLot Frontend
 
-Este documento describe cómo está armada la SPA: capas, autenticación, autorización por roles, mapa de rutas, cliente API, caché, estilos y despliegue. Fuente primaria: el código en `src/`. Última revisión: 2026-10-09.
+Este documento describe cómo está armada la SPA: capas, autenticación, autorización por roles, mapa de rutas, cliente API, caché, estilos y despliegue. Fuente primaria: el código en `src/`. Última revisión: 2026-11-18.
 
 ## Visión general
 
@@ -73,8 +73,8 @@ Fuente: `src/App.jsx`. Al agregar rutas, actualizar esta tabla en el mismo cambi
 
 | Ruta | Vista | Notas |
 |---|---|---|
-| `/` | `vistasLanding/Landing.jsx` | Única vista eager (primer paint). Es solo la capa DOM; el 3D se carga con `lazy()` desde `componentesLanding/inmersiva/three/` (ADR-008). Acepta `?sin3d`. |
-| `/para-garages` | `vistasLanding/ParaGarages.jsx` | Lazy. |
+| `/` | `vistasLanding/Landing.jsx` | Única vista eager (primer paint). Página del plano: el armazón con el objeto de página de la home (ver "Páginas del plano"). Es solo la capa DOM; el 3D se carga con `lazy()` desde `componentesLanding/inmersiva/three/` (ADR-008, ADR-014). Acepta `?sin3d`. |
+| `/para-garages` | `vistasLanding/ParaGarages.jsx` | Lazy (ADR-006). Página del plano para dueños de garage, con el mismo armazón que la home y su propio objeto de página; el chunk de la ruta trae solo su contenido, sus piezas y `garages.css` (`docs/specs/SPEC-landing-garages.md`, ADR-014). Acepta `?sin3d`. |
 | `/login` | `vistasLanding/Auth.jsx` | Acepta `?redirect=`. |
 | `/register` | `pages/Register.jsx` | Alta pública. |
 | `/logout` | `pages/Logout.jsx` | Cierra sesión. |
@@ -156,6 +156,16 @@ Fuente: `src/App.jsx`. Al agregar rutas, actualizar esta tabla en el mismo cambi
 
 `*` → fallback de carga o redirección: si no hay usuario a `/login`; si hay, a `/`. Las rutas con redirect se mantienen por compatibilidad con enlaces viejos.
 
+## Páginas del plano
+
+La home y `/para-garages` son relatos con scroll sobre el mismo plano de la ciudad y comparten el módulo `componentesLanding/inmersiva/` (ADR-008, ADR-014):
+
+- **Objeto de página** (`inmersiva/paginas/home.js`, `paginas/garages.js`): `id`, `meta`, `cta`, `enlace` (la otra página), `pie`, `secciones`, `piezas` (qué componente es cada nombre de `s.piezas`), `posters`, `escena` (un componente `lazy()` o `null`), `guion` (`{ coreografia, inicial?, ajustar?, suscribir? }` o `null`) e `intro`.
+- **Armazón** (`inmersiva/ui/PaginaPlano.jsx`): llama a `asegurarInicio()` antes del primer render, decide la versión (normal, sin 3D, movimiento reducido o estática), inicia Lenis y el director, y arma el salto al contenido, la barra (`Nav`), la regla (`Regla`), las secciones (`Seccion`) y el pie. Una página sin `escena` se muestra en el flujo sin 3D.
+- **Director** (`inmersiva/scroll/useStoryTimeline.js`): compone con `crearGuion(pagina)` (`scroll/guion.js`, funciones puras) y es el único que escribe `rig`. Los controles de la nota que mueven el dibujo entran por `guion.ajustar` y `guion.suscribir`.
+- **Contenido**: `contenido/comun.js` (marca, barra, salto, versión sin 3D y regla), `contenido/secciones.js` (home) y `contenido/garages.js` (garages).
+- **Capa DOM**: la vista de la ruta, el armazón, los objetos de página y las piezas nunca importan `three` ni `@react-three/*`; el 3D entra solo por `pagina.escena`. Lo verifica `landing_dom_sin_three.source.test.js`.
+
 ## Cliente HTTP y servicios
 
 ### Cliente central — `src/api/client.js`
@@ -192,7 +202,7 @@ Un módulo por recurso (`API_Reserva`, `API_Usuario`, `API_Garage`, ...). Conven
 
 ## Estado global, hooks y utilidades
 
-- **Contextos**: `AuthContext` (`usuario`, `loading`, `setUsuario`, `roleTransition`, `setRoleTransition`) y `GoogleMapsContext` (carga diferida del SDK). No hay Redux/Zustand.
+- **Contextos**: `AuthContext` (`usuario`, `loading`, `setUsuario`, `roleTransition`, `setRoleTransition`) y `GoogleMapsContext` (carga diferida del SDK). No hay Redux. Solo las páginas del plano usan stores chicos de Zustand: `inmersiva/estado/store.js` (versión, tier y sección activa) y `inmersiva/estado/garages.js` (el interruptor de garages).
 - **Hooks** (`src/hooks/`): `useNotificaciones` (campana), `useSolicitudesPendientesCount` (contadores por rol), `useLiveValidation` (validación en vivo de formularios), `usePageMeta` (title/meta por vista), `useFooterCompacto`.
 - **Helpers** (`src/helpers/`): roles, fechas de reserva (`reservaDateTime`), patentes (`patente`), precios (`prices`), QR (`qrReserva`), control de acceso (`controlAcceso`), tratos, usuarios, días (`diasSemana`), política de reservas (`reservationPolicy`), mensajes de error (`erroresMensajes`), sesión de superadmin, `toast`, `zIndex`.
 - **Exportadores** (`src/util/`): Excel (`exportar_reportes_excel`, `exportar_cuentas_corrientes`, `exportar_deudas_garage`) y PDF (`exportar_reporte_pdf`) con ExcelJS/jsPDF.
@@ -203,7 +213,7 @@ Un módulo por recurso (`API_Reserva`, `API_Usuario`, `API_Garage`, ...). Conven
 - Los tokens viven en `@theme` de `src/index.css` y generan utilidades `brand-*` (`bg-brand-blue`, `text-brand-muted`, ...). Evitar hex/rgb hardcodeados.
 - Las fuentes están autoalojadas: `src/fuentes.css` las declara y `index.html` precarga las dos de la primera pantalla (`lang="es-AR"`).
 - `prefers-reduced-motion` está contemplado en las páginas públicas. En la home, además, la cámara salta por sección y el Canvas renderiza a demanda.
-- La home tiene su propio CSS, `componentesLanding/inmersiva/inmersiva.css`, con todos los selectores bajo `.plano`.
+- La home y `/para-garages` comparten `componentesLanding/inmersiva/inmersiva.css`, con todos los selectores bajo `.plano`. `inmersiva/garages.css` suma lo propio de garages y lo importa solo su página; `inmersiva/three/garages.css` trae las capas de su dibujo y entra con su chunk 3D.
 
 ## Errores y feedback
 

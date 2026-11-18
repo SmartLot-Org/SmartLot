@@ -9,20 +9,16 @@ export const META = {
 };
 
 // Una sola acción principal, con la misma etiqueta en el hero, la barra y el cierre.
+// La secundaria es la otra página del plano: navegación en la barra y en el pie.
 export const CTA = {
   principal: { etiqueta: 'Registrate', destino: '/register' },
   secundaria: { etiqueta: 'Para garages', destino: '/para-garages' },
 };
 
-export const NAVEGACION = {
-  marca: 'SmartLot',
-  ingresar: { etiqueta: 'Iniciar sesión', destino: '/login' },
-  panel: 'Ir a mi panel',
-  saltar: 'Saltar al contenido',
-  sin3d: { activar: 'Ver sin 3D', desactivar: 'Volver al 3D' },
-  regla: 'Recorrido de la página',
-  pie: 'Gestión de estacionamientos para empresas y garages.',
-};
+// La navegación es común a las páginas del plano (contenido/comun.js).
+export { NAVEGACION } from './comun.js';
+
+export const PIE = 'Gestión de estacionamientos para empresas y garages.';
 
 // Datos del dibujo: son de demostración y así se rotulan en pantalla.
 export const DEMO = {
@@ -128,6 +124,7 @@ export const ROTULOS = {
 };
 
 // weight = alto de la sección en pantallas (cuánto scroll dura).
+// piezas = lo que la nota suma al texto, por nombre (paginas/home.js dice qué es cada una).
 export const SECCIONES = [
   {
     id: 'gancho',
@@ -146,7 +143,7 @@ export const SECCIONES = [
       'Hoy los acuerdos se arreglan por WhatsApp o en papel, las cocheras quedan vacías y nadie sabe cuánto se usó cada lugar.',
     movimiento: 'orbita',
     weight: 1.3,
-    comparador: true,
+    piezas: ['comparador'],
     figura: 'La manzana de la oficina: varios autos dan vueltas alrededor sin encontrar lugar.',
   },
   {
@@ -165,8 +162,7 @@ export const SECCIONES = [
       'Cada empleado elige día y horario desde el celular. La empresa define cuántas reservas activas puede tener cada uno.',
     movimiento: 'se llena',
     weight: 1.6,
-    dato: 'reservadas',
-    elegirDia: true,
+    piezas: ['dato', 'elegirDia'],
     figura: 'Planta del garage sin techo: cuatro filas de plazas, con las reservadas por el equipo pintadas de azul.',
   },
   {
@@ -185,7 +181,7 @@ export const SECCIONES = [
       'Tiempo, tarifa e importe por reserva, con exportación a PDF y Excel. El garage y la empresa ven el mismo detalle.',
     movimiento: 'se apila',
     weight: 1.6,
-    tabla: 'consumos',
+    piezas: ['consumos'],
     figura: 'Sobre cada plaza usada se apila una columna con las horas de estadía.',
   },
   {

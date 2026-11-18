@@ -1,8 +1,9 @@
+import { useMemo } from 'react';
 import { useGSAP } from '@gsap/react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useUI } from '../estado/store';
-import { aplicarComparacion, avancesFinales, componer, PESOS } from './estado';
+import { crearGuion } from './guion';
 import { CONSULTA_VERTICAL, rig } from './rig';
 import { velocidadScroll } from './smoothScroll';
 
@@ -13,10 +14,14 @@ gsap.registerPlugin(useGSAP, ScrollTrigger);
 // a llegar arriba; estadía: el resto) y compone el estado con funciones puras.
 // Al ser una función de la posición, el relato es reversible y no depende del
 // orden en que se actualicen los triggers.
-export function useStoryTimeline(scope) {
+// La coreografía es de la página (pagina.guion). Sin guion o sin escena, solo
+// marca la sección activa y no escribe rig.
+export function useStoryTimeline(scope, pagina) {
   const setSeccion = useUI((s) => s.setSeccion);
   const sin3d = useUI((s) => s.sin3d);
-  const mostrar3d = useUI((s) => s.inicializado && s.tier !== 'static' && !s.sin3d);
+  const mostrar3d = useUI((s) => s.inicializado && s.tier !== 'static' && !s.sin3d) && !!pagina.escena;
+  // crearGuion es puro y la página es un objeto fijo: se arma una vez por página.
+  const guion = useMemo(() => (pagina.guion ? crearGuion(pagina) : null), [pagina]);
 
   useGSAP(() => {
     const els = gsap.utils.toArray('[data-seccion]');
@@ -24,7 +29,7 @@ export function useStoryTimeline(scope) {
       trigger: el, start: 'top center', end: 'bottom center',
       onToggle: (self) => { if (self.isActive) setSeccion(i); },
     }));
-    if (!mostrar3d) return;
+    if (!mostrar3d || !guion) return;
 
     const mm = gsap.matchMedia();
     mm.add({
@@ -33,28 +38,28 @@ export function useStoryTimeline(scope) {
       vertical: CONSULTA_VERTICAL,
     }, (ctx) => {
       const { reducido, vertical } = ctx.conditions;
-      let ultimos = avancesFinales(0);
+      const { pesos } = guion;
+      let ultimos = guion.avancesFinales(0);
       const escribir = (avances) => {
         ultimos = avances;
-        componer(avances, vertical, rig);
-        aplicarComparacion(rig, useUI.getState().comparar, avances, vertical);
+        guion.componer(avances, vertical, rig);
+        pagina.guion.ajustar?.(rig, avances, vertical);
         rig.requestFrame();
       };
-      // El deslizador antes / con SmartLot recompone sin esperar al scroll.
-      const soltarComparar = useUI.subscribe((s, previo) => {
-        if (s.comparar !== previo.comparar) escribir(ultimos);
-      });
+      // Los controles de la nota que mueven el dibujo (el deslizador de la home,
+      // el interruptor de garages) recomponen sin esperar al scroll.
+      const soltarControles = pagina.guion.suscribir?.(() => escribir(ultimos)) ?? (() => {});
       rig.vertical = vertical;
       rig.snap = reducido;
 
       if (reducido) {
         // Sin recorrido: al cambiar de sección se muestra su estado final.
-        escribir(avancesFinales(0));
+        escribir(guion.avancesFinales(0));
         els.forEach((el, i) => ScrollTrigger.create({
           trigger: el, start: 'top center', end: 'bottom center',
-          onToggle: (self) => { if (self.isActive) escribir(avancesFinales(i)); },
+          onToggle: (self) => { if (self.isActive) escribir(guion.avancesFinales(i)); },
         }));
-        return soltarComparar;
+        return soltarControles;
       }
 
       // Inercia: la velocidad del scroll pasa al dibujo y a las notas (--inercia).
@@ -68,17 +73,17 @@ export function useStoryTimeline(scope) {
       };
       gsap.ticker.add(medirVelocidad);
       const soltarVelocidad = () => {
-        soltarComparar();
+        soltarControles();
         gsap.ticker.remove(medirVelocidad);
         rig.velocidad = 0;
         raiz?.style.removeProperty('--inercia');
       };
 
-      const entrada = PESOS.map((_, i) => (i === 0 ? 1 : 0));
-      const estadia = PESOS.map(() => 0);
-      const avances = PESOS.map(() => 0);
+      const entrada = pesos.map((_, i) => (i === 0 ? 1 : 0));
+      const estadia = pesos.map(() => 0);
+      const avances = pesos.map(() => 0);
       const actualizar = () => {
-        for (let i = 0; i < PESOS.length; i++) avances[i] = entrada[i] + estadia[i] * (PESOS[i] - 1);
+        for (let i = 0; i < pesos.length; i++) avances[i] = entrada[i] + estadia[i] * (pesos[i] - 1);
         escribir(avances);
       };
       els.forEach((el, i) => {
@@ -86,7 +91,7 @@ export function useStoryTimeline(scope) {
           const medir = (self) => { entrada[i] = self.progress; actualizar(); };
           ScrollTrigger.create({ trigger: el, start: 'top bottom', end: 'top top', scrub: true, onUpdate: medir, onRefresh: medir });
         }
-        if (PESOS[i] > 1) {
+        if (pesos[i] > 1) {
           const medir = (self) => { estadia[i] = self.progress; actualizar(); };
           ScrollTrigger.create({ trigger: el, start: 'top top', end: 'bottom bottom', scrub: true, onUpdate: medir, onRefresh: medir });
         }
@@ -94,5 +99,5 @@ export function useStoryTimeline(scope) {
       actualizar();
       return soltarVelocidad;
     });
-  }, { scope, dependencies: [sin3d, mostrar3d], revertOnUpdate: true }); // la versión sin 3D cambia el layout
+  }, { scope, dependencies: [sin3d, mostrar3d, guion], revertOnUpdate: true }); // la versión sin 3D cambia el layout
 }

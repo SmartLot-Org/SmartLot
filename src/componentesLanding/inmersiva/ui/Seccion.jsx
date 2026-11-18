@@ -2,22 +2,42 @@ import { useRef } from 'react';
 import { useGSAP } from '@gsap/react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { Comparador } from './Comparador';
 import { Cta } from './Cta';
-import { Dato } from './Dato';
-import { ElegirDia } from './ElegirDia';
-import { TablaConsumos } from './TablaConsumos';
 import { useTituloCinetico } from './useTituloCinetico';
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
+// Póster de la versión sin 3D: el dibujo de la sección, descrito en el alt.
+// `posters` es la carpeta de la página; el archivo es `s.poster ?? s.id`.
+// Una pieza que reemplaza la figura (reemplazaFigura) puede usarla con otro póster.
+export function Figura({ s, i, posters }) {
+  const poster = `${posters}/${s.poster ?? s.id}`;
+  return (
+    <figure className="plano-figura">
+      <img
+        src={`${poster}.webp`}
+        srcSet={`${poster}-600.webp 600w, ${poster}.webp 1200w`}
+        sizes="(min-width: 900px) 720px, 45vw"
+        alt={s.figura}
+        width={1200}
+        height={900}
+        loading={i === 0 ? 'eager' : 'lazy'}
+        fetchPriority={i === 0 ? 'high' : 'auto'}
+        decoding="async"
+      />
+    </figure>
+  );
+}
+
 // Una sección = una idea = un encuadre. La nota viaja con el scroll, se queda
 // quieta durante la estadía y se desvanece al irse para dejar ver el dibujo.
 // El hero (i === 0) lleva el único h1 y no espera ninguna animación.
-export function Seccion({ s, i, ultima, sinEscena }) {
+// No conoce ninguna página: las piezas, los pósters y la CTA llegan del objeto
+// de página (paginas/*.js) y la sección pone las que nombra `s.piezas`.
+export function Seccion({ s, i, ultima, sinEscena, piezas, posters, cta }) {
   const ref = useRef(null);
   const Titulo = i === 0 ? 'h1' : 'h2';
-  const poster = `/landing/posters/${s.poster ?? s.id}`;
+  const reemplazaFigura = s.piezas?.some((nombre) => piezas?.[nombre]?.reemplazaFigura) ?? false;
 
   useGSAP(() => {
     if (sinEscena || ultima) return;
@@ -48,31 +68,20 @@ export function Seccion({ s, i, ultima, sinEscena }) {
       <div className="plano-nota">
         <Titulo id={`${s.id}-titulo`}>{s.titulo}</Titulo>
         <p>{s.cuerpo}</p>
-        {s.comparador && !sinEscena && <Comparador />}
-        {s.dato && !sinEscena && <Dato />}
-        {s.elegirDia && !sinEscena && <ElegirDia />}
-        {s.tabla && <TablaConsumos />}
+        {s.piezas?.map((nombre) => {
+          const pieza = piezas?.[nombre];
+          // Las piezas que solo mueven el dibujo no tienen sentido sin él.
+          if (!pieza || (pieza.soloConEscena && sinEscena)) return null;
+          const Pieza = pieza.componente;
+          return <Pieza key={nombre} sinEscena={sinEscena} posters={posters} />;
+        })}
         {s.cta && (
           <div className="plano-acciones">
-            <Cta />
+            <Cta cta={cta} />
           </div>
         )}
       </div>
-      {sinEscena && (
-        <figure className="plano-figura">
-          <img
-            src={`${poster}.webp`}
-            srcSet={`${poster}-600.webp 600w, ${poster}.webp 1200w`}
-            sizes="(min-width: 900px) 720px, 45vw"
-            alt={s.figura}
-            width={1200}
-            height={900}
-            loading={i === 0 ? 'eager' : 'lazy'}
-            fetchPriority={i === 0 ? 'high' : 'auto'}
-            decoding="async"
-          />
-        </figure>
-      )}
+      {sinEscena && posters && !reemplazaFigura && <Figura s={s} i={i} posters={posters} />}
     </section>
   );
 }
