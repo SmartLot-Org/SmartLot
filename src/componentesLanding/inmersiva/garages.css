@@ -185,3 +185,17 @@
   .plano [data-ui='visibilidad'] .garages-visibilidad__perilla { transition: background-color 160ms ease; }
   .plano [data-ui='visibilidad'] button:active .garages-visibilidad__pista { scale: none; }
 }
+
+/* Barra en pantallas angostas: la CTA de garages ("Registrá tu garage") es más larga
+   que la de la home, y por debajo de 360 px la marca quedaba aplastada a 0 px. La barra
+   se compacta solo acá; la home no cambia. Los botones siguen midiendo 44 px de alto. */
+@media (max-width: 359px) {
+  .plano[data-pagina='garages'] .plano-barra { gap: 8px; }
+  .plano[data-pagina='garages'] .plano-barra__acciones { gap: 6px; }
+  .plano[data-pagina='garages'] .plano-boton-secundario,
+  .plano[data-pagina='garages'] .plano-boton--chico { padding: 0 10px; font-size: 13px; }
+}
+@media (max-width: 339px) {
+  .plano[data-pagina='garages'] .plano-boton-secundario,
+  .plano[data-pagina='garages'] .plano-boton--chico { padding: 0 8px; }
+}

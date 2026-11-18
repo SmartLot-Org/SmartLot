@@ -136,10 +136,14 @@ body:has(.plano) { overflow-x: clip; }
   border-bottom: 1px solid var(--borde);
   background: var(--papel);
 }
+/* La marca nunca se aplasta y su área táctil mide 44 px aunque en el celular se vea
+   solo el logo (23 px): la Regla del Pulgar de DESIGN.md. */
 .plano-marca {
   display: inline-flex;
+  flex-shrink: 0;
   align-items: center;
   gap: 8px;
+  min-width: 44px;
   min-height: 44px;
   color: var(--tinta);
   font: 800 18px/1 var(--font-display);
