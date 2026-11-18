@@ -178,6 +178,16 @@
   .plano[data-sin3d='true'] .garages-poster { justify-self: end; width: 100%; max-width: 720px; }
 }
 
+/* Sin 3D y en vertical (CONSULTA_VERTICAL de scroll/rig.js), la sección pasa a ser una
+   grilla y heredaba el justify-content: flex-end que en la versión con escena baja la
+   nota al pie de la pantalla. En una grilla eso achica la columna al ancho de su
+   contenido y la empuja a la derecha, distinto en cada sección: en 768 px las notas
+   arrancaban entre 112 y 217 px, con la barra en 16. Así la columna ocupa todo el ancho
+   y cada nota arranca en el margen. */
+@media (max-width: 899px) and (orientation: portrait), (max-width: 599px) {
+  .plano[data-pagina='garages'][data-sin3d='true'] .plano-seccion { justify-content: normal; }
+}
+
 /* Movimiento reducido: la perilla salta sin viajar y la pista no se achica al presionar;
    quedan los cambios de color, que explican el estado. */
 @media (prefers-reduced-motion: reduce) {
