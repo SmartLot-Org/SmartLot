@@ -1,0 +1,175 @@
+/* /para-garages sobre el mundo Plano (docs/specs/SPEC-landing-garages.md). Lo común
+   a las dos páginas está en inmersiva.css; acá van solo las piezas de la nota, y lo
+   importa únicamente la página de garages, así la entrada no crece.
+   Todo cuelga de .plano. Cada pieza es un fragmento del producto (data-ui): adentro
+   rigen sus convenciones, como el radio de 10 px, el borde de 1 px y las insignias,
+   y los colores salen de los mismos tokens. Animaciones: solo opacidad en lo que
+   entra; en los controles, menos de 300 ms y una propiedad por transición. */
+
+/* ── Arranque común: como las piezas de la home, una línea sobre la pieza ── */
+.plano .garages-ficha,
+.plano .garages-visibilidad {
+  display: grid;
+  margin: 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--borde);
+}
+
+/* ── mapa: "Así te ve una empresa" (la tarjeta del listado de Buscar garages) ── */
+.plano [data-ui='busqueda'] { gap: 8px; }
+.plano [data-ui='busqueda'] figcaption {
+  color: var(--tinta);
+  font: 700 13px/1.3 var(--font-body);
+}
+.plano [data-ui='busqueda'] figcaption small { margin-left: 6px; color: var(--texto-suave); font-size: 13px; font-weight: 400; }
+.plano [data-ui='busqueda'] .garages-ficha__tarjeta {
+  display: grid;
+  justify-items: start;
+  gap: 2px;
+  padding: 14px 16px 16px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--color-brand-surface);
+  color: var(--texto-suave);
+  font: 400 13px/1.45 var(--font-body);
+  font-variant-numeric: tabular-nums;
+}
+.plano [data-ui='busqueda'] p { margin: 0; }
+.plano [data-ui='busqueda'] .garages-ficha__tarjeta span { white-space: nowrap; }
+/* La distancia y el tiempo de manejo, en la insignia azul del producto: es la misma
+   cota de 300 m del dibujo. */
+.plano [data-ui='busqueda'] .garages-ficha__distancia {
+  margin-bottom: 8px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--senal) 8%, var(--color-brand-surface));
+  color: var(--senal);
+  font: 700 12px/1.3 var(--font-body);
+}
+.plano [data-ui='busqueda'] .garages-ficha__nombre { color: var(--texto); font: 600 17px/1.25 var(--font-display); }
+.plano [data-ui='busqueda'] .garages-ficha__disponibles { margin-block: 4px 2px; color: var(--texto); font: 700 15px/1.3 var(--font-body); }
+/* Inerte: es parte de la imagen. Sin hover, sin presión y con el cursor de texto común. */
+.plano [data-ui='busqueda'] .garages-ficha__boton {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  margin-top: 10px;
+  padding: 0 14px;
+  border-radius: 10px;
+  background: var(--senal);
+  color: var(--senal-sobre);
+  font: 700 13px/1 var(--font-body);
+  cursor: default;
+}
+
+/* ── operacion: "Consumos por empresa" ── */
+/* La planilla de la home no corta renglones; acá el nombre de la empresa y los
+   encabezados pueden ir en dos líneas, así las cuatro columnas entran en 390 px sin
+   scroll horizontal. Las cifras nunca se cortan. */
+.plano [data-ui='consumos'] thead th,
+.plano [data-ui='consumos'] th[scope='row'] { white-space: normal; }
+.plano [data-ui='consumos'] thead th { vertical-align: bottom; }
+.plano [data-ui='consumos'] tbody th,
+.plano [data-ui='consumos'] tbody td { vertical-align: top; }
+.plano [data-ui='consumos'] tbody th { color: var(--texto); font-weight: 500; }
+
+/* ── control: el interruptor "Tu garage en el mapa de las empresas" ── */
+.plano [data-ui='visibilidad'] { gap: 4px; }
+/* El renglón entero es el botón: el objetivo táctil mide 48 px aunque la pista sea chica. */
+.plano [data-ui='visibilidad'] button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  min-height: 48px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--tinta);
+  font: 700 15px/1.3 var(--font-body);
+  text-align: left;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+/* La pista habla el idioma del dibujo: en borrador, línea de trazos en tinta (tu garage
+   fuera del mapa); visible, llena de azul señal (tu garage en el mapa). */
+.plano [data-ui='visibilidad'] .garages-visibilidad__pista {
+  position: relative;
+  flex: none;
+  width: 44px;
+  height: 26px;
+  border: 1.5px dashed var(--tinta-media);
+  border-radius: 13px;
+  background: transparent;
+  transition: background-color 160ms ease, border-color 160ms ease, scale 160ms var(--salida);
+}
+.plano [data-ui='visibilidad'] .garages-visibilidad__perilla {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  background: var(--tinta-media);
+  transition: transform 180ms var(--salida), background-color 160ms ease;
+}
+.plano [data-ui='visibilidad'] button[aria-checked='true'] .garages-visibilidad__pista {
+  border-style: solid;
+  border-color: var(--senal);
+  background: var(--senal);
+}
+.plano [data-ui='visibilidad'] button[aria-checked='true'] .garages-visibilidad__perilla {
+  transform: translateX(18px);
+  background: var(--senal-sobre);
+}
+.plano [data-ui='visibilidad'] button:active .garages-visibilidad__pista { scale: 0.97; }
+@media (hover: hover) and (pointer: fine) {
+  .plano [data-ui='visibilidad'] button:hover .garages-visibilidad__pista { border-color: var(--tinta); }
+  .plano [data-ui='visibilidad'] button[aria-checked='true']:hover .garages-visibilidad__pista {
+    border-color: var(--senal-activa);
+    background: var(--senal-activa);
+  }
+}
+.plano [data-ui='visibilidad'] .garages-visibilidad__estado {
+  margin: 0;
+  color: var(--texto-suave);
+  font-size: 14px;
+  line-height: 1.45;
+  text-wrap: pretty;
+}
+/* La insignia repite el estado en palabras (el color nunca va solo) con la misma
+   notación: trazos en borrador, azul lleno cuando se ve. */
+.plano [data-ui='visibilidad'] .garages-visibilidad__insignia {
+  display: inline-block;
+  margin-right: 2px;
+  padding: 1px 7px;
+  border: 1px dashed var(--tinta-media);
+  border-radius: 6px;
+  color: var(--tinta);
+  font: 600 12px/1.4 var(--font-body);
+  white-space: nowrap;
+  transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease;
+}
+.plano [data-ui='visibilidad'][data-estado='visible'] .garages-visibilidad__insignia {
+  border-style: solid;
+  border-color: var(--senal);
+  background: var(--senal);
+  color: var(--senal-sobre);
+}
+.plano [data-ui='visibilidad'] small { color: var(--texto-suave); font-size: 12px; }
+
+/* Sin 3D: los dos pósters del interruptor, uno encima del otro, se cruzan por opacidad. */
+.plano .garages-poster { display: grid; }
+.plano .garages-poster img { grid-area: 1 / 1; opacity: 0; transition: opacity 200ms ease; }
+.plano .garages-poster img[data-activo='true'] { opacity: 1; }
+
+/* Movimiento reducido: la perilla salta sin viajar y la pista no se achica al presionar;
+   quedan los cambios de color, que explican el estado. */
+@media (prefers-reduced-motion: reduce) {
+  .plano [data-ui='visibilidad'] .garages-visibilidad__pista { transition: background-color 160ms ease, border-color 160ms ease; }
+  .plano [data-ui='visibilidad'] .garages-visibilidad__perilla { transition: background-color 160ms ease; }
+  .plano [data-ui='visibilidad'] button:active .garages-visibilidad__pista { scale: none; }
+}
