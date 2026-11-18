@@ -71,7 +71,8 @@
 .plano [data-ui='consumos'] th,
 .plano [data-ui='consumos'] td { padding-block: 4px; }
 .plano [data-ui='consumos'] thead th { white-space: normal; }
-.plano [data-ui='consumos'] > p { margin-top: 4px; }
+/* pretty, como los párrafos de la nota: en 390 px "Excel." quedaba sola en el renglón. */
+.plano [data-ui='consumos'] > p { margin-top: 4px; text-wrap: pretty; }
 @media (max-width: 389px) {
   .plano [data-ui='consumos'] th[scope='row'] { white-space: normal; }
 }
@@ -176,6 +177,16 @@
 .plano .garages-poster[data-estado='borrador'] > .plano-figura:last-child { opacity: 1; }
 @media (min-width: 900px), (min-width: 600px) and (orientation: landscape) {
   .plano[data-sin3d='true'] .garages-poster { justify-self: end; width: 100%; max-width: 720px; }
+}
+
+/* Sin 3D y en vertical (CONSULTA_VERTICAL de scroll/rig.js), la sección pasa a ser una
+   grilla y heredaba el justify-content: flex-end que en la versión con escena baja la
+   nota al pie de la pantalla. En una grilla eso achica la columna al ancho de su
+   contenido y la empuja a la derecha, distinto en cada sección: en 768 px las notas
+   arrancaban entre 112 y 217 px, con la barra en 16. Así la columna ocupa todo el ancho
+   y cada nota arranca en el margen. */
+@media (max-width: 899px) and (orientation: portrait), (max-width: 599px) {
+  .plano[data-pagina='garages'][data-sin3d='true'] .plano-seccion { justify-content: normal; }
 }
 
 /* Movimiento reducido: la perilla salta sin viajar y la pista no se achica al presionar;
