@@ -52,8 +52,8 @@ export default function PerfilDueñoGarage() {
     ],
   };
 
-  const [personalData, setPersonalData] = useState({ nombre: "", apellido: "", email: "", telefono: "", contraseña: "" });
-  const [originalPersonalData, setOriginalPersonalData] = useState({ nombre: "", apellido: "", email: "", telefono: "", contraseña: "" });
+  const [personalData, setPersonalData] = useState({ nombre: "", apellido: "", email: "", telefono: "", contraseña: "", contraseñaActual: "" });
+  const [originalPersonalData, setOriginalPersonalData] = useState({ nombre: "", apellido: "", email: "", telefono: "", contraseña: "", contraseñaActual: "" });
   const [garagesCount, setGaragesCount] = useState(0);
   const [cargandoGarages, setCargandoGarages] = useState(true);
   const [guardando, setGuardando] = useState(false);
@@ -61,6 +61,7 @@ export default function PerfilDueñoGarage() {
   const { isValid, touched, getFieldProps } = useLiveValidation(personalData, validationSchema);
   const telefonoField = getFieldProps("telefono", setPersonalData);
   const contraseñaField = getFieldProps("contraseña", setPersonalData);
+  const contraseñaActualField = getFieldProps("contraseñaActual", setPersonalData);
 
   const buildConditions = (fieldName) => {
     if (!validationSchema[fieldName]) return [];
@@ -99,6 +100,7 @@ export default function PerfilDueñoGarage() {
           email: userData.email || "",
           telefono: userData.telefono || "",
           contraseña: "",
+          contraseñaActual: "",
         };
 
         setPersonalData(payload);
@@ -114,6 +116,7 @@ export default function PerfilDueñoGarage() {
           email: infoUsuario.email || usuario.email || "",
           telefono: infoUsuario.telefono || usuario.telefono || "",
           contraseña: "",
+          contraseñaActual: "",
         };
 
         setPersonalData(payloadBackup);
@@ -197,6 +200,18 @@ export default function PerfilDueñoGarage() {
     const telefonoLimpio = personalData.telefono?.replace(/\D/g, "") || "";
     const telefonoOriginal = originalPersonalData.telefono?.replace(/\D/g, "") || "";
     const nuevaContraseña = personalData.contraseña?.trim() || "";
+    const contraseñaActual = personalData.contraseñaActual || "";
+
+    if (nuevaContraseña && !contraseñaActual) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Falta tu contraseña actual',
+        text: 'Para cambiar la contraseña ingresá primero la actual.',
+        confirmButtonColor: '#3b82f6',
+        zIndex: Z_INDEX.SWAL_DIALOG,
+      });
+      return;
+    }
 
     setGuardando(true);
 
@@ -213,6 +228,7 @@ export default function PerfilDueñoGarage() {
         telefono: telefonoLimpio,
         telefonoOriginal,
         contraseña: nuevaContraseña,
+        contraseñaActual,
       });
 
       if (!telefonoCambiado && !contraseñaCambiada) {
@@ -228,7 +244,7 @@ export default function PerfilDueñoGarage() {
         return;
       }
 
-      const datosActualizados = { ...personalData, telefono: telefonoLimpio, contraseña: "" };
+      const datosActualizados = { ...personalData, telefono: telefonoLimpio, contraseña: "", contraseñaActual: "" };
       setPersonalData(datosActualizados);
       setOriginalPersonalData(datosActualizados);
 
@@ -437,6 +453,21 @@ export default function PerfilDueñoGarage() {
                 <Lock size={20} />
               </div>
               <h3>Cambiar Contraseña</h3>
+            </div>
+
+            <div className="duenio-perfil-grupo">
+              <label htmlFor="contraseñaActual">Contraseña actual</label>
+              <input
+                type="password"
+                id="contraseñaActual"
+                name="contraseñaActual"
+                className="duenio-perfil-input"
+                placeholder="Solo si vas a cambiarla"
+                value={contraseñaActualField.value}
+                onChange={contraseñaActualField.onChange}
+                onBlur={contraseñaActualField.onBlur}
+                autoComplete="current-password"
+              />
             </div>
 
             <div className="duenio-perfil-grupo">

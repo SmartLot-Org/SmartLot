@@ -47,8 +47,8 @@ export default function PerfilEmpleado() {
     ],
   };
 
-  const [personalData, setPersonalData] = useState({ nombre: "", apellido: "", email: "", telefono: "", contraseña: "" });
-  const [originalPersonalData, setOriginalPersonalData] = useState({ nombre: "", apellido: "", email: "", telefono: "", contraseña: "" });
+  const [personalData, setPersonalData] = useState({ nombre: "", apellido: "", email: "", telefono: "", contraseña: "", contraseñaActual: "" });
+  const [originalPersonalData, setOriginalPersonalData] = useState({ nombre: "", apellido: "", email: "", telefono: "", contraseña: "", contraseñaActual: "" });
   const [vehiculos, setVehiculos] = useState([]);
   const [guardando, setGuardando] = useState(false);
   const [cargandoVehiculos, setCargandoVehiculos] = useState(false);
@@ -57,6 +57,7 @@ export default function PerfilEmpleado() {
   const { isValid, touched, getFieldProps } = useLiveValidation(personalData, validationSchema);
   const telefonoField = getFieldProps("telefono", setPersonalData);
   const contraseñaField = getFieldProps("contraseña", setPersonalData);
+  const contraseñaActualField = getFieldProps("contraseñaActual", setPersonalData);
 
   const buildConditions = (fieldName) => {
     if (!validationSchema[fieldName]) return [];
@@ -136,7 +137,9 @@ export default function PerfilEmpleado() {
           nombre: userData.nombre || "",
           apellido: userData.apellido || "",
           email: userData.email || "",
-          telefono: userData.telefono || ""
+          telefono: userData.telefono || "",
+          contraseña: "",
+          contraseñaActual: ""
         };
         
         setPersonalData(payload);
@@ -150,7 +153,9 @@ export default function PerfilEmpleado() {
           nombre: infoUsuario.nombre || usuario.nombre || "",
           apellido: infoUsuario.apellido || usuario.apellido || "",
           email: infoUsuario.email || usuario.email || "",
-          telefono: infoUsuario.telefono || usuario.telefono || ""
+          telefono: infoUsuario.telefono || usuario.telefono || "",
+          contraseña: "",
+          contraseñaActual: ""
         };
 
         setPersonalData(payloadBackup);
@@ -245,6 +250,18 @@ export default function PerfilEmpleado() {
     const telefonoLimpio = personalData.telefono?.replace(/\D/g, "") || "";
     const telefonoOriginal = originalPersonalData.telefono?.replace(/\D/g, "") || "";
     const nuevaContraseña = personalData.contraseña?.trim() || "";
+    const contraseñaActual = personalData.contraseñaActual || "";
+
+    if (nuevaContraseña && !contraseñaActual) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Falta tu contraseña actual',
+        text: 'Para cambiar la contraseña ingresá primero la actual.',
+        confirmButtonColor: '#3b82f6',
+        zIndex: Z_INDEX.SWAL_DIALOG,
+      });
+      return;
+    }
 
     setGuardando(true);
 
@@ -261,6 +278,7 @@ export default function PerfilEmpleado() {
         telefono: telefonoLimpio,
         telefonoOriginal,
         contraseña: nuevaContraseña,
+        contraseñaActual,
       });
 
       if (!telefonoCambiado && !contraseñaCambiada) {
@@ -276,7 +294,7 @@ export default function PerfilEmpleado() {
         return;
       }
 
-      const datosActualizados = { ...personalData, telefono: telefonoLimpio, contraseña: "" };
+      const datosActualizados = { ...personalData, telefono: telefonoLimpio, contraseña: "", contraseñaActual: "" };
       setPersonalData(datosActualizados);
       setOriginalPersonalData(datosActualizados);
 
@@ -416,6 +434,20 @@ export default function PerfilEmpleado() {
                 </h3>
               </div>
               <div className="formulario-grid">
+                <div className="formulario-grupo">
+                  <label htmlFor="contraseñaActual">Contraseña actual</label>
+                  <input
+                    type="password"
+                    id="contraseñaActual"
+                    name="contraseñaActual"
+                    className="formulario-input"
+                    placeholder="Solo si vas a cambiarla"
+                    value={contraseñaActualField.value ?? ""}
+                    onChange={contraseñaActualField.onChange}
+                    onBlur={contraseñaActualField.onBlur}
+                    autoComplete="current-password"
+                  />
+                </div>
                 <div className="formulario-grupo">
                   <label htmlFor="contraseña">Nueva Contraseña</label>
                   <input

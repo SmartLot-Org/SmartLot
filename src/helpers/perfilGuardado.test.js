@@ -19,8 +19,8 @@ test('solo envía lo que cambió', async () => {
   assert.deepEqual(soloTelefono.llamadas, [['put', '/api/usuario/7', { telefono: '1199998888' }]]);
 
   const soloClave = clienteFalso();
-  await guardarCambiosPerfil(soloClave, { ...base, contraseña: 'Clave##12AB' });
-  assert.deepEqual(soloClave.llamadas, [['patch', '/api/usuario/7/contrasenia', { contraseña: 'Clave##12AB' }]]);
+  await guardarCambiosPerfil(soloClave, { ...base, contraseña: 'Clave##12AB', contraseñaActual: 'Vieja##12AB' });
+  assert.deepEqual(soloClave.llamadas, [['patch', '/api/usuario/7/contrasenia', { contraseña: 'Clave##12AB', contraseñaActual: 'Vieja##12AB' }]]);
 
   const nada = clienteFalso();
   assert.deepEqual(await guardarCambiosPerfil(nada, base), { telefonoCambiado: false, contraseñaCambiada: false });

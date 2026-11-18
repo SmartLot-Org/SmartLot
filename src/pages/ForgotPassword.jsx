@@ -6,6 +6,7 @@ import { getUserHomeRoute } from '../helpers/roles';
 import './Login.css';
 import usePageMeta from '../hooks/usePageMeta';
 import { recoveryRetrySeconds } from '../helpers/recoveryRetry';
+import { cumplePoliticaContraseña, MENSAJE_POLITICA_CONTRASEÑA } from '../helpers/passwordPolicy';
 
 export default function ForgotPassword() {
   const [paso, setPaso] = useState('email');
@@ -114,8 +115,8 @@ export default function ForgotPassword() {
 
     if (!validarCodigoBase()) return;
     if (!password) { setError('La contraseña es requerida.'); return; }
-    if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(password)) {
-      setError('La contraseña debe tener al menos 8 caracteres, mayúsculas, minúsculas y números.');
+    if (!cumplePoliticaContraseña(password)) {
+      setError(MENSAJE_POLITICA_CONTRASEÑA);
       return;
     }
     if (password !== confirmPassword) { setError('Las contraseñas no coinciden.'); return; }
