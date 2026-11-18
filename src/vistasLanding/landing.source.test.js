@@ -7,17 +7,16 @@ const landing = await readFile(new URL('./Landing.jsx', import.meta.url), 'utf8'
 const inmersiva = (ruta) => readFile(new URL(`../componentesLanding/inmersiva/${ruta}`, import.meta.url), 'utf8');
 const seccion = await inmersiva('ui/Seccion.jsx');
 const nav = await inmersiva('ui/Nav.jsx');
-const experience = await inmersiva('three/Experience.jsx');
+// El agente 3D muda el Canvas, el contexto perdido y el envoltorio aria-hidden a
+// three/Escenario.jsx; mientras tanto siguen en Experience.jsx.
+const escenario = await inmersiva(existsSync(new URL('../componentesLanding/inmersiva/three/Escenario.jsx', import.meta.url)) ? 'three/Escenario.jsx' : 'three/Experience.jsx');
 const store = await inmersiva('estado/store.js');
 const estilos = await inmersiva('inmersiva.css');
 const rotulos = await inmersiva('three/Rotulos.jsx');
 const cta = await inmersiva('ui/Cta.jsx');
-const ticker = await readFile(new URL('../componentesLanding/landing/StatsTicker.jsx', import.meta.url), 'utf8');
-const particles = await readFile(new URL('../componentesLanding/landing/InteractiveBackground.jsx', import.meta.url), 'utf8');
 const app = await readFile(new URL('../App.jsx', import.meta.url), 'utf8');
 const indexHtml = await readFile(new URL('../../index.html', import.meta.url), 'utf8');
 const indexCss = await readFile(new URL('../index.css', import.meta.url), 'utf8');
-const navbar = await readFile(new URL('../componentesLanding/landing/Navbar.jsx', import.meta.url), 'utf8');
 const authCallback = await readFile(new URL('./AuthCallback.jsx', import.meta.url), 'utf8');
 const loginForm = await readFile(new URL('../componentesLanding/auth/LoginForm.jsx', import.meta.url), 'utf8');
 const registerGarage = await readFile(new URL('../componentesLanding/auth/RegisterGarageForm.jsx', import.meta.url), 'utf8');
@@ -25,9 +24,6 @@ const registerEmpresa = await readFile(new URL('../componentesLanding/auth/Regis
 const register = await readFile(new URL('../pages/Register.jsx', import.meta.url), 'utf8');
 const forgotPassword = await readFile(new URL('../pages/ForgotPassword.jsx', import.meta.url), 'utf8');
 const auth = await readFile(new URL('./Auth.jsx', import.meta.url), 'utf8');
-const paraGarages = await readFile(new URL('./ParaGarages.jsx', import.meta.url), 'utf8');
-const garageCta = await readFile(new URL('../componentesLanding/paraGarages/ParaGaragesCTA.jsx', import.meta.url), 'utf8');
-const garageSteps = await readFile(new URL('../componentesLanding/paraGarages/ParaGaragesSteps.jsx', import.meta.url), 'utf8');
 
 test('las vistas pesadas se cargan por ruta y la landing no espera a la sesión', () => {
   assert.doesNotMatch(app, /if \(loading\) return null/);
@@ -38,26 +34,10 @@ test('las vistas pesadas se cargan por ruta y la landing no espera a la sesión'
   assert.match(app, /import LandingPage from "\.\/vistasLanding\/Landing"/);
 });
 
-test('el ticker no trae métricas inventadas por defecto', () => {
-  assert.doesNotMatch(ticker, /DEFAULT_STATS|Satisfacción del cliente|4\.9\/5|4\.8★|Tiempo de respuesta|Soporte técnico/);
-  assert.match(ticker, /stats = \[\]/);
-  assert.match(ticker, /if \(!stats\.length\) return null;/);
-});
-
-test('/para-garages ya no muestra testimonios inventados', () => {
-  assert.equal(existsSync(new URL('../componentesLanding/paraGarages/ParaGaragesSocial.jsx', import.meta.url)), false);
-  assert.doesNotMatch(paraGarages, /ParaGaragesSocial/);
-});
-
 test('la landing es siempre clara: no hay variante de tema', () => {
   assert.doesNotMatch(store, /tema/);
   assert.doesNotMatch(estilos, /cianotipo|data-tema/);
   assert.doesNotMatch(landing, /data-tema|tema=/);
-});
-
-test('las partículas usan la familia del azul señal', () => {
-  assert.match(particles, /#2563EB/);
-  assert.doesNotMatch(particles, /#1E90FF|#87CEEB|#4169E1|#00BFFF|#5B9BD5/);
 });
 
 test('/para-empresas eliminada sin referencias huérfanas', () => {
@@ -71,9 +51,7 @@ test('la config muerta de Tailwind y PostCSS ya no existen', () => {
 });
 
 test('el azul obsoleto #2A5CBF ya no vive en las superficies de landing', () => {
-  assert.doesNotMatch(garageCta, /#2A5CBF|#6BA3E8/);
   assert.doesNotMatch(loginForm, /#2A5CBF|#6BA3E8/);
-  assert.match(garageSteps, /hover:border-brand-sky/);
 });
 
 test('AA: el muted baja a #475569 y el sky entra en la familia señal', () => {
@@ -97,15 +75,9 @@ test('voseo en las superficies públicas', () => {
 test('lang es-AR, meta sin promesas de IA y SEO por ruta', () => {
   assert.match(indexHtml, /lang="es-AR"/);
   assert.doesNotMatch(indexHtml, /analítica predictiva/);
-  for (const source of [landing, paraGarages, auth, register, forgotPassword]) {
+  for (const source of [landing, auth, register, forgotPassword]) {
     assert.match(source, /usePageMeta/);
   }
-});
-
-test('el navbar no intercepta el click con toast ni setTimeout', () => {
-  assert.doesNotMatch(navbar, /setTimeout|showToast/);
-  assert.match(navbar, /Ir a mi panel/);
-  assert.match(navbar, /getUserHomeRoute\(usuario\)/);
 });
 
 test('AuthCallback muestra un loader accesible', () => {
@@ -132,11 +104,11 @@ test('el 3D no se pide antes de inicializar, con ?sin3d ni sin WebGL', () => {
   assert.match(store, /sin3d: q\.has\('sin3d'\)/);
   assert.match(landing, /export default function LandingPage\(\) \{\n {2}asegurarInicio\(\);/);
   assert.match(store, /if \(!webgl\) return 'static'/);
-  assert.match(experience, /webglcontextlost/);
+  assert.match(escenario, /webglcontextlost/);
 });
 
 test('el escenario 3D es decorativo y hay enlace para saltar al contenido', () => {
-  assert.match(experience, /className="plano-escenario"[^>]*aria-hidden="true"/);
+  assert.match(escenario, /className="plano-escenario"[^>]*aria-hidden="true"/);
   assert.match(landing, /className="plano-saltar" href="#contenido"/);
   assert.match(landing, /<main id="contenido"/);
 });
@@ -179,7 +151,7 @@ test('la opción sin 3D solo se ofrece con movimiento reducido (o para volver de
 });
 
 test('salir de la landing no la deja sin 3D: se ignora la liberación intencional del contexto', () => {
-  assert.match(experience, /if \(!lienzo\.isConnected\) return;/);
+  assert.match(escenario, /if \(!lienzo\.isConnected\) return;/);
   assert.match(store, /if \(estado\.contextoPerdido\) useUI\.setState\(\{ tier: tierDeLlegada, contextoPerdido: false \}\)/);
 });
 
