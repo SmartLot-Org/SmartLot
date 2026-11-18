@@ -3,11 +3,11 @@ import { easing } from 'maath';
 import { useEffect, useLayoutEffect } from 'react';
 import { useUI } from '../estado/store';
 import { rig } from '../scroll/rig';
+import { VISTA as DIR } from './mundo';
 import { puntero, escucharPuntero } from './puntero';
 import { vivo } from './vivo';
 
 const ALTO = 95;                    // unidades visibles en alto con zoom 1 (950 m)
-const DIR = [0.5576, 0.6134, 0.5576]; // (1, 1.1, 1) normalizado: axonométrica de reposo
 const AZIMUT = Math.atan2(DIR[0], DIR[2]);
 const ELEVACION = Math.asin(DIR[1]);
 const GIRO = 0.07;                  // radianes de giro máximo con el cursor en el borde
