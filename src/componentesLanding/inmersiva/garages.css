@@ -12,7 +12,7 @@
   display: grid;
   margin: 0;
   padding-top: 12px;
-  border-top: 1px solid var(--borde);
+  border-top: 1px solid var(--borde); /* taste-skill-ignore: la misma línea que separa las piezas de la home (DESIGN.md, Plano) */
 }
 
 /* ── mapa: "Así te ve una empresa" (la tarjeta del listado de Buscar garages) ── */
@@ -26,7 +26,7 @@
   display: grid;
   justify-items: start;
   gap: 2px;
-  padding: 14px 16px 16px;
+  padding: 12px 14px 14px;
   border: 1px solid var(--border);
   border-radius: 10px;
   background: var(--color-brand-surface);
@@ -53,7 +53,7 @@
   display: inline-flex;
   align-items: center;
   min-height: 36px;
-  margin-top: 10px;
+  margin-top: 8px;
   padding: 0 14px;
   border-radius: 10px;
   background: var(--senal);
@@ -63,11 +63,18 @@
 }
 
 /* ── operacion: "Consumos por empresa" ── */
-/* La planilla de la home no corta renglones; acá el nombre de la empresa y los
-   encabezados pueden ir en dos líneas, así las cuatro columnas entran en 390 px sin
-   scroll horizontal. Las cifras nunca se cortan. */
-.plano [data-ui='consumos'] thead th,
-.plano [data-ui='consumos'] th[scope='row'] { white-space: normal; }
+/* La planilla de la home no corta renglones; acá los encabezados (y el nombre, si un
+   celular es más angosto que 390 px) pueden ir en dos líneas, así las cuatro columnas
+   entran sin scroll horizontal. Las cifras nunca se cortan. Filas de un renglón con
+   4 px de aire: con el 3D, la nota de 390 × 844 no pasa del 60 % del alto. */
+.plano [data-ui='consumos'] caption { padding-bottom: 4px; }
+.plano [data-ui='consumos'] th,
+.plano [data-ui='consumos'] td { padding-block: 4px; }
+.plano [data-ui='consumos'] thead th { white-space: normal; }
+.plano [data-ui='consumos'] > p { margin-top: 4px; }
+@media (max-width: 389px) {
+  .plano [data-ui='consumos'] th[scope='row'] { white-space: normal; }
+}
 .plano [data-ui='consumos'] thead th { vertical-align: bottom; }
 .plano [data-ui='consumos'] tbody th,
 .plano [data-ui='consumos'] tbody td { vertical-align: top; }
@@ -161,10 +168,15 @@
 }
 .plano [data-ui='visibilidad'] small { color: var(--texto-suave); font-size: 12px; }
 
-/* Sin 3D: los dos pósters del interruptor, uno encima del otro, se cruzan por opacidad. */
+/* Sin 3D: los dos pósters del interruptor, uno encima del otro, se cruzan por opacidad.
+   El conjunto ocupa la columna de la figura, como la figura de las demás secciones. */
 .plano .garages-poster { display: grid; }
-.plano .garages-poster img { grid-area: 1 / 1; opacity: 0; transition: opacity 200ms ease; }
-.plano .garages-poster img[data-activo='true'] { opacity: 1; }
+.plano .garages-poster > .plano-figura { grid-area: 1 / 1; opacity: 0; transition: opacity 200ms ease; }
+.plano .garages-poster[data-estado='visible'] > .plano-figura:first-child,
+.plano .garages-poster[data-estado='borrador'] > .plano-figura:last-child { opacity: 1; }
+@media (min-width: 900px), (min-width: 600px) and (orientation: landscape) {
+  .plano[data-sin3d='true'] .garages-poster { justify-self: end; width: 100%; max-width: 720px; }
+}
 
 /* Movimiento reducido: la perilla salta sin viajar y la pista no se achica al presionar;
    quedan los cambios de color, que explican el estado. */

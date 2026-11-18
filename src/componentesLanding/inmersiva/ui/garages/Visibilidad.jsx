@@ -2,33 +2,19 @@ import { useCallback, useEffect, useId, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { VISIBILIDAD } from '../../contenido/garages';
 import { useGarages } from '../../estado/garages';
+import { Figura } from '../Seccion';
 
-const ESTADOS = [VISIBILIDAD.visible, VISIBILIDAD.borrador];
-
-// Sin 3D, el póster del estado elegido. Los dos están cargados y se cruzan por
-// opacidad, así el cambio no espera la descarga del otro.
+// Sin 3D, el póster del estado elegido, con la misma figura que las demás secciones.
+// Los dos quedan cargados y se cruzan por opacidad, así el cambio no espera la
+// descarga del otro. El que no se ve no tiene alt: no es contenido.
 function Poster({ posters, visible }) {
   return (
-    <figure className="plano-figura garages-poster">
-      {ESTADOS.map((e) => {
-        const base = `${posters}/${e.poster}`;
+    <div className="garages-poster" data-estado={visible ? 'visible' : 'borrador'}>
+      {[VISIBILIDAD.visible, VISIBILIDAD.borrador].map((e) => {
         const activo = (e === VISIBILIDAD.visible) === visible;
-        return (
-          <img
-            key={e.poster}
-            src={`${base}.webp`}
-            srcSet={`${base}-600.webp 600w, ${base}.webp 1200w`}
-            sizes="(min-width: 900px) 720px, 45vw"
-            alt={activo ? e.figura : ''}
-            width={1200}
-            height={900}
-            loading="lazy"
-            decoding="async"
-            data-activo={activo}
-          />
-        );
+        return <Figura key={e.poster} s={{ id: 'control', poster: e.poster, figura: activo ? e.figura : '' }} i={1} posters={posters} />;
       })}
-    </figure>
+    </div>
   );
 }
 
