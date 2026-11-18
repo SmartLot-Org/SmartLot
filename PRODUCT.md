@@ -2,19 +2,19 @@
 
 Contexto de producto para personas y agentes: qué es SmartLot, para quién, qué reglas de negocio respeta y con qué voz se comunica. Es el documento que hay que leer **antes** de escribir UI, copy o features nuevas.
 
-Última revisión: 2026-11-16. Fuentes: landing pública (`src/componentesLanding/`), paneles por rol (`src/vistas*/`), documentación funcional (`docs/`) y el código en `src/`. Si algo no está acá ni en el código, **preguntar, no inventar**.
+Última revisión: 2026-11-18. Fuentes: landing pública (`src/componentesLanding/`; el texto de las dos páginas está en `inmersiva/contenido/`), paneles por rol (`src/vistas*/`), documentación funcional (`docs/`) y el código en `src/`. Si algo no está acá ni en el código, **preguntar, no inventar**.
 
 ## Resumen
 
 SmartLot es una plataforma web de gestión de estacionamientos que conecta **empresas que necesitan cocheras para su personal** con **garages que tienen plazas disponibles**. Las empresas solicitan lugar para sus equipos, los dueños de garages aceptan o rechazan tratos, y todo el ciclo —reservas, pagos, control de acceso por QR y consumos— queda registrado en un panel.
 
-Frase canónica para garages (`/para-garages`): *"Publicás tu garage, las empresas piden lugar para su gente y vos manejás tratos, ocupación y consumos. Sin hardware, sin planillas."*
+Frase canónica para garages (`/para-garages`): *"Publicás tu garage, las empresas piden lugar para su gente y vos manejás tratos, ocupación y consumos. Sin hardware, sin planillas."* Es el cuerpo del hero de `/para-garages`, cuyo título es **Aparecé en el mapa de las empresas**: el garage aparece cuando una empresa busca cocheras cerca de una de sus sedes (`docs/specs/SPEC-landing-garages.md`).
 
 Título de la home, que le habla primero a las empresas: **Cocheras para tu equipo, cerca de la oficina.** El lema anterior, "Gestioná. Optimizá. Escalá.", ya no se usa en la home (2026-11-16).
 
 ## Problema que resuelve
 
-Del lado del garage (fuente: `ParaGaragesPains.jsx`):
+Del lado del garage (fuente: la sección `problema` de `src/componentesLanding/inmersiva/contenido/garages.js`):
 
 - Cocheras vacías que no generan ingresos mientras las empresas de la zona no encuentran dónde estacionar.
 - Acuerdos de palabra por WhatsApp o papel: cantidades, precios y cambios que no quedan registrados.
@@ -31,7 +31,7 @@ Del lado de la empresa:
 - **Sin hardware, 100% online**: el control de acceso es con QR desde el celular; no se instalan molinetes ni lectores.
 - **Tratos trazables**: cada acuerdo empresa↔garage queda registrado con aprobación explícita.
 - **Operación en un solo panel**: reservas, ocupación, accesos y consumos por sede y garage.
-- **Transparencia de cobro**: detalle reserva por reserva y exportación en PDF y Excel (ARS).
+- **Transparencia de consumos**: detalle reserva por reserva de los consumos generados y exportación en PDF y Excel (ARS). El cobro todavía no está integrado (decisión del 2026-11-18, en "Claims de marketing vigentes").
 - **Control del dueño**: nada se activa sin su confirmación; un garage en borrador no es visible para las empresas.
 
 ## Audiencias
@@ -41,7 +41,7 @@ Del lado de la empresa:
 | Empresa (admin de empresa/sede) | `admin` (1) | Gestionar personal y reservas, contratar garages, auditar consumos y pagos | `/admin_dashboard`, `/gestion_*`, `/admin_pagos` |
 | Empleado | `empleado` (2) | Reservar lugar, cargar vehículos, ver historial | `/empleados_dashboard`, `/nueva_reserva` |
 | Garagista | `garagista` (3) | Operar el ingreso/egreso con QR y ver movimientos | `/garagista_dashboard`, `/control-acceso` |
-| Dueño de garage | `dueño_garage` (5) | Publicar garages, aceptar tratos, cobrar consumos | `/duenio-garage/*` |
+| Dueño de garage | `dueño_garage` (5) | Publicar garages, aceptar tratos, ver los consumos generados | `/duenio-garage/*` |
 | Superadmin | `superadmin` (4) | Administrar empresas, usuarios, conflictos y herramientas internas | `/superadmin/*` |
 | Visitante | — | Entender la propuesta y registrarse | `/`, `/para-garages`, `/register` |
 
@@ -104,10 +104,12 @@ Detalle de rutas y autorización: `docs/architecture.md`. Flujos por rol: `docs/
 Usados en la landing; **no inventar nuevos ni alterarlos sin pedido** (regla de `docs/pendientes-audit-ui.md`):
 
 - Landing general: ninguno. La home no muestra métricas; su prueba es el producto (`docs/specs/SPEC-landing-inmersiva.md`).
-- Para garages: 24 meses de historial, 3 tarifas por vehículo, 100% online sin hardware, exportación PDF+XLS (`ParaGarages.jsx`). Verificados en el código el 2026-11-17: selector de 24 meses en consumos y cuentas por cobrar, tarifas de auto, moto y pickup, y exportadores en `src/util/`.
+- Para garages: 24 meses de historial; tarifas de auto, moto y pickup; 100% online, sin hardware; exportación a PDF y Excel. Van dentro del texto de las secciones, sin ticker ni cifras-héroe (`src/componentesLanding/inmersiva/contenido/garages.js`, y su test los exige). Verificados en el código el 2026-11-17: selector de 24 meses en consumos y cuentas por cobrar, tarifas de auto, moto y pickup, y exportadores en `src/util/`.
 - Testimonios y casos: ninguno.
 
 > Decisión (2026-11-17): se borraron las métricas de satisfacción, respuesta y soporte (4.9/5, 2 min, 4.8★, 24/7) y los tres testimonios de `/para-garages`, porque eran inventados. Las pantallas de demostración que muestran datos de ejemplo los rotulan como tales.
+
+> Decisión (2026-11-18, "Por defecto" de `docs/specs/SPEC-landing-garages.md`): la landing habla de **consumos generados**, nunca de cobros. La pantalla del dueño lo aclara ("Estos datos son consumos generados. No confirman cobros, vencimientos ni pagos recibidos" y "Cobros, estados y conciliación: pendiente de integración", en `vistasDueñoGarage/cuentas_por_cobrar.jsx`), y la tabla de ejemplo de `/para-garages` lo repite: "Son consumos generados, no cobros". Cuando el cobro se integre, se revisan esta sección y la de audiencias.
 
 ## Alcance actual (lo que el producto NO es)
 

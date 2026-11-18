@@ -178,7 +178,7 @@ Decisión de arquitectura a registrar: un ADR nuevo para la landing con WebGL (s
 
 - Los paneles por rol y las pantallas de login y registro.
 - SSR o prerender.
-- `/para-garages`, que tendrá su propia spec cuando esta esté aprobada.
+- `/para-garages`, que tiene su propia spec: [`SPEC-landing-garages.md`](SPEC-landing-garages.md) (nivel 3, sobre el mismo mundo Plano).
 - Cualquier claim nuevo de marketing.
 
 ## Decisiones tomadas (2026-11-16)
