@@ -82,3 +82,23 @@
 **Estado al cerrar la sesión:** todo commiteado y pusheado; `master` y `main` mergeados hasta `447f4c5` / `187d270`. Los commits de T7.8 (BE `20fca6a`, `def75d9`, `0cf47e8`) están solo en `api-rest-improvement`, a la espera del OK del dueño para pasarlos a `master` (ver `estado-api-rest.md` §12). BE `npm test`: 798 / 789 ok / 0 fallos / 9 skipped. FE: 121 ok, build OK, lint 63 problemas preexistentes.
 
 **Siguiente:** prueba manual (T7.2) y `npm run test:mp` en la máquina del dueño; rotar las cookies si eran reales; cerrar T7.5.
+
+## Sesión 2026-11-18 — re-auditoría de seguridad (rama `security-improvement`)
+
+**Pedido del dueño:** retomar los puntos de seguridad del Informe (área 2.4, nota 5/10) con la skill
+`security-audit` de Cloudflare y llevar el área a 8 o más.
+
+**Hecho:** se verificó cada hallazgo de 2.4 contra el código de `master`/`main`: SEG-01 a SEG-10 ya los
+cerraban. Recorriendo *todas* las rutas que tocan cada recurso aparecieron 15 hallazgos nuevos (vehículos de
+otra empresa, lecturas del empleado sobre compañeros, edición de reservas sin recotizar, `dia` del cliente,
+garagistas en garages de terceros, check-in de reservas ajenas, access tokens vivos tras logout, roles por
+nombre, cambio de clave/email sin la actual, reserva confirmada tras un contracargo, HTML en mails, límite
+por cuenta, dependencias vulnerables, `/register` público, `code` en los 500). Todos arreglados con tests.
+Detalle, matriz de autorización y riesgos aceptados: **`SmartLot_API/docs/auditoria-seguridad.md`**.
+
+- **FE:** perfiles de empleado y dueño piden la contraseña actual; "Olvidé mi contraseña" usa la política
+  única (`helpers/passwordPolicy.js`); `npm audit fix` (dompurify crítica) y fuera `dotenv`,
+  `html2canvas` y `react-icons` sin uso.
+
+**Estado al cerrar:** todo en `security-improvement` de los dos repos, sin mergear. BE `npm test`:
+823 / 814 ok / 0 fallos / 9 skipped. FE: 160 ok, build OK. `npm audit --omit=dev`: 0 en los dos.
