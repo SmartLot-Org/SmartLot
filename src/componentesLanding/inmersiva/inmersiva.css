@@ -136,10 +136,14 @@ body:has(.plano) { overflow-x: clip; }
   border-bottom: 1px solid var(--borde);
   background: var(--papel);
 }
+/* La marca nunca se aplasta y su área táctil mide 44 px aunque en el celular se vea
+   solo el logo (23 px): la Regla del Pulgar de DESIGN.md. */
 .plano-marca {
   display: inline-flex;
+  flex-shrink: 0;
   align-items: center;
   gap: 8px;
+  min-width: 44px;
   min-height: 44px;
   color: var(--tinta);
   font: 800 18px/1 var(--font-display);
@@ -388,7 +392,10 @@ body:has(.plano) { overflow-x: clip; }
 
 /* ── Versión sin 3D (botón, ?sin3d, sin WebGL): flujo normal y figuras ── */
 .plano[data-sin3d='true'] main { display: grid; gap: 40px; padding-block: calc(var(--barra) + 28px) 40px; pointer-events: auto; }
-.plano[data-sin3d='true'] .plano-seccion { display: grid; gap: 16px; height: auto; padding-bottom: 0; }
+/* justify-content: normal deshace el flex-end de la versión con escena: en una grilla
+   achicaba la columna al ancho de la nota y la empujaba a la derecha (en vertical, de
+   600 a 899 px, cada nota arrancaba en otro lugar, entre 112 y 217 px). */
+.plano[data-sin3d='true'] .plano-seccion { display: grid; justify-content: normal; gap: 16px; height: auto; padding-bottom: 0; }
 .plano[data-sin3d='true'] .plano-nota { position: static; max-width: 640px; padding: 0; border: 0; }
 .plano[data-sin3d='true'] .plano-figura { max-width: 640px; }
 

@@ -109,3 +109,13 @@ test('no quedan la página anterior, su barra de vidrio ni sus referencias', asy
   assert.doesNotMatch(indexCss, /\.bg-noise|\.glass-nav|\.glass-card|\.content-visibility-auto|html:has\(\.landing-page\)/);
   assert.match(indexCss, /--shadow-accent:/);
 });
+
+test('en pantallas angostas la barra entra entera: la marca no se aplasta y tiene 44 px de área táctil', async () => {
+  const comun = await leer('componentesLanding/inmersiva/inmersiva.css');
+  const marca = comun.match(/\.plano-marca \{[^}]*\}/)?.[0] ?? '';
+  assert.match(marca, /flex-shrink: 0;/);
+  assert.match(marca, /min-width: 44px;/);
+  // La CTA de garages es más larga que la de la home: solo esta página compacta la barra.
+  assert.match(estilos, /@media \(max-width: 359px\) \{[^@]*\.plano\[data-pagina='garages'\] \.plano-boton--chico \{ padding: 0 10px; font-size: 13px; \}/);
+  assert.match(estilos, /@media \(max-width: 339px\) \{[^@]*\.plano\[data-pagina='garages'\] \.plano-boton--chico \{ padding: 0 8px; \}/);
+});

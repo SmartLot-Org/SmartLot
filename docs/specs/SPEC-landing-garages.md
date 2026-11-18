@@ -165,7 +165,8 @@ Tampoco vuelven las marcas de la página actual.
 **Conflictos con `design-taste-frontend` que resuelve `DESIGN.md`.** Ganan las reglas del proyecto; se pasan como `--allow` al inspector y se informan:
 
 - Las notas llevan borde hairline (`outlined-box`).
-- El botón principal tiene brillo, por pedido del dueño del producto (`button-fx`), y los botones tienen 10 px de radio.
+- El botón principal tiene brillo, por pedido del dueño del producto (`button-fx` y `shadow`), y los botones tienen 10 px de radio.
+- La barra, el pie y el carril de la regla llevan borde hairline, como pide `DESIGN.md` (`hairline`).
 - El cuerpo va en el texto secundario de 7,07:1, como en la home (`grey-body`).
 - Los títulos pueden ocupar tres líneas en la nota de 480 px (`headline-lines`).
 - Las "imágenes reales" son el dibujo, generado por código, y los fragmentos del producto (`few-pictures`).
