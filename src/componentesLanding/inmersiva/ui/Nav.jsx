@@ -1,14 +1,14 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../../contexts/useAuth';
 import { getUserHomeRoute } from '../../../helpers/roles';
-import { NAVEGACION } from '../contenido/secciones';
-import { BotonBrillo, Cta, EnlaceGarage } from './Cta';
+import { NAVEGACION } from '../contenido/comun';
+import { BotonBrillo, Cta, EnlacePagina } from './Cta';
 
 // Tres niveles, del más fuerte al más callado:
-// 1. Registrate: la acción principal, botón lleno con brillo.
+// 1. La CTA de la página: la acción principal, botón lleno con brillo.
 // 2. Iniciar sesión: acción secundaria, botón con borde (button-secondary de DESIGN.md).
-// 3. Para garages: es un destino, no una acción. Va con la marca, como navegación.
-export function Nav() {
+// 3. La otra página del plano: es un destino, no una acción. Va con la marca, como navegación.
+export function Nav({ cta, enlace }) {
   const { usuario } = useAuth();
 
   return (
@@ -19,7 +19,7 @@ export function Nav() {
           <span>{NAVEGACION.marca}</span>
         </Link>
         <nav aria-label="Principal" className="plano-barra__nav">
-          <EnlaceGarage className="plano-navlink" />
+          <EnlacePagina enlace={enlace} className="plano-navlink" />
         </nav>
       </div>
       <div className="plano-barra__acciones">
@@ -30,7 +30,7 @@ export function Nav() {
             <Link to={NAVEGACION.ingresar.destino} className="plano-boton-secundario">
               {NAVEGACION.ingresar.etiqueta}
             </Link>
-            <Cta chico />
+            <Cta cta={cta} chico />
           </>
         )}
       </div>

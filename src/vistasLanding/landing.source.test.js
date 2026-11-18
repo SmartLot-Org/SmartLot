@@ -5,19 +5,27 @@ import { readFile } from 'node:fs/promises';
 
 const landing = await readFile(new URL('./Landing.jsx', import.meta.url), 'utf8');
 const inmersiva = (ruta) => readFile(new URL(`../componentesLanding/inmersiva/${ruta}`, import.meta.url), 'utf8');
+// La home es el armazón común (ui/PaginaPlano.jsx) con su objeto de página
+// (paginas/home.js): los contratos que antes leían Landing.jsx leen esos dos.
+const armazon = await inmersiva('ui/PaginaPlano.jsx');
+const home = await inmersiva('paginas/home.js');
+const director = await inmersiva('scroll/useStoryTimeline.js');
+const regla = await inmersiva('ui/Regla.jsx');
 const seccion = await inmersiva('ui/Seccion.jsx');
+const sinComentarios = (fuente) => fuente
+  .replace(/\/\*[\s\S]*?\*\//g, '')
+  .replace(/(^|\s)\/\/.*$/gm, '$1');
 const nav = await inmersiva('ui/Nav.jsx');
-const experience = await inmersiva('three/Experience.jsx');
+// El agente 3D muda el Canvas, el contexto perdido y el envoltorio aria-hidden a
+// three/Escenario.jsx; mientras tanto siguen en Experience.jsx.
+const escenario = await inmersiva(existsSync(new URL('../componentesLanding/inmersiva/three/Escenario.jsx', import.meta.url)) ? 'three/Escenario.jsx' : 'three/Experience.jsx');
 const store = await inmersiva('estado/store.js');
 const estilos = await inmersiva('inmersiva.css');
 const rotulos = await inmersiva('three/Rotulos.jsx');
 const cta = await inmersiva('ui/Cta.jsx');
-const ticker = await readFile(new URL('../componentesLanding/landing/StatsTicker.jsx', import.meta.url), 'utf8');
-const particles = await readFile(new URL('../componentesLanding/landing/InteractiveBackground.jsx', import.meta.url), 'utf8');
 const app = await readFile(new URL('../App.jsx', import.meta.url), 'utf8');
 const indexHtml = await readFile(new URL('../../index.html', import.meta.url), 'utf8');
 const indexCss = await readFile(new URL('../index.css', import.meta.url), 'utf8');
-const navbar = await readFile(new URL('../componentesLanding/landing/Navbar.jsx', import.meta.url), 'utf8');
 const authCallback = await readFile(new URL('./AuthCallback.jsx', import.meta.url), 'utf8');
 const loginForm = await readFile(new URL('../componentesLanding/auth/LoginForm.jsx', import.meta.url), 'utf8');
 const registerGarage = await readFile(new URL('../componentesLanding/auth/RegisterGarageForm.jsx', import.meta.url), 'utf8');
@@ -25,9 +33,6 @@ const registerEmpresa = await readFile(new URL('../componentesLanding/auth/Regis
 const register = await readFile(new URL('../pages/Register.jsx', import.meta.url), 'utf8');
 const forgotPassword = await readFile(new URL('../pages/ForgotPassword.jsx', import.meta.url), 'utf8');
 const auth = await readFile(new URL('./Auth.jsx', import.meta.url), 'utf8');
-const paraGarages = await readFile(new URL('./ParaGarages.jsx', import.meta.url), 'utf8');
-const garageCta = await readFile(new URL('../componentesLanding/paraGarages/ParaGaragesCTA.jsx', import.meta.url), 'utf8');
-const garageSteps = await readFile(new URL('../componentesLanding/paraGarages/ParaGaragesSteps.jsx', import.meta.url), 'utf8');
 
 test('las vistas pesadas se cargan por ruta y la landing no espera a la sesión', () => {
   assert.doesNotMatch(app, /if \(loading\) return null/);
@@ -38,26 +43,10 @@ test('las vistas pesadas se cargan por ruta y la landing no espera a la sesión'
   assert.match(app, /import LandingPage from "\.\/vistasLanding\/Landing"/);
 });
 
-test('el ticker no trae métricas inventadas por defecto', () => {
-  assert.doesNotMatch(ticker, /DEFAULT_STATS|Satisfacción del cliente|4\.9\/5|4\.8★|Tiempo de respuesta|Soporte técnico/);
-  assert.match(ticker, /stats = \[\]/);
-  assert.match(ticker, /if \(!stats\.length\) return null;/);
-});
-
-test('/para-garages ya no muestra testimonios inventados', () => {
-  assert.equal(existsSync(new URL('../componentesLanding/paraGarages/ParaGaragesSocial.jsx', import.meta.url)), false);
-  assert.doesNotMatch(paraGarages, /ParaGaragesSocial/);
-});
-
 test('la landing es siempre clara: no hay variante de tema', () => {
   assert.doesNotMatch(store, /tema/);
   assert.doesNotMatch(estilos, /cianotipo|data-tema/);
-  assert.doesNotMatch(landing, /data-tema|tema=/);
-});
-
-test('las partículas usan la familia del azul señal', () => {
-  assert.match(particles, /#2563EB/);
-  assert.doesNotMatch(particles, /#1E90FF|#87CEEB|#4169E1|#00BFFF|#5B9BD5/);
+  for (const fuente of [landing, armazon]) assert.doesNotMatch(fuente, /data-tema|tema=/);
 });
 
 test('/para-empresas eliminada sin referencias huérfanas', () => {
@@ -71,9 +60,7 @@ test('la config muerta de Tailwind y PostCSS ya no existen', () => {
 });
 
 test('el azul obsoleto #2A5CBF ya no vive en las superficies de landing', () => {
-  assert.doesNotMatch(garageCta, /#2A5CBF|#6BA3E8/);
   assert.doesNotMatch(loginForm, /#2A5CBF|#6BA3E8/);
-  assert.match(garageSteps, /hover:border-brand-sky/);
 });
 
 test('AA: el muted baja a #475569 y el sky entra en la familia señal', () => {
@@ -97,15 +84,9 @@ test('voseo en las superficies públicas', () => {
 test('lang es-AR, meta sin promesas de IA y SEO por ruta', () => {
   assert.match(indexHtml, /lang="es-AR"/);
   assert.doesNotMatch(indexHtml, /analítica predictiva/);
-  for (const source of [landing, paraGarages, auth, register, forgotPassword]) {
+  for (const source of [armazon, auth, register, forgotPassword]) {
     assert.match(source, /usePageMeta/);
   }
-});
-
-test('el navbar no intercepta el click con toast ni setTimeout', () => {
-  assert.doesNotMatch(navbar, /setTimeout|showToast/);
-  assert.match(navbar, /Ir a mi panel/);
-  assert.match(navbar, /getUserHomeRoute\(usuario\)/);
 });
 
 test('AuthCallback muestra un loader accesible', () => {
@@ -122,23 +103,23 @@ test('el login declara autocomplete y alertas', () => {
 test('el hero es HTML desde el primer render: h1 propio, sin animación de entrada ni espera del 3D', () => {
   assert.match(seccion, /const Titulo = i === 0 \? 'h1' : 'h2'/);
   assert.doesNotMatch(seccion, /SplitText|gsap\.from\(/);
-  assert.match(landing, /lazy\(\(\) => import\('\.\.\/componentesLanding\/inmersiva\/three\/Experience'\)\)/);
-  assert.match(landing, /mostrar3d && <Suspense fallback=\{null\}>/);
+  assert.match(home, /escena: lazy\(\(\) => import\('\.\.\/three\/Experience'\)\)/);
+  assert.match(armazon, /mostrar3d && <Suspense fallback=\{null\}><Escena \/><\/Suspense>/);
 });
 
 test('el 3D no se pide antes de inicializar, con ?sin3d ni sin WebGL', () => {
-  assert.match(landing, /const mostrar3d = inicializado && !estatico && !sin3d/);
-  assert.match(landing, /const estatico = useUI\(\(s\) => s\.tier === 'static'\)/);
+  assert.match(armazon, /const mostrar3d = inicializado && !estatico && !sin3d/);
+  assert.match(armazon, /const estatico = useUI\(\(s\) => s\.tier === 'static'\)/);
   assert.match(store, /sin3d: q\.has\('sin3d'\)/);
-  assert.match(landing, /export default function LandingPage\(\) \{\n {2}asegurarInicio\(\);/);
+  assert.match(armazon, /export function PaginaPlano\(\{ pagina \}\) \{\n {2}asegurarInicio\(\);/);
   assert.match(store, /if \(!webgl\) return 'static'/);
-  assert.match(experience, /webglcontextlost/);
+  assert.match(escenario, /webglcontextlost/);
 });
 
 test('el escenario 3D es decorativo y hay enlace para saltar al contenido', () => {
-  assert.match(experience, /className="plano-escenario"[^>]*aria-hidden="true"/);
-  assert.match(landing, /className="plano-saltar" href="#contenido"/);
-  assert.match(landing, /<main id="contenido"/);
+  assert.match(escenario, /className="plano-escenario"[^>]*aria-hidden="true"/);
+  assert.match(armazon, /className="plano-saltar" href="#contenido"/);
+  assert.match(armazon, /<main id="contenido"/);
 });
 
 test('la barra nueva lleva al panel si hay sesión y no intercepta el click', () => {
@@ -157,14 +138,14 @@ test('la landing vieja se retiró sin dejar archivos ni referencias', () => {
     assert.equal(existsSync(new URL(`../componentesLanding/landing/${archivo}.jsx`, import.meta.url)), false, archivo);
   }
   assert.equal(existsSync(new URL('../../public/GIF_IMGS_LOGO', import.meta.url)), false);
-  assert.doesNotMatch(landing, /componentesLanding\/landing\//);
+  for (const fuente of [landing, armazon]) assert.doesNotMatch(fuente, /componentesLanding\/landing\//);
   assert.doesNotMatch(indexHtml, /fonts\.googleapis|fonts\.gstatic/);
 });
 
-test('el hero tiene una sola acción y el lado del garage es un enlace simple en la barra y el pie', () => {
-  assert.doesNotMatch(seccion, /EnlaceGarage/);
-  assert.match(nav, /<EnlaceGarage className="plano-navlink" \/>/);
-  assert.match(landing, /<footer className="plano-pie">[\s\S]*<EnlaceGarage \/>/);
+test('el hero tiene una sola acción y la otra página es un enlace simple en la barra y el pie', () => {
+  assert.doesNotMatch(seccion, /EnlacePagina/);
+  assert.match(nav, /<EnlacePagina enlace=\{enlace\} className="plano-navlink" \/>/);
+  assert.match(armazon, /<footer className="plano-pie">[\s\S]*<EnlacePagina enlace=\{pagina\.enlace\} \/>/);
   assert.doesNotMatch(estilos, /text-decoration: underline;\n {2}text-underline-offset/);
 });
 
@@ -174,12 +155,12 @@ test('no queda la escala gráfica de metros', () => {
 });
 
 test('la opción sin 3D solo se ofrece con movimiento reducido (o para volver de ella)', () => {
-  assert.match(landing, /!estatico && \(reducido \|\| sin3d\) &&/);
-  assert.match(landing, /useMovimientoReducido\(\)/);
+  assert.match(armazon, /!estatico && \(reducido \|\| sin3d\) &&/);
+  assert.match(armazon, /useMovimientoReducido\(\)/);
 });
 
 test('salir de la landing no la deja sin 3D: se ignora la liberación intencional del contexto', () => {
-  assert.match(experience, /if \(!lienzo\.isConnected\) return;/);
+  assert.match(escenario, /if \(!lienzo\.isConnected\) return;/);
   assert.match(store, /if \(estado\.contextoPerdido\) useUI\.setState\(\{ tier: tierDeLlegada, contextoPerdido: false \}\)/);
 });
 
@@ -190,10 +171,10 @@ test('el botón principal tiene el brillo y el barrido de luz, solo con mouse y 
   assert.doesNotMatch(estilos, /transition:[^;]*box-shadow/);
 });
 
-test('la barra tiene tres niveles: Registrate, Iniciar sesión y la navegación a garages', () => {
+test('la barra tiene tres niveles: la CTA de la página, Iniciar sesión y la navegación a la otra página', () => {
   assert.match(nav, /className="plano-boton-secundario"[\s\S]*NAVEGACION\.ingresar\.etiqueta/);
-  assert.match(nav, /<Cta chico \/>/);
-  assert.match(nav, /<nav aria-label="Principal" className="plano-barra__nav">\s*<EnlaceGarage className="plano-navlink" \/>/);
+  assert.match(nav, /<Cta cta=\{cta\} chico \/>/);
+  assert.match(nav, /<nav aria-label="Principal" className="plano-barra__nav">\s*<EnlacePagina enlace=\{enlace\} className="plano-navlink" \/>/);
   assert.match(estilos, /\.plano-navlink \{[\s\S]*color: var\(--texto-suave\)/);
   assert.match(estilos, /\.plano-boton-secundario \{[\s\S]*border: 1px solid var\(--borde\)/);
 });
@@ -204,3 +185,48 @@ test('el brillo del botón de la barra queda dentro de la barra', () => {
   assert.match(estilos, /\.plano \{ --barra: 72px; \}/);
 });
 
+test('la home es el armazón del plano con su objeto de página', () => {
+  assert.match(landing, /export default function LandingPage\(\) \{\n {2}return <PaginaPlano pagina=\{PAGINA_HOME\} \/>;/);
+  assert.match(home, /cta: CTA\.principal/);
+  assert.match(home, /enlace: CTA\.secundaria/);
+  assert.match(home, /posters: '\/landing\/posters'/);
+  assert.match(home, /intro: true/);
+  // El deslizador recompone el dibujo por el guion de la página, no desde el director.
+  assert.match(home, /ajustar: \(destino, avances, vertical\) =>\s*aplicarComparacion\(destino, useUI\.getState\(\)\.comparar, avances, vertical\)/);
+  assert.match(home, /suscribir: \(recomponer\) => useUI\.subscribe\(/);
+});
+
+test('el armazón no conoce ninguna página: el contenido, la escena y el guion llegan en `pagina`', () => {
+  for (const [nombre, fuente] of [['PaginaPlano', armazon], ['Seccion', seccion], ['Nav', nav], ['Cta', cta], ['Regla', regla], ['director', director]]) {
+    assert.doesNotMatch(sinComentarios(fuente), /contenido\/secciones|contenido\/garages|paginas\//, nombre);
+  }
+  assert.match(armazon, /data-pagina=\{pagina\.id\}/);
+  assert.match(armazon, /\{pagina\.intro && <Intro \/>\}/);
+  assert.match(armazon, /<Nav cta=\{pagina\.cta\} enlace=\{pagina\.enlace\} \/>/);
+  assert.match(armazon, /<Regla secciones=\{secciones\} \/>/);
+  assert.match(armazon, /usePageMeta\(\{ title: pagina\.meta\.titulo, description: pagina\.meta\.descripcion \}\)/);
+  assert.match(armazon, /useStoryTimeline\(main, pagina\)/);
+});
+
+test('una página sin escena va en el flujo sin 3D y sin el botón "Ver sin 3D"', () => {
+  assert.match(armazon, /const mostrar3d = inicializado && !estatico && !sin3d && !!pagina\.escena;/);
+  assert.match(armazon, /const sinEscena = inicializado && !mostrar3d;/);
+  assert.match(armazon, /\{pagina\.escena && !estatico && \(reducido \|\| sin3d\) && \(/);
+});
+
+test('la sección pone las piezas que nombra y la figura solo si ninguna la reemplaza', () => {
+  assert.match(seccion, /export function Seccion\(\{ s, i, ultima, sinEscena, piezas, posters, cta \}\)/);
+  assert.match(seccion, /if \(!pieza \|\| \(pieza\.soloConEscena && sinEscena\)\) return null;/);
+  assert.match(seccion, /<Pieza key=\{nombre\} sinEscena=\{sinEscena\} posters=\{posters\} \/>/);
+  assert.match(seccion, /\{sinEscena && posters && !reemplazaFigura && <Figura s=\{s\} i=\{i\} posters=\{posters\} \/>\}/);
+  assert.match(seccion, /const poster = `\$\{posters\}\/\$\{s\.poster \?\? s\.id\}`/);
+  assert.match(seccion, /<Cta cta=\{cta\} \/>/);
+});
+
+test('el director sigue a la página: sin guion no escribe rig y los controles entran por el guion', () => {
+  assert.match(director, /export function useStoryTimeline\(scope, pagina\)/);
+  assert.match(director, /if \(!mostrar3d \|\| !guion\) return;/);
+  assert.match(director, /guion\.componer\(avances, vertical, rig\);\n\s*pagina\.guion\.ajustar\?\.\(rig, avances, vertical\);\n\s*rig\.requestFrame\(\);/);
+  assert.match(director, /pagina\.guion\.suscribir\?\.\(\(\) => escribir\(ultimos\)\)/);
+  assert.doesNotMatch(director, /aplicarComparacion|comparar|PESOS/);
+});
