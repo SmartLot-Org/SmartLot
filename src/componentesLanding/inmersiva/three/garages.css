@@ -1,0 +1,86 @@
+/* Capas HTML del dibujo de /para-garages (three/ExperienceGarages.jsx): las cotas del
+   alta y la solicitud. Entran con el chunk 3D de garages y usan los tokens de .plano
+   (inmersiva.css). Decorativas: el escenario entero es aria-hidden. */
+
+/* ── Cotas del alta: los datos del alta como cotas del plano, en tinta, con su guía ──
+   El azul queda para lo disponible: tu garage todavía no está en el mapa. */
+.plano .plano-cotas { position: absolute; inset: 0; pointer-events: none; }
+.plano .plano-cotas__guias { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.plano .plano-cotas__guias polyline { fill: none; stroke: var(--tinta); stroke-width: 1; }
+.plano .plano-cotas__guias circle { fill: var(--tinta); }
+.plano .plano-cota--alta {
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: var(--tinta);
+  font-weight: 600;
+  line-height: 1.3;
+  white-space: normal;
+  will-change: transform, opacity;
+}
+
+/* ── Solicitud: la tarjeta del pedido como la ve el dueño, junto a tu garage ── */
+.plano .plano-solicitud {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: grid;
+  gap: 8px;
+  width: 232px;
+  padding: 12px;
+  border: 1px solid var(--borde);
+  border-radius: 10px;
+  background: var(--papel);
+  box-shadow: 4px 4px 0 color-mix(in srgb, var(--tinta) 10%, transparent);
+  color: var(--texto);
+  font: 400 12px/1.35 var(--font-body);
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+.plano .plano-solicitud header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.plano .plano-solicitud header b { color: var(--tinta); font: 800 14px/1.2 var(--font-display); }
+.plano .plano-solicitud p { display: grid; gap: 1px; margin: 0; }
+.plano .plano-solicitud small { color: var(--texto-suave); font-size: 11px; }
+.plano .plano-solicitud__garage strong { color: var(--tinta); font-size: 13px; }
+.plano .plano-solicitud .plano-solicitud__cantidad { display: block; color: var(--texto-suave); }
+.plano .plano-solicitud__cantidad strong { color: var(--tinta); font: 800 18px/1 var(--font-display); font-variant-numeric: tabular-nums; }
+.plano .plano-solicitud__estado {
+  flex: none;
+  padding: 3px 8px;
+  border: 1px solid var(--borde);
+  border-radius: 6px;
+  color: var(--texto-suave);
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: background-color 220ms var(--salida), border-color 220ms var(--salida), color 220ms var(--salida);
+}
+.plano .plano-solicitud__acciones { display: grid; grid-template-columns: 1fr auto; gap: 6px; }
+.plano .plano-solicitud__acciones span {
+  display: grid;
+  place-items: center;
+  height: 30px;
+  padding: 0 10px;
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  color: var(--tinta);
+  font-weight: 700;
+  transition: background-color 220ms var(--salida), color 220ms var(--salida), opacity 220ms var(--salida), scale 220ms var(--salida);
+}
+.plano .plano-solicitud__acciones [data-accion='rechazar'] { color: var(--texto-suave); font-weight: 600; }
+/* Aceptada: el estado pasa a azul (un lugar para la empresa) y el botón queda presionado. */
+.plano .plano-solicitud[data-aceptada] .plano-solicitud__estado { border-color: var(--senal); background: var(--senal); color: var(--senal-sobre); }
+.plano .plano-solicitud[data-aceptada] [data-accion='aceptar'] { border-color: var(--tinta); background: var(--tinta); color: var(--papel); scale: 0.97; }
+.plano .plano-solicitud[data-aceptada] [data-accion='rechazar'] { opacity: 0.35; }
+.plano .plano-solicitud .plano-solicitud__aviso { font-size: 10px; }
+
+/* En vertical la tarjeta va más chica, para no tapar el dibujo. */
+@media (max-width: 899px) and (orientation: portrait), (max-width: 599px) {
+  .plano .plano-solicitud { scale: 0.86; transform-origin: 0 0; }
+}
+/* Movimiento reducido: menos, no cero. Se va la escala del botón presionado; el cambio
+   de color y de opacidad queda. */
+@media (prefers-reduced-motion: reduce) {
+  .plano .plano-solicitud__acciones span { transition: background-color 220ms var(--salida), color 220ms var(--salida), opacity 220ms var(--salida); }
+  .plano .plano-solicitud[data-aceptada] [data-accion='aceptar'] { scale: none; }
+}

@@ -3,11 +3,11 @@ import { easing } from 'maath';
 import { useEffect, useLayoutEffect } from 'react';
 import { useUI } from '../estado/store';
 import { rig } from '../scroll/rig';
+import { VISTA as DIR } from './mundo';
 import { puntero, escucharPuntero } from './puntero';
 import { vivo } from './vivo';
 
 const ALTO = 95;                    // unidades visibles en alto con zoom 1 (950 m)
-const DIR = [0.5576, 0.6134, 0.5576]; // (1, 1.1, 1) normalizado: axonométrica de reposo
 const AZIMUT = Math.atan2(DIR[0], DIR[2]);
 const ELEVACION = Math.asin(DIR[1]);
 const GIRO = 0.07;                  // radianes de giro máximo con el cursor en el borde
@@ -19,8 +19,9 @@ const INTRO = 1.9;                  // segundos que tarda el plano en dibujarse
 
 // Lee rig (lo escribe el director), lo amortigua una sola vez y lo deja en `vivo`.
 // También encuadra: el dibujo va a la derecha en horizontal y arriba en vertical,
-// porque el resto de la pantalla es del texto.
-export function CameraRig() {
+// porque el resto de la pantalla es del texto. `conIntro`: la página tiene el cajetín de
+// entrada y el plano lo espera para dibujarse (la home); sin él, se dibuja al cargar.
+export function CameraRig({ conIntro = true }) {
   const camera = useThree((s) => s.camera);
   const size = useThree((s) => s.size);
 
@@ -48,8 +49,9 @@ export function CameraRig() {
       vivo.tiempo += dt;
     }
     vivo.listo = true;
+    vivo.vertical = rig.vertical;
     // Mientras corre el cajetín de entrada, el plano espera para dibujarse a la vista.
-    if (useUI.getState().intro) vivo.intro = 0;
+    if (conIntro && useUI.getState().intro) vivo.intro = 0;
     else vivo.intro = rig.snap ? 1 : Math.min(1, vivo.intro + dt / INTRO);
     vivo.aparecen = Math.min(1, Math.max(0, (vivo.intro - 0.25) / 0.4));
 

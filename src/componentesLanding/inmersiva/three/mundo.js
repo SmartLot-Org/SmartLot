@@ -391,6 +391,113 @@ export const CARAS_GARAGES = (() => {
   return new Float32Array(caras);
 })();
 
+// ── La cámara, vista desde el mundo ──────────────────────────────────────────
+// Dirección de reposo de la axonometría: (1, 1.1, 1) normalizado. La usan CameraRig y,
+// acá, las pruebas de qué tapa a qué en la pantalla.
+export const VISTA = [0.5576, 0.6134, 0.5576];
+const DERECHA = (() => {
+  const l = Math.hypot(VISTA[2], VISTA[0]);
+  return [VISTA[2] / l, 0, -VISTA[0] / l];
+})();
+const ARRIBA = [
+  VISTA[1] * DERECHA[2] - VISTA[2] * DERECHA[1],
+  VISTA[2] * DERECHA[0] - VISTA[0] * DERECHA[2],
+  VISTA[0] * DERECHA[1] - VISTA[1] * DERECHA[0],
+];
+// Un punto del mundo en la pantalla, en unidades del mundo (sin zoom ni encuadre).
+export const enPantalla = (x, y, z) => [x * DERECHA[0] + z * DERECHA[2], x * ARRIBA[0] + y * ARRIBA[1] + z * ARRIBA[2]];
+const cercania = (b) => ((b.x0 + b.x1) / 2) * VISTA[0] + ((b.z0 + b.z1) / 2) * VISTA[2];
+
+// Si el volumen `e` tapa al volumen `g` desde la cámara: se pisan en la pantalla y `e`
+// está más cerca.
+export function tapa(e, g) {
+  const silueta = (b) => {
+    const s = { x0: Infinity, x1: -Infinity, y0: Infinity, y1: -Infinity };
+    for (const x of [b.x0, b.x1]) for (const z of [b.z0, b.z1]) for (const y of [0, b.h]) {
+      const [px, py] = enPantalla(x, y, z);
+      s.x0 = Math.min(s.x0, px); s.x1 = Math.max(s.x1, px);
+      s.y0 = Math.min(s.y0, py); s.y1 = Math.max(s.y1, py);
+    }
+    return s;
+  };
+  const a = silueta(e);
+  const b = silueta(g);
+  return a.x0 < b.x1 && a.x1 > b.x0 && a.y0 < b.y1 && a.y1 > b.y0 && cercania(e) > cercania(g);
+}
+
+// ── Las sedes de las empresas (las usa /para-garages) ────────────────────────
+// Recorrido por las calles desde un edificio hasta el portón de tu garage (G1), en el
+// lenguaje del recorrido del trato: sale por un lado de su lote que da a la calle (los
+// lotes dejan 0,8 de vereda), sigue la cuadrícula hasta la calle de z = 6 y entra por el
+// portón. Entre las salidas posibles, se queda con la más corta.
+const calle = (n) => n * PASO + 6;   // eje de la calle que sigue a la manzana n
+const largoDe = (pts) => pts.slice(1).reduce((s, p, i) => s + Math.hypot(p[0] - pts[i][0], p[1] - pts[i][1]), 0);
+export function hastaTuGarage(e) {
+  const cx = (e.x0 + e.x1) / 2;
+  const cz = (e.z0 + e.z1) / 2;
+  const c = Math.round(cx / PASO);
+  const r = Math.round(cz / PASO);
+  const salidas = [];
+  if (e.z1 > r * PASO + 4) salidas.push([[cx, e.z1], [cx, calle(r)]]);
+  if (e.z0 < r * PASO - 4) salidas.push([[cx, e.z0], [cx, calle(r - 1)]]);
+  if (e.x1 > c * PASO + 4) salidas.push([[e.x1, cz], [calle(c), cz]]);
+  if (e.x0 < c * PASO - 4) salidas.push([[e.x0, cz], [calle(c - 1), cz]]);
+  let mejor = null;
+  for (const [puerta, esquina] of salidas) {
+    const pts = [puerta, esquina];
+    if (puerta[0] !== esquina[0]) pts.push([esquina[0], 6]);   // salió a una calle paralela a Z
+    else if (esquina[1] !== 6) {
+      // Salió a una calle paralela a X que no es la del garage: dobla por la calle de un
+      // costado de su manzana, la que queda de camino.
+      const [xv] = [calle(c - 1), calle(c)].sort((a, b) => Math.abs(a - 24) - Math.abs(b - 24));
+      pts.push([xv, esquina[1]], [xv, 6]);
+    }
+    pts.push([24, 6], [24, G1.z0]);
+    const limpio = pts.filter((p, i) => i === 0 || p[0] !== pts[i - 1][0] || p[1] !== pts[i - 1][1]);
+    const largo = largoDe(limpio);
+    if (!mejor || largo < mejor.largo) mejor = { recorrido: limpio, largo };
+  }
+  return mejor;
+}
+
+// La oficina de la home es una de las cuatro sedes, con el recorrido del trato. Las
+// otras tres son edificios que ya existen (la ciudad no cambia): uno por cuadrante
+// alrededor de tu garage, contando desde el de la oficina, el más alto de los que
+// quedan a entre 300 m y 1 km por la calle, no tapan tu garage, no se pegan a otro hito
+// y entran con él en el encuadre del hero de un celular.
+const ALTA = 6;                  // la oficina mide 8,4
+const CERCA_EN_PANTALLA = 32;    // unidades del mundo medidas en la pantalla, de techo a techo
+const LEJOS_DE_UN_HITO = 9;
+function elegirSedes() {
+  const g = GARAGES[0];
+  const techo = enPantalla(g.cx, g.h, g.cz);
+  const hitos = [{ cx: 0, cz: 0 }, ...GARAGES];
+  const rumbo = (x, z) => Math.atan2(z - g.cz, x - g.cx);
+  const desdeLaOficina = rumbo(0, 0);
+  const vuelta = Math.PI * 2;
+  const cuadrante = (x, z) => Math.round((((rumbo(x, z) - desdeLaOficina) % vuelta) + vuelta) % vuelta / (Math.PI / 2)) % 4;
+  const elegidas = [];
+  for (const e of EDIFICIOS) {
+    if (e.h < ALTA) continue;
+    const cx = (e.x0 + e.x1) / 2;
+    const cz = (e.z0 + e.z1) / 2;
+    const q = cuadrante(cx, cz);
+    if (q === 0 || (elegidas[q] && elegidas[q].h >= e.h)) continue;
+    if (hitos.some((h) => Math.hypot(cx - h.cx, cz - h.cz) < LEJOS_DE_UN_HITO)) continue;
+    const [px, py] = enPantalla(cx, e.h, cz);
+    if (Math.hypot(px - techo[0], py - techo[1]) > CERCA_EN_PANTALLA || tapa(e, g)) continue;
+    const camino = hastaTuGarage(e);
+    const metros = Math.round(camino.largo) * 10;
+    if (metros < 300 || metros > 1000) continue;
+    elegidas[q] = { x0: e.x0, z0: e.z0, x1: e.x1, z1: e.z1, h: e.h, cx, cz, recorrido: camino.recorrido, metros };
+  }
+  return elegidas.filter(Boolean);
+}
+export const SEDES = [
+  { x0: OFICINA.x0, z0: OFICINA.z0, x1: OFICINA.x1, z1: OFICINA.z1, h: OFICINA.h, cx: 0, cz: 0, recorrido: RUTA, metros: ruta.metros },
+  ...elegirSedes(),
+].map((s) => ({ ...s, radio: Math.hypot(s.cx - GARAGES[0].cx, s.cz - GARAGES[0].cz) }));
+
 export const MUNDO = {
   ciudad: empacar(ciudad),
   oficina: empacar(hitos.oficina),
@@ -413,4 +520,5 @@ export const ANCLAS = {
   sumados: SUMADOS.map((g) => [(g.x0 + g.x1) / 2, g.h + 0.2, (g.z0 + g.z1) / 2]),
   cota: [15, 0.1, 6],
   entrada: [24, 0, PORTON.z - 0.25],
+  sedes: SEDES.map((s) => [s.cx, s.h + 0.3, s.cz]),
 };

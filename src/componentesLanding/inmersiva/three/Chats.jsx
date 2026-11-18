@@ -21,17 +21,27 @@ const DESORDEN = [
 const SE_VAN = [9, 2, 6, 0, 4, 8, 1, 5, 7, 3];
 const CASCADA = 1200;  // ms hasta que terminan de llegar todos
 
-// Cómo se arregla hoy: globos de chat alrededor de la oficina mientras los
-// autos dan vueltas. Cuando arrancan las vueltas aparecen todos en cascada
-// rápida (tiempo, no scroll); a medida que el deslizador avanza hacia
-// "con SmartLot" se van yendo de a uno, hasta no quedar ninguno. Decorativos
-// (aria-hidden).
+// Cómo se arregla hoy: globos de chat junto a un punto del dibujo (en la home, la
+// oficina) mientras los autos dan vueltas. Cuando arrancan las vueltas aparecen
+// todos en cascada rápida (tiempo, no scroll); a medida que el deslizador de la
+// home avanza hacia "con SmartLot" se van yendo de a uno, hasta no quedar ninguno.
+// Decorativos (aria-hidden). Cada página trae sus mensajes, su ancla y de dónde
+// sale el deslizador; por defecto, los de la home.
 const nodo = { raiz: null, globos: [] };
+const compararDeLaHome = () => useUI.getState().comparar;
+// A la derecha del ancla y siempre dentro de la pantalla. En horizontal la nota ocupa
+// la mitad izquierda: los chats van en la otra mitad (antes de la regla).
+function aLaDerecha(px, py, caja, size, horizontal) {
+  const minimo = horizontal ? size.width * 0.5 : 8;
+  const left = Math.max(minimo, Math.min(px + 24, size.width - caja.width - 72));
+  const top = Math.max(76, Math.min(py - caja.height * 0.45, size.height - caja.height - 16));
+  return [left, top];
+}
 
-export function CapaChats() {
+export function CapaChats({ mensajes = COMPARAR.chats }) {
   return (
     <div ref={(el) => { nodo.raiz = el; }} className="plano-chats">
-      {COMPARAR.chats.map((c, i) => {
+      {mensajes.map((c, i) => {
         const [x, y, giro] = DESORDEN[i % DESORDEN.length];
         return (
           <p
@@ -49,7 +59,7 @@ export function CapaChats() {
   );
 }
 
-export function ProyectorChats() {
+export function ProyectorChats({ mensajes = COMPARAR.chats, ancla = ANCLAS.oficina, comparar = compararDeLaHome, colocar = aLaDerecha }) {
   const camera = useThree((s) => s.camera);
   const size = useThree((s) => s.size);
   const v = useMemo(() => new Vector3(), []);
@@ -75,8 +85,8 @@ export function ProyectorChats() {
       p.asentado = asentado;
     }
     // Con el deslizador hacia "con SmartLot" quedan cada vez menos mensajes.
-    const total = COMPARAR.chats.length;
-    const quedan = Math.round(total * (1 - useUI.getState().comparar));
+    const total = mensajes.length;
+    const quedan = Math.round(total * (1 - comparar()));
     if (quedan !== p.quedan) {
       const fuera = new Set(SE_VAN.filter((i) => i < total).slice(0, total - quedan));
       nodo.globos.forEach((g, i) => g?.toggleAttribute('data-fuera', fuera.has(i)));
@@ -84,20 +94,17 @@ export function ProyectorChats() {
     }
     if (o < 0.01) return;
 
-    const [x, y, z] = ANCLAS.oficina;
+    const [x, y, z] = ancla;
     v.set(x, y, z).project(camera);
     const px = (v.x * 0.5 + 0.5) * size.width;
     const py = (-v.y * 0.5 + 0.5) * size.height;
-    // A la derecha de la oficina y siempre dentro de la pantalla. En horizontal
-    // la nota ocupa la mitad izquierda: los chats van en la otra mitad (antes de
-    // la regla) y se achican si no entran. En vertical, la escala la pone el CSS.
+    // En horizontal se achican si no entran en la mitad libre; en vertical, la escala
+    // la pone el CSS. Dónde van lo decide `colocar` (por defecto, a la derecha del ancla).
     const horizontal = size.width > size.height;
     if (horizontal) nodo.raiz.style.scale = Math.min(1, (size.width * 0.5 - 80) / nodo.raiz.offsetWidth).toFixed(3);
     else nodo.raiz.style.removeProperty('scale');
     const caja = nodo.raiz.getBoundingClientRect();
-    const minimo = horizontal ? size.width * 0.5 : 8;
-    const left = Math.max(minimo, Math.min(px + 24, size.width - caja.width - 72));
-    const top = Math.max(76, Math.min(py - caja.height * 0.45, size.height - caja.height - 16));
+    const [left, top] = colocar(px, py, caja, size, horizontal);
     // `translate` (no `transform`): así el desplazamiento no se multiplica por la escala.
     nodo.raiz.style.translate = `${left.toFixed(1)}px ${top.toFixed(1)}px`;
   });

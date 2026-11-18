@@ -1,41 +1,56 @@
 import { useFrame } from '@react-three/fiber';
-import { useMemo, useRef } from 'react';
+import { useLayoutEffect, useMemo, useRef } from 'react';
 import { geometria } from '../geometria';
 import { MUNDO } from '../mundo';
 import { MAT, tenirSumados } from '../paleta';
 import { vivo } from '../vivo';
 
+const limitar = (v) => (v < 0 ? 0 : v > 1 ? 1 : v);
+
 // La oficina, los garages y el recorrido que los une. El azul señal aparece
 // solo donde hay un lugar para vos: el contorno de un garage con plazas, el
 // recorrido y el techo del garage que aceptó el trato.
+// En /para-garages el garage del trato es tu garage: mientras está fuera del mapa
+// (fx.fuera) va en línea de trazos y tinta tenue, sin nada azul; cuando se dibuja en
+// el alta (fx.alta), los trazos dejan lugar a las aristas en tinta (Alta.jsx).
 export function Trato() {
   const geo = useMemo(() => {
     const de = (m) => ({ caras: geometria(m.caras), aristas: geometria(m.aristas), techos: m.techos && geometria(m.techos) });
-    return { oficina: de(MUNDO.oficina), trato: de(MUNDO.trato), otros: de(MUNDO.otros), sumados: de(MUNDO.sumados), ruta: geometria(MUNDO.ruta.cinta) };
+    return {
+      oficina: de(MUNDO.oficina), trato: de(MUNDO.trato), otros: de(MUNDO.otros), sumados: de(MUNDO.sumados), ruta: geometria(MUNDO.ruta.cinta),
+      // Aparte: la línea de trazos suma su propio atributo de distancias.
+      fuera: geometria(MUNDO.trato.aristas),
+    };
   }, []);
   const ruta = useRef(null);
   const trato = useRef(null);
   const techoTrato = useRef(null);
   const techosOtros = useRef(null);
+  const trazos = useRef(null);
   const totalRuta = MUNDO.ruta.cinta.length / 3;
 
+  useLayoutEffect(() => { trazos.current.computeLineDistances(); }, []);
+
   useFrame(() => {
-    const { traza, trato: aceptado, red } = vivo.fx;
+    const { traza, trato: aceptado, red, fuera, alta } = vivo.fx;
     // El techo termina de irse un poco antes que el resto, para que la planta quede limpia.
     const tapa = Math.min(1, vivo.fx.tapa * 1.25);
+    const enElMapa = 1 - fuera;
     MAT.tinta.opacity = vivo.aparecen;
     MAT.senalLinea.opacity = vivo.aparecen;
 
     // A escala de plaza, el recorrido y el volumen del garage estorban: se retiran.
     ruta.current.geometry.setDrawRange(0, Math.floor((totalRuta * traza) / 3) * 3);
-    MAT.ruta.opacity = 1 - tapa;
-    ruta.current.visible = traza > 0.001 && tapa < 0.99;
+    MAT.ruta.opacity = (1 - tapa) * enElMapa;
+    ruta.current.visible = traza > 0.001 && tapa < 0.99 && fuera < 0.99;
 
     MAT.papelTrato.opacity = 1 - tapa;
-    MAT.tratoLinea.opacity = vivo.aparecen * (1 - tapa);
+    MAT.tratoLinea.opacity = vivo.aparecen * (1 - tapa) * enElMapa;
     trato.current.visible = tapa < 0.99;
-    MAT.techoTrato.opacity = aceptado * (1 - tapa);
+    MAT.techoTrato.opacity = aceptado * (1 - tapa) * enElMapa;
     techoTrato.current.visible = MAT.techoTrato.opacity > 0.01;
+    MAT.fueraLinea.opacity = vivo.aparecen * (1 - tapa) * fuera * (1 - limitar((alta - 0.45) / 0.2));
+    trazos.current.visible = MAT.fueraLinea.opacity > 0.01;
 
     MAT.techoOtros.opacity = red;
     techosOtros.current.visible = red > 0.01;
@@ -59,6 +74,7 @@ export function Trato() {
       <group ref={trato}>
         <mesh geometry={geo.trato.caras} material={MAT.papelTrato} />
         <lineSegments geometry={geo.trato.aristas} material={MAT.tratoLinea} />
+        <lineSegments ref={trazos} geometry={geo.fuera} material={MAT.fueraLinea} visible={false} />
       </group>
       <mesh ref={techoTrato} geometry={geo.trato.techos} material={MAT.techoTrato} visible={false} />
 

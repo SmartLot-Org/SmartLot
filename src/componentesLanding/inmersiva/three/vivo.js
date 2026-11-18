@@ -12,5 +12,6 @@ export const vivo = {
   pxPorUnidad: 1,
   velocidad: 0,         // velocidad del scroll amortiguada (-1 a 1)
   mira: { x: 0, y: 0 }, // cursor amortiguado (-1 a 1): paralaje y orientación del pin
+  vertical: false,      // pantalla vertical (copia de rig): las capas HTML acomodan su lado
   listo: false,
 };

@@ -9,6 +9,9 @@ const limitar = (v) => (v < 0 ? 0 : v > 1 ? 1 : v);
 
 // Rótulos del plano: HTML anclado a puntos del dibujo. Son decorativos (el
 // escenario entero es aria-hidden); el contenido real está en las secciones.
+// Cada página trae su lista; esta es la de la home. `ajuste` (opcional) es el segundo
+// translate, que ubica el rótulo respecto de su ancla; por defecto queda centrado
+// arriba del ancla, o debajo con `debajo`.
 const ROTULADOS = [
   { id: 'oficina', ancla: ANCLAS.oficina, clase: 'plano-rotulo', texto: ROTULOS.oficina, opacidad: (fx) => vivo.aparecen * (1 - fx.tapa) },
   { id: 'g1', ancla: ANCLAS.g1, clase: 'plano-senal-e', texto: ROTULOS.senal, opacidad: (fx) => vivo.aparecen * (1 - fx.tapa) },
@@ -75,19 +78,20 @@ function Lente() {
   );
 }
 
-// Capa HTML de los rótulos y la lente de detalle.
-export function Rotulos() {
+// Capa HTML de los rótulos y la lente de detalle (el QR es solo de la home).
+export function Rotulos({ rotulos = ROTULADOS, lente = true }) {
   return (
     <div ref={registrar('capa')} className="plano-rotulos">
-      {ROTULADOS.map((r) => <span key={r.id} className={r.clase}>{r.texto}</span>)}
-      <Lente />
+      {rotulos.map((r) => <span key={r.id} className={r.clase}>{r.texto}</span>)}
+      {lente ? <Lente /> : null}
     </div>
   );
 }
 
 // Va dentro del Canvas: proyecta las anclas con la cámara de cada frame y mueve
-// los rótulos por ref (transform y opacity), sin pasar por React.
-export function Proyector() {
+// los rótulos por ref (transform y opacity), sin pasar por React. Recibe la misma
+// lista que Rotulos.
+export function Proyector({ rotulos = ROTULADOS }) {
   const size = useThree((s) => s.size);
   const v = useMemo(() => new Vector3(), []);
   const previo = useRef({ lado: 0 });
@@ -105,17 +109,18 @@ export function Proyector() {
       return [(v.x * 0.5 + 0.5) * W, (-v.y * 0.5 + 0.5) * H];
     };
 
-    ROTULADOS.forEach((r, i) => {
+    rotulos.forEach((r, i) => {
       const el = hijos[i];
       const o = r.opacidad(fx);
       el.style.opacity = o.toFixed(2);
       if (o < 0.01) return;
       const [px, py] = proyectar(r.ancla);
-      el.style.transform = `translate(${px.toFixed(1)}px,${py.toFixed(1)}px) translate(-50%,${r.debajo ? '8px' : '-100%'})`;
+      el.style.transform = `translate(${px.toFixed(1)}px,${py.toFixed(1)}px) translate(${r.ajuste ?? `-50%,${r.debajo ? '8px' : '-100%'}`})`;
     });
 
     // La lente sigue a la ventanilla del conductor.
     const lente = nodo.lente;
+    if (!lente) return;
     const visible = limitar((fx.acceso - 0.55) / 0.35);
     lente.style.opacity = visible.toFixed(2);
     if (visible > 0.01) {

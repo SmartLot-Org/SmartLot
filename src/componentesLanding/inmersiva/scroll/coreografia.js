@@ -20,6 +20,13 @@ export const FX_CERO = Object.freeze({
   pinFuera: 0,  // el pin del hero se guarda (vuelve en el cierre)
   hora: 0,      // la jornada: de las 7 (0) a las 20 (1)
   final: 0,     // cierre: ondas desde la oficina
+  // De /para-garages. En 0 son el estado de la home, así una escena compartida que las
+  // lea no cambia nada en la home.
+  fuera: 0,     // tu garage, fuera del mapa: línea de trazos y sin cartel
+  alta: 0,      // el volumen de tu garage se dibuja con las cotas del alta
+  sedes: 0,     // las sedes de las empresas, en tinta, con su anillo de búsqueda
+  busqueda: 0,  // los anillos de las sedes alcanzan tu garage y aparece la distancia
+  llegan: 0,    // desde cada sede, una ruta punteada llega hasta tu garage
 });
 
 export const COREOGRAFIA = {
