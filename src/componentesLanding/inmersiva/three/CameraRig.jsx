@@ -48,6 +48,7 @@ export function CameraRig() {
       vivo.tiempo += dt;
     }
     vivo.listo = true;
+    vivo.vertical = rig.vertical;
     // Mientras corre el cajetín de entrada, el plano espera para dibujarse a la vista.
     if (useUI.getState().intro) vivo.intro = 0;
     else vivo.intro = rig.snap ? 1 : Math.min(1, vivo.intro + dt / INTRO);
