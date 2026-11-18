@@ -54,7 +54,7 @@ export const MAT = {
   eleccionLinea: linea({ transparent: true, opacity: 0, depthTest: false }),
   onda: relleno({ transparent: true, opacity: 0, depthWrite: false, depthTest: false }),
   // /para-garages: tu garage fuera del mapa, en línea de trazos.
-  fueraLinea: new LineDashedMaterial({ dashSize: 0.36, gapSize: 0.24, transparent: true, opacity: 0 }),
+  fueraLinea: new LineDashedMaterial({ dashSize: 0.55, gapSize: 0.32, transparent: true, opacity: 0 }),
   // /para-garages: las sedes en tinta plena, las aristas del alta, los anillos de
   // búsqueda en tinta media (cada anillo clona este) y las rutas que llegan, en señal.
   sedeCara: cara({ transparent: true, opacity: 0 }),

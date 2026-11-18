@@ -1,13 +1,13 @@
 import { useFrame, useThree } from '@react-three/fiber';
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { Vector3 } from 'three';
 import { ANCLAS_ALTA, DIBUJO } from './alta';
 import { G1 } from './mundo';
 import { vivo } from './vivo';
 
 const limitar = (v) => (v < 0 ? 0 : v > 1 ? 1 : v);
-const COLUMNA = 40;      // px entre el borde de tu garage y la columna de cotas
-const SEPARACION = 34;   // px mínimos entre una cota y la siguiente
+const COLUMNA = { horizontal: 40, vertical: 24 };   // px entre tu garage y la columna de cotas
+const AIRE = 8;          // px entre una cota y la siguiente
 const QUIEBRE = 16;      // px del tramo horizontal de cada guía, antes de la cota
 
 // Las cotas del alta (/para-garages): los datos que carga el dueño (ubicación, horario,
@@ -39,8 +39,22 @@ export function CapaCotas({ cotas }) {
 export function ProyectorCotas({ cotas }) {
   const camera = useThree((s) => s.camera);
   const size = useThree((s) => s.size);
+  const invalidate = useThree((s) => s.invalidate);
   const v = useMemo(() => new Vector3(), []);
   const anclas = useMemo(() => Object.keys(cotas).map((c) => ANCLAS_ALTA[c]), [cotas]);
+  // El alto de cada cota depende del ancho de la columna (en vertical una cota larga
+  // ocupa dos o tres renglones): se mide solo cuando ese ancho cambia.
+  const medidas = useRef({ ancho: '', altos: [] });
+  // Con la fuente definitiva los renglones cambian: se vuelve a medir.
+  useEffect(() => {
+    let vigente = true;
+    document.fonts?.ready.then(() => {
+      if (!vigente) return;
+      medidas.current.ancho = '';
+      invalidate();
+    });
+    return () => { vigente = false; };
+  }, [invalidate]);
 
   useFrame(() => {
     if (!nodo.raiz) return;
@@ -55,19 +69,27 @@ export function ProyectorCotas({ cotas }) {
     const W = size.width;
     const H = size.height;
     v.set(G1.x1, G1.h, G1.z0).project(camera);   // la esquina de tu garage que queda más a la derecha
-    const x = (v.x * 0.5 + 0.5) * W + COLUMNA;
-    const ancho = `${Math.max(120, W - x - 20).toFixed(0)}px`;
-    let previo = -Infinity;
+    const x = (v.x * 0.5 + 0.5) * W + (vivo.vertical ? COLUMNA.vertical : COLUMNA.horizontal);
+    // En horizontal, a la derecha está la regla de la página.
+    const ancho = `${Math.max(120, W - x - (vivo.vertical ? 16 : 88)).toFixed(0)}px`;
+    const m = medidas.current;
+    if (ancho !== m.ancho) {
+      for (const cota of nodo.cotas) cota.style.maxWidth = ancho;
+      m.altos = nodo.cotas.map((cota) => cota.offsetHeight);
+      m.ancho = ancho;
+    }
+    // Cada cota a la altura de su guía, sin pisar a la de arriba.
+    let piso = -Infinity;
     anclas.forEach((a, i) => {
       const o = limitar((alta - DIBUJO - i * paso) / (paso * 2)) * presencia;
       v.set(a[0], a[1], a[2]).project(camera);
       const ax = (v.x * 0.5 + 0.5) * W;
       const ay = (-v.y * 0.5 + 0.5) * H;
-      const y = Math.max(ay, previo + SEPARACION);
-      previo = y;
+      const medio = m.altos[i] / 2;
+      const y = Math.max(ay, piso + AIRE + medio);
+      piso = y + medio;
       const cota = nodo.cotas[i];
       cota.style.opacity = o.toFixed(2);
-      cota.style.maxWidth = ancho;
       cota.style.transform = `translate(${x.toFixed(1)}px,${y.toFixed(1)}px) translateY(-50%)`;
       const guia = nodo.guias[i];
       guia.setAttribute('points', `${ax.toFixed(1)},${ay.toFixed(1)} ${(x - QUIEBRE).toFixed(1)},${y.toFixed(1)} ${(x - 4).toFixed(1)},${y.toFixed(1)}`);

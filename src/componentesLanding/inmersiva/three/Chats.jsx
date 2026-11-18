@@ -29,6 +29,14 @@ const CASCADA = 1200;  // ms hasta que terminan de llegar todos
 // sale el deslizador; por defecto, los de la home.
 const nodo = { raiz: null, globos: [] };
 const compararDeLaHome = () => useUI.getState().comparar;
+// A la derecha del ancla y siempre dentro de la pantalla. En horizontal la nota ocupa
+// la mitad izquierda: los chats van en la otra mitad (antes de la regla).
+function aLaDerecha(px, py, caja, size, horizontal) {
+  const minimo = horizontal ? size.width * 0.5 : 8;
+  const left = Math.max(minimo, Math.min(px + 24, size.width - caja.width - 72));
+  const top = Math.max(76, Math.min(py - caja.height * 0.45, size.height - caja.height - 16));
+  return [left, top];
+}
 
 export function CapaChats({ mensajes = COMPARAR.chats }) {
   return (
@@ -51,7 +59,7 @@ export function CapaChats({ mensajes = COMPARAR.chats }) {
   );
 }
 
-export function ProyectorChats({ mensajes = COMPARAR.chats, ancla = ANCLAS.oficina, comparar = compararDeLaHome }) {
+export function ProyectorChats({ mensajes = COMPARAR.chats, ancla = ANCLAS.oficina, comparar = compararDeLaHome, colocar = aLaDerecha }) {
   const camera = useThree((s) => s.camera);
   const size = useThree((s) => s.size);
   const v = useMemo(() => new Vector3(), []);
@@ -90,16 +98,13 @@ export function ProyectorChats({ mensajes = COMPARAR.chats, ancla = ANCLAS.ofici
     v.set(x, y, z).project(camera);
     const px = (v.x * 0.5 + 0.5) * size.width;
     const py = (-v.y * 0.5 + 0.5) * size.height;
-    // A la derecha del ancla y siempre dentro de la pantalla. En horizontal
-    // la nota ocupa la mitad izquierda: los chats van en la otra mitad (antes de
-    // la regla) y se achican si no entran. En vertical, la escala la pone el CSS.
+    // En horizontal se achican si no entran en la mitad libre; en vertical, la escala
+    // la pone el CSS. Dónde van lo decide `colocar` (por defecto, a la derecha del ancla).
     const horizontal = size.width > size.height;
     if (horizontal) nodo.raiz.style.scale = Math.min(1, (size.width * 0.5 - 80) / nodo.raiz.offsetWidth).toFixed(3);
     else nodo.raiz.style.removeProperty('scale');
     const caja = nodo.raiz.getBoundingClientRect();
-    const minimo = horizontal ? size.width * 0.5 : 8;
-    const left = Math.max(minimo, Math.min(px + 24, size.width - caja.width - 72));
-    const top = Math.max(76, Math.min(py - caja.height * 0.45, size.height - caja.height - 16));
+    const [left, top] = colocar(px, py, caja, size, horizontal);
     // `translate` (no `transform`): así el desplazamiento no se multiplica por la escala.
     nodo.raiz.style.translate = `${left.toFixed(1)}px ${top.toFixed(1)}px`;
   });

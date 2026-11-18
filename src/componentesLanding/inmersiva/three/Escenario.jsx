@@ -34,7 +34,9 @@ function FirstFrame({ onReady }) {
 
 // CameraRig va primero y FirstFrame al final: los useFrame corren en el orden en que se
 // montan, así la cámara y `vivo` quedan escritos antes de que las escenas los lean.
-export function Escenario({ children, capas }) {
+// `conIntro` en false: la página no tiene el cajetín de entrada de la home, así que el
+// plano no lo espera (si no, en una primera visita no se dibujaría nunca).
+export function Escenario({ children, capas, conIntro = true }) {
   const tier = useUI((s) => s.tier);
   const setTier = useUI((s) => s.setTier);
   const perderContexto = useUI((s) => s.perderContexto);
@@ -74,7 +76,7 @@ export function Escenario({ children, capas }) {
         }}
       >
         <PerformanceMonitor onDecline={() => setTier('low')} onIncline={() => setTier('high')} flipflops={3} onFallback={() => setTier('low')} />
-        <CameraRig />
+        <CameraRig conIntro={conIntro} />
         {children}
         <FrameBridge />
         <FirstFrame onReady={() => setListo(true)} />

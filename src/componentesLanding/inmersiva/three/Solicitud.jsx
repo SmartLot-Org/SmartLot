@@ -6,6 +6,7 @@ import { vivo } from './vivo';
 
 const limitar = (v) => (v < 0 ? 0 : v > 1 ? 1 : v);
 const ANCLA = [G1.x1 + 0.35, G1.h, G1.z0 + 0.6];   // la esquina de tu garage que da a la calle
+const ABAJO = [G1.x1, 0, G1.z1];                   // la esquina de abajo, la más cercana
 
 // La solicitud de una empresa como la ve el dueño en /duenio-garage/tratos
 // (GestionTratosGarage.jsx): llega con la línea del pedido y, con el scroll, pasa de
@@ -57,15 +58,17 @@ export function ProyectorSolicitud({ solicitud }) {
       previo.current = aceptada;
     }
 
-    v.set(ANCLA[0], ANCLA[1], ANCLA[2]).project(camera);
-    const px = (v.x * 0.5 + 0.5) * size.width;
-    const py = (-v.y * 0.5 + 0.5) * size.height;
-    // Junto a tu garage, pero siempre dentro de la pantalla y lejos de la regla.
+    // Junto a tu garage, pero siempre dentro de la pantalla: a la derecha en horizontal
+    // (lejos de la regla) y debajo, a la izquierda, en vertical, donde no pasa la ruta.
     const ancho = nodo.raiz.offsetWidth;
     const alto = nodo.raiz.offsetHeight;
-    const x = Math.max(16, Math.min(px + 24, size.width - ancho - 72));
-    const y = Math.max(76, Math.min(py - alto * 0.5, size.height - alto - 16)) + (1 - o) * 12;
-    nodo.raiz.style.transform = `translate(${x.toFixed(1)}px,${y.toFixed(1)}px)`;
+    const punto = vivo.vertical ? ABAJO : ANCLA;
+    v.set(punto[0], punto[1], punto[2]).project(camera);
+    const px = (v.x * 0.5 + 0.5) * size.width;
+    const py = (-v.y * 0.5 + 0.5) * size.height;
+    const x = vivo.vertical ? 16 : Math.max(16, Math.min(px + 24, size.width - ancho - 72));
+    const y = vivo.vertical ? py + 20 : Math.max(76, Math.min(py - alto * 0.5, size.height - alto - 16));
+    nodo.raiz.style.transform = `translate(${x.toFixed(1)}px,${(y + (1 - o) * 12).toFixed(1)}px)`;
   });
   return null;
 }

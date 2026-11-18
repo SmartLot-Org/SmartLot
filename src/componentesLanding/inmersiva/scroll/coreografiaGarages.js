@@ -7,6 +7,11 @@
 // Como en la home, `desde` y `hasta` se miden en pantallas de scroll desde que la
 // sección asoma por abajo: de 0 a 1 es la entrada (viaja la cámara) y de 1 a `weight`,
 // la estadía. Los weight están en contenido/garages.js.
+//
+// Los encuadres dejan el dibujo en la parte libre de la pantalla: a la derecha de la
+// nota en horizontal y arriba de ella en vertical, con la altura de cada nota en 390 px
+// (en el mapa y la operación la nota lleva su pieza y ocupa más). En vertical la cámara
+// abre más, porque la pantalla es angosta.
 
 // Al cargar: tu garage está fuera del mapa y las sedes ya están marcadas.
 export const INICIAL_GARAGES = Object.freeze({ fuera: 1, sedes: 1 });
@@ -15,22 +20,22 @@ export const COREOGRAFIA_GARAGES = {
   // El mapa: cuatro sedes en tinta, los dos garages con el cartel E y el tuyo en línea
   // de trazos. De cada sede sale, lento, un anillo de búsqueda.
   gancho: {
-    camara: { x: 27, z: 13, zoom: 1.15 },
-    camaraVertical: { x: 28, z: 14, zoom: 0.72 },
+    camara: { x: 17.06, z: 2.48, zoom: 1.05 },
+    camaraVertical: { x: 19.78, z: 5.53, zoom: 0.56 },
     fx: [],
   },
   // La cuadra de una sede: autos que dan vueltas y, a 300 m, tu garage con el chat.
   problema: {
-    camara: { x: 11, z: 5, zoom: 2.3 },
-    camaraVertical: { x: 12, z: 6, zoom: 1.6 },
+    camara: { x: 9.65, z: -5.75, zoom: 2.2 },
+    camaraVertical: { x: 19.57, z: 13.13, zoom: 1 },
     fx: [
       { clave: 'vueltas', valor: 1, desde: 0.3, hasta: 0.95 },
     ],
   },
   // Tu garage de cerca: el volumen se dibuja y aparecen las cotas del alta.
   alta: {
-    camara: { x: 24.3, z: 11.6, zoom: 5.2 },
-    camaraVertical: { x: 24, z: 12, zoom: 3.4 },
+    camara: { x: 24.59, z: 8.36, zoom: 4.6 },
+    camaraVertical: { x: 23.47, z: 6.08, zoom: 2.6 },
     fx: [
       { clave: 'vueltas', valor: 0, desde: 0, hasta: 0.45 },
       { clave: 'alta', valor: 1, desde: 0.45, hasta: 1.25 },
@@ -40,8 +45,8 @@ export const COREOGRAFIA_GARAGES = {
   // y los anillos de las sedes lo alcanzan. Las aristas del alta se borran recién
   // cuando ya no se ven (fuera en 0), así el relato vuelve igual hacia atrás.
   mapa: {
-    camara: { x: 28, z: 13, zoom: 1.05 },
-    camaraVertical: { x: 28, z: 14, zoom: 0.66 },
+    camara: { x: 15.56, z: 1.11, zoom: 1.02 },
+    camaraVertical: { x: 28.27, z: 14.02, zoom: 0.56 },
     fx: [
       { clave: 'fuera', valor: 0, desde: 0.55, hasta: 0.85 },
       { clave: 'busqueda', valor: 1, desde: 0.85, hasta: 1.5 },
@@ -51,8 +56,8 @@ export const COREOGRAFIA_GARAGES = {
   // El pedido: la búsqueda se guarda, la línea azul recorre los 300 m desde la sede y,
   // con la solicitud aceptada, el techo se pinta (regla 5).
   trato: {
-    camara: { x: 13.5, z: 6.5, zoom: 2.8 },
-    camaraVertical: { x: 12, z: 6, zoom: 1.85 },
+    camara: { x: 10.18, z: -1.44, zoom: 2.81 },
+    camaraVertical: { x: 23.26, z: 15.75, zoom: 2.3 },
     fx: [
       { clave: 'busqueda', valor: 0, desde: 0, hasta: 0.4 },
       { clave: 'traza', valor: 1, desde: 0.4, hasta: 1 },
@@ -62,8 +67,8 @@ export const COREOGRAFIA_GARAGES = {
   // Se levanta el techo: las plazas del trato se pintan con las reservas (regla 4) y
   // sobre cada una se apilan sus horas de uso.
   operacion: {
-    camara: { x: 24.2, z: 12.2, zoom: 9.6 },
-    camaraVertical: { x: 24.1, z: 12.2, zoom: 5 },
+    camara: { x: 22.14, z: 10.6, zoom: 9.6 },
+    camaraVertical: { x: 26.03, z: 14.03, zoom: 4.05 },
     fx: [
       { clave: 'tapa', valor: 1, desde: 0.45, hasta: 0.9 },
       { clave: 'llenas', valor: 1, desde: 0.8, hasta: 1.15 },
@@ -74,8 +79,8 @@ export const COREOGRAFIA_GARAGES = {
   // garage. El interruptor (ajustesGarages.js) lo saca del mapa mientras dure "En
   // borrador" (regla 6).
   control: {
-    camara: { x: 24, z: 10, zoom: 1.9 },
-    camaraVertical: { x: 22, z: 10, zoom: 1.25 },
+    camara: { x: 1.26, z: 8.91, zoom: 1.8 },
+    camaraVertical: { x: 7.43, z: 12.63, zoom: 1.04 },
     fx: [
       { clave: 'consumos', valor: 0, desde: 0, hasta: 0.3 },
       { clave: 'tapa', valor: 0, desde: 0.15, hasta: 0.55 },
@@ -84,8 +89,8 @@ export const COREOGRAFIA_GARAGES = {
   },
   // La ciudad entera: desde cada sede, una ruta punteada llega hasta tu garage.
   accion: {
-    camara: { x: 30, z: 14, zoom: 0.95 },
-    camaraVertical: { x: 28, z: 14, zoom: 0.62 },
+    camara: { x: 15.28, z: 0.99, zoom: 0.98 },
+    camaraVertical: { x: 9.52, z: -4.73, zoom: 0.56 },
     fx: [
       { clave: 'llegan', valor: 1, desde: 0.3, hasta: 0.9 },
     ],

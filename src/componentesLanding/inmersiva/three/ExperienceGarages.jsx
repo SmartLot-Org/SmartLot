@@ -22,6 +22,7 @@ import { ANCLAS, G1, G2, G3 } from './mundo';
 import { Proyector, Rotulos } from './Rotulos';
 import { ROTULOS_GARAGES } from './rotulosGarages';
 import { CapaSolicitud, ProyectorSolicitud } from './Solicitud';
+import { vivo } from './vivo';
 import './garages.css';
 
 const limitar = (v) => (v < 0 ? 0 : v > 1 ? 1 : v);
@@ -36,6 +37,14 @@ const FOCOS = [
 ];
 // El chat es del lado del garage y en esta página no hay deslizador.
 const SIN_DESLIZADOR = () => 0;
+// Rodea a tu garage sin taparlo: arriba a la derecha en horizontal (la nota va a la
+// izquierda) y debajo en vertical (la nota va abajo). El ancla es el techo de tu garage;
+// su esquina de abajo queda unas 4,2 unidades más abajo en la pantalla, y debajo va el rótulo.
+const BAJO_TU_GARAGE = 4.2;
+function rodeaTuGarage(px, py, caja, size, horizontal) {
+  if (horizontal) return [Math.max(size.width * 0.5, Math.min(px + 24, size.width - caja.width - 72)), Math.max(76, py - caja.height - 40)];
+  return [Math.max(8, (size.width - caja.width) / 2), Math.min(py + BAJO_TU_GARAGE * vivo.pxPorUnidad + 48, size.height - caja.height - 16)];
+}
 
 // Capas HTML del dibujo, encima del Canvas y en este orden (las últimas quedan arriba).
 const CAPAS = (
@@ -49,7 +58,7 @@ const CAPAS = (
 
 export default function ExperienceGarages() {
   return (
-    <Escenario capas={CAPAS}>
+    <Escenario capas={CAPAS} conIntro={false}>
       {/* Geometrías y materiales son del módulo: no se descartan al desmontar una escena. */}
       <group dispose={null}>
         <Ciudad />
@@ -66,7 +75,7 @@ export default function ExperienceGarages() {
       </group>
       <Proyector rotulos={ROTULOS_GARAGES} />
       <ProyectorCotas cotas={ROTULOS.alta} />
-      <ProyectorChats mensajes={CHAT} ancla={ANCLAS.g1} comparar={SIN_DESLIZADOR} />
+      <ProyectorChats mensajes={CHAT} ancla={ANCLAS.g1} comparar={SIN_DESLIZADOR} colocar={rodeaTuGarage} />
       <ProyectorSolicitud solicitud={SOLICITUD} />
     </Escenario>
   );

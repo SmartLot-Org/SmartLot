@@ -24,9 +24,9 @@ const CIRCULO = (() => {
 })();
 const VELOCIDAD = 6.5;          // unidades por segundo: todas las búsquedas avanzan igual de lento
 const ALCANCE = 1.35;           // el eco pasa un poco más allá de tu garage
-// Solo a escala de ciudad: más cerca, los anillos cruzarían la cuadra y la planta.
-const CIUDAD = Math.log(1.95);
-const CUADRA = Math.log(2.25);
+// Solo a escala de ciudad: más cerca, los anillos cruzarían la cuadra y la planta. En
+// vertical la cámara abre más (la pantalla es angosta), así que el corte es otro.
+const ESCALAS = { horizontal: [Math.log(1.95), Math.log(2.25)], vertical: [Math.log(1.15), Math.log(1.35)] };
 const ANILLOS = SEDES.map((s, i) => ({ c: [s.cx, s.cz], radio: s.radio, ciclo: (s.radio * ALCANCE) / VELOCIDAD, desfase: i * 0.27 }));
 // Un material por anillo, cada uno con su opacidad; el color sigue a MAT.busqueda.
 const MATERIALES = ANILLOS.map(() => ({ eco: MAT.busqueda.clone(), compas: MAT.busqueda.clone() }));
@@ -42,8 +42,10 @@ export function Busqueda() {
 
   useFrame(() => {
     const { fx, tiempo } = vivo;
-    const ciudad = limitar((CUADRA - vivo.cam.lz) / (CUADRA - CIUDAD));
-    const base = fx.sedes * vivo.aparecen * (1 - limitar(fx.tapa * 2)) * ciudad;
+    const [ciudad0, cuadra] = vivo.vertical ? ESCALAS.vertical : ESCALAS.horizontal;
+    const ciudad = limitar((cuadra - vivo.cam.lz) / (cuadra - ciudad0));
+    // Tampoco en la cuadra de la sede, donde los autos dan vueltas.
+    const base = fx.sedes * vivo.aparecen * (1 - limitar(fx.tapa * 2)) * (1 - fx.vueltas) * ciudad;
     const quieto = tiempo === 0;
     const color = MAT.busqueda.color;
 

@@ -19,8 +19,9 @@ const INTRO = 1.9;                  // segundos que tarda el plano en dibujarse
 
 // Lee rig (lo escribe el director), lo amortigua una sola vez y lo deja en `vivo`.
 // También encuadra: el dibujo va a la derecha en horizontal y arriba en vertical,
-// porque el resto de la pantalla es del texto.
-export function CameraRig() {
+// porque el resto de la pantalla es del texto. `conIntro`: la página tiene el cajetín de
+// entrada y el plano lo espera para dibujarse (la home); sin él, se dibuja al cargar.
+export function CameraRig({ conIntro = true }) {
   const camera = useThree((s) => s.camera);
   const size = useThree((s) => s.size);
 
@@ -50,7 +51,7 @@ export function CameraRig() {
     vivo.listo = true;
     vivo.vertical = rig.vertical;
     // Mientras corre el cajetín de entrada, el plano espera para dibujarse a la vista.
-    if (useUI.getState().intro) vivo.intro = 0;
+    if (conIntro && useUI.getState().intro) vivo.intro = 0;
     else vivo.intro = rig.snap ? 1 : Math.min(1, vivo.intro + dt / INTRO);
     vivo.aparecen = Math.min(1, Math.max(0, (vivo.intro - 0.25) / 0.4));
 
