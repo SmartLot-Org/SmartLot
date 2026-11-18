@@ -55,6 +55,13 @@ export const MAT = {
   onda: relleno({ transparent: true, opacity: 0, depthWrite: false, depthTest: false }),
   // /para-garages: tu garage fuera del mapa, en línea de trazos.
   fueraLinea: new LineDashedMaterial({ dashSize: 0.36, gapSize: 0.24, transparent: true, opacity: 0 }),
+  // /para-garages: las sedes en tinta plena, las aristas del alta, los anillos de
+  // búsqueda en tinta media (cada anillo clona este) y las rutas que llegan, en señal.
+  sedeCara: cara({ transparent: true, opacity: 0 }),
+  sedeLinea: linea({ transparent: true, opacity: 0 }),
+  altaLinea: linea({ transparent: true, opacity: 0 }),
+  busqueda: linea({ transparent: true, opacity: 0 }),
+  llegada: relleno({ depthTest: false, transparent: true, opacity: 0 }),
 };
 
 const tono = { media: new Color(), senal: new Color() };
@@ -81,17 +88,17 @@ export function colorear(raiz) {
   const senal = token('--senal');
   const media = token('--tinta-media');
   const tenue = token('--tinta-tenue');
-  for (const m of [MAT.papel, MAT.papelTrato, MAT.papelAcceso, MAT.papelVuelta, MAT.losaLado, MAT.papelTrafico, MAT.papelEstaciona]) m.color.set(papel);
-  for (const m of [MAT.tinta, MAT.tintaAcceso, MAT.plantaLinea, MAT.tintaVuelta, MAT.losaLinea, MAT.pinLinea, MAT.tintaEstaciona]) m.color.set(tinta);
+  for (const m of [MAT.papel, MAT.papelTrato, MAT.papelAcceso, MAT.papelVuelta, MAT.losaLado, MAT.papelTrafico, MAT.papelEstaciona, MAT.sedeCara]) m.color.set(papel);
+  for (const m of [MAT.tinta, MAT.tintaAcceso, MAT.plantaLinea, MAT.tintaVuelta, MAT.losaLinea, MAT.pinLinea, MAT.tintaEstaciona, MAT.sedeLinea, MAT.altaLinea]) m.color.set(tinta);
   MAT.tintaTrafico.color.set(media);
   MAT.sombra.color.set(tinta);
   MAT.nubeSombra.color.set(tinta);
   MAT.nube.color.set(papel);
   MAT.nubeLinea.color.set(media);
   MAT.pinLado.color.set(token('--senal-activa'));
-  for (const m of [MAT.contexto, MAT.plantaTenue, MAT.vueltaLinea]) m.color.set(media);
+  for (const m of [MAT.contexto, MAT.plantaTenue, MAT.vueltaLinea, MAT.busqueda]) m.color.set(media);
   for (const m of [MAT.tenue, MAT.lejos, MAT.fueraLinea]) m.color.set(tenue);
-  for (const m of [MAT.senalLinea, MAT.tratoLinea, MAT.techoTrato, MAT.techoOtros, MAT.ruta, MAT.plazas, MAT.losaTapa, MAT.pulso, MAT.pinCara, MAT.realce, MAT.realceTecho, MAT.luz, MAT.faro, MAT.red, MAT.onda]) m.color.set(senal);
+  for (const m of [MAT.senalLinea, MAT.tratoLinea, MAT.techoTrato, MAT.techoOtros, MAT.ruta, MAT.plazas, MAT.losaTapa, MAT.pulso, MAT.pinCara, MAT.realce, MAT.realceTecho, MAT.luz, MAT.faro, MAT.red, MAT.onda, MAT.llegada]) m.color.set(senal);
   MAT.ocupa.color.set(tinta);
   MAT.eleccion.color.set(tinta);       // la plaza elegida se lee sobre las azules
   MAT.eleccionLinea.color.set(tinta);   // la ocupación se lee sobre el techo azul del trato
