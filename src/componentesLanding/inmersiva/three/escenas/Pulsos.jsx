@@ -11,8 +11,8 @@ const CICLO = 2.6;          // segundos por onda
 const ONDAS = 2;
 
 // Señales vivas del plano, todas en azul señal:
-// - ondas que salen de cada garage con plazas (el del trato, cuando acepta;
-//   los sumados, en el cierre),
+// - ondas que salen de cada garage con plazas (en la home, el del trato cuando
+//   acepta y los sumados en el cierre; cada página trae sus focos),
 // - un punto que recorre la ruta oficina → garage una vez trazada,
 // - un destello en cada plaza en el momento en que se reserva.
 const FOCOS = [
@@ -57,26 +57,34 @@ const geo = {
   disco: new RingGeometry(0, 1, 28).rotateX(-Math.PI / 2),
   cuadro: new RingGeometry(0, Math.SQRT1_2, 4, 1, Math.PI / 4).rotateX(-Math.PI / 2),
 };
-const ondas = FOCOS.flatMap(() => Array.from({ length: ONDAS }, nuevoMat));
+// Un material por onda. Las páginas se turnan (hay una por vez), así que comparten
+// estos; si una trae más focos que la home, se suman los que falten.
+const ondas = [];
+const materialesDeOnda = (focos) => {
+  while (ondas.length < focos.length * ONDAS) ondas.push(nuevoMat());
+  return ondas;
+};
+materialesDeOnda(FOCOS);
 const mats = { punto: nuevoMat(), estela: nuevoMat(), plaza: nuevoMat() };
 
-export function Pulsos() {
+export function Pulsos({ focos = FOCOS }) {
   const refsOndas = useRef([]);
   const punto = useRef(null);
   const estela = useRef(null);
   const plaza = useRef(null);
   const ultima = useRef({ n: 0, t: -10 });
   const p = useMemo(() => [0, 0], []);
+  const materiales = useMemo(() => materialesDeOnda(focos), [focos]);
 
   useFrame(() => {
     const { fx, tiempo, aparecen } = vivo;
     const color = MAT.pulso.color;
 
     // Ondas: escala y opacidad salen de la fase; se apagan con el zoom de planta.
-    FOCOS.forEach((f, i) => {
+    focos.forEach((f, i) => {
       const peso = f.peso(fx) * aparecen;
       for (let k = 0; k < ONDAS; k++) {
-        const m = ondas[i * ONDAS + k];
+        const m = materiales[i * ONDAS + k];
         const el = refsOndas.current[i * ONDAS + k];
         const fase = ((tiempo / CICLO) + k / ONDAS + i * 0.21) % 1;
         el.visible = peso > 0.01;
@@ -88,7 +96,8 @@ export function Pulsos() {
     });
 
     // Punto que viaja por la ruta: sale de la oficina, llega, espera y vuelve a salir.
-    const ruta = fx.traza > 0.99 ? 1 - limitar(fx.tapa * 2) : 0;
+    // Con tu garage fuera del mapa (garages) no hay a dónde llegar.
+    const ruta = fx.traza > 0.99 ? (1 - limitar(fx.tapa * 2)) * (1 - fx.fuera) : 0;
     punto.current.visible = ruta > 0.01;
     estela.current.visible = ruta > 0.01;
     if (ruta > 0.01) {
@@ -125,12 +134,12 @@ export function Pulsos() {
 
   return (
     <group>
-      {FOCOS.map((f, i) => Array.from({ length: ONDAS }, (_, k) => (
+      {focos.map((f, i) => Array.from({ length: ONDAS }, (_, k) => (
         <mesh
           key={`${i}-${k}`}
           ref={(el) => { refsOndas.current[i * ONDAS + k] = el; }}
           geometry={geo.anillo}
-          material={ondas[i * ONDAS + k]}
+          material={materiales[i * ONDAS + k]}
           position={[f.c[0], 0.05, f.c[1]]}
           visible={false}
         />

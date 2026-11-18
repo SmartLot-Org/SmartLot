@@ -21,17 +21,19 @@ const DESORDEN = [
 const SE_VAN = [9, 2, 6, 0, 4, 8, 1, 5, 7, 3];
 const CASCADA = 1200;  // ms hasta que terminan de llegar todos
 
-// Cómo se arregla hoy: globos de chat alrededor de la oficina mientras los
-// autos dan vueltas. Cuando arrancan las vueltas aparecen todos en cascada
-// rápida (tiempo, no scroll); a medida que el deslizador avanza hacia
-// "con SmartLot" se van yendo de a uno, hasta no quedar ninguno. Decorativos
-// (aria-hidden).
+// Cómo se arregla hoy: globos de chat junto a un punto del dibujo (en la home, la
+// oficina) mientras los autos dan vueltas. Cuando arrancan las vueltas aparecen
+// todos en cascada rápida (tiempo, no scroll); a medida que el deslizador de la
+// home avanza hacia "con SmartLot" se van yendo de a uno, hasta no quedar ninguno.
+// Decorativos (aria-hidden). Cada página trae sus mensajes, su ancla y de dónde
+// sale el deslizador; por defecto, los de la home.
 const nodo = { raiz: null, globos: [] };
+const compararDeLaHome = () => useUI.getState().comparar;
 
-export function CapaChats() {
+export function CapaChats({ mensajes = COMPARAR.chats }) {
   return (
     <div ref={(el) => { nodo.raiz = el; }} className="plano-chats">
-      {COMPARAR.chats.map((c, i) => {
+      {mensajes.map((c, i) => {
         const [x, y, giro] = DESORDEN[i % DESORDEN.length];
         return (
           <p
@@ -49,7 +51,7 @@ export function CapaChats() {
   );
 }
 
-export function ProyectorChats() {
+export function ProyectorChats({ mensajes = COMPARAR.chats, ancla = ANCLAS.oficina, comparar = compararDeLaHome }) {
   const camera = useThree((s) => s.camera);
   const size = useThree((s) => s.size);
   const v = useMemo(() => new Vector3(), []);
@@ -75,8 +77,8 @@ export function ProyectorChats() {
       p.asentado = asentado;
     }
     // Con el deslizador hacia "con SmartLot" quedan cada vez menos mensajes.
-    const total = COMPARAR.chats.length;
-    const quedan = Math.round(total * (1 - useUI.getState().comparar));
+    const total = mensajes.length;
+    const quedan = Math.round(total * (1 - comparar()));
     if (quedan !== p.quedan) {
       const fuera = new Set(SE_VAN.filter((i) => i < total).slice(0, total - quedan));
       nodo.globos.forEach((g, i) => g?.toggleAttribute('data-fuera', fuera.has(i)));
@@ -84,11 +86,11 @@ export function ProyectorChats() {
     }
     if (o < 0.01) return;
 
-    const [x, y, z] = ANCLAS.oficina;
+    const [x, y, z] = ancla;
     v.set(x, y, z).project(camera);
     const px = (v.x * 0.5 + 0.5) * size.width;
     const py = (-v.y * 0.5 + 0.5) * size.height;
-    // A la derecha de la oficina y siempre dentro de la pantalla. En horizontal
+    // A la derecha del ancla y siempre dentro de la pantalla. En horizontal
     // la nota ocupa la mitad izquierda: los chats van en la otra mitad (antes de
     // la regla) y se achican si no entran. En vertical, la escala la pone el CSS.
     const horizontal = size.width > size.height;
