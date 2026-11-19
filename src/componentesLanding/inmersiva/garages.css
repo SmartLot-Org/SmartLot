@@ -177,8 +177,10 @@
 /* Sin 3D: los dos pósters del interruptor, uno encima del otro, se cruzan por opacidad.
    El conjunto ocupa la columna de la figura, como la figura de las demás secciones. */
 .plano .garages-poster { display: grid; }
-.plano .garages-poster > .plano-figura { grid-area: 1 / 1; opacity: 0; transition: opacity 200ms ease; }
-.plano .garages-poster[data-estado='visible'] > .plano-figura:first-child,
+.plano .garages-poster > .plano-figura { grid-area: 1 / 1; }
+/* Solo se funde el de borrador, que va encima: el visible queda opaco debajo. Si se
+   fundían los dos a la vez, a mitad del cruce las líneas que comparten se aclaraban. */
+.plano .garages-poster > .plano-figura:last-child { opacity: 0; transition: opacity 200ms var(--salida); }
 .plano .garages-poster[data-estado='borrador'] > .plano-figura:last-child { opacity: 1; }
 @media (min-width: 900px), (min-width: 600px) and (orientation: landscape) {
   .plano[data-sin3d='true'] .garages-poster { justify-self: end; width: 100%; max-width: 720px; }
