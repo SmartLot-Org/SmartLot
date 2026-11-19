@@ -1,8 +1,8 @@
 # Spec: Landing de garages
 
-> Estado: En revisión
+> Estado: Implementada, con los "Por defecto" de las preguntas abiertas (pendientes de confirmación del dueño del producto)
 > Módulo: `landing-garages`
-> Última actualización: 2026-11-18
+> Última actualización: 2026-11-19
 
 > Decisión del usuario (2026-11-18): se implementa sin esperar la aprobación. Las recomendaciones de "Preguntas abiertas" valen como decisiones por defecto (marcadas "Por defecto"). Si el dueño del producto responde distinto, esta spec se actualiza antes de seguir con la etapa afectada.
 
@@ -109,7 +109,7 @@ Reglas de negocio en el relato:
 
 ### Piezas de la nota (datos de ejemplo)
 
-- **`mapa`, "Así te ve una empresa":** réplica de la tarjeta del listado de búsqueda, con "0,3 km · 2 min", "Tu garage", "08:00 a 20:00 · Lun, Mar, Mié, Jue, Vie, Sáb", "25 de 40 disponibles", "Auto $ 1.200 · Moto $ 600 · Pickup $ 1.500" y el botón "Solicitar cocheras", inerte. La distancia coincide con la cota de 300 m del dibujo.
+- **`mapa`, "Así te ve una empresa":** réplica de la tarjeta del listado de búsqueda, con "0,3 km · 2 min", "Tu garage", "08:00 a 20:00 · Lun, Mar, Mié, Jue, Vie, Sáb", "25 de 40 disponibles", "Auto $ 1.200 · Moto $ 600 · Pickup $ 1.500" y el botón en su estado deshabilitado "Solicitud pendiente" (el que el producto muestra después de pedir cocheras), inerte. La distancia coincide con la cota de 300 m del dibujo.
 - **`operacion`, "Consumos por empresa":** las columnas de la pantalla del dueño (Empresa, Reservas, Tiempo, Importe generado), tres filas y un total que suman, sin scroll horizontal en 390 px. Al pie: "Son consumos generados, no cobros. Se exportan a PDF y Excel."
 - **`control`, el interruptor "Tu garage en el mapa de las empresas":** Visible o En borrador, con el texto "Aparece cuando una empresa busca garages cerca de su sede." o "No aparece para las empresas. Lo restaurás cuando quieras.". Es lo único que el visitante maneja en la página.
 
