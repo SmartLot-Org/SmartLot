@@ -14,8 +14,9 @@ function Datos({ texto }) {
 
 // "Así te ve una empresa": la tarjeta del listado de "Buscar garages"
 // (vistasAdmin/gestion_garages.jsx) con los datos de tu garage. Es un fragmento del
-// producto (data-ui) y se ve tal cual; "Solicitar cocheras" es parte de la imagen y
-// no hace nada, por eso no es un botón: no toma el foco ni el clic.
+// producto (data-ui) y se ve tal cual. Su botón está en el estado deshabilitado que el
+// producto muestra después de pedir cocheras ("Solicitud pendiente"): es parte de la
+// imagen, no un control, así que no es un botón ni toma el foco o el clic.
 export function FichaBusqueda() {
   return (
     <figure className="garages-ficha" data-ui="busqueda">

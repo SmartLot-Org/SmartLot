@@ -133,6 +133,10 @@ test('la ficha, el alta, la solicitud y el dibujo cuentan el mismo garage', () =
   assert.equal(SOLICITUD.empresa, CONSUMOS.filas[0].empresa);
   assert.equal(SOLICITUD.garage.nombre, BUSQUEDA.nombre);
   assert.equal(ROTULOS.garage, BUSQUEDA.nombre);
+  // El botón de la ficha no es un control: lleva el texto que el producto le pone,
+  // deshabilitado, cuando la empresa ya pidió cocheras. Es la solicitud pendiente de `trato`.
+  assert.equal(BUSQUEDA.boton, 'Solicitud pendiente');
+  assert.equal(SOLICITUD.estado.pendiente, 'Pendiente');
 });
 
 test('el chat del garage tiene globos cortos y quién escribe cada uno', () => {

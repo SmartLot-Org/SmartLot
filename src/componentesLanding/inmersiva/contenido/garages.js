@@ -136,7 +136,10 @@ export const BUSQUEDA = {
   horario: '08:00 a 20:00 · Lun, Mar, Mié, Jue, Vie, Sáb',
   disponibles: '25 de 40 disponibles',
   tarifas: 'Auto $ 1.200 · Moto $ 600 · Pickup $ 1.500',
-  boton: 'Solicitar cocheras',
+  // El botón en el estado que el producto le da apenas la empresa pide cocheras:
+  // deshabilitado y con este texto. Un "Solicitar cocheras" azul que no hacía nada
+  // invitaba a tocarlo; así es una imagen, y es la solicitud que llega en `trato`.
+  boton: 'Solicitud pendiente',
 };
 
 // Pieza de `operacion`: las columnas de "Consumos por empresa" de la pantalla del dueño
