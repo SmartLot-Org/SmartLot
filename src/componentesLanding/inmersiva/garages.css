@@ -102,6 +102,9 @@
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
 }
+/* En la nota con 3D de 390 px la etiqueta va en dos renglones: balance evita que
+   "empresas" quede sola en el segundo. */
+.plano [data-ui='visibilidad'] .garages-visibilidad__titulo { text-wrap: balance; }
 /* La pista habla el idioma del dibujo: en borrador, línea de trazos en tinta (tu garage
    fuera del mapa); visible, llena de azul señal (tu garage en el mapa). */
 .plano [data-ui='visibilidad'] .garages-visibilidad__pista {
