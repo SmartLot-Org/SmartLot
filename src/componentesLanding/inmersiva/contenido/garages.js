@@ -186,8 +186,8 @@ export const CHAT = [
 ];
 
 // Rótulos y cotas del dibujo (decorativos: el contenido real está en las secciones).
-// Las distancias de cada sede salen del mundo (metros por la calle) con la unidad de acá;
-// la del pedido es la de 300 m, la misma de la ficha de la búsqueda.
+// Las distancias salen del mundo (metros por la calle) con la unidad de acá: la de cada
+// sede y la del pedido, que mide 300 m como la ficha de la búsqueda (lo cuida el test).
 export const ROTULOS = {
   sede: 'Sede',
   garage: 'Tu garage',
@@ -199,5 +199,5 @@ export const ROTULOS = {
     plazas: '40 plazas · 25 para reservas',
     tarifas: 'Auto $ 1.200 · Moto $ 600 · Pickup $ 1.500 por hora',
   },
-  distancia: { trato: '300 m', unidad: 'm' },
+  distancia: { unidad: 'm' },
 };
