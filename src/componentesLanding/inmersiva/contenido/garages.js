@@ -136,7 +136,10 @@ export const BUSQUEDA = {
   horario: '08:00 a 20:00 · Lun, Mar, Mié, Jue, Vie, Sáb',
   disponibles: '25 de 40 disponibles',
   tarifas: 'Auto $ 1.200 · Moto $ 600 · Pickup $ 1.500',
-  boton: 'Solicitar cocheras',
+  // El botón en el estado que el producto le da apenas la empresa pide cocheras:
+  // deshabilitado y con este texto. Un "Solicitar cocheras" azul que no hacía nada
+  // invitaba a tocarlo; así es una imagen, y es la solicitud que llega en `trato`.
+  boton: 'Solicitud pendiente',
 };
 
 // Pieza de `operacion`: las columnas de "Consumos por empresa" de la pantalla del dueño
@@ -186,8 +189,8 @@ export const CHAT = [
 ];
 
 // Rótulos y cotas del dibujo (decorativos: el contenido real está en las secciones).
-// Las distancias de cada sede salen del mundo (metros por la calle) con la unidad de acá;
-// la del pedido es la de 300 m, la misma de la ficha de la búsqueda.
+// Las distancias salen del mundo (metros por la calle) con la unidad de acá: la de cada
+// sede y la del pedido, que mide 300 m como la ficha de la búsqueda (lo cuida el test).
 export const ROTULOS = {
   sede: 'Sede',
   garage: 'Tu garage',
@@ -199,5 +202,5 @@ export const ROTULOS = {
     plazas: '40 plazas · 25 para reservas',
     tarifas: 'Auto $ 1.200 · Moto $ 600 · Pickup $ 1.500 por hora',
   },
-  distancia: { trato: '300 m', unidad: 'm' },
+  distancia: { unidad: 'm' },
 };

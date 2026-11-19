@@ -147,10 +147,13 @@ Un solo acento cromático sobre una base neutra fría; los estados usan semánti
 - **Papel**: el fondo (#F5F7FB). **Tinta plena**: azul profundo (#0C1E3F), para títulos y para los objetos que importan del dibujo.
 - **Tinta media** (#7C8BAA) y **tinta tenue** (#CDD6E5): edificios de contexto y manzanas. Son para líneas, nunca para texto.
 - **Azul señal**: en el dibujo marca una sola cosa, un lugar disponible o reservado para vos (contorno de un garage con plazas, recorrido del trato, plazas reservadas). En `/para-garages`, tu garage es azul cuando las empresas lo ven.
-- **Sede** (`/para-garages`): volumen en tinta plena con líneas de piso, como la oficina de la home, y el rótulo "Sede". Nunca va en azul.
-- **Anillo de búsqueda**: un círculo fino en tinta media que crece desde la base de cada sede, como la marca de un compás. Con movimiento reducido queda quieto.
-- **Fuera del mapa**: línea de trazos en tinta tenue, la notación de lo que todavía no está (tu garage antes del alta o en borrador), sin cartel. El interruptor "Visible / En borrador" usa la misma notación: trazos en borrador, azul señal cuando se ve.
-- **Cotas**: los datos del dibujo van como cotas del plano (`.plano-cota`); la distancia hasta un lugar disponible, medida por la calle, va en azul.
+- **Sede** (`/para-garages`): volumen en tinta plena con líneas de piso cada 1,2 unidades (la altura de piso de la oficina de la home, que es una de las cuatro sedes) y el rótulo "Sede". Nunca va en azul.
+- **Anillo de búsqueda**: un círculo de 1 px en tinta media que sale lento de cada sede y pasa de largo. Cuando encuentra tu garage se abre como un compás hasta él y queda. Solo aparece a escala de ciudad. Con movimiento reducido queda quieto, con el radio que llega a tu garage.
+- **Fuera del mapa**: línea de trazos en tinta tenue, sin cartel: la notación de lo que todavía no está (tu garage antes del alta o en borrador). El interruptor "Visible / En borrador" usa la misma notación: trazos en borrador, azul señal cuando se ve.
+- **Cotas**: los datos del dibujo van como cotas del plano (`.plano-cota`). Las del alta de `/para-garages` (ubicación, horario, plazas y tarifas) van en tinta, con una guía y un punto en el volumen; la distancia hasta un lugar disponible, medida por la calle, va en azul.
+- **Distancia** (`/para-garages`): la cota azul aparece sobre el rótulo "Sede" cuando su anillo encuentra tu garage, en metros por la calle, como la cota de 300 m de la home.
+- **Solicitud** (`/para-garages`, sección `trato`): tarjeta de papel con borde hairline, radio de 10px y sombra plana, decorativa como el resto del dibujo. "Pendiente" va neutro y "Trato aceptado", en azul señal.
+- **Rutas de llegada** (`/para-garages`, sección `accion`): una cinta punteada azul por la calle, desde cada sede hasta tu garage.
 - Las páginas Plano son siempre claras: no tienen variante oscura (decisión del 2026-11-17).
 
 ### Neutral
@@ -213,7 +216,7 @@ Modelo **mobile-first** con retícula base de 4px.
 
 ## Elevation & Depth
 
-Sistema híbrido: los **paneles de producto son planos** —superficies blancas, borde hairline y sombra solo como respuesta al estado—; **la autenticación usa profundidad ambiental** con vidrio (blur) sobre el fondo y sombras amplias. Las **páginas Plano no usan sombras ni vidrio**: la profundidad la da el dibujo axonométrico, y las notas son papel opaco con borde hairline y radio de 2px. La única excepción es el botón principal, que lleva el brillo azul del CTA: sombra de la señal al 30% en reposo y al 40% en hover, con un barrido de luz al pasar el mouse (pedido del dueño del producto, 2026-11-17).
+Sistema híbrido: los **paneles de producto son planos** —superficies blancas, borde hairline y sombra solo como respuesta al estado—; **la autenticación usa profundidad ambiental** con vidrio (blur) sobre el fondo y sombras amplias. Las **páginas Plano no usan sombras ni vidrio**: la profundidad la da el dibujo axonométrico, y las notas son papel opaco con borde hairline y radio de 2px. La única excepción en la interfaz es el botón principal, que lleva el brillo azul del CTA: sombra de la señal al 30% en reposo y al 40% en hover, con un barrido de luz al pasar el mouse (pedido del dueño del producto, 2026-11-17). Dentro del dibujo, las capas HTML que flotan sobre el plano (los globos del chat, el reloj de la home y la solicitud de `/para-garages`) llevan una sombra plana: desplazada, sin desenfoque y en tinta al 8–10 %.
 
 ### Shadow Vocabulary
 
@@ -263,7 +266,7 @@ Cinco variantes —neutral, success, warning, error, info— con radio 6px, padd
 ### Cards / Containers
 
 - **Producto:** superficie blanca, radio 10–14px, borde hairline, sombra sm de reposo.
-- **Páginas Plano:** la nota es papel opaco con borde hairline y 2px de radio (`plano-nota`). Lleva como mucho una pieza, y la pieza es un fragmento real del producto (`data-ui`), rotulado "Datos de ejemplo": en `/para-garages`, la tarjeta del listado de "Buscar garages", la tabla de consumos por empresa y el interruptor "Visible / En borrador". Sin tarjetas con ícono.
+- **Páginas Plano:** la nota es papel opaco con borde hairline y 2px de radio (`plano-nota`). Lleva como mucho una pieza, y la pieza es un fragmento real del producto (`data-ui`), rotulado "Datos de ejemplo": en `/para-garages`, la tarjeta del listado de "Buscar garages", la tabla de consumos por empresa y el interruptor "Visible / En borrador". Un control del fragmento que en la página no hace nada se muestra en un estado real e inerte del producto, nunca como un botón activo: la tarjeta de la búsqueda lleva su botón deshabilitado, "Solicitud pendiente". Sin tarjetas con ícono.
 - Sin tarjetas anidadas. El fragmento del producto dentro de una nota no cuenta: es una imagen del producto, no un contenedor de la página.
 
 ### Navigation

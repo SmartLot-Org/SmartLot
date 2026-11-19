@@ -82,7 +82,8 @@ test('las piezas son fragmentos del producto: data-ui, sin h1 ni h2 y con los da
     assert.doesNotMatch(fuente, /<h1|<h2/, nombre);
     assert.match(fuente, /\.aviso\}|\{aviso\}/, nombre);
   }
-  // "Solicitar cocheras" es parte de la imagen: no es un control que no hace nada.
+  // El botón de la ficha ("Solicitud pendiente", deshabilitado) es parte de la imagen:
+  // no es un control que no hace nada.
   assert.doesNotMatch(await pieza('FichaBusqueda'), /<button|<a |onClick|tabIndex/);
 });
 

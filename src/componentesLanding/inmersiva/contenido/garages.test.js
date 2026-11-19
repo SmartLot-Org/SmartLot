@@ -3,6 +3,11 @@ import assert from 'node:assert/strict';
 import {
   BUSQUEDA, CHAT, CONSUMOS, CTA, ENLACE, META, PIE, ROTULOS, SECCIONES, SOLICITUD, VISIBILIDAD,
 } from './garages.js';
+// El recorrido del pedido sale del mundo del dibujo (sin three): la ficha y las figuras
+// tienen que decir la misma distancia que se dibuja.
+import { MUNDO } from '../three/mundo.js';
+
+const PEDIDO = `${MUNDO.ruta.metros} ${ROTULOS.distancia.unidad}`;
 
 const GUION = ['gancho', 'problema', 'alta', 'mapa', 'trato', 'operacion', 'control', 'accion'];
 const pesos = (t) => Number(t.replace(/[^\d]/g, ''));
@@ -85,7 +90,7 @@ test('están los cuatro claims vigentes y ninguna otra cifra fuera de los datos 
   assert.deepEqual([...new Set(cifras)].sort(), ['100', '24']);
   // Las figuras describen el dibujo: su única cifra es la distancia del pedido.
   for (const s of SECCIONES) {
-    for (const cifra of s.figura.match(/\d+/g) ?? []) assert.equal(`${cifra} m`, ROTULOS.distancia.trato, s.id);
+    for (const cifra of s.figura.match(/\d+/g) ?? []) assert.equal(`${cifra} m`, PEDIDO, s.id);
   }
 });
 
@@ -115,7 +120,7 @@ test('en la tabla de consumos las filas suman el total y el tiempo por la tarifa
 test('la ficha, el alta, la solicitud y el dibujo cuentan el mismo garage', () => {
   // La distancia de la ficha es la cota del pedido: 0,3 km son 300 m.
   const km = Number(BUSQUEDA.distancia.match(/^([\d,]+) km/)[1].replace(',', '.'));
-  assert.equal(`${Math.round(km * 1000)} m`, ROTULOS.distancia.trato);
+  assert.equal(`${Math.round(km * 1000)} m`, PEDIDO);
   // Las plazas para reservas del alta son las disponibles de la ficha.
   const [, plazas, reservas] = ROTULOS.alta.plazas.match(/^(\d+) plazas · (\d+) para reservas$/);
   assert.equal(BUSQUEDA.disponibles, `${reservas} de ${plazas} disponibles`);
@@ -128,6 +133,10 @@ test('la ficha, el alta, la solicitud y el dibujo cuentan el mismo garage', () =
   assert.equal(SOLICITUD.empresa, CONSUMOS.filas[0].empresa);
   assert.equal(SOLICITUD.garage.nombre, BUSQUEDA.nombre);
   assert.equal(ROTULOS.garage, BUSQUEDA.nombre);
+  // El botón de la ficha no es un control: lleva el texto que el producto le pone,
+  // deshabilitado, cuando la empresa ya pidió cocheras. Es la solicitud pendiente de `trato`.
+  assert.equal(BUSQUEDA.boton, 'Solicitud pendiente');
+  assert.equal(SOLICITUD.estado.pendiente, 'Pendiente');
 });
 
 test('el chat del garage tiene globos cortos y quién escribe cada uno', () => {

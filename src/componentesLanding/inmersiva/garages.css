@@ -48,7 +48,9 @@
 }
 .plano [data-ui='busqueda'] .garages-ficha__nombre { color: var(--texto); font: 600 17px/1.25 var(--font-display); }
 .plano [data-ui='busqueda'] .garages-ficha__disponibles { margin-block: 4px 2px; color: var(--texto); font: 700 15px/1.3 var(--font-body); }
-/* Inerte: es parte de la imagen. Sin hover, sin presión y con el cursor de texto común. */
+/* El botón deshabilitado del producto ("Solicitud pendiente"), con los tokens del plano:
+   el gris de los bordes y el texto secundario, sin la opacidad del producto para que se
+   lea (6:1). Es parte de la imagen: sin hover, sin presión y con el cursor común. */
 .plano [data-ui='busqueda'] .garages-ficha__boton {
   display: inline-flex;
   align-items: center;
@@ -56,8 +58,8 @@
   margin-top: 8px;
   padding: 0 14px;
   border-radius: 10px;
-  background: var(--senal);
-  color: var(--senal-sobre);
+  background: var(--border);
+  color: var(--texto-suave);
   font: 700 13px/1 var(--font-body);
   cursor: default;
 }
@@ -102,6 +104,9 @@
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
 }
+/* En la nota con 3D de 390 px la etiqueta va en dos renglones: balance evita que
+   "empresas" quede sola en el segundo. */
+.plano [data-ui='visibilidad'] .garages-visibilidad__titulo { text-wrap: balance; }
 /* La pista habla el idioma del dibujo: en borrador, línea de trazos en tinta (tu garage
    fuera del mapa); visible, llena de azul señal (tu garage en el mapa). */
 .plano [data-ui='visibilidad'] .garages-visibilidad__pista {
@@ -172,8 +177,10 @@
 /* Sin 3D: los dos pósters del interruptor, uno encima del otro, se cruzan por opacidad.
    El conjunto ocupa la columna de la figura, como la figura de las demás secciones. */
 .plano .garages-poster { display: grid; }
-.plano .garages-poster > .plano-figura { grid-area: 1 / 1; opacity: 0; transition: opacity 200ms ease; }
-.plano .garages-poster[data-estado='visible'] > .plano-figura:first-child,
+.plano .garages-poster > .plano-figura { grid-area: 1 / 1; }
+/* Solo se funde el de borrador, que va encima: el visible queda opaco debajo. Si se
+   fundían los dos a la vez, a mitad del cruce las líneas que comparten se aclaraban. */
+.plano .garages-poster > .plano-figura:last-child { opacity: 0; transition: opacity 200ms var(--salida); }
 .plano .garages-poster[data-estado='borrador'] > .plano-figura:last-child { opacity: 1; }
 @media (min-width: 900px), (min-width: 600px) and (orientation: landscape) {
   .plano[data-sin3d='true'] .garages-poster { justify-self: end; width: 100%; max-width: 720px; }
