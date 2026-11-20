@@ -1,41 +1,22 @@
-import { useState, useRef } from 'react';
-import { Autocomplete } from '@react-google-maps/api';
+import { useId, useState } from 'react';
 import "./formulario_zona.css";
 import FieldValidation from "../components/FieldValidation";
 import SelectorDiasOperativos from "./selector_dias_operativos";
-import { useGoogleMaps } from '../contexts/useGoogleMaps';
+import UbicacionGarage from './UbicacionGarage';
 
 function FormularioZona({
     formData,
     onChange,
     sedes = [],
     fieldsValidation = {},
+    coordenadas,
     onCoordenadasChange,
     hideSede = false,
     ubicacionFija
 }) {
-  const { isLoaded, loadError } = useGoogleMaps();
-  if (loadError) console.warn('formulario_zona: Google Maps no cargó:', loadError);
-
-  const autocompleteRef = useRef(null);
-
-  const handlePlaceChanged = () => {
-    const place = autocompleteRef.current.getPlace();
-    if (place?.geometry) {
-      const lat = place.geometry.location.lat();
-      const lng = place.geometry.location.lng();
-      const direccion = place.formatted_address || '';
-      onChange('ubicacion', direccion);
-      if (onCoordenadasChange) {
-        onCoordenadasChange({ lat, lng, direccion });
-      }
-    }
-  };
-
     const [isOpenSede, setIsOpenSede] = useState(false);
     const [es24Horas, setEs24Horas] = useState(false);
-    const aperturaRef = useRef(null);
-    const cierreRef = useRef(null);
+    const id = useId();
 
     const getDisplayName = (item) => item?.nombre || item?.name || item?.descripcion || item?.tipo || '';
 
@@ -119,9 +100,10 @@ function FormularioZona({
 
                </section>
               
-                <div className={`input-group ${formData.ubicacion ? 'has-value' : ''}`}>
-                    {ubicacionFija !== undefined ? (
+                {ubicacionFija !== undefined ? (
+                    <div className={`input-group ${ubicacionFija ? 'has-value' : ''}`}>
                         <input
+                            id={`${id}-ubicacion`}
                             type="text"
                             placeholder=" "
                             value={ubicacionFija || ''}
@@ -130,40 +112,29 @@ function FormularioZona({
                             autoComplete="off"
                             aria-readonly="true"
                         />
-                    ) : isLoaded ? (
-                        <Autocomplete
-                            onLoad={(autocomplete) => { autocompleteRef.current = autocomplete; }}
-                            onPlaceChanged={handlePlaceChanged}
-                        >
-                            <input
-                                type="text"
-                                placeholder=" "
-                                value={formData.ubicacion || ''}
-                                onChange={(e) => onChange('ubicacion', e.target.value)}
-                                autoComplete="off"
-                                required
-                            />
-                        </Autocomplete>
-                    ) : (
-                        <input
-                            type="text"
-                            placeholder=" "
-                            value={formData.ubicacion || ''}
-                            onChange={(e) => onChange('ubicacion', e.target.value)}
-                            autoComplete="off"
-                            required
-                        />
-                    )}
-                    <label>Ubicacion</label>
-                    {fieldsValidation.ubicacion && (
-                      <FieldValidation conditions={fieldsValidation.ubicacion.conditions} isTouched={fieldsValidation.ubicacion.isTouched} />
-                    )}
-                </div>
+                        <label htmlFor={`${id}-ubicacion`}>Ubicación</label>
+                    </div>
+                ) : (
+                    <UbicacionGarage
+                        direccion={formData.ubicacion || ''}
+                        coordenadas={coordenadas}
+                        mostrarMapa={coordenadas !== undefined}
+                        onDireccionChange={(direccion) => onChange('ubicacion', direccion)}
+                        onSeleccionar={(punto) => {
+                            onChange('ubicacion', punto.direccion);
+                            onCoordenadasChange?.(punto);
+                        }}
+                    >
+                        {fieldsValidation.ubicacion && (
+                            <FieldValidation conditions={fieldsValidation.ubicacion.conditions} isTouched={fieldsValidation.ubicacion.isTouched} />
+                        )}
+                    </UbicacionGarage>
+                )}
 
                 <div className="fila-inputs fila-horarios">
                     <div className="input-group input-group-time">
                         <input
-                            ref={aperturaRef}
+                            id={`${id}-apertura`}
                             type="time"
                             placeholder=" "
                             value={formData.hora_apertura || ''}
@@ -175,7 +146,7 @@ function FormularioZona({
                             autoComplete="off"
                             required={!es24Horas}
                         />
-                        <label>Hora de apertura</label>
+                        <label htmlFor={`${id}-apertura`}>Hora de apertura</label>
                         {fieldsValidation.hora_apertura && (
                           <FieldValidation conditions={fieldsValidation.hora_apertura.conditions} isTouched={fieldsValidation.hora_apertura.isTouched} />
                         )}
@@ -183,7 +154,7 @@ function FormularioZona({
 
                     <div className="input-group input-group-time">
                         <input
-                            ref={cierreRef}
+                            id={`${id}-cierre`}
                             type="time"
                             placeholder=" "
                             value={formData.hora_cierre || ''}
@@ -195,7 +166,7 @@ function FormularioZona({
                             autoComplete="off"
                             required={!es24Horas}
                         />
-                        <label>Hora de cierre</label>
+                        <label htmlFor={`${id}-cierre`}>Hora de cierre</label>
                         {fieldsValidation.hora_cierre && (
                           <FieldValidation conditions={fieldsValidation.hora_cierre.conditions} isTouched={fieldsValidation.hora_cierre.isTouched} />
                         )}

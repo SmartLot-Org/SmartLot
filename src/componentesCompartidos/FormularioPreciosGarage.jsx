@@ -1,9 +1,9 @@
 import './FormularioPreciosGarage.css';
 
 const PRICE_FIELDS = [
-  ['precio_auto', 'Precio por hora - Auto'],
-  ['precio_moto', 'Precio por hora - Moto'],
-  ['precio_pickup', 'Precio por hora - Pickup'],
+  ['precio_auto', 'Auto'],
+  ['precio_moto', 'Moto'],
+  ['precio_pickup', 'Pickup'],
 ];
 
 export default function FormularioPreciosGarage({ values, onChange, disabled = false, integerOnly = false }) {

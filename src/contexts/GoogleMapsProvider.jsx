@@ -5,9 +5,15 @@ import { GoogleMapsContext } from './googleMapsContext';
 // con lazy(): así @react-google-maps/api no entra al bundle de entrada y solo
 // se descarga cuando una pantalla pide el mapa (ADR-006).
 const MapsLoaderBridge = lazy(() => import('./MapsLoaderBridge'));
+const estadoInicial = {
+  isLoaded: false,
+  loadError: import.meta.env.VITE_GOOGLE_MAPS_FRONTEND_KEY?.trim()
+    ? null
+    : new Error('Falta configurar la clave de Google Maps.'),
+};
 
 export function GoogleMapsProvider({ children }) {
-  const [mapsState, setMapsState] = useState({ isLoaded: false, loadError: null });
+  const [mapsState, setMapsState] = useState(estadoInicial);
   const [requested, setRequested] = useState(false);
 
   const requestMapsLoad = useCallback(() => {

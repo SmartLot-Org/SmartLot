@@ -3,6 +3,7 @@ import { ArrowLeft, Building2, CheckCircle2, Clock3, MapPin, ParkingCircle, Sear
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { useAuth } from '../contexts/useAuth';
+import { useGoogleMaps } from '../contexts/useGoogleMaps';
 import Header from '../componentesAdmin/header_admin';
 import FooterAdmin from '../componentesAdmin/footer_admin';
 import BotonGenerico from '../componentesAdmin/boton_generico';
@@ -11,7 +12,7 @@ import { SedesGetAll } from '../servicies/API_Sede';
 import { GaragesGetCercanos } from '../servicies/API_Garage';
 import { TratosCancelar, TratosGetAll, TratosUpdate, TratosUpdatePaymentModality } from '../servicies/API_TratoEmpresaGarage';
 import { SolicitudesCreate, SolicitudesGetEnviadas } from '../servicies/API_SolicitudEmpresaGarage';
-import { buildSolicitudPayload, filterGarages, normalizeDays, normalizeList, parsePositiveInteger } from '../helpers/tratos';
+import { buildSolicitudPayload, filterGarages, getMapPosition, normalizeDays, normalizeList, parsePositiveInteger } from '../helpers/tratos';
 import './gestion_garages.css';
 
 const MapaGaragesCercanos = lazy(() => import('../componentesAdmin/MapaGaragesCercanos'));
@@ -45,6 +46,7 @@ export default function GestionGarages() {
   const [submitting, setSubmitting] = useState(false);
   const [mapSelectedGarageId, setMapSelectedGarageId] = useState(null);
   const garageCardRefs = useRef(new Map());
+  const { isLoaded: mapaCargado, loadError: errorMapa } = useGoogleMaps({ enabled: tab === 'buscar' && Boolean(sedeId) });
 
   const loadContracts = useCallback(async () => {
     const response = await TratosGetAll({ force: true });
@@ -104,6 +106,9 @@ export default function GestionGarages() {
   const pendingGarageKeys = useMemo(() => new Set(solicitudes.filter((s) => s.estado === 'pendiente').map((s) => `${Number(s.id_sede)}:${Number(s.id_garage)}`)), [solicitudes]);
   const contractedSpaces = useMemo(() => tratos.reduce((total, trato) => total + Number(trato.cantidad_cocheras || 0), 0), [tratos]);
   const selectedSede = useMemo(() => sedes.find((s) => String(s.id) === String(sedeId)) || null, [sedes, sedeId]);
+  const hayGaragesEnMapa = results.some((garage) => getMapPosition(garage));
+  const hayUbicaciones = Boolean(getMapPosition(selectedSede)) || hayGaragesEnMapa;
+  const mapaDisponible = mapaCargado && hayUbicaciones;
   const visibleMapSelectedId = useMemo(() => results.some((garage) => String(garage.id) === String(mapSelectedGarageId)) ? mapSelectedGarageId : null, [mapSelectedGarageId, results]);
   const cantidadNumero = Number(cantidad);
   const cantidadValida = Number.isInteger(cantidadNumero) && cantidadNumero > 0 && cantidadNumero <= Number(selected?.cocheras_disponibles || 0);
@@ -240,27 +245,28 @@ export default function GestionGarages() {
     {!loading && !error && tab === 'buscar' && !sedeId && <EmptyState size="sm" icon={Search} title="Seleccioná una sede para buscar garages cercanos." />}
     {!loading && !error && tab === 'buscar' && sedeId && <section className="garage-search-results" aria-label="Mapa y garages cercanos">
       <aside className="garage-map-panel" aria-label="Mapa de garages cercanos">
-        <header><div><span>Ubicaciones cercanas</span><strong>{results.length} {results.length === 1 ? 'garage encontrado' : 'garages encontrados'}</strong></div><small><span className="garage-map-legend garage-map-legend--sede"/>Sede <span className="garage-map-legend"/>Garage</small></header>
-        <div className="garage-map-container">
+        <header><div><span>Ubicaciones cercanas</span><strong>{results.length} {results.length === 1 ? 'garage encontrado' : 'garages encontrados'}</strong></div>{mapaDisponible && <small><span className="garage-map-legend garage-map-legend--sede"/>Sede <span className="garage-map-legend"/>Garage</small>}</header>
+        <div className={`garage-map-container${errorMapa || (mapaCargado && !hayUbicaciones) ? ' garage-map-container--unavailable' : ''}`}>
           <Suspense fallback={<div className="garage-map-state" role="status"><span className="garage-map-spinner"/><div><strong>Cargando mapa</strong><span>Preparando las ubicaciones…</span></div></div>}>
-            <MapaGaragesCercanos sede={selectedSede} garages={results} selectedGarageId={visibleMapSelectedId} onSelectGarage={selectGarageOnMap} onClearSelection={() => setMapSelectedGarageId(null)}/>
+            <MapaGaragesCercanos sede={selectedSede} garages={results} selectedGarageId={visibleMapSelectedId} onSelectGarage={selectGarageOnMap} onClearSelection={() => setMapSelectedGarageId(null)} isLoaded={mapaCargado} loadError={errorMapa}/>
           </Suspense>
         </div>
-        <p>Seleccioná un marcador para encontrar su tarjeta en el listado.</p>
+        {mapaDisponible && hayGaragesEnMapa && <p>Seleccioná un marcador para encontrar su tarjeta en el listado.</p>}
       </aside>
       <div className="garage-results-list" aria-live="polite">
         {results.length === 0 ? <EmptyState tone="filtered" icon={Search} title="No se encontraron garages con esos filtros." description="Probá ampliar el radio de búsqueda o quitá los filtros aplicados." action={{ label: 'Limpiar filtros', onClick: limpiarFiltros }} /> : results.map((g) => {
           const pending = pendingGarageKeys.has(`${Number(sedeId)}:${Number(g.id)}`);
-          const highlighted = String(visibleMapSelectedId) === String(g.id);
+          const garageEnMapa = mapaDisponible && Boolean(getMapPosition(g));
+          const highlighted = garageEnMapa && String(visibleMapSelectedId) === String(g.id);
           return <article
-            className={`trato-card trato-card--search${highlighted ? ' trato-card--map-selected' : ''}`}
+            className={`trato-card trato-card--search${garageEnMapa ? ' trato-card--locatable' : ''}${highlighted ? ' trato-card--map-selected' : ''}`}
             key={g.id}
             ref={(node) => { if (node) garageCardRefs.current.set(String(g.id), node); else garageCardRefs.current.delete(String(g.id)); }}
-            onClick={() => selectGarageOnMap(g, { scroll: false })}
+            onClick={garageEnMapa ? () => selectGarageOnMap(g, { scroll: false }) : undefined}
           >
             <span className="trato-sede">{g.distanciaTexto || `${Number(g.distance).toFixed(1)} km`} · {g.tiempoConduccion || 'tiempo estimado'}</span>
             <h2>{g.nombre}</h2><p>{g.ubicacion}</p><p>{g.hora_apertura || '—'} a {g.hora_cierre || '—'} · {normalizeDays(g.dias).join(', ') || 'Días no informados'}</p><strong>{g.cocheras_disponibles} de {g.capacidad} disponibles</strong><p>Auto {money(g.precio_auto)} · Moto {money(g.precio_moto)} · Pickup {money(g.precio_pickup)}</p>
-            <div className="garage-search-card-actions"><button type="button" className="garage-locate-button" onClick={(event) => { event.stopPropagation(); selectGarageOnMap(g, { scroll: false }); }}><MapPin size={15}/>Ver en mapa</button><button disabled={g.ya_contratado || pending || Number(g.cocheras_disponibles) < 1} onClick={(event) => { event.stopPropagation(); openRequest(g); }}>{g.ya_contratado ? 'Ya contratado' : pending ? 'Solicitud pendiente' : 'Solicitar cocheras'}</button></div>
+            <div className="garage-search-card-actions">{garageEnMapa && <button type="button" className="garage-locate-button" onClick={(event) => { event.stopPropagation(); selectGarageOnMap(g, { scroll: false }); }}><MapPin size={15} aria-hidden="true"/>Ver en mapa</button>}<button disabled={g.ya_contratado || pending || Number(g.cocheras_disponibles) < 1} onClick={(event) => { event.stopPropagation(); openRequest(g); }}>{g.ya_contratado ? 'Ya contratado' : pending ? 'Solicitud pendiente' : 'Solicitar cocheras'}</button></div>
           </article>;
         })}
       </div>

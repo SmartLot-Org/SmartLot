@@ -5,7 +5,7 @@ import FooterDueñoGarage from "../componentesDueñoGarage/footer_dueño_garage"
 import { CuentasCorrientesDuenoGet, CuentasCorrientesGaragesGet } from "../servicies/API_CuentasCorrientes";
 import { exportarDeudasGarageExcel, exportarDeudasGaragePDF } from "../util/exportar_deudas_garage";
 import EmptyState from "../componentesCompartidos/EmptyState";
-import "./duenio_garage.css";
+import "./duenio_garage_layout.css";
 import "./cuentas_por_cobrar.css";
 
 const moneda = (n) => new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 2 }).format(n ?? 0);
@@ -43,7 +43,7 @@ export default function CuentasPorCobrarGarage() {
   const cambiar = (setter, value) => { setCargando(true); setError(""); setter(value); }; const limpiar = () => { setCargando(true); setError(""); setBusqueda(""); setIdGarage(""); setPeriodo(actual); };
   const exportar = async (formato) => { setExportando(true); try { const opts = { garage: idGarage ? garages.find((g) => Number(g.id) === Number(idGarage))?.nombre : "Todos los garages", periodo: nombrePeriodo(periodo) }; if (formato === "pdf") await exportarDeudasGaragePDF(data.items, opts); else await exportarDeudasGarageExcel(data.items, opts); setExportarAbierto(false); } finally { setExportando(false); } };
   const metricas = [{ label: "Importe generado", valor: moneda(data.summary.importeGenerado), icono: WalletCards, tono: "blue" }, { label: "Reservas utilizadas", valor: String(data.summary.reservasUtilizadas), icono: ReceiptText, tono: "slate" }, { label: "Tiempo utilizado", valor: duracion(data.summary.minutosTotales), icono: Timer, tono: "green" }, { label: "Empresas con consumo", valor: String(new Set(data.items.map((i) => i.idEmpresa)).size), icono: Building2, tono: "slate" }];
-  return <div className="duenio-garage-page cxc-page"><HeaderDueñoGarage /><main className="duenio-garage-main cxc-main"><header className="cxc-page-header"><div className="cxc-heading-copy"><span className="cxc-eyebrow">Administrador del garage</span><h1>Consumos generados</h1><p>Consultá los importes generados por las reservas utilizadas en tus garages.</p></div></header>
+  return <div className="duenio-garage-page cxc-page"><HeaderDueñoGarage /><main className="duenio-garage-main duenio-garage-main--contained cxc-main"><header className="cxc-page-header"><div className="cxc-heading-copy"><span className="cxc-eyebrow">Administrador del garage</span><h1>Consumos generados</h1><p>Consultá los importes generados por las reservas utilizadas en tus garages.</p></div></header>
     <section className="cxc-kpis">{metricas.map(({ label, valor, icono: Icono, tono }) => <article key={label}><div className={`cxc-kpi-icon cxc-kpi-icon--${tono}`}><Icono size={21} /></div><div><span>{label}</span><strong>{valor}</strong></div></article>)}</section>
     <section className="cxc-alert"><CircleDollarSign size={21} /><div><strong>Estos datos son consumos generados.</strong><span>No confirman cobros, vencimientos ni pagos recibidos.</span></div></section>
     <section className="cxc-accounts"><div className="cxc-section-title"><div><span className="cxc-eyebrow">Empresas, sedes y garages autorizados</span><h2>Consumos por empresa</h2><p>{data.items.length} resultados</p></div><button type="button" className="cxc-export" onClick={() => setExportarAbierto(true)} disabled={!data.items.length || cargando}><Download size={18} /> Exportar consumos</button></div>

@@ -320,8 +320,9 @@
 
 .garage-results-list { display: grid; gap: 12px; }
 .garage-results-list .garages-feedback { margin: 0; }
-.trato-card--search { cursor: pointer; transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease; }
-.trato-card--search:hover { transform: translateY(-1px); }
+.trato-card--search { transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease; }
+.trato-card--locatable { cursor: pointer; }
+.trato-card--locatable:hover { transform: translateY(-1px); }
 .trato-card--map-selected { border-color: var(--garage-primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, .11), 0 5px 16px rgba(15, 23, 42, .07); }
 .garage-search-card-actions { display: flex; align-items: center; gap: 8px; margin-top: auto; padding-top: 14px; }
 .garage-search-card-actions > button { flex: 1; }
@@ -380,6 +381,8 @@
   .garage-search-card-actions > button { width: 100%; min-height: 44px; }
   .trato-modal > div { padding: 20px 18px; }
 }
+
+.garage-map-container.garage-map-container--unavailable { height: auto; }
 
 @media (prefers-reduced-motion: reduce) {
   .gestion-garages *,

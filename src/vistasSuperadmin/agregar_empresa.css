@@ -159,8 +159,8 @@
   border-top: 1px solid #e2e8f0;
 }
 
-.agregar-empresa-actions .btn-guardar-grande,
-.agregar-empresa-actions .btn-cancelar-grande {
+.agregar-empresa-actions .superadmin-form-save,
+.agregar-empresa-actions .superadmin-form-cancel {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -177,35 +177,35 @@
   transition: background-color 0.2s;
 }
 
-.agregar-empresa-actions .btn-guardar-grande {
+.agregar-empresa-actions .superadmin-form-save {
   background-color: #2563eb;
   color: #ffffff;
   box-shadow: 0 4px 14px rgba(37, 99, 235, 0.25);
 }
 
-.agregar-empresa-actions .btn-guardar-grande:hover:not(:disabled) {
+.agregar-empresa-actions .superadmin-form-save:hover:not(:disabled) {
   background-color: #1d4ed8;
 }
 
-.agregar-empresa-actions .btn-cancelar-grande {
+.agregar-empresa-actions .superadmin-form-cancel {
   background-color: #e2e8f0;
   color: #1e293b;
 }
 
-.agregar-empresa-actions .btn-cancelar-grande:hover:not(:disabled) {
+.agregar-empresa-actions .superadmin-form-cancel:hover:not(:disabled) {
   background-color: #cbd5e1;
 }
 
-.agregar-empresa-actions .btn-guardar-grande:disabled,
-.agregar-empresa-actions .btn-cancelar-grande:disabled {
+.agregar-empresa-actions .superadmin-form-save:disabled,
+.agregar-empresa-actions .superadmin-form-cancel:disabled {
   opacity: 0.6;
   cursor: not-allowed;
   box-shadow: none;
 }
 
 .agregar-empresa-top .boton-back:focus-visible,
-.agregar-empresa-actions .btn-guardar-grande:focus-visible,
-.agregar-empresa-actions .btn-cancelar-grande:focus-visible {
+.agregar-empresa-actions .superadmin-form-save:focus-visible,
+.agregar-empresa-actions .superadmin-form-cancel:focus-visible {
   outline: 2px solid #2563eb;
   outline-offset: 3px;
 }
@@ -228,16 +228,16 @@
     align-items: stretch;
   }
 
-  .agregar-empresa-actions .btn-guardar-grande,
-  .agregar-empresa-actions .btn-cancelar-grande {
+  .agregar-empresa-actions .superadmin-form-save,
+  .agregar-empresa-actions .superadmin-form-cancel {
     width: 100%;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .agregar-empresa-top .boton-back,
-  .agregar-empresa-actions .btn-guardar-grande,
-  .agregar-empresa-actions .btn-cancelar-grande {
+  .agregar-empresa-actions .superadmin-form-save,
+  .agregar-empresa-actions .superadmin-form-cancel {
     transition: none;
   }
 }

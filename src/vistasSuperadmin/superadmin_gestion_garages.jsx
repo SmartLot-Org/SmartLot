@@ -201,7 +201,7 @@ function SuperadminGestionGarages() {
   return (
     <>
       <HeaderSuperadmin />
-      <div className="superadmin-dashboard">
+      <div className="superadmin-dashboard superadmin-garages-page">
         {loading ? (
           <>
             <div className="superadmin-dashboard-header">

@@ -2,9 +2,10 @@
    usan las vistas de dueño, admin y superadmin; antes estaban solo en
    duenio_garage.css y el formulario quedaba sin grilla fuera del panel del dueño. */
 .garage-price-fields {
+  min-inline-size: 0;
   border: 1px solid var(--border);
-  border-radius: 18px;
-  padding: 1rem;
+  border-radius: 14px;
+  padding: 12px;
 }
 
 .garage-price-fields legend {
@@ -15,8 +16,8 @@
 
 .garage-price-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0.75rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
 }
 
 .garage-price-grid label {
@@ -29,17 +30,29 @@
 }
 
 .garage-price-grid input {
-  min-height: 44px;
-  padding: 0 0.8rem;
+  width: 100%;
+  min-width: 0;
+  min-height: 48px;
+  padding: 0 8px;
   border: 1px solid var(--border-strong);
-  border-radius: 12px;
+  border-radius: 6px;
   background: var(--color-brand-surface);
   color: var(--color-brand-warm);
-  font: inherit;
+  font: 400 16px/1.4 var(--font-body);
 }
 
-@media (max-width: 640px) {
+.garage-price-grid input::placeholder {
+  color: var(--color-brand-muted);
+  font-size: 12px;
+}
+
+.garage-price-grid input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+@media (max-width: 360px) {
   .garage-price-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

@@ -257,7 +257,42 @@ function AdminPagos() {
         const pagada = c.estadoPago === "PAGADA" || !(c.importePendiente > 0);
         const pagando = pagandoKey === key;
         const aCobrar = c.importePendiente;
-        return <article className="pagos-account-card" key={key}><div className="pagos-account-card__header"><div><strong>{c.garage}</strong><span>{c.sede} · {nombrePeriodo(c.periodo)}</span></div>{pagada ? <span className="pagos-badge pagos-badge--pagada"><BadgeCheck size={12} /> {c.estadoPago === "PAGADA" ? "PAGADA" : "SIN SALDO"}</span> : <span className="pagos-badge pagos-badge--pendiente">PENDIENTE</span>}</div><dl><div><dt>Reservas</dt><dd>{c.reservasUtilizadas}</dd></div><div><dt>Importe generado</dt><dd>{moneda(c.importeGenerado)}<br /><small style={{ fontSize: 11, color: "#64748b" }}>a cobrar {moneda(aCobrar)}</small></dd></div></dl><div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>{pagada ? <span className="pagos-badge pagos-badge--pagada" style={{ height: 36, padding: "0 12px", display: "inline-flex", alignItems: "center", gap: 6 }}><BadgeCheck size={14} /> {c.estadoPago === "PAGADA" ? "PAGADA" : "SIN SALDO"}</span> : <button className="pagos-pay-button" type="button" onClick={() => handlePagar(c)} disabled={pagando || c.requiereRegularizacion}>{pagando ? <Loader2 size={14} className="pagos-spin" /> : <CreditCard size={14} />} {pagando ? "Creando..." : `PAGAR ${moneda(aCobrar)}`}</button>}<button className="pagos-detail-button" type="button" onClick={() => setSeleccionada(c)}>Ver detalle <ChevronRight size={16} /></button></div></article>;
+        return (
+          <article className="pagos-account-card" key={key}>
+            <div className="pagos-account-card__header">
+              <div>
+                <strong>{c.garage}</strong>
+                <span>{c.sede} · {nombrePeriodo(c.periodo)}</span>
+              </div>
+              {pagada ? (
+                <span className="pagos-badge pagos-badge--pagada">
+                  <BadgeCheck size={12} /> {c.estadoPago === "PAGADA" ? "PAGADA" : "SIN SALDO"}
+                </span>
+              ) : (
+                <span className="pagos-badge pagos-badge--pendiente">PENDIENTE</span>
+              )}
+            </div>
+            <dl>
+              <div><dt>Reservas</dt><dd>{c.reservasUtilizadas}</dd></div>
+              <div className="pagos-account-card__time"><dt>Tiempo</dt><dd>{duracion(c.minutosTotales)}</dd></div>
+              <div>
+                <dt>Importe generado</dt>
+                <dd>{moneda(c.importeGenerado)}<br /><small>a cobrar {moneda(aCobrar)}</small></dd>
+              </div>
+            </dl>
+            <div className="pagos-account-card__actions">
+              {!pagada && (
+                <button className="pagos-pay-button" type="button" onClick={() => handlePagar(c)} disabled={pagando || c.requiereRegularizacion}>
+                  {pagando ? <Loader2 size={14} className="pagos-spin" /> : <CreditCard size={14} />}
+                  {pagando ? "Creando..." : `PAGAR ${moneda(aCobrar)}`}
+                </button>
+              )}
+              <button className="pagos-detail-button" type="button" onClick={() => setSeleccionada(c)}>
+                Ver detalle <ChevronRight size={16} />
+              </button>
+            </div>
+          </article>
+        );
       })}</div></> : <EmptyState icon={Search} tone="filtered" title="No hay consumos para estos filtros" description="El período consultado no registra reservas utilizadas." action={{ label: "Limpiar filtros", onClick: limpiar }} />}
     </section></main><FooterAdmin /><DetalleCuenta cuenta={seleccionada} onClose={() => setSeleccionada(null)} onPagar={handlePagar} pagando={seleccionada ? pagandoKey === `${seleccionada.idGarage}-${seleccionada.idSede}-${seleccionada.periodo}` : false} /><ExportarModal abierto={exportarAbierto} cantidad={data.items.length} cargando={exportando} onClose={() => setExportarAbierto(false)} onExport={exportar} /></div>;
 }

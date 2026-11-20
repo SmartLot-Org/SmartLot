@@ -16,7 +16,7 @@ import { GaragesGetAll } from "../servicies/API_Garage";
 import useLiveValidation from "../hooks/useLiveValidation";
 import { guardarCambiosPerfil, mensajeErrorServidor } from "../helpers/perfilGuardado";
 import FieldValidation from "../components/FieldValidation";
-import "./duenio_garage.css";
+import "./duenio_garage_layout.css";
 import "./perfil_dueño_garage.css";
 
 gsap.registerPlugin(useGSAP);
@@ -327,16 +327,16 @@ export default function PerfilDueñoGarage() {
     <div className="duenio-garage-page">
       <HeaderDueñoGarage />
 
-      <main className="duenio-garage-main" ref={mainScopeRef}>
+      <main className="duenio-garage-main duenio-garage-main--contained" ref={mainScopeRef}>
         <div className="duenio-perfil-topbar">
           <div className="animate-dueño-back">
             <button
-              className="duenio-back-button"
+              className="duenio-back-button has-text"
               onClick={handleVolverConVerificacion}
-              aria-label="Volver al panel del dueño"
               type="button"
             >
-              <ArrowLeft size={20} />
+              <ArrowLeft size={18} aria-hidden="true" />
+              Volver al panel
             </button>
           </div>
 

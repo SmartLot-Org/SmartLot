@@ -1,10 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/useAuth";
 import FormularioInfoPersonal from "../componentesAdmin/formulario_infoPersonal";
 import Header from "../componentesAdmin/header_admin";
 import "./agregar_empleado.css"
-import { CircleCheck } from 'lucide-react';
 import BotonGenerico from "../componentesAdmin/boton_generico";
 import { UsuariosCreate } from "../servicies/API_Usuario";
 import { VehiculosCreate } from "../servicies/API_Vehiculo";
@@ -12,7 +11,6 @@ import { ModelosGetAll } from "../servicies/API_Modelo";
 import { SedesGetAll } from "../servicies/API_Sede";
 import useLiveValidation from "../hooks/useLiveValidation";
 import ReservationLimitFields from "../componentesAdmin/ReservationLimitFields";
-import "../componentesAdmin/ReservationLimitFields.css";
 import { parseReservationLimit } from "../helpers/reservationPolicy";
 
 const obtenerListado = (datos) => {
@@ -42,6 +40,8 @@ function AgregarEmpleado() {
   const [loading, setLoading] = useState(false);
   const [limited, setLimited] = useState(false);
   const [limitValue, setLimitValue] = useState('');
+  const [limitError, setLimitError] = useState('');
+  const limitInputRef = useRef(null);
   const [, setModelos] = useState([]);
   const [sedes, setSedes] = useState([]);
 
@@ -141,14 +141,21 @@ function AgregarEmpleado() {
     handleChangeWithTouch(field, value, setFormData);
   };
 
-  const handleGuardarEmpleado = async () => {
+  const handleGuardarEmpleado = async (event) => {
+    event.preventDefault();
+    if (loading) return;
     setError('');
+    setLimitError('');
     let limiteReservasActivas;
     try { limiteReservasActivas = parseReservationLimit(limited, limitValue); }
-    catch (error) { setError(error.message); return; }
+    catch (error) {
+      setLimitError(error.message);
+      limitInputRef.current?.focus();
+      return;
+    }
 
     if (!isValid) {
-      setError('❌ Corrige los errores antes de guardar.');
+      setError('Revisá los datos personales antes de guardar.');
       return;
     }
 
@@ -156,12 +163,12 @@ function AgregarEmpleado() {
     const modeloSeleccionado = formData.id_modelo;
 
     if ((patenteIngresada && !modeloSeleccionado) || (!patenteIngresada && modeloSeleccionado)) {
-      setError('❌ Si ingresas detalles del vehículo, debes completar tanto la patente como seleccionar un modelo.');
+      setError('Completá la patente y seleccioná un modelo para guardar el vehículo.');
       return;
     }
 
     if (!formData.id_empresa) {
-      setError('❌ No se pudo determinar tu empresa. No puedes crear empleados.');
+      setError('No pudimos identificar tu empresa. Volvé a iniciar sesión e intentá de nuevo.');
       return;
     }
 
@@ -184,7 +191,7 @@ function AgregarEmpleado() {
     if (!response.respuesta) {
       setLoading(false);
       const serverMsg = response.datos?.message || response.datos || 'Error al crear el usuario.';
-      setError(typeof serverMsg === 'string' ? `❌ ${serverMsg}` : '❌ Error al crear el usuario.');
+      setError(typeof serverMsg === 'string' ? serverMsg : 'No se pudo crear el empleado.');
       return;
     }
 
@@ -204,14 +211,14 @@ function AgregarEmpleado() {
             if (!vehRes.respuesta) {
               setLoading(false);
               const msg = vehRes.datos?.message || vehRes.datos || 'Error al crear el vehículo.';
-              setError(typeof msg === 'string' ? `❌ ${msg}` : '❌ Error al crear el vehículo.');
+              setError(typeof msg === 'string' ? msg : 'No se pudo guardar el vehículo.');
               return;
             }
           }
         } catch (vehErr) {
           console.error("Error al guardar el vehículo del empleado:", vehErr);
           setLoading(false);
-          setError('❌ Error inesperado al guardar el vehículo. Revisa la consola.');
+          setError('Se creó el empleado, pero no se pudo guardar su vehículo.');
           return;
         }
       }
@@ -219,19 +226,16 @@ function AgregarEmpleado() {
       navigate('/gestion_de_empleados', { replace: true });
     } else {
       setLoading(false);
-      setError('❌ No se pudo guardar el empleado. Verifica los datos e intenta de nuevo.');
+      setError('No se pudo guardar el empleado. Revisá los datos e intentá de nuevo.');
     }
   };
 
   return (
     <div className="agregar-empleado-page">
       <Header />
-      <div className="textoAgregarEmpleado">
-         <h3 style={{ color: "#1D4ED8", fontSize: "24px", fontWeight: "600",  }}>Agregar Empleado</h3>
-      <p>Configuración de nuevos usuarios y sus privilegios</p>
-      </div>
-      
-      <main style={{ padding: "20px", paddingBottom: "50px", marginTop: "-10px" }}>
+      <main className="agregar-empleado-contenido">
+        <h1>Agregar empleado</h1>
+        <form noValidate onSubmit={handleGuardarEmpleado}>
           <FormularioInfoPersonal
             infoPersonalTitulo="Información Personal"
             labels={{
@@ -247,32 +251,32 @@ function AgregarEmpleado() {
             sedes={sedes}
             isSedeDisabled={!!usuario?.id_sede}
             fieldsValidation={fieldsValidation}
-          />
-
-        
-        <div className="agregar-empleado-columna">
-          <ReservationLimitFields limited={limited} value={limitValue} onLimitedChange={setLimited} onValueChange={setLimitValue} disabled={loading} />
-          {error && <p className="form-error" role="alert">{error}</p>}
-        </div>
-
-        <div className="form-actions">
-          <BotonGenerico
-            onClick={handleGuardarEmpleado}
-            disabled={loading}
-            className="btn-guardar-grande"
           >
-            <CircleCheck size={20} color="white" />
-            <span>{loading ? 'Guardando...' : 'Guardar empleado'}</span>
-          </BotonGenerico>
-
-          <BotonGenerico
-            style={{ backgroundColor: "grey" }}
-            onClick={() => navigate('/gestion_de_empleados', { replace: true })}
-            className="btn-cancelar-grande"
-          >
-            <span>Cancelar</span>
-          </BotonGenerico>
-        </div>
+            <div className="agregar-empleado-limite">
+              <ReservationLimitFields
+                limited={limited}
+                value={limitValue}
+                onLimitedChange={(enabled) => { setLimited(enabled); setLimitError(''); }}
+                onValueChange={(value) => { setLimitValue(value); setLimitError(''); }}
+                error={limitError}
+                inputRef={limitInputRef}
+                disabled={loading}
+              />
+            </div>
+            {error && <p className="reservation-limit-error" role="alert">{error}</p>}
+            <div className="reservation-limit-actions">
+              <BotonGenerico
+                className="reservation-limit-button reservation-limit-button-secondary"
+                onClick={() => navigate('/gestion_de_empleados', { replace: true })}
+              >
+                Cancelar
+              </BotonGenerico>
+              <BotonGenerico type="submit" className="reservation-limit-button" disabled={loading}>
+                {loading ? 'Guardando…' : 'Guardar empleado'}
+              </BotonGenerico>
+            </div>
+          </FormularioInfoPersonal>
+        </form>
       </main>
     </div>
   );

@@ -99,9 +99,10 @@
   margin-bottom: 2.5rem;
 }
 
- .stats-card {
+.superadmin-garages-page .stats-card {
   /* Ancla el ícono decorativo a la tarjeta; sin esto se salía de la página. */
   position: relative;
+  min-width: 0;
   background: #ffffff !important;
   border-radius: 20px;
   
@@ -280,12 +281,18 @@
   line-height: 1.5;
 }
 
-.contenedor-tarjetas {
+.superadmin-garages-page .contenedor-tarjetas {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
   gap: 1.5rem;
   width: 100%;
   align-items: stretch;
+}
+
+.superadmin-garages-page .tarjeta-garage,
+.superadmin-garages-page .garage-header h3 {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .garages-feedback {
@@ -599,8 +606,8 @@
     height: 28px;
   }
 
-  .contenedor-tarjetas {
-    grid-template-columns: 1fr;
+  .superadmin-garages-page .contenedor-tarjetas {
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .garages-section-heading {

@@ -1,0 +1,55 @@
+.garage-location {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  text-align: start;
+}
+
+.garage-location label {
+  color: var(--color-brand-warm);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.garage-location input {
+  width: 100%;
+  min-height: 48px;
+  padding: 10px 12px;
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  background: var(--color-brand-surface);
+  color: var(--color-brand-warm);
+  font: 400 16px/1.5 var(--font-body);
+}
+
+.garage-location input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.garage-location-status {
+  margin: 0;
+  color: var(--color-brand-muted);
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.garage-location-map-frame {
+  display: grid;
+  place-items: center;
+  height: 220px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--color-brand-bg);
+  color: var(--color-brand-muted);
+}
+
+.garage-location-map {
+  width: 100%;
+  height: 100%;
+}
+
+@media (min-width: 768px) {
+  .garage-location-map-frame { height: 264px; }
+}
