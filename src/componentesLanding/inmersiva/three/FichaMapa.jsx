@@ -1,5 +1,5 @@
 import { useFrame, useThree } from '@react-three/fiber';
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { Vector3 } from 'three';
 import { TarjetaBusqueda } from '../ui/garages/FichaBusqueda';
 import { G1 } from './mundo';
@@ -42,7 +42,7 @@ export function CapaFichaMapa({ busqueda, seccion }) {
     >
       <svg className="plano-ficha-mapa__flecha">
         <polyline ref={(el) => { nodo.guia = el; }} pathLength="1" strokeDasharray="1 1" strokeDashoffset="1" />
-        <circle ref={(el) => { nodo.punto = el; }} r="2.5" />
+        <circle ref={(el) => { nodo.punto = el; }} r="2.5" opacity="0" />
         <polyline ref={(el) => { nodo.punta = el; }} opacity="0" />
       </svg>
       <div ref={(el) => { nodo.tarjeta = el; }} className="plano-ficha-mapa__tarjeta" data-ui="busqueda" style={{ opacity: 0 }}>
@@ -56,13 +56,27 @@ export function CapaFichaMapa({ busqueda, seccion }) {
 export function ProyectorFichaMapa() {
   const camera = useThree((s) => s.camera);
   const size = useThree((s) => s.size);
+  const invalidate = useThree((s) => s.invalidate);
   const v = useMemo(() => new Vector3(), []);
+  // La tarjeta mide lo mismo mientras no cambien la pantalla ni la fuente: se mide una
+  // vez por tamaño, no en cada frame.
+  const medida = useRef({ clave: '', ancho: 0, alto: 0 });
+  useEffect(() => {
+    let vigente = true;
+    document.fonts?.ready.then(() => {
+      if (!vigente) return;
+      medida.current.clave = '';
+      invalidate();
+    });
+    return () => { vigente = false; };
+  }, [invalidate]);
 
   useFrame(() => {
     if (!nodo.raiz) return;
     const { ficha, fuera, tapa } = vivo.fx;
     const presencia = vivo.aparecen * (1 - fuera) * (1 - limitar(tapa * 3));
-    const visible = presencia > 0.01 && ficha > 0.001;
+    // El amortiguado deja la ficha apenas por encima de 0 un rato: debajo de 0,01 no se ve.
+    const visible = presencia > 0.01 && ficha > 0.01;
     nodo.raiz.style.opacity = visible ? presencia.toFixed(2) : '0';
     if (!visible) return;
 
@@ -71,8 +85,15 @@ export function ProyectorFichaMapa() {
     const escala = ESCALA[lado];
     const W = size.width;
     const H = size.height;
-    const ancho = nodo.tarjeta.offsetWidth * escala;
-    const alto = nodo.tarjeta.offsetHeight * escala;
+    const m = medida.current;
+    const clave = `${W}x${H}`;
+    if (m.clave !== clave) {
+      m.ancho = nodo.tarjeta.offsetWidth;
+      m.alto = nodo.tarjeta.offsetHeight;
+      m.clave = clave;
+    }
+    const ancho = m.ancho * escala;
+    const alto = m.alto * escala;
     const o = ORIGEN[lado];
     v.set(o[0], o[1], o[2]).project(camera);
     const ax = (v.x * 0.5 + 0.5) * W;
@@ -103,6 +124,7 @@ export function ProyectorFichaMapa() {
     nodo.guia.setAttribute('stroke-dashoffset', (1 - trazo).toFixed(3));
     nodo.punto.setAttribute('cx', ax.toFixed(1));
     nodo.punto.setAttribute('cy', ay.toFixed(1));
+    nodo.punto.setAttribute('opacity', limitar(trazo * 8).toFixed(2));
     nodo.punta.setAttribute('points', lista(punta));
     nodo.punta.setAttribute('opacity', limitar((trazo - 0.9) / 0.1).toFixed(2));
 

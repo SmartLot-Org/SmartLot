@@ -28,6 +28,11 @@
 }
 .plano .plano-ficha-mapa__titulo { margin: 0; padding-inline: 4px; color: var(--tinta); font: 700 13px/1.3 var(--font-body); }
 .plano .plano-ficha-mapa__titulo small { margin-left: 6px; color: var(--texto-suave); font-size: 12px; font-weight: 400; }
+/* Movimiento reducido: la cámara salta por sección y el fx llega entero; un fundido
+   corto de opacidad evita que la flecha y la tarjeta aparezcan de golpe. Sin viaje. */
+@media (prefers-reduced-motion: reduce) {
+  .plano .plano-ficha-mapa { transition: opacity 200ms var(--salida); }
+}
 
 /* ── Solicitud: la tarjeta del pedido como la ve el dueño, junto a tu garage ── */
 .plano .plano-solicitud {
