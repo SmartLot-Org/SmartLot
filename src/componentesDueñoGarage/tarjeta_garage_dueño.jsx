@@ -1,31 +1,13 @@
-import { useEffect, useRef, useState } from "react";
-import { ArrowUpRight, Clock3, MapPin, MoreVertical, ParkingCircle, Pencil, RotateCcw, ShieldCheck, Trash2 } from "lucide-react";
+import { ArrowUpRight, Clock3, MapPin, ParkingCircle, RotateCcw, ShieldCheck, Trash2 } from "lucide-react";
 import { getDiaDisplay } from "../helpers/diasSemana";
 import "./tarjeta_garage_dueño.css";
 import { formatARS } from "../helpers/prices";
 
 function TarjetaGarageDueño({ garage, porcentajeOcupacion = 0, onClick, onBorrador, onRestaurar, esBorrador }) {
-  const [menuAbierto, setMenuAbierto] = useState(false);
-  const menuRef = useRef(null);
   const nombre = garage.nombre || garage.name || garage.descripcion || "Garage sin nombre";
   const capacidad = Number(garage.capacidad || 0);
   const piso = garage.piso ? `Nivel ${garage.piso}` : "Sin nivel";
   const estadoActivo = garage.estado === true || garage.estado === 1 || String(garage.estado).toLowerCase() === "activo" || String(garage.estado).toLowerCase() === "abierto";
-
-  useEffect(() => {
-    if (!menuAbierto) return;
-
-    const manejarClickFuera = (event) => {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
-        setMenuAbierto(false);
-      }
-    };
-
-    document.addEventListener("mousedown", manejarClickFuera);
-    return () => document.removeEventListener("mousedown", manejarClickFuera);
-  }, [menuAbierto]);
-
-  const cerrarMenu = () => setMenuAbierto(false);
 
   return (
     <article className={`duenio-garage-card${esBorrador ? " is-draft" : ""}`}>
@@ -55,11 +37,11 @@ function TarjetaGarageDueño({ garage, porcentajeOcupacion = 0, onClick, onBorra
         </div>
       </div>
 
-      <div className="duenio-garage-prices">
-        <span>Auto <strong>{formatARS(garage.precio_auto)}</strong></span>
-        <span>Moto <strong>{formatARS(garage.precio_moto)}</strong></span>
-        <span>Pickup <strong>{formatARS(garage.precio_pickup)}</strong></span>
-      </div>
+      <dl className="duenio-garage-prices" aria-label="Precios por hora">
+        <div><dt>Auto</dt><dd>{formatARS(garage.precio_auto)}</dd></div>
+        <div><dt>Moto</dt><dd>{formatARS(garage.precio_moto)}</dd></div>
+        <div><dt>Pickup</dt><dd>{formatARS(garage.precio_pickup)}</dd></div>
+      </dl>
 
       <div className="duenio-garage-title">
         <span className="duenio-garage-index">SL Garage</span>

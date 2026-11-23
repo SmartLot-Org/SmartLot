@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { GoogleMap, InfoWindow, Marker } from '@react-google-maps/api';
 import { AlertCircle, MapPin } from 'lucide-react';
 import { getMapPosition } from '../helpers/tratos';
-import { useGoogleMaps } from '../contexts/useGoogleMaps';
 
 const MAP_OPTIONS = {
   streetViewControl: false,
@@ -14,9 +13,7 @@ const MAP_OPTIONS = {
 
 const garageIdOf = (garage) => garage?.id ?? garage?.id_garage;
 
-export default function MapaGaragesCercanos({ sede, garages, selectedGarageId, onSelectGarage, onClearSelection }) {
-  const apiKey = import.meta.env.VITE_GOOGLE_MAPS_FRONTEND_KEY;
-  const { isLoaded, loadError } = useGoogleMaps();
+export default function MapaGaragesCercanos({ sede, garages, selectedGarageId, onSelectGarage, onClearSelection, isLoaded, loadError }) {
   const [map, setMap] = useState(null);
   const sedePosition = useMemo(() => getMapPosition(sede), [sede]);
   const garagePoints = useMemo(() => garages.flatMap((garage) => {
@@ -49,12 +46,12 @@ export default function MapaGaragesCercanos({ sede, garages, selectedGarageId, o
     if (selected) map.panTo(selected.position);
   }, [garagePoints, map, selectedGarageId]);
 
-  if (!apiKey || loadError) {
-    return <div className="garage-map-state garage-map-state--error" role="status"><AlertCircle size={22}/><div><strong>No pudimos cargar Google Maps</strong><span>Podés seguir buscando y solicitando garages desde el listado.</span></div></div>;
+  if (loadError) {
+    return <div className="garage-map-state garage-map-state--error" role="status"><AlertCircle size={22} aria-hidden="true"/><div><strong>No pudimos cargar Google Maps</strong><span>Podés seguir buscando y solicitando garages desde el listado.</span></div></div>;
   }
 
   if (!isLoaded) {
-    return <div className="garage-map-state" role="status"><span className="garage-map-spinner"/><div><strong>Cargando mapa</strong><span>Preparando los garages cercanos…</span></div></div>;
+    return <div className="garage-map-state" role="status"><span className="garage-map-spinner" aria-hidden="true"/><div><strong>Cargando mapa</strong><span>Preparando los garages cercanos…</span></div></div>;
   }
 
   if (!sedePosition && garagePoints.length === 0) {
@@ -70,7 +67,6 @@ export default function MapaGaragesCercanos({ sede, garages, selectedGarageId, o
     options={MAP_OPTIONS}
     onLoad={(mapInstance) => {
       setMap(mapInstance);
-      fitVisiblePoints(mapInstance);
     }}
     onUnmount={() => setMap(null)}
   >

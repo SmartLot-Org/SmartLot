@@ -1,90 +1,39 @@
 .agregar-empleado-page {
-    background-color: #F7F9FB;
-    min-height: 100vh;
+  min-height: 100vh;
+  background: var(--color-brand-bg);
 }
 
-.agregar-empleado-page p {
-    font-size: 88%;
-}
-.textoAgregarEmpleado{
-    margin: 32px auto 0;
-    padding: 0 20px;
-    max-width: 548px;
-    box-sizing: border-box;
+.agregar-empleado-contenido {
+  width: 100%;
+  max-width: 548px;
+  margin-inline: auto;
+  padding: 32px 24px 48px;
+  text-align: start;
 }
 
-.agregar-empleado-page .form-actions {
-    display: flex;
-    flex-direction: column; /* Apilados verticalmente */
-    justify-content: center;
-    align-items: center;
-    margin-top: 50px;
-    width: 100%;
-    gap: 16px; /* Espacio uniforme entre botones */
+.agregar-empleado-contenido h1 {
+  margin: 0 0 16px;
+  color: var(--color-brand-navy);
+  font: 700 28px/1.2 var(--font-body);
+  letter-spacing: -0.02em;
 }
 
-/* Estilo común para ambos botones para asegurar igualdad */
-.agregar-empleado-page .btn-guardar-grande,
-.agregar-empleado-page .btn-cancelar-grande {
-    width: min(320px, 100%) !important;
-    height: 60px !important; /* Altura fija para consistencia */
-    border-radius: 20px !important;
-    font-size: 18px !important;
-    font-weight: 600 !important;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    border: none;
-    cursor: pointer;
-    transition: all 0.3s ease;
+.agregar-empleado-contenido .formulario-container {
+  margin: 0;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: none;
 }
 
-.agregar-empleado-page .btn-guardar-grande {
-    background-color: #2563EB !important;
-    color: white !important;
-    box-shadow: 0 10px 20px -5px rgba(37, 99, 235, 0.4);
+.agregar-empleado-limite {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
 }
 
-.agregar-empleado-page .btn-guardar-grande:hover {
-    background-color: #1d4ed8 !important;
-    transform: translateY(-3px) scale(1.02);
-    box-shadow: 0 15px 25px -5px rgba(37, 99, 235, 0.5);
-}
-
-.agregar-empleado-page .btn-cancelar-grande {
-    background-color: #E6E8EA !important;
-    color: #005BBF !important;
-    /* Mismo box-shadow pero más sutil para el gris */
-    box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.05);
-}
-
-.agregar-empleado-page .btn-cancelar-grande:hover {
-    background-color: #DDE0E3 !important; /* Un gris un poco más oscuro al pasar el mouse */
-    transform: translateY(-3px) scale(1.02);
-    box-shadow: 0 15px 25px -5px rgba(0, 0, 0, 0.1);
-}
-
-.agregar-empleado-page .btn-cancelar-grande:active,
-.agregar-empleado-page .btn-guardar-grande:active {
-    transform: translateY(0) scale(0.98);
-}
-
-/* Mismo ancho que la tarjeta del formulario (.formulario-container: 500px),
-   para que el bloque de límite y el error no ocupen todo el ancho de la página. */
-.agregar-empleado-columna {
-    max-width: 500px;
-    margin: 0 auto;
-}
-
-.agregar-empleado-page .form-error {
-    margin: 16px 0 0;
-    padding: 12px 16px;
-    border-radius: 10px;
-    background: var(--error-bg);
-    color: var(--error-strong);
-    font-size: 14px;
-    font-weight: 500;
-    line-height: 1.5;
-    text-align: left;
+@media (max-width: 480px) {
+  .agregar-empleado-contenido,
+  .agregar-empleado-contenido .formulario-container {
+    padding-inline: 16px;
+  }
 }

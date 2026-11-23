@@ -9,18 +9,14 @@ function FormularioInfoPersonal({
     formData,
     onChange,
     sedes = [],
-    roles = [],
     isSedeDisabled = false,
     hideSede = false,
-    fieldsValidation = {}
+    fieldsValidation = {},
+    children
 }) {
     const getDisplayName = (item) => item?.nombre || item?.name || item?.descripcion || item?.tipo || '';
 
     const [isOpenSede, setIsOpenSede] = useState(false);
-    const fixedRoles = [
-        { id: 2, nombre: 'empleado' },
-        { id: 3, nombre: 'garagista' }
-    ];
 
     const renderField = (fieldName, inputEl) => (
       <>
@@ -147,6 +143,7 @@ function FormularioInfoPersonal({
                     <label>{labels.sede}</label>
                 </div>
             )}
+            {children}
         </section>
     )
 }

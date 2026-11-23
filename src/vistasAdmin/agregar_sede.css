@@ -1,316 +1,345 @@
 .agregar-sede-admin {
   min-height: 100vh;
-  background: #f5f7fb;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  color: #4a5568;
-  box-sizing: border-box;
+  background: var(--color-brand-bg);
+  color: var(--color-brand-warm);
+  font-family: var(--font-body);
 }
 
 .agregar-sede-admin-main {
   width: 100%;
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 2rem 1rem 6rem;
-  box-sizing: border-box;
+  max-width: 1120px;
+  margin-inline: auto;
+  padding: 24px 16px 40px;
+  text-align: start;
 }
 
 .agregar-sede-admin-top {
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-  margin-bottom: 2rem;
-  text-align: left;
+  margin-bottom: 24px;
 }
 
-.boton-back-agregar {
-  width: 54px;
-  height: 54px;
-  flex: 0 0 54px;
-  border: none;
-  border-radius: 16px;
-  background: #ffffff;
-  color: #191c1e;
-  display: flex;
+.sede-admin-back {
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.07);
-  cursor: pointer;
-  transition: 0.2s ease;
+  gap: 8px;
+  min-height: 44px;
+  margin-bottom: 8px;
+  color: var(--color-brand-muted);
+  font-size: 14px;
+  font-weight: 600;
 }
 
-.boton-back-agregar:hover {
-  transform: translateY(-2px);
-  background: #2563eb;
-  color: #ffffff;
-}
-
-.agregar-sede-admin-top > div {
-  flex: 1;
-  min-width: 0;
-}
-
-.agregar-sede-admin-top p {
-  color: #156fe5;
-  font-size: 0.8rem;
-  font-weight: 800;
-  letter-spacing: 1px;
-  margin: 0 0 0.4rem;
+.sede-admin-back:hover {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 .agregar-sede-admin-top h1 {
-  font-size: clamp(2rem, 5vw, 2.8rem);
-  font-weight: 800;
-  color: #191c1e;
   margin: 0;
-  line-height: 1.1;
-  overflow-wrap: anywhere;
+  color: var(--color-brand-navy);
+  font: 700 clamp(32px, 5vw, 44px)/1.1 var(--font-body);
+  letter-spacing: -0.025em;
 }
 
 .agregar-sede-admin-form {
-  background: #ffffff;
-  border: 1px solid #dbe3ee;
-  border-radius: 16px;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--color-brand-surface);
 }
 
-.input-group-sede-admin {
+.sede-admin-layout {
+  display: grid;
+}
+
+.sede-admin-section {
   display: flex;
   flex-direction: column;
+  align-items: stretch;
+  gap: 20px;
+  min-width: 0;
+  padding: 20px;
+}
+
+.sede-admin-section--location {
+  border-top: 1px solid var(--border);
+}
+
+.sede-admin-section h2 {
+  margin: 0;
+  color: var(--color-brand-navy);
+  font: 700 20px/1.2 var(--font-body);
+  letter-spacing: -0.015em;
+}
+
+.sede-admin-company {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 64px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--color-brand-bg);
+}
+
+.sede-admin-company svg,
+.sede-admin-map-frame--unavailable svg {
+  flex-shrink: 0;
+  color: var(--color-brand-muted);
+}
+
+.sede-admin-company dl {
+  min-width: 0;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.sede-admin-company dt,
+.sede-admin-optional {
+  color: var(--color-brand-muted);
+  font-size: 13px;
+  font-weight: 400;
+}
+
+.sede-admin-company dd {
+  margin: 4px 0 0;
+  color: var(--color-brand-navy);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.sede-admin-field {
+  display: grid;
   gap: 8px;
 }
 
-.input-group-sede-admin label {
-  font-size: 13px;
+.sede-admin-field label {
+  font-size: 14px;
   font-weight: 700;
-  color: #475569;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  line-height: 1.2;
 }
 
-.input-group-sede-admin input,
-.input-group-sede-admin textarea {
+.sede-admin-required {
+  color: var(--error-strong);
+}
+
+.sede-admin-field input,
+.sede-admin-field textarea {
   width: 100%;
-  padding: 12px;
-  border: 1px solid #cbd5e1;
-  border-radius: 8px;
-  background: #ffffff;
-  font-size: 14px;
-  font-family: inherit;
-  color: #191c1e;
-  outline: none;
-  transition: border-color 0.2s, box-shadow 0.2s;
-  box-sizing: border-box;
+  min-height: 48px;
+  padding: 10px 12px;
+  border: 1px solid color-mix(in srgb, var(--border-strong) 40%, var(--color-brand-muted));
+  border-radius: 6px;
+  background: var(--color-brand-surface);
+  color: var(--color-brand-warm);
+  font: 400 16px/1.5 var(--font-body);
 }
 
-.input-group-sede-admin input:focus,
-.input-group-sede-admin textarea:focus {
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+.sede-admin-field input::placeholder,
+.sede-admin-field textarea::placeholder {
+  color: var(--color-brand-muted);
 }
 
-.input-group-sede-admin textarea {
+.sede-admin-field textarea {
+  min-height: 96px;
   resize: vertical;
-  min-height: 84px;
 }
 
-.empresa-fija-admin {
-  width: 100%;
-  padding: 12px;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  background: #f5f7fb;
-  font-size: 14px;
-  font-weight: 600;
-  color: #1e293b;
-  box-sizing: border-box;
+.sede-admin-field :is(input, textarea):focus {
+  border-color: var(--accent);
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
 }
 
-.form-error-sede-admin {
-  color: #ef4444;
-  font-size: 14px;
+.sede-admin-field input[aria-invalid="true"] {
+  border-color: var(--error-strong);
+}
+
+.sede-admin-field-error,
+.sede-admin-form-error {
   margin: 0;
+  color: var(--error-strong);
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.sede-admin-form-error {
+  padding: 12px;
+  border-radius: 6px;
+  background: var(--error-bg);
+  overflow-wrap: anywhere;
+}
+
+.sede-admin-map-preview {
+  display: grid;
+  gap: 12px;
+}
+
+.sede-admin-map-preview p,
+.sede-admin-map-frame--unavailable p {
+  margin: 0;
+  color: var(--color-brand-muted);
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.sede-admin-map-frame {
+  width: 100%;
+  height: 220px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--color-brand-bg);
+}
+
+.sede-admin-map-frame--unavailable {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  height: auto;
+  min-height: 92px;
+  padding: 16px;
+}
+
+.sede-admin-map-frame--unavailable strong {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--color-brand-warm);
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.sede-admin-map {
+  width: 100%;
+  height: 100%;
+}
+
+.sede-admin-footer {
+  display: grid;
+  gap: 12px;
+  padding: 16px 20px;
+  border-top: 1px solid var(--border);
 }
 
 .agregar-sede-admin-actions {
-  display: flex;
-  flex-direction: row;
-  gap: 1rem;
-  margin-top: 1rem;
-}
-
-.btn-guardar-sede,
-.btn-cancelar-sede {
-  min-height: 58px;
-  padding: 0.85rem 1rem;
-  border: none;
-  border-radius: 14px;
-  font-size: 1rem;
-  font-weight: 800;
-  cursor: pointer;
-  transition: 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.7rem;
-}
-
-.btn-guardar-sede {
-  background: #2563eb;
-  color: #ffffff;
-  box-shadow: 0 14px 30px rgba(37, 99, 235, 0.24);
-  flex: 1.4;
-}
-
-.btn-guardar-sede:hover {
-  background: #1d4ed8;
-  transform: translateY(-2px);
-}
-
-.btn-guardar-sede:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
-}
-
-.btn-cancelar-sede {
-  background: #ffffff;
-  color: #2563eb;
-  border: 1px solid rgba(37, 99, 235, 0.16);
-  flex: 1;
-}
-
-.btn-cancelar-sede:hover {
-  background: rgba(37, 99, 235, 0.06);
-}
-
-/* Skeleton */
-.input-sede-admin-skeleton {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
   gap: 8px;
 }
 
-.skl-form-label {
-  width: 25%;
-  height: 12px;
+.sede-admin-button.boton-base-smartlot {
+  min-height: 48px;
+  padding: 8px 16px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: var(--accent);
+  color: var(--color-brand-surface);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
 }
 
-.skl-form-control {
-  width: 100%;
-  height: 44px;
-  border-radius: 8px;
+.sede-admin-button.boton-base-smartlot:hover:enabled {
+  background: var(--accent-hover);
 }
 
-.skl-form-textarea {
-  width: 100%;
-  height: 84px;
-  border-radius: 8px;
+.sede-admin-button--secondary.boton-base-smartlot {
+  border-color: var(--border-strong);
+  background: var(--color-brand-surface);
+  color: var(--color-brand-warm);
 }
 
-.skl-form-button {
-  width: 320px;
-  max-width: 100%;
-  height: 58px;
-  border-radius: 14px;
+.sede-admin-button--secondary.boton-base-smartlot:hover:enabled {
+  background: var(--color-brand-bg);
 }
 
-.skl-form-button.secondary {
-  background: #f1f5f9;
+.sede-admin-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
-/* Media queries */
-@media (max-width: 768px) {
-  .agregar-sede-admin-main {
-    padding: 1.5rem 0.85rem 2rem;
-  }
-
-  .agregar-sede-admin-top {
-    gap: 0.8rem;
-  }
-
-  .boton-back-agregar {
-    width: 48px;
-    height: 48px;
-    flex-basis: 48px;
-    border-radius: 14px;
-  }
-
-  .agregar-sede-admin-top h1 {
-    font-size: 1.9rem;
-  }
-
-  .agregar-sede-admin-actions {
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-
-  .btn-guardar-sede,
-  .btn-cancelar-sede {
-    width: 100%;
-    min-height: 52px;
-    border-radius: 12px;
-  }
+.sede-admin-back:focus-visible,
+.sede-admin-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
-@media (max-width: 480px) {
-  .agregar-sede-admin-top {
-    display: grid;
-    grid-template-columns: 44px minmax(0, 1fr);
-    gap: 0.75rem;
-    margin-bottom: 1.4rem;
-  }
-
-  .boton-back-agregar {
-    width: 44px;
-    height: 44px;
-    flex-basis: 44px;
-    border-radius: 12px;
-  }
-
-  .agregar-sede-admin-top p {
-    font-size: 0.74rem;
-    letter-spacing: 0.6px;
-  }
-
-  .agregar-sede-admin-top h1 {
-    font-size: 1.75rem;
-  }
-
-  .btn-guardar-sede,
-  .btn-cancelar-sede {
-    padding: 0.75rem 0.7rem;
-    font-size: 0.92rem;
-    gap: 0.45rem;
-  }
-}
-
-/* Base del esqueleto: estaba solo en gestion_sedes.css y se perdía al entrar directo. */
-.agregar-sede-admin-form-skeleton .skl-line {
-  display: block;
+.sede-admin-skeleton {
+  display: grid;
+  place-items: center;
   position: relative;
   overflow: hidden;
-  border-radius: 999px;
   background: var(--border);
+  color: var(--color-brand-muted);
 }
 
-.agregar-sede-admin-form-skeleton .skl-line::after {
+.sede-admin-skeleton::after {
   content: "";
   position: absolute;
   inset: 0;
   transform: translateX(-100%);
-  background: linear-gradient(90deg, transparent 0%, color-mix(in srgb, var(--color-brand-surface) 65%, transparent) 50%, transparent 100%);
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--color-brand-surface) 65%, transparent), transparent);
   animation: agregar-sede-admin-shimmer 1.35s infinite;
 }
 
+.sede-admin-skeleton--heading {
+  width: min(55%, 156px);
+  height: 24px;
+  border-radius: 4px;
+}
+
+.sede-admin-skeleton--label {
+  width: min(40%, 112px);
+  height: 17px;
+  border-radius: 4px;
+}
+
+.sede-admin-skeleton--company { height: 64px; border-radius: 8px; }
+.sede-admin-skeleton--control { height: 48px; border-radius: 6px; }
+.sede-admin-skeleton--textarea { height: 96px; border-radius: 6px; }
+.sede-admin-skeleton--button { height: 48px; border-radius: 10px; }
+
 @keyframes agregar-sede-admin-shimmer {
-  100% { transform: translateX(100%); }
+  to { transform: translateX(100%); }
+}
+
+@media (min-width: 768px) {
+  .agregar-sede-admin-main {
+    padding: 32px 32px 56px;
+  }
+
+  .sede-admin-layout {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  }
+
+  .sede-admin-section {
+    padding: 28px;
+  }
+
+  .sede-admin-section--location {
+    border-top: 0;
+    border-inline-start: 1px solid var(--border);
+  }
+
+  .sede-admin-map-frame {
+    height: 256px;
+  }
+
+  .sede-admin-map-frame--unavailable {
+    height: auto;
+    min-height: 116px;
+  }
+
+  .sede-admin-footer {
+    padding: 16px 28px;
+  }
+
+  .agregar-sede-admin-actions {
+    grid-template-columns: 112px 144px;
+    justify-content: end;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .agregar-sede-admin-form-skeleton .skl-line::after {
-    animation: none;
-  }
+  .sede-admin-skeleton::after { animation: none; }
 }

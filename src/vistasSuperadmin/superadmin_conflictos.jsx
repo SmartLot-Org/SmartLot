@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft, CheckCircle2, Clock3, MessageSquareWarning, RotateCcw, Search, Trash2 } from "lucide-react";
 
 import "../vistasAdmin/admin_panel_de_control.css";
+import "./superadmin_conflictos.css";
 import ToastUndo from "../componentesShared/ToastUndo";
 import EmptyState from "../componentesCompartidos/EmptyState";
 import HeaderSuperadmin from "../componentesSuperadmin/header_superadmin";
@@ -51,8 +52,8 @@ const prioridadClase = (prioridad) => {
 };
 
 const estadoClase = (estado) => {
-  const valor = String(estado || "").toLowerCase();
-  if (valor.includes("resuelto")) return "resuelto";
+  const valor = String(estado || "").trim().toLowerCase();
+  if (valor === "resuelto") return "resuelto";
   if (valor.includes("proceso")) return "proceso";
   return "pendiente";
 };
@@ -107,6 +108,7 @@ export default function SuperadminConflictos() {
   const [loading, setLoading] = useState(true);
   const [cargandoPapelera, setCargandoPapelera] = useState(false);
   const [error, setError] = useState("");
+  const [errorPapelera, setErrorPapelera] = useState("");
   const [actualizandoId, setActualizandoId] = useState(null);
   const [mostrarPapelera, setMostrarPapelera] = useState(false);
   const [busquedaConflictos, setBusquedaConflictos] = useState("");
@@ -125,11 +127,12 @@ export default function SuperadminConflictos() {
 
   const cargarPapelera = async ({ force = false } = {}) => {
     setCargandoPapelera(true);
+    setErrorPapelera("");
     const papeleraResponse = await ConflictosGetPapelera({ superAdmin: true, force });
     if (papeleraResponse.respuesta) {
       setPapelera(obtenerListado(papeleraResponse.datos));
     } else {
-      setError("No se pudo cargar la papelera.");
+      setErrorPapelera("No se pudo cargar la papelera.");
     }
     setCargandoPapelera(false);
   };
@@ -158,6 +161,8 @@ export default function SuperadminConflictos() {
 
         if (papeleraResponse.respuesta) {
           setPapelera(obtenerListado(papeleraResponse.datos));
+        } else {
+          setErrorPapelera("No se pudo cargar la papelera.");
         }
 
         if (usuariosResponse.respuesta) {
@@ -165,7 +170,10 @@ export default function SuperadminConflictos() {
         }
       } catch (err) {
         console.error("Error al cargar conflictos de superadmin:", err);
-        if (montado) setError("Ocurrio un error al cargar los conflictos.");
+        if (montado) {
+          setError("Ocurrió un error al cargar los conflictos.");
+          setErrorPapelera("No se pudo cargar la papelera.");
+        }
       } finally {
         if (montado) {
           setLoading(false);
@@ -245,7 +253,10 @@ export default function SuperadminConflictos() {
     [papelera, filtrarConflictos]
   );
 
-  const pendientes = conflictos.filter((conflicto) => conflicto.estado !== "Resuelto").length;
+  const pendientes = conflictos.filter((conflicto) => estadoClase(conflicto.estado) !== "resuelto").length;
+  const mostrarTotal = !loading && !error;
+  const mostrarTotalPapelera = !loading && !cargandoPapelera && !errorPapelera;
+  const errorVisible = mostrarPapelera ? errorPapelera : error;
 
   const handleCambiarEstado = async (conflicto, estado) => {
     const estadoAnterior = conflicto.estado;
@@ -352,21 +363,26 @@ export default function SuperadminConflictos() {
 
       <section className="conflicts-section">
         <div className="conflicts-section__title-container">
-          <MessageSquareWarning className="conflicts-section__alert-icon" />
+          <MessageSquareWarning className="conflicts-section__alert-icon" aria-hidden="true" />
           <div>
-            <h2 className="conflicts-section__title">Conflictos recibidos ({pendientes} sin resolver)</h2>
+            <div className="superadmin-conflicts-count-row">
+              <h2 className="conflicts-section__title">Conflictos recibidos</h2>
+              <span className="superadmin-conflicts-count" role="status">{mostrarTotal && `${pendientes} sin resolver`}</span>
+            </div>
             <p className="conflicts-section__subtitle">Reportes activos enviados por administradores.
-              <span className={`last-updated ${isStale ? "last-updated--stale" : ""}`}>
-                <span className="last-updated__dot" />
-                {tiempoTranscurrido}
-              </span>
+              {mostrarTotal && tiempoTranscurrido && (
+                <span className={`last-updated ${isStale ? "last-updated--stale" : ""}`}>
+                  <span className="last-updated__dot" aria-hidden="true" />
+                  {tiempoTranscurrido}
+                </span>
+              )}
             </p>
           </div>
         </div>
 
-        {error && (
+        {errorVisible && (
           <div className="conflicts-section__feedback conflicts-section__feedback--error" role="alert">
-            {error}
+            {errorVisible}
           </div>
         )}
 
@@ -374,17 +390,19 @@ export default function SuperadminConflictos() {
           <button
             type="button"
             className={`conflicts-toolbar__btn ${!mostrarPapelera ? "active" : ""}`}
+            aria-pressed={!mostrarPapelera}
             onClick={() => setMostrarPapelera(false)}
           >
-            Todos ({conflictos.length})
+            Todos{mostrarTotal ? ` (${conflictos.length})` : ''}
           </button>
           <button
             type="button"
             className={`conflicts-toolbar__btn ${mostrarPapelera ? "active" : ""}`}
+            aria-pressed={mostrarPapelera}
             onClick={handleMostrarPapelera}
           >
-            <Trash2 size={15} />
-            Papelera ({papelera.length})
+            <Trash2 size={15} aria-hidden="true" />
+            Papelera{mostrarTotalPapelera ? ` (${papelera.length})` : ''}
           </button>
           <label className="conflicts-search">
             <Search size={16} />
@@ -412,7 +430,7 @@ export default function SuperadminConflictos() {
 
         {loading ? (
           <ConflictsTableSkeleton />
-        ) : mostrarPapelera ? (
+        ) : errorVisible ? null : mostrarPapelera ? (
           cargandoPapelera ? (
             <ConflictsTableSkeleton rows={3} />
           ) : papeleraVisible.length === 0 ? (

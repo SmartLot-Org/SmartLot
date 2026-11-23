@@ -1,5 +1,4 @@
 import { useState, useEffect, useMemo, useRef } from "react";
-import { Autocomplete } from '@react-google-maps/api';
 import "./editar_zona.css";
 import Header from "../componentesAdmin/header_admin";
 import {
@@ -35,7 +34,8 @@ import useLiveValidation from "../hooks/useLiveValidation";
 import FieldValidation from "../components/FieldValidation";
 import FormularioPreciosGarage from "../componentesCompartidos/FormularioPreciosGarage";
 import { buildGaragePricesPayload } from "../helpers/prices";
-import { useGoogleMaps } from "../contexts/useGoogleMaps";
+import UbicacionGarage from "../componentesAdmin/UbicacionGarage";
+import { getMapPosition } from "../helpers/tratos";
 
 const parseEstadoBool = (estado) => {
   if (estado === 1 || estado === true || estado === "1" || estado === "activo" || estado === "Abierto" || estado === "abierto" || estado === "true") return true;
@@ -129,7 +129,7 @@ function EditarZona() {
   const [horaCierre, setHoraCierre] = useState(() => {
     return garageData ? obtenerHoraGarage(garageData, ['hora_cierre', 'horaCierre', 'cierre']) : '';
   });
-  const [es24Horas, setEs24Horas] = useState(false);
+  const [es24Horas, setEs24Horas] = useState(() => horaApertura === '00:00' && horaCierre === '23:59');
   const [precios, setPrecios] = useState({ precio_pickup: garageData?.precio_pickup ?? '', precio_auto: garageData?.precio_auto ?? '', precio_moto: garageData?.precio_moto ?? '' });
 
   const [diasSeleccionados, setDiasSeleccionados] = useState(() => {
@@ -146,31 +146,10 @@ function EditarZona() {
     return [];
   });
 
-  const [coordenadas, setCoordenadas] = useState(() => {
-    if (garageData?.latitud || garageData?.longitud) {
-      return { lat: garageData.latitud ?? null, lng: garageData.longitud ?? null, direccion: garageData.ubicacion || '' };
-    }
-    return { lat: null, lng: null, direccion: '' };
-  });
+  const [coordenadas, setCoordenadas] = useState(() => getMapPosition(garageData));
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const capacidad = capacidadReservas + capacidadNoReservas;
-
-  const { isLoaded, loadError } = useGoogleMaps();
-  if (loadError) console.warn('editar_zona: Google Maps no cargó:', loadError);
-
-  const autocompleteRef = useRef(null);
-
-  const handlePlaceChanged = () => {
-    const place = autocompleteRef.current.getPlace();
-    if (place?.geometry) {
-      const lat = place.geometry.location.lat();
-      const lng = place.geometry.location.lng();
-      const direccion = place.formatted_address || '';
-      setUbicacion(direccion);
-      setCoordenadas({ lat, lng, direccion });
-    }
-  };
 
   const formDataVal = {
     nombreGarage,
@@ -194,7 +173,7 @@ function EditarZona() {
     ubicacion: [
       { rule: (v) => v?.trim().length > 0, message: 'Requerido' },
       { rule: (v) => v?.trim().length >= 5, message: 'Mínimo 5 caracteres' },
-      () => ({ rule: () => coordenadas.lat !== null && coordenadas.lng !== null, message: 'Selecciona una ubicación válida del mapa' }),
+      { rule: () => Boolean(getMapPosition(coordenadas)), message: 'Elegí una dirección de las sugerencias del mapa' },
     ],
     horaApertura: [
       { rule: (v) => /^([01]\d|2[0-3]):[0-5]\d$/.test(String(v || '')), message: 'Formato HH:MM requerido' },
@@ -236,6 +215,7 @@ function EditarZona() {
     const origNombre = garageData.nombre || '';
     const origPiso = garageData.piso !== undefined && garageData.piso !== null ? garageData.piso.toString() : '';
     const origUbicacion = garageData.ubicacion || '';
+    const origCoordenadas = getMapPosition(garageData);
     const origHoraApertura = obtenerHoraGarage(garageData, ['hora_apertura', 'horaApertura', 'apertura']);
     const origHoraCierre = obtenerHoraGarage(garageData, ['hora_cierre', 'horaCierre', 'cierre']);
     const origEstado = parseEstadoBool(garageData.estado);
@@ -247,6 +227,8 @@ function EditarZona() {
       nombreGarage !== origNombre ||
       piso.toString() !== origPiso ||
       ubicacion !== origUbicacion ||
+      coordenadas?.lat !== origCoordenadas?.lat ||
+      coordenadas?.lng !== origCoordenadas?.lng ||
       horaApertura !== origHoraApertura ||
       horaCierre !== origHoraCierre ||
       estadoActivo !== origEstado ||
@@ -257,7 +239,7 @@ function EditarZona() {
       || precios.precio_auto !== (garageData.precio_auto ?? '')
       || precios.precio_moto !== (garageData.precio_moto ?? '')
     );
-  }, [nombreGarage, piso, ubicacion, horaApertura, horaCierre, estadoActivo, capacidadReservas, capacidadNoReservas, diasSeleccionados, garageData, precios]);
+  }, [nombreGarage, piso, ubicacion, coordenadas, horaApertura, horaCierre, estadoActivo, capacidadReservas, capacidadNoReservas, diasSeleccionados, garageData, precios]);
 
   // Prevenir cierre accidental de pestaña o recarga del navegador
   useEffect(() => {
@@ -348,8 +330,8 @@ function EditarZona() {
          nombre: nombreGarage.trim(),
          piso: String(piso ?? '').trim(),
          ubicacion: ubicacion.trim(),
-         latitud: coordenadas.lat ?? null,
-         longitud: coordenadas.lng ?? null,
+         latitud: coordenadas?.lat ?? null,
+         longitud: coordenadas?.lng ?? null,
          hora_apertura: horaApertura,
          hora_cierre: horaCierre,
          estado: estadoActivo,
@@ -445,34 +427,23 @@ function EditarZona() {
               <FieldValidation conditions={buildConditions("piso")} isTouched={touched.piso} />
             </div>
 
-            <div className="campo-formulario">
-              <label>Ubicación</label>
-              {isLoaded ? (
-                <Autocomplete
-                  onLoad={(autocomplete) => { autocompleteRef.current = autocomplete; }}
-                  onPlaceChanged={handlePlaceChanged}
-                >
-                  <input
-                    type="text"
-                    placeholder="Ubicación del garage"
-                    value={ubicacion}
-                    onChange={(e) => { setUbicacion(e.target.value); touch("ubicacion"); }}
-                    autoComplete="off"
-                    required
-                  />
-                </Autocomplete>
-              ) : (
-                <input
-                  type="text"
-                  placeholder="Ubicación del garage"
-                  value={ubicacion}
-                  onChange={(e) => { setUbicacion(e.target.value); touch("ubicacion"); }}
-                  autoComplete="off"
-                  required
-                />
-              )}
+            <UbicacionGarage
+              direccion={ubicacion}
+              coordenadas={coordenadas}
+              mostrarMapa
+              onDireccionChange={(direccion) => {
+                setUbicacion(direccion);
+                setCoordenadas(direccion.trim() === garageData?.ubicacion?.trim() ? getMapPosition(garageData) : null);
+                touch("ubicacion");
+              }}
+              onSeleccionar={(punto) => {
+                setUbicacion(punto.direccion);
+                setCoordenadas(punto);
+                touch("ubicacion");
+              }}
+            >
               <FieldValidation conditions={buildConditions("ubicacion")} isTouched={touched.ubicacion} />
-            </div>
+            </UbicacionGarage>
           </section>
 
           <section className="bloque-formulario">
@@ -485,12 +456,12 @@ function EditarZona() {
 
             <div className="horario-grid">
               <div className="horario-field">
-                <label className="horario-label">
-                  <Clock size={14} />
+                <label className="horario-label" htmlFor="editar-zona-apertura">
                   Hora de apertura
                 </label>
                 <div className={`horario-input-wrap ${es24Horas ? 'horario-input-wrap--disabled' : ''}`}>
                   <input
+                    id="editar-zona-apertura"
                     type="time"
                     value={horaApertura}
                     onChange={(e) => {
@@ -505,17 +476,13 @@ function EditarZona() {
                 </div>
               </div>
 
-              <div className="horario-divider">
-                <ArrowLeft size={14} />
-              </div>
-
               <div className="horario-field">
-                <label className="horario-label">
-                  <Clock size={14} />
+                <label className="horario-label" htmlFor="editar-zona-cierre">
                   Hora de cierre
                 </label>
                 <div className={`horario-input-wrap ${es24Horas ? 'horario-input-wrap--disabled' : ''}`}>
                   <input
+                    id="editar-zona-cierre"
                     type="time"
                     value={horaCierre}
                     onChange={(e) => {
@@ -547,7 +514,7 @@ function EditarZona() {
                       }
                     }}
                   />
-                  <span className="toggle-slider" />
+                  <span className="toggle-slider" aria-hidden="true" />
                 </span>
                 <span className="toggle-text">Abierto 24 horas</span>
               </label>

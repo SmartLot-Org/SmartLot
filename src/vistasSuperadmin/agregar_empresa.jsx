@@ -119,7 +119,7 @@ function AgregarEmpresa() {
 
           <div className="agregar-empresa-actions">
             <BotonGenerico
-              className="btn-guardar-grande"
+              className="superadmin-form-save"
               onClick={handleGuardar}
               disabled={loading}
             >
@@ -128,7 +128,7 @@ function AgregarEmpresa() {
             </BotonGenerico>
 
             <BotonGenerico
-              className="btn-cancelar-grande"
+              className="superadmin-form-cancel"
               onClick={() => navigate("/superadmin/gestion_empresas", { replace: true })}
             >
               <span>Cancelar</span>

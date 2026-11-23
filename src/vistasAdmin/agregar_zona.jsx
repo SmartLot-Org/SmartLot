@@ -11,6 +11,7 @@ import { GaragesCreate } from "../servicies/API_Garage";
 import useLiveValidation from "../hooks/useLiveValidation";
 import FormularioPreciosGarage from "../componentesCompartidos/FormularioPreciosGarage";
 import { buildGaragePricesPayload } from "../helpers/prices";
+import { getMapPosition } from "../helpers/tratos";
 
 function AgregarZona() {
   const navigate = useNavigate();
@@ -24,7 +25,7 @@ function AgregarZona() {
     capacidad_para_no_reservas: "",
     dias: [], precio_pickup: "", precio_auto: "", precio_moto: ""
   });
-  const [coordenadas, setCoordenadas] = useState({ lat: null, lng: null, direccion: '' });
+  const [coordenadas, setCoordenadas] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [usuarios, setUsuarios] = useState([]);
@@ -67,7 +68,7 @@ function AgregarZona() {
     ubicacion: [
       { rule: (v) => v?.trim().length > 0, message: 'Requerido' },
       { rule: (v) => v?.trim().length >= 5, message: 'Mínimo 5 caracteres' },
-      () => ({ rule: () => coordenadas.lat !== null && coordenadas.lng !== null, message: 'Selecciona una ubicación válida del mapa' }),
+      { rule: () => Boolean(getMapPosition(coordenadas)), message: 'Elegí una dirección de las sugerencias del mapa' },
     ],
     hora_apertura: [
       { rule: (v) => /^([01]\d|2[0-3]):[0-5]\d$/.test(String(v || '')), message: 'Formato HH:MM requerido' },
@@ -117,6 +118,7 @@ function AgregarZona() {
       setFormData(field);
     } else {
       handleChangeWithTouch(field, value, setFormData);
+      if (field === 'ubicacion') setCoordenadas(null);
     }
   };
 
@@ -227,6 +229,7 @@ function AgregarZona() {
             onChange={handleChange}
             hideSede
             fieldsValidation={fieldsValidation}
+            coordenadas={coordenadas}
             onCoordenadasChange={setCoordenadas}
           />
 

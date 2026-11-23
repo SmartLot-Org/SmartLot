@@ -10,10 +10,14 @@
 }
 
 .duenio-perfil-topbar {
-  display: flex;
-  align-items: center;
-  gap: 1.25rem;
+  display: grid;
+  justify-items: start;
+  gap: 12px;
   margin-bottom: 1.5rem;
+}
+
+.duenio-perfil-topbar .duenio-back-button {
+  margin-bottom: 0;
 }
 
 .duenio-perfil-titulos {
@@ -242,10 +246,6 @@
 }
 
 @media (max-width: 600px) {
-  .duenio-perfil-topbar {
-    align-items: flex-start;
-  }
-
   .duenio-perfil-statusbar {
     grid-template-columns: 1fr;
   }

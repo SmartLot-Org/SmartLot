@@ -6,7 +6,6 @@ import {
   CheckCircle2,
   Clock3,
   MessageCircleQuestion,
-  MessageSquareWarning,
   RotateCcw,
   Search,
   Trash2,
@@ -366,6 +365,7 @@ export default function AdminPanelControl() {
   );
 
   const pendientes = conflictosTenant.filter((conflicto) => conflicto.estado !== "Resuelto").length;
+  const mostrarContadores = !loadingConflictos && !errorConflictos;
 
   const ocupacion = useMemo(() => {
     let totalOcupados = 0;
@@ -564,25 +564,31 @@ export default function AdminPanelControl() {
       )}
 
       <section className="conflicts-section">
-        <div className="conflicts-section__title-container">
-          <MessageSquareWarning className="conflicts-section__alert-icon" />
+        <div className="admin-conflicts-header">
           <div>
-            <h2 className="conflicts-section__title">
-              Conflictos reportados ({pendientes} sin resolver)
-            </h2>
-            <p className="conflicts-section__subtitle">Casos abiertos por empleados y estado de seguimiento.
-              <span className={`last-updated ${isStale ? "last-updated--stale" : ""}`}>
-                <span className="last-updated__dot" />
+            <div className="admin-conflicts-title-row">
+              <h2>Conflictos reportados</h2>
+              <div role="status" className="admin-conflicts-status">
+                {mostrarContadores && (
+                  <span className={pendientes > 0 ? "bg-amber-50 text-amber-900" : "bg-brand-bg text-brand-muted"}>
+                    {pendientes} sin resolver
+                  </span>
+                )}
+              </div>
+            </div>
+            {mostrarContadores && tiempoTranscurrido && (
+              <p className={`last-updated ${isStale ? "last-updated--stale" : ""}`}>
+                <span className="last-updated__dot" aria-hidden="true" />
                 {tiempoTranscurrido}
-              </span>
-            </p>
+              </p>
+            )}
           </div>
           <button
             type="button"
             className="admin-support-btn"
             onClick={abrirModalSoporte}
           >
-            <MessageCircleQuestion size={16} />
+            <MessageCircleQuestion size={16} aria-hidden="true" />
             Enviar mensaje a soporte
           </button>
         </div>
@@ -593,24 +599,29 @@ export default function AdminPanelControl() {
           </div>
         )}
 
-        <div className="conflicts-toolbar">
-          <button
-            type="button"
-            className={`conflicts-toolbar__btn ${!mostrarPapelera ? "active" : ""}`}
-            onClick={() => setMostrarPapelera(false)}
-          >
-            Todos ({conflictosTenant.length})
-          </button>
-          <button
-            type="button"
-            className={`conflicts-toolbar__btn ${mostrarPapelera ? "active" : ""}`}
-            onClick={handleMostrarPapelera}
-          >
-            <Trash2 size={15} />
-            Papelera ({papeleraTenant.length})
-          </button>
+        <div className="conflicts-toolbar admin-conflicts-toolbar">
+          <div className="admin-conflicts-views" role="group" aria-label="Vistas de conflictos">
+            <button
+              type="button"
+              aria-pressed={!mostrarPapelera}
+              aria-controls="admin-conflicts-results"
+              onClick={() => setMostrarPapelera(false)}
+            >
+              Todos
+              {mostrarContadores && <span>{conflictosTenant.length}</span>}
+            </button>
+            <button
+              type="button"
+              aria-pressed={mostrarPapelera}
+              aria-controls="admin-conflicts-results"
+              onClick={handleMostrarPapelera}
+            >
+              Papelera
+              {mostrarContadores && <span>{papeleraTenant.length}</span>}
+            </button>
+          </div>
           <label className="conflicts-search">
-            <Search size={16} />
+            <Search size={16} aria-hidden="true" />
             <input
               type="search"
               value={busquedaConflictos}
@@ -633,19 +644,95 @@ export default function AdminPanelControl() {
           </button>
         </div>
 
-        {loadingConflictos ? (
-          <ConflictsTableSkeleton />
-        ) : mostrarPapelera ? (
-          cargandoPapelera ? (
-            <ConflictsTableSkeleton rows={3} />
-          ) : papeleraVisible.length === 0 ? (
-            <EmptyState
-              size="sm"
-              icon={Trash2}
-              title="No hay conflictos en tu papelera."
-              description="Los conflictos que elimines van a aparecer acá para que puedas restaurarlos."
-              action={{ label: "Volver a conflictos", onClick: () => setMostrarPapelera(false), variant: "secondary" }}
-            />
+        <div id="admin-conflicts-results" aria-busy={loadingConflictos || (mostrarPapelera && cargandoPapelera)}>
+          {loadingConflictos ? (
+            <ConflictsTableSkeleton />
+          ) : mostrarPapelera ? (
+            cargandoPapelera ? (
+              <ConflictsTableSkeleton rows={3} />
+            ) : papeleraVisible.length === 0 ? (
+              <EmptyState
+                size="sm"
+                icon={Trash2}
+                title="No hay conflictos en tu papelera."
+                description="Los conflictos que elimines van a aparecer acá para que puedas restaurarlos."
+                action={{ label: "Volver a conflictos", onClick: () => setMostrarPapelera(false), variant: "secondary" }}
+              />
+            ) : (
+              <div className={`conflicts-table-shell ${compactMode ? "conflicts-table-shell--compact" : ""}`}>
+                <table className="conflicts-table">
+                  <thead>
+                    <tr>
+                      <th>Empleado</th>
+                      <th>Descripcion</th>
+                      <th>Prioridad</th>
+                      <th>Estado</th>
+                      <th>Eliminado</th>
+                      <th aria-label="Acciones" />
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {papeleraVisible.map((conflicto) => {
+                      const usuarioConflicto = usuariosPorId.get(Number(obtenerIdUsuario(conflicto)));
+                      const nombreUsuario = usuarioConflicto
+                        ? `${usuarioConflicto.nombre || ""} ${usuarioConflicto.apellido || ""}`.trim() || usuarioConflicto.email
+                        : `Usuario #${obtenerIdUsuario(conflicto) || "-"}`;
+                      const deshabilitado = actualizandoId === conflicto.id;
+
+                      return (
+                        <tr key={conflicto.id}>
+                          <td>
+                            <strong>{nombreUsuario}</strong>
+                            {usuarioConflicto?.email && <span>{usuarioConflicto.email}</span>}
+                          </td>
+                          <td className="conflicts-table__description">{conflicto.descripcion}</td>
+                          <td>
+                            <span className={`conflict-priority conflict-priority--${prioridadClase(conflicto.prioridad)}`}>
+                              {conflicto.prioridad || "Baja"}
+                            </span>
+                          </td>
+                          <td>{conflicto.estado || "Pendiente"}</td>
+                          <td>
+                            <span className="conflicts-table__date">
+                              <Clock3 size={14} />
+                              {formatearFecha(obtenerFechaBorrado(conflicto))}
+                            </span>
+                          </td>
+                          <td>
+                            <button
+                              className="conflict-restore-btn"
+                              onClick={() => handleRestaurar(conflicto.id)}
+                              disabled={deshabilitado}
+                              aria-label="Restaurar conflicto"
+                            >
+                              <RotateCcw size={15} />
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )
+          ) : conflictosVisibles.length === 0 ? (
+            busquedaConflictos ? (
+              <EmptyState
+                size="sm"
+                icon={Search}
+                tone="filtered"
+                title="No se encontraron conflictos con esa búsqueda."
+                action={{ label: "Limpiar búsqueda", onClick: () => setBusquedaConflictos(""), variant: "secondary" }}
+              />
+            ) : (
+              <EmptyState
+                size="sm"
+                icon={CheckCircle2}
+                tone="success"
+                title="No hay conflictos reportados."
+                description="Cuando un empleado reporte un conflicto, va a aparecer acá."
+              />
+            )
           ) : (
             <div className={`conflicts-table-shell ${compactMode ? "conflicts-table-shell--compact" : ""}`}>
               <table className="conflicts-table">
@@ -655,23 +742,31 @@ export default function AdminPanelControl() {
                     <th>Descripcion</th>
                     <th>Prioridad</th>
                     <th>Estado</th>
-                    <th>Eliminado</th>
+                    <th>Fecha</th>
                     <th aria-label="Acciones" />
                   </tr>
                 </thead>
                 <tbody>
-                  {papeleraVisible.map((conflicto) => {
-                    const usuarioConflicto = usuariosPorId.get(Number(obtenerIdUsuario(conflicto)));
-                    const nombreUsuario = usuarioConflicto
-                      ? `${usuarioConflicto.nombre || ""} ${usuarioConflicto.apellido || ""}`.trim() || usuarioConflicto.email
+                  {conflictosVisibles.map((conflicto) => {
+                    const usuario = usuariosPorId.get(Number(obtenerIdUsuario(conflicto)));
+                    const nombreUsuario = usuario
+                      ? `${usuario.nombre || ""} ${usuario.apellido || ""}`.trim() || usuario.email
                       : `Usuario #${obtenerIdUsuario(conflicto) || "-"}`;
                     const deshabilitado = actualizandoId === conflicto.id;
+                    const esUrgente = conflicto.prioridad === "Alta" && conflicto.estado !== "Resuelto";
+                    const resolviendo = conflictosResolviendo.has(conflicto.id);
 
                     return (
-                      <tr key={conflicto.id}>
+                      <tr
+                        key={conflicto.id}
+                        className={[
+                          esUrgente ? "conflict-row--urgent" : "",
+                          resolviendo ? "conflict-row--resolving" : "",
+                        ].filter(Boolean).join(" ")}
+                      >
                         <td>
                           <strong>{nombreUsuario}</strong>
-                          {usuarioConflicto?.email && <span>{usuarioConflicto.email}</span>}
+                          {usuario?.email && <span>{usuario.email}</span>}
                         </td>
                         <td className="conflicts-table__description">{conflicto.descripcion}</td>
                         <td>
@@ -679,21 +774,32 @@ export default function AdminPanelControl() {
                             {conflicto.prioridad || "Baja"}
                           </span>
                         </td>
-                        <td>{conflicto.estado || "Pendiente"}</td>
+                        <td>
+                          <select
+                            className={`conflict-status-select conflict-status-select--${estadoClase(conflicto.estado)}`}
+                            value={conflicto.estado || "Pendiente"}
+                            onChange={(event) => handleCambiarEstado(conflicto, event.target.value)}
+                            disabled={deshabilitado || resolviendo}
+                          >
+                            <option value="Pendiente">Pendiente</option>
+                            <option value="En Proceso">En Proceso</option>
+                            <option value="Resuelto">Resuelto</option>
+                          </select>
+                        </td>
                         <td>
                           <span className="conflicts-table__date">
                             <Clock3 size={14} />
-                            {formatearFecha(obtenerFechaBorrado(conflicto))}
+                            {formatearFecha(obtenerFechaConflicto(conflicto))}
                           </span>
                         </td>
                         <td>
                           <button
-                            className="conflict-restore-btn"
-                            onClick={() => handleRestaurar(conflicto.id)}
-                            disabled={deshabilitado}
-                            aria-label="Restaurar conflicto"
+                            className="conflict-delete-btn"
+                            onClick={() => handleEliminar(conflicto.id)}
+                            disabled={deshabilitado || resolviendo}
+                            aria-label="Eliminar conflicto"
                           >
-                            <RotateCcw size={15} />
+                            {conflicto.estado === "Resuelto" ? <CheckCircle2 size={15} /> : <Trash2 size={15} />}
                           </button>
                         </td>
                       </tr>
@@ -702,101 +808,8 @@ export default function AdminPanelControl() {
                 </tbody>
               </table>
             </div>
-          )
-        ) : conflictosVisibles.length === 0 ? (
-          busquedaConflictos ? (
-            <EmptyState
-              size="sm"
-              icon={Search}
-              tone="filtered"
-              title="No se encontraron conflictos con esa búsqueda."
-              action={{ label: "Limpiar búsqueda", onClick: () => setBusquedaConflictos(""), variant: "secondary" }}
-            />
-          ) : (
-            <EmptyState
-              size="sm"
-              icon={CheckCircle2}
-              tone="success"
-              title="No hay conflictos reportados."
-              description="Cuando un empleado reporte un conflicto, va a aparecer acá."
-            />
-          )
-        ) : (
-          <div className={`conflicts-table-shell ${compactMode ? "conflicts-table-shell--compact" : ""}`}>
-            <table className="conflicts-table">
-              <thead>
-                <tr>
-                  <th>Empleado</th>
-                  <th>Descripcion</th>
-                  <th>Prioridad</th>
-                  <th>Estado</th>
-                  <th>Fecha</th>
-                  <th aria-label="Acciones" />
-                </tr>
-              </thead>
-              <tbody>
-                {conflictosVisibles.map((conflicto) => {
-                  const usuario = usuariosPorId.get(Number(obtenerIdUsuario(conflicto)));
-                  const nombreUsuario = usuario
-                    ? `${usuario.nombre || ""} ${usuario.apellido || ""}`.trim() || usuario.email
-                    : `Usuario #${obtenerIdUsuario(conflicto) || "-"}`;
-                  const deshabilitado = actualizandoId === conflicto.id;
-                  const esUrgente = conflicto.prioridad === "Alta" && conflicto.estado !== "Resuelto";
-                  const resolviendo = conflictosResolviendo.has(conflicto.id);
-
-                  return (
-                    <tr
-                      key={conflicto.id}
-                      className={[
-                        esUrgente ? "conflict-row--urgent" : "",
-                        resolviendo ? "conflict-row--resolving" : "",
-                      ].filter(Boolean).join(" ")}
-                    >
-                      <td>
-                        <strong>{nombreUsuario}</strong>
-                        {usuario?.email && <span>{usuario.email}</span>}
-                      </td>
-                      <td className="conflicts-table__description">{conflicto.descripcion}</td>
-                      <td>
-                        <span className={`conflict-priority conflict-priority--${prioridadClase(conflicto.prioridad)}`}>
-                          {conflicto.prioridad || "Baja"}
-                        </span>
-                      </td>
-                      <td>
-                        <select
-                          className={`conflict-status-select conflict-status-select--${estadoClase(conflicto.estado)}`}
-                          value={conflicto.estado || "Pendiente"}
-                          onChange={(event) => handleCambiarEstado(conflicto, event.target.value)}
-                          disabled={deshabilitado || resolviendo}
-                        >
-                          <option value="Pendiente">Pendiente</option>
-                          <option value="En Proceso">En Proceso</option>
-                          <option value="Resuelto">Resuelto</option>
-                        </select>
-                      </td>
-                      <td>
-                        <span className="conflicts-table__date">
-                          <Clock3 size={14} />
-                          {formatearFecha(obtenerFechaConflicto(conflicto))}
-                        </span>
-                      </td>
-                      <td>
-                        <button
-                          className="conflict-delete-btn"
-                          onClick={() => handleEliminar(conflicto.id)}
-                          disabled={deshabilitado || resolviendo}
-                          aria-label="Eliminar conflicto"
-                        >
-                          {conflicto.estado === "Resuelto" ? <CheckCircle2 size={15} /> : <Trash2 size={15} />}
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
+          )}
+        </div>
 
         <div>
           <TablaReservasPanleControl />

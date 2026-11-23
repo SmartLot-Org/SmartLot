@@ -623,24 +623,21 @@
    HORARIO OPERATIVO — redesigned time inputs + 24h toggle
    ========================================================================= */
 .horario-grid {
-  display: flex;
-  align-items: flex-end;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-  margin-top: 1rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  gap: 8px 12px;
 }
 
 .horario-field {
-  flex: 1 1 155px;
   min-width: 0;
 }
 
 .bloque-formulario .horario-label {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  margin-bottom: 0.55rem;
-  font-size: 0.76rem;
+  display: block;
+  margin-bottom: 6px;
+  font-size: 13px;
+  line-height: 1.25;
   font-weight: 800;
   color: #64748b;
   text-transform: uppercase;
@@ -666,16 +663,17 @@
 }
 
 .horario-input-wrap input[type="time"] {
+  display: block;
   width: 100%;
   border: none;
   background: transparent;
-  padding: 0.85rem 1rem;
+  padding: 8px 12px;
   font-size: 0.97rem;
   color: #191c1e;
   outline: none;
   box-sizing: border-box;
   font-family: inherit;
-  min-height: auto !important;
+  min-height: 44px !important;
   height: auto !important;
 }
 
@@ -683,21 +681,13 @@
   cursor: not-allowed;
 }
 
-.horario-divider {
-  display: flex;
-  align-items: center;
-  padding-bottom: 14px;
-  color: #94a3b8;
-  opacity: 0.5;
-  user-select: none;
-  flex-shrink: 0;
-}
-
 .bloque-formulario .toggle-24hs {
   display: inline-flex;
   align-items: center;
   gap: 0.6rem;
-  padding-bottom: 14px;
+  grid-column: 1 / -1;
+  justify-self: start;
+  min-height: 44px;
   cursor: pointer;
   user-select: none;
   margin-bottom: 0;
@@ -711,7 +701,20 @@
 }
 
 .toggle-switch input {
-  display: none;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+}
+
+.toggle-switch input:focus-visible + .toggle-slider {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+@media (max-width: 360px) {
+  .horario-grid { grid-template-columns: minmax(0, 1fr); }
 }
 
 .toggle-slider {

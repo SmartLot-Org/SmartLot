@@ -8,7 +8,6 @@ import FormularioPreciosGarage from '../componentesCompartidos/FormularioPrecios
 import { SkeletonFormularioGarage } from '../componentesDueñoGarage/skeleton_admin_garage';
 import FormularioZona from '../componentesAdmin/formulario_zona';
 import FormularioCapacidad from '../componentesAdmin/formulario_capacidad';
-import '../vistasAdmin/agregar_zona.css';
 import { GaragesGetById, GaragesUpdate } from '../servicies/API_Garage';
 import { buildGaragePricesPayload } from '../helpers/prices';
 import { normalizeDays } from '../helpers/tratos';
@@ -147,7 +146,7 @@ export default function EditarGarageDueño() {
     <button type="button" className="duenio-back-button" onClick={volverADashboard} aria-label="Volver al panel del dueño"><ArrowLeft size={20} /></button>
     <section className="duenio-section-head left"><span>Garage propio</span><h1>Editar garage</h1><p>Las ocupaciones se administran desde los flujos operativos y no pueden editarse aquí.</p></section>
     {loading && <SkeletonFormularioGarage />}{error && <p className="duenio-feedback error">{error}</p>}
-    {form && <fieldset className="form-garage" disabled={saving} style={{ border: 0, padding: 0, margin: 0, minWidth: 0 }}>
+    {form && <fieldset className="duenio-garage-fields" disabled={saving}>
       <FormularioZona formData={form} onChange={change} hideSede onCoordenadasChange={changeCoordenadas} />
       <FormularioCapacidad formData={form} onChange={change} />
       <FormularioPreciosGarage values={form} onChange={change} disabled={saving} />

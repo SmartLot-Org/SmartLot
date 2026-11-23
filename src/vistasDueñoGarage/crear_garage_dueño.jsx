@@ -200,7 +200,7 @@ return (
       <HeaderDueñoGarage />
 
       <main className="duenio-garage-main">
-        <div className="contenido-agregar-zona">
+        <div className="duenio-form-wrap">
           <div className="top-garage">
             <button className="boton-back" onClick={volverADashboard} aria-label="Volver al panel del dueño">
               <ArrowLeft size={24} />
@@ -213,7 +213,7 @@ return (
             </div>
           </div>
 
-          <div className="form-garage">
+          <div className="duenio-garage-fields">
             <FormularioZona
               formData={formData}
               onChange={handleChange}

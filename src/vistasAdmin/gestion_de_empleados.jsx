@@ -27,7 +27,6 @@ import ModalPortal from "../componentesCompartidos/ModalPortal";
 import EmptyState from "../componentesCompartidos/EmptyState";
 import { UsuariosGetAll, UsuariosDelete, UsuariosPatchEstado, UsuariosPatchLimiteReservas } from "../servicies/API_Usuario";
 import ReservationLimitFields from "../componentesAdmin/ReservationLimitFields";
-import "../componentesAdmin/ReservationLimitFields.css";
 import { parseReservationLimit, reservationLimitLabel } from "../helpers/reservationPolicy";
 import { VehiculosGetAll } from "../servicies/API_Vehiculo";
 import { ModelosGetAll } from "../servicies/API_Modelo";
@@ -168,6 +167,10 @@ const GestionEmpleados = () => {
   const [limitValue, setLimitValue] = useState('');
   const [savingLimit, setSavingLimit] = useState(false);
   const [limitError, setLimitError] = useState('');
+  const [limitSaveError, setLimitSaveError] = useState('');
+  const limitPanelRef = useRef(null);
+  const limitInputRef = useRef(null);
+  const limitTriggerRef = useRef(null);
   const savingLimitRef = useRef(false);
   const toastKeyRef = useRef(0);
 
@@ -176,28 +179,58 @@ const GestionEmpleados = () => {
     setToast({ id: toastKeyRef.current, mensaje, onDeshacer });
   };
 
-  const openLimit = (employee) => {
+  const openLimit = (employee, trigger) => {
+    limitTriggerRef.current = trigger;
     setLimitEmployee(employee);
     setLimited(employee.limiteReservasActivas != null);
     setLimitValue(employee.limiteReservasActivas ?? '');
     setLimitError('');
+    setLimitSaveError('');
   };
+
+  useEffect(() => {
+    if (!limitEmployee) return;
+    const trigger = limitTriggerRef.current;
+    const panel = limitPanelRef.current;
+    panel.querySelector('input[type="radio"]:checked')?.focus();
+    return () => trigger?.focus();
+  }, [limitEmployee]);
+
+  const handleLimitTab = (event) => {
+    if (event.key !== 'Tab') return;
+    const controls = event.currentTarget.querySelectorAll('input[type="radio"]:checked:enabled, input[type="number"]:enabled, button:enabled');
+    const first = controls[0];
+    const last = controls[controls.length - 1];
+    const active = document.activeElement;
+
+    if (!first || active === event.currentTarget || active === (event.shiftKey ? first : last)) {
+      event.preventDefault();
+      (event.shiftKey ? last : first)?.focus();
+    }
+  };
+
   const closeLimit = () => {
     if (!savingLimitRef.current) setLimitEmployee(null);
   };
   const saveLimit = async (event) => {
     event.preventDefault();
     if (savingLimitRef.current) return;
+    setLimitSaveError('');
     let limit;
     try { limit = parseReservationLimit(limited, limitValue); }
-    catch (error) { setLimitError(error.message); return; }
+    catch (error) {
+      setLimitError(error.message);
+      limitInputRef.current?.focus();
+      return;
+    }
     savingLimitRef.current = true;
+    limitPanelRef.current?.focus();
     setSavingLimit(true);
     setLimitError('');
     try {
       const response = await UsuariosPatchLimiteReservas(limitEmployee.id, limit);
       if (!response.respuesta) {
-        setLimitError(response.datos?.message || 'No se pudo guardar el límite.');
+        setLimitSaveError(response.datos?.message || 'No se pudo guardar el límite. Intentá de nuevo.');
         return;
       }
       setEmpleados((current) => current.map((employee) => employee.id === limitEmployee.id
@@ -599,8 +632,12 @@ const GestionEmpleados = () => {
                       <MapPin size={14} />
                       <span>{emp.sede}</span>
                     </div>
-                    <p className="reservation-limit-indicator">{reservationLimitLabel(emp.limiteReservasActivas)}</p>
-                    <button type="button" className="reservation-limit-action" onClick={() => openLimit(emp)}>Configurar límite de reservas</button>
+                    <div className="reservation-limit-summary">
+                      <p>{reservationLimitLabel(emp.limiteReservasActivas)}</p>
+                      <button type="button" className="reservation-limit-action" aria-haspopup="dialog" onClick={(event) => openLimit(emp, event.currentTarget)}>
+                        Configurar límite de reservas
+                      </button>
+                    </div>
                   </div>
 
                   {(
@@ -670,14 +707,40 @@ const GestionEmpleados = () => {
 
       {limitEmployee && (
         <ModalPortal onClose={closeLimit}>
-          <form className="reservation-limit-panel" role="dialog" aria-modal="true" aria-labelledby="reservation-limit-title" onClick={(event) => event.stopPropagation()} onSubmit={saveLimit}>
-            <h2 id="reservation-limit-title">Límite de reservas</h2>
-            <p>{limitEmployee.name}</p>
-            <ReservationLimitFields limited={limited} value={limitValue} onLimitedChange={setLimited} onValueChange={setLimitValue} disabled={savingLimit} />
-            {limitError && <p className="reservation-limit-error" role="alert">{limitError}</p>}
+          <form
+            ref={limitPanelRef}
+            className="reservation-limit-panel"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="reservation-limit-title"
+            aria-describedby="reservation-limit-employee"
+            tabIndex={-1}
+            noValidate
+            onClick={(event) => event.stopPropagation()}
+            onKeyDown={handleLimitTab}
+            onSubmit={saveLimit}
+          >
+            <header>
+              <h2 id="reservation-limit-title">Editar límite de reservas</h2>
+              <p id="reservation-limit-employee">{limitEmployee.name}</p>
+            </header>
+            <ReservationLimitFields
+              limited={limited}
+              value={limitValue}
+              onLimitedChange={(enabled) => { setLimited(enabled); setLimitError(''); }}
+              onValueChange={(value) => { setLimitValue(value); setLimitError(''); }}
+              error={limitError}
+              inputRef={limitInputRef}
+              disabled={savingLimit}
+            />
+            {limitSaveError && <p className="reservation-limit-error" role="alert">{limitSaveError}</p>}
             <div className="reservation-limit-actions">
-              <BotonGenerico type="button" onClick={closeLimit} disabled={savingLimit}>Cancelar</BotonGenerico>
-              <BotonGenerico type="submit" disabled={savingLimit}>{savingLimit ? 'Guardando...' : 'Guardar'}</BotonGenerico>
+              <BotonGenerico className="reservation-limit-button reservation-limit-button-secondary" onClick={closeLimit} disabled={savingLimit}>
+                Cancelar
+              </BotonGenerico>
+              <BotonGenerico type="submit" className="reservation-limit-button" disabled={savingLimit}>
+                {savingLimit ? 'Guardando…' : 'Guardar límite'}
+              </BotonGenerico>
             </div>
           </form>
         </ModalPortal>

@@ -615,11 +615,11 @@
   }
 }
 
-/* Botón "Actualizar": su estilo vivía solo en gestion_usuarios.css y se perdía al entrar directo. */
-.resv-header-actions .btn-archivados {
+.resv-header-actions .resv-refresh-button {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  min-height: 44px;
   padding: 8px 16px;
   border: 1px solid #E2E8F0;
   border-radius: 10px;
@@ -631,11 +631,20 @@
   transition: background-color 0.2s;
 }
 
-.resv-header-actions .btn-archivados:hover:not(:disabled) {
+.resv-header-actions .resv-refresh-button:hover:not(:disabled) {
   background: #E2E8F0;
 }
 
-.resv-header-actions .btn-archivados:disabled {
+.resv-header-actions .resv-refresh-button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.resv-header-actions .resv-refresh-button:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .resv-refresh-girando { animation: none; }
 }

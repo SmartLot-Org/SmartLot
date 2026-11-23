@@ -456,12 +456,12 @@ export default function SuperadminReservas() {
           </div>
           <div className="resv-header-actions">
             <BotonGenerico
-              className="btn-archivados"
+              className="resv-refresh-button"
               onClick={handleRefrescar}
               disabled={refrescando}
             >
-              <RefreshCcw size={18} className={refrescando ? "resv-refresh-girando" : ""} />
-              <span>{refrescando ? "Actualizando..." : "Actualizar"}</span>
+              <RefreshCcw size={18} className={refrescando ? "resv-refresh-girando" : ""} aria-hidden="true" />
+              <span role="status">{refrescando ? "Actualizando…" : "Actualizar"}</span>
             </BotonGenerico>
           </div>
         </header>
