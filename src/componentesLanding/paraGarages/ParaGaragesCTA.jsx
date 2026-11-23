@@ -5,6 +5,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import { Lock } from "lucide-react";
 import CtaButton from "../CtaButton";
+import GarageLogo from "./GarageLogo";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -100,6 +101,7 @@ export default function ParaGaragesCTA() {
               aria-hidden="true"
             />
             <div className="relative z-10 flex flex-col items-center gap-8">
+              <GarageLogo />
               <h2 className="cta-content text-brand-warm">
                 Tus cocheras vacías pueden empezar <br className="hidden md:block" /> a generar esta semana
               </h2>

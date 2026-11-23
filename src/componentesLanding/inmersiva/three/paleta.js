@@ -40,6 +40,9 @@ export const MAT = {
   pinCara: relleno({ polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1, transparent: true }),
   pinLado: relleno({ polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1, transparent: true }),
   pinLinea: linea({ transparent: true }),
+  logoCara: relleno({ polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1, transparent: true, opacity: 0 }),
+  logoLado: relleno({ polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1, transparent: true, opacity: 0 }),
+  logoLinea: linea({ transparent: true, opacity: 0 }),
   faro: relleno({ transparent: true, opacity: 0, depthWrite: false }),
   sombra: relleno({ transparent: true, opacity: 0, depthWrite: false }),
   nubeSombra: relleno({ transparent: true, opacity: 0, depthWrite: false }),
@@ -80,16 +83,17 @@ export function colorear(raiz) {
   const media = token('--tinta-media');
   const tenue = token('--tinta-tenue');
   for (const m of [MAT.papel, MAT.papelTrato, MAT.papelAcceso, MAT.papelVuelta, MAT.losaLado, MAT.papelTrafico, MAT.papelEstaciona]) m.color.set(papel);
-  for (const m of [MAT.tinta, MAT.tintaAcceso, MAT.plantaLinea, MAT.tintaVuelta, MAT.losaLinea, MAT.pinLinea, MAT.tintaEstaciona]) m.color.set(tinta);
+  for (const m of [MAT.tinta, MAT.tintaAcceso, MAT.plantaLinea, MAT.tintaVuelta, MAT.losaLinea, MAT.pinLinea, MAT.logoLinea, MAT.tintaEstaciona]) m.color.set(tinta);
   MAT.tintaTrafico.color.set(media);
   MAT.sombra.color.set(tinta);
   MAT.nubeSombra.color.set(tinta);
   MAT.nube.color.set(papel);
   MAT.nubeLinea.color.set(media);
   MAT.pinLado.color.set(token('--senal-activa'));
+  MAT.logoLado.color.set(token('--senal-activa'));
   for (const m of [MAT.contexto, MAT.plantaTenue, MAT.vueltaLinea]) m.color.set(media);
   for (const m of [MAT.tenue, MAT.lejos]) m.color.set(tenue);
-  for (const m of [MAT.senalLinea, MAT.tratoLinea, MAT.techoTrato, MAT.techoOtros, MAT.ruta, MAT.plazas, MAT.losaTapa, MAT.pulso, MAT.pinCara, MAT.realce, MAT.realceTecho, MAT.luz, MAT.faro, MAT.red, MAT.onda]) m.color.set(senal);
+  for (const m of [MAT.senalLinea, MAT.tratoLinea, MAT.techoTrato, MAT.techoOtros, MAT.ruta, MAT.plazas, MAT.losaTapa, MAT.pulso, MAT.pinCara, MAT.logoCara, MAT.realce, MAT.realceTecho, MAT.luz, MAT.faro, MAT.red, MAT.onda]) m.color.set(senal);
   MAT.ocupa.color.set(tinta);
   MAT.eleccion.color.set(tinta);       // la plaza elegida se lee sobre las azules
   MAT.eleccionLinea.color.set(tinta);   // la ocupación se lee sobre el techo azul del trato

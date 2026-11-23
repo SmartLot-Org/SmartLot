@@ -17,7 +17,8 @@ export const FX_CERO = Object.freeze({
   consumos: 0,  // horas apiladas sobre cada plaza
   red: 0,       // más garages marcados
   estaciona: 0, // un auto entra al garage y se estaciona en su plaza
-  pinFuera: 0,  // el pin del hero se guarda (vuelve en el cierre)
+  pinFuera: 0,  // el pin del hero se guarda (en el cierre lo reemplaza el logo)
+  logo: 0,      // cierre: el logo de SmartLot en volumen sobre la oficina
   hora: 0,      // la jornada: de las 7 (0) a las 20 (1)
   final: 0,     // cierre: ondas desde la oficina
 });
@@ -84,7 +85,7 @@ export const COREOGRAFIA = {
     camaraVertical: { x: 4, z: 0, zoom: 0.74 },
     fx: [
       { clave: 'red', valor: 1, desde: 0.45, hasta: 0.85 },
-      { clave: 'pinFuera', valor: 0, desde: 0.5, hasta: 1 },
+      { clave: 'logo', valor: 1, desde: 0.45, hasta: 1 },
       { clave: 'final', valor: 1, desde: 0.8, hasta: 1 },
     ],
   },
