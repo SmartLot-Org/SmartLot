@@ -93,7 +93,7 @@ Títulos de unos 35 caracteres como máximo, para que entren en dos o tres líne
 |---|---|---|---|---|---|---|
 | `gancho` | La ciudad desde arriba: cuatro sedes en tinta, dos garages con el cartel E y tu garage en línea de trazos, fuera del mapa. De cada sede sale un anillo de búsqueda | Aparecé en el mapa de las empresas | Publicás tu garage, las empresas piden lugar para su gente y vos manejás tratos, ocupación y consumos. Sin hardware, sin planillas. | `PRODUCT.md`, frase canónica para garages | rastrea | 1,0 |
 | `problema` | La cuadra: autos que dan vueltas a la manzana de una sede y, a 300 m, tu garage sin cartel, rodeado por los globos de un chat que no para | Plazas libres que nadie encuentra | Mientras las empresas de la zona no encuentran dónde estacionar, tus cocheras vacías no generan nada. Y lo que se arregla por WhatsApp o en papel no queda registrado. | `PRODUCT.md`, problema del lado del garage | orbita | 1,1 |
-| `mapa` | La cámara sube: tu garage pasa a azul señal y lleva el cartel E; los anillos de las sedes lo alcanzan y sobre cada una aparece la distancia por la calle. Una flecha fina sale de tu garage hacia la tarjeta "Así te ve una empresa" | Las empresas cercanas te encuentran | Cuando una empresa busca garages cerca de una de sus sedes, ve el tuyo en el punto que marcaste, con la distancia, tus días y horario, las plazas disponibles y tus tarifas por hora para auto, moto y pickup. Desde ahí te pide cocheras. | Alta de garage (punto 6); búsqueda de `/gestion_garages`, su mapa y su tarjeta (puntos 1 a 3); claim de las tres tarifas | asciende | 2,0 |
+| `mapa` | La cámara sube: tu garage pasa a azul señal y lleva el cartel E; los anillos de las sedes lo alcanzan y sobre cada una aparece la distancia por la calle. Una flecha fina sale de tu garage hacia la tarjeta "Así te ve una empresa" | Las empresas cercanas te encuentran | Cuando una empresa busca garages cerca de una de sus sedes, ve el tuyo en el punto que marcaste, con la distancia, tus días y horario, las plazas disponibles y tus tarifas por hora para auto, moto y pickup. Desde ahí te pide cocheras. | Alta de garage (punto 6); búsqueda de `/gestion_garages`, su mapa y su tarjeta (puntos 1 a 3); claim de las tres tarifas | asciende | 2,2 |
 | `trato` | Una línea azul recorre los 300 m desde la sede hasta tu garage; junto al garage, la solicitud pasa de "Pendiente" a "Trato aceptado" y el techo se pinta | Vos aceptás o rechazás cada pedido | Ves qué empresa pide, para qué sede, cuántas cocheras y si las paga la empresa o el empleado. Nada se activa sin tu confirmación, tampoco un cambio en la cantidad de cocheras. | Regla 5; respuesta del dueño (puntos 4 y 5) | se traza | 1,3 |
 | `operacion` | Se levanta el techo: las plazas del trato se pintan a medida que se reservan y sobre cada una se apilan sus horas de uso | El detalle, reserva por reserva | Todo es 100% online: la ocupación la mueven las reservas y los ingresos con QR, nunca una carga a mano. Cada consumo queda con su tiempo, tarifa e importe, con 24 meses de historial y exportación a PDF y Excel. | Regla 4; consumos (punto 8); claims de 24 meses, PDF y Excel, y 100% online | se llena | 1,4 |
 | `control` | La ciudad a media altura: con el interruptor, tu garage vuelve a la línea de trazos y los anillos pasan sin encontrarlo; al restaurarlo, se enciende de nuevo | Vos decidís cuándo aparecés | Si pasás un garage a borrador, deja de aparecer para las empresas, y lo restaurás cuando quieras. Cada dueño ve solo sus garages. | Reglas 6 y 7; borrador (punto 7) | alterna | 1,2 |
@@ -184,7 +184,7 @@ Pedido del usuario: "Unificá las secciones 3 y 4, diciendo lo de que las empres
 |---|---|---|
 | `gancho` | Aparecé en el mapa de las empresas | 1,0 |
 | `problema` | Plazas libres que nadie encuentra | 1,1 |
-| `mapa` | Las empresas cercanas te encuentran | 2,0 |
+| `mapa` | Las empresas cercanas te encuentran | 2,2 |
 | `trato` | Vos aceptás o rechazás cada pedido | 1,3 |
 | `operacion` | El detalle, reserva por reserva | 1,4 |
 | `control` | Vos decidís cuándo aparecés | 1,2 |
@@ -194,18 +194,18 @@ Pedido del usuario: "Unificá las secciones 3 y 4, diciendo lo de que las empres
 
 **Qué se va.** La escena `Alta` (el volumen dibujado arista por arista), las cotas del alta (`CotasAlta.jsx`, `alta.js`, `ROTULOS.alta`), la clave `alta` de `FX_CERO` (pasa a ser `ficha`, en 0 en la home) y el póster `alta`, que se generó en esta rama y nunca se publicó.
 
-**Coreografía de `mapa`** (pantallas desde que la sección asoma; entrada de 0 a 1, estadía de 1 a 2):
+**Coreografía de `mapa`** (pantallas desde que la sección asoma; entrada de 0 a 1, estadía de 1 a 2,2). Ajustada el 2026-11-23 por el feedback del usuario: la tarjeta es parte de la pausa de la sección, no de la salida.
 
 | fx | valor | desde | hasta | Qué se ve |
 |---|---|---|---|---|
 | `vueltas` | 0 | 0 | 0,45 | los autos de la cuadra dejan de dar vueltas mientras sube la cámara |
-| `fuera` | 0 | 0,45 | 0,75 | tu garage pasa de la línea de trazos al azul señal con el cartel E |
-| `busqueda` | 1 | 0,75 | 1,35 | los anillos de las sedes lo alcanzan y aparecen las distancias |
-| `ficha` | 1 | 1,25 | 1,8 | la flecha se traza desde tu garage y la tarjeta entra cuando llega |
+| `fuera` | 0 | 0,3 | 0,55 | tu garage pasa de la línea de trazos al azul señal con el cartel E |
+| `busqueda` | 1 | 0,5 | 0,8 | los anillos de las sedes lo alcanzan y aparecen las distancias |
+| `ficha` | 1 | 0,8 | 0,95 | la flecha corta sube desde tu garage y la tarjeta entra enseguida |
 
-En `trato`, `ficha` vuelve a 0 entre 0 y 0,3, antes de que empiece la línea del pedido. Con movimiento reducido, la cámara salta al estado final de la sección: flecha entera y tarjeta quieta, sin viaje.
+El fx de la ficha arranca apenas antes de 1 porque el dibujo amortiguado (0,2 s) va detrás del scroll: con la rueda a velocidad normal, la tarjeta llega entera al empezar la estadía y queda fija hasta el final (medido en la build: entera de 1,2 a 2,3 pantallas en 1440 y de 1,35 a 2,4 en 390). En `trato`, `ficha` vuelve a 0 entre 0 y 0,2, antes de la línea del pedido. Mientras está la ficha, las nubes se aclaran al 20 % (`Clima.jsx`, con `fx.ficha`, que vale 0 en la home), así ninguna tapa tu garage ni la flecha. Con movimiento reducido, la cámara salta al estado final de la sección: flecha entera y tarjeta quieta, con un fundido de opacidad corto y sin viaje.
 
-**La flecha y la tarjeta.** Capa HTML anclada a tu garage (`three/FichaMapa.jsx`, mismo patrón que `Solicitud.jsx` y las cotas): un SVG con la guía y una tarjeta que repite el marcado de `FichaBusqueda` (`TarjetaBusqueda`, rotulada "Datos de ejemplo"). Decorativa, dentro del escenario `aria-hidden`; anima solo `opacity`, `transform` y el trazo del SVG, nunca `visibility`. La tarjeta va debajo de tu garage y la flecha sale de la esquina de abajo que la mira: en horizontal, entre la nota y la regla, sin tapar las sedes; en 390 × 844, entre tu garage y la nota, sin bajar del borde de arriba de la nota (en 390 tapa la sede de 740 m, la más lejana: quedan a la vista las de 300, 380 y 430 m). El encuadre vertical de `mapa` sube un poco el dibujo para dar lugar a la flecha.
+**La flecha y la tarjeta.** Capa HTML anclada a tu garage (`three/FichaMapa.jsx`, mismo patrón que `Solicitud.jsx`): un SVG con la guía y una tarjeta que repite el marcado de `FichaBusqueda` (`TarjetaBusqueda`, rotulada "Datos de ejemplo"). Decorativa, dentro del escenario `aria-hidden`; anima solo `opacity`, `transform` y el trazo del SVG, nunca `visibility`. La flecha sale de la esquina derecha del techo de tu garage y sube, hacia arriba a la derecha, hasta el borde de abajo de la tarjeta. La tarjeta va arriba a la derecha de tu garage: en 1440, en la manzana baja entre la sede de 300 m y el garage con la E de la derecha, sin tapar ninguna sede, distancia ni garage; en 390 × 844, arriba, debajo de la barra, sin tapar tu garage ni bajar de la nota (el encuadre vertical de `mapa` baja el dibujo para dar ese lugar). En 390 tapa la sede de 300 m: quedan a la vista las distancias de 380, 430 y 740 m.
 
 **La ficha de la nota.** Se queda: sin 3D es la única forma de ver la tarjeta, y con 3D es el texto accesible de la tarjeta del dibujo (regla: nunca contenido que exista solo en el Canvas). Con 3D se oculta solo a la vista, así la nota de 390 px vuelve a ser corta y deja lugar a la tarjeta; sin 3D se ve como siempre.
 
@@ -214,10 +214,11 @@ En `trato`, `ficha` vuelve a 0 entre 0 y 0,3, antes de que empiece la línea del
 **Criterios de aceptación del cambio:**
 
 - [ ] Siete secciones con los ids de la tabla; `garages.test.js`, `coreografiaGarages.test.js`, `ajustesGarages.test.js`, `paraGarages.source.test.js` y `mundo.test.js` al día y en verde.
-- [ ] Con 3D, en 390 × 844 y 1440 × 900, al final de `mapa` se ven la flecha entera y la tarjeta, sin que la nota, la barra ni la regla las tapen, y sin tapar las distancias de las sedes.
+- [ ] Con 3D, en 390 × 844 y 1440 × 900, durante la estadía de `mapa` se ven la flecha entera y la tarjeta, arriba a la derecha de tu garage, sin que la nota, la barra ni la regla las tapen y sin tapar tu garage; en 1440 tampoco las distancias de las sedes.
+- [ ] Con la rueda a velocidad normal (100 px cada ~16 ms, con Lenis), la tarjeta está entera la mayor parte del tramo en que la nota de `mapa` queda quieta.
 - [ ] La flecha y la tarjeta entran con el scroll, hacia adelante y hacia atrás; con movimiento reducido aparecen en su estado final.
 - [ ] El árbol de accesibilidad de `mapa` tiene la ficha completa en las cuatro versiones; axe sin serious ni critical.
-- [ ] Pósters regenerados (el de `mapa` cambia, el de `alta` se va) y en total hasta 600 kB.
+- [ ] Pósters regenerados (el de `alta` se va; el de `mapa` no cambia porque el encuadre horizontal es el mismo y va sin la tarjeta) y en total hasta 600 kB.
 - [ ] La home idéntica (< 0,5 % de píxeles distintos con movimiento reducido) y los presupuestos de la tabla "Presupuestos".
 
 ## Arquitectura: un mundo, dos páginas

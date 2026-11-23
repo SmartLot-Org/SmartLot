@@ -117,11 +117,22 @@ test('el techo se pinta recién con la ruta completa, y la flecha sale cuando tu
   }
 });
 
-test('en mapa, primero aparecen las distancias y después la flecha', () => {
+test('en mapa la tarjeta es parte de la estadía: entra apenas la nota se queda quieta y no se va', () => {
   const { fx } = COREOGRAFIA_GARAGES.mapa;
   const tramo = (clave) => fx.find((f) => f.clave === clave);
-  assert.ok(tramo('fuera').hasta <= tramo('busqueda').desde);
-  assert.ok(tramo('busqueda').desde < tramo('ficha').desde);
-  // La flecha termina dentro de la estadía, con lugar para leer la tarjeta antes de irse.
-  assert.ok(tramo('ficha').hasta <= SECCIONES.find((s) => s.id === 'mapa').weight - 0.15);
+  const { weight } = SECCIONES.find((s) => s.id === 'mapa');
+  // En la entrada (0 a 1): tu garage pasa a azul y aparecen las distancias.
+  assert.ok(tramo('fuera').hasta <= tramo('busqueda').hasta);
+  assert.ok(tramo('busqueda').hasta <= 1);
+  // La flecha sale al llegar a la estadía (el dibujo amortiguado va un poco detrás del
+  // scroll, por eso el fx arranca apenas antes de 1), en un tramo corto.
+  assert.ok(tramo('ficha').desde >= tramo('busqueda').hasta && tramo('ficha').desde >= 0.75);
+  assert.ok(tramo('ficha').hasta <= 1);
+  assert.ok(tramo('ficha').hasta - tramo('ficha').desde <= 0.25);
+  // Entera al menos el 80 % de la estadía (de 1 a weight), con una pausa que se sienta.
+  assert.ok((weight - tramo('ficha').hasta) / (weight - 1) >= 0.8);
+  assert.ok(weight <= 2.2);
+  // Se va recién en trato, antes de la línea del pedido.
+  const enTrato = COREOGRAFIA_GARAGES.trato.fx;
+  assert.ok(enTrato.find((f) => f.clave === 'ficha').hasta <= enTrato.find((f) => f.clave === 'traza').desde);
 });

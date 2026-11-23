@@ -87,12 +87,15 @@ export function Clima() {
     const ciudad = vivo.aparecen * (1 - limitar(tapa * 2)) * (1 - acceso);
     MAT.sombra.opacity = ciudad * 0.07;
     sombras.current.visible = MAT.sombra.opacity > 0.002;
-    MAT.nube.opacity = ciudad * 0.88;
-    MAT.nubeLinea.opacity = ciudad * 0.9;
-    MAT.nubeSombra.opacity = ciudad * 0.06;
+    // En /para-garages, mientras está la ficha del mapa, las nubes se aclaran para que
+    // tu garage y la flecha se lean. En la home fx.ficha vale 0: no cambia nada.
+    const cielo = ciudad * (1 - vivo.fx.ficha * 0.8);
+    MAT.nube.opacity = cielo * 0.88;
+    MAT.nubeLinea.opacity = cielo * 0.9;
+    MAT.nubeSombra.opacity = cielo * 0.06;
     NUBES.forEach((n, i) => {
       const g = nubes.current[i];
-      g.visible = ciudad > 0.01;
+      g.visible = cielo > 0.01;
       if (!g.visible) return;
       const x = ((n.fase * largo + vivo.tiempo * n.velocidad) % largo) - largo / 2;
       g.position.set(x, 0, n.z);

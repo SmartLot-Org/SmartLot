@@ -32,18 +32,20 @@ export const COREOGRAFIA_GARAGES = {
       { clave: 'vueltas', valor: 1, desde: 0.3, hasta: 0.95 },
     ],
   },
-  // El único momento audaz: la cámara sube, tu garage pasa a azul señal con el cartel E
-  // y los anillos de las sedes lo alcanzan. Recién con las distancias puestas, una flecha
-  // sale de tu garage hacia la tarjeta de la búsqueda: lo que la empresa ve de vos, que
-  // son los datos del alta (three/FichaMapa.jsx).
+  // El único momento audaz. En la entrada la cámara sube, tu garage pasa a azul señal con
+  // el cartel E y los anillos de las sedes lo alcanzan. Al llegar a la estadía, con la
+  // nota quieta, una flecha corta sube desde tu garage y la tarjeta de la búsqueda
+  // (three/FichaMapa.jsx) entra enseguida (el fx arranca en 0,8 porque el dibujo
+  // amortiguado llega un poco después que el scroll): lo que la empresa ve de vos, que son los datos
+  // del alta. Queda fija toda la estadía y se va recién en `trato`.
   mapa: {
     camara: { x: 15.56, z: 1.11, zoom: 1.02 },
-    camaraVertical: { x: 31.27, z: 17.02, zoom: 0.56 },
+    camaraVertical: { x: 8.27, z: -5.98, zoom: 0.56 },
     fx: [
       { clave: 'vueltas', valor: 0, desde: 0, hasta: 0.45 },
-      { clave: 'fuera', valor: 0, desde: 0.45, hasta: 0.75 },
-      { clave: 'busqueda', valor: 1, desde: 0.75, hasta: 1.35 },
-      { clave: 'ficha', valor: 1, desde: 1.25, hasta: 1.8 },
+      { clave: 'fuera', valor: 0, desde: 0.3, hasta: 0.55 },
+      { clave: 'busqueda', valor: 1, desde: 0.5, hasta: 0.8 },
+      { clave: 'ficha', valor: 1, desde: 0.8, hasta: 0.95 },
     ],
   },
   // El pedido: la flecha y la tarjeta se van antes de que salga la línea, la búsqueda
@@ -53,7 +55,7 @@ export const COREOGRAFIA_GARAGES = {
     camara: { x: 10.18, z: -1.44, zoom: 2.81 },
     camaraVertical: { x: 23.26, z: 15.75, zoom: 2.3 },
     fx: [
-      { clave: 'ficha', valor: 0, desde: 0, hasta: 0.3 },
+      { clave: 'ficha', valor: 0, desde: 0, hasta: 0.2 },
       { clave: 'busqueda', valor: 0, desde: 0, hasta: 0.4 },
       { clave: 'traza', valor: 1, desde: 0.4, hasta: 1 },
       { clave: 'trato', valor: 1, desde: 1.05, hasta: 1.25 },

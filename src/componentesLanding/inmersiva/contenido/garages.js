@@ -74,7 +74,7 @@ export const SECCIONES = [
     cuerpo:
       'Cuando una empresa busca garages cerca de una de sus sedes, ve el tuyo en el punto que marcaste, con la distancia, tus días y horario, las plazas disponibles y tus tarifas por hora para auto, moto y pickup. Desde ahí te pide cocheras.',
     movimiento: 'asciende',
-    weight: 2,
+    weight: 2.2,
     piezas: ['busqueda'],
     figura: 'La ciudad desde arriba: tu garage, en azul con el cartel de estacionamiento, y las sedes de las empresas con sus anillos de búsqueda; sobre cada sede que lo encontró aparece la distancia por la calle.',
   },
