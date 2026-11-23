@@ -67,23 +67,16 @@ export const SECCIONES = [
     figura: 'La manzana de una sede: autos que dan vueltas sin encontrar lugar y, a 300 metros, tu garage sin cartel, rodeado por los globos de un chat que no para.',
   },
   {
-    id: 'alta',
-    titulo: 'Tu garage, con tus horarios y precios',
-    cuerpo:
-      'Marcás la ubicación en el mapa, los días y el horario, cuántas plazas destinás a reservas y tus tarifas por hora para auto, moto y pickup.',
-    movimiento: 'se dibuja',
-    weight: 1.3,
-    figura: 'Tu garage de cerca: el volumen se dibuja arista por arista y aparecen sus cotas, con la ubicación, el horario, las plazas y las tarifas.',
-  },
-  {
+    // Une el alta y la búsqueda: los datos que cargás son los que ve la empresa. Con 3D,
+    // una flecha sale de tu garage hacia la tarjeta de la búsqueda (three/FichaMapa.jsx).
     id: 'mapa',
     titulo: 'Las empresas cercanas te encuentran',
     cuerpo:
-      'Cuando una empresa busca garages cerca de una de sus sedes, ve el tuyo en el mapa con la distancia, las plazas disponibles, tus horarios y tus tarifas. Desde ahí te pide cocheras.',
+      'Cuando una empresa busca garages cerca de una de sus sedes, ve el tuyo en el punto que marcaste, con la distancia, tus días y horario, las plazas disponibles y tus tarifas por hora para auto, moto y pickup. Desde ahí te pide cocheras.',
     movimiento: 'asciende',
-    weight: 1.6,
+    weight: 2,
     piezas: ['busqueda'],
-    figura: 'La ciudad desde más arriba: tu garage pasa a azul con el cartel de estacionamiento y, cuando el anillo de búsqueda de una sede lo alcanza, sobre esa sede aparece la distancia por la calle.',
+    figura: 'La ciudad desde arriba: tu garage, en azul con el cartel de estacionamiento, y las sedes de las empresas con sus anillos de búsqueda; sobre cada sede que lo encontró aparece la distancia por la calle.',
   },
   {
     id: 'trato',
@@ -127,7 +120,8 @@ export const SECCIONES = [
 ];
 
 // Pieza de `mapa`: la tarjeta del listado de "Buscar garages" (vistasAdmin/gestion_garages.jsx),
-// con tus datos. La distancia es la de la cota de 300 m del dibujo.
+// con los datos del alta de tu garage. La distancia es la de la cota de 300 m del dibujo.
+// Con 3D se ve al final de la flecha que sale de tu garage; en la nota queda como texto.
 export const BUSQUEDA = {
   titulo: 'Así te ve una empresa',
   aviso: AVISO,
@@ -195,12 +189,5 @@ export const ROTULOS = {
   sede: 'Sede',
   garage: 'Tu garage',
   senal: 'E',
-  // Cotas del alta, en el orden en que se dibujan.
-  alta: {
-    ubicacion: 'Ubicación en el mapa',
-    horario: '08:00 a 20:00 · Lun a Sáb',
-    plazas: '40 plazas · 25 para reservas',
-    tarifas: 'Auto $ 1.200 · Moto $ 600 · Pickup $ 1.500 por hora',
-  },
   distancia: { unidad: 'm' },
 };

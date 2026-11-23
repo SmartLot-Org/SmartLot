@@ -45,10 +45,20 @@ test('con "En borrador", en control tu garage sale del mapa y nada más cambia',
 });
 
 test('fuera de control, "En borrador" no cambia el dibujo', () => {
-  for (const id of ['gancho', 'mapa', 'trato', 'operacion', 'accion']) {
+  for (const id of ['gancho', 'problema', 'mapa', 'trato', 'operacion', 'accion']) {
     const avances = avancesFinales(indice(id));
     assert.deepEqual(aplicarVisibilidad(componer(avances, false), false, avances), componer(avances, false), id);
   }
+});
+
+test('el interruptor no toca la flecha ni la tarjeta de la búsqueda', () => {
+  // En control la ficha ya se fue; en mapa el borrador no pesa.
+  for (const id of ['mapa', 'control']) {
+    const avances = avancesFinales(indice(id));
+    const borrador = aplicarVisibilidad(componer(avances, false), false, avances);
+    assert.equal(borrador.fx.ficha, componer(avances, false).fx.ficha, id);
+  }
+  assert.equal(componer(avancesFinales(indice('control')), false).fx.ficha, 0);
 });
 
 test('ajustar lee el interruptor y suscribir recompone solo cuando cambia', () => {

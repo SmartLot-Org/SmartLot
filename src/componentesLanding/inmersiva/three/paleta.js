@@ -55,11 +55,10 @@ export const MAT = {
   onda: relleno({ transparent: true, opacity: 0, depthWrite: false, depthTest: false }),
   // /para-garages: tu garage fuera del mapa, en línea de trazos.
   fueraLinea: new LineDashedMaterial({ dashSize: 0.55, gapSize: 0.32, transparent: true, opacity: 0 }),
-  // /para-garages: las sedes en tinta plena, las aristas del alta, los anillos de
+  // /para-garages: las sedes en tinta plena, los anillos de
   // búsqueda en tinta media (cada anillo clona este) y las rutas que llegan, en señal.
   sedeCara: cara({ transparent: true, opacity: 0 }),
   sedeLinea: linea({ transparent: true, opacity: 0 }),
-  altaLinea: linea({ transparent: true, opacity: 0 }),
   busqueda: linea({ transparent: true, opacity: 0 }),
   llegada: relleno({ depthTest: false, transparent: true, opacity: 0 }),
 };
@@ -89,7 +88,7 @@ export function colorear(raiz) {
   const media = token('--tinta-media');
   const tenue = token('--tinta-tenue');
   for (const m of [MAT.papel, MAT.papelTrato, MAT.papelAcceso, MAT.papelVuelta, MAT.losaLado, MAT.papelTrafico, MAT.papelEstaciona, MAT.sedeCara]) m.color.set(papel);
-  for (const m of [MAT.tinta, MAT.tintaAcceso, MAT.plantaLinea, MAT.tintaVuelta, MAT.losaLinea, MAT.pinLinea, MAT.tintaEstaciona, MAT.sedeLinea, MAT.altaLinea]) m.color.set(tinta);
+  for (const m of [MAT.tinta, MAT.tintaAcceso, MAT.plantaLinea, MAT.tintaVuelta, MAT.losaLinea, MAT.pinLinea, MAT.tintaEstaciona, MAT.sedeLinea]) m.color.set(tinta);
   MAT.tintaTrafico.color.set(media);
   MAT.sombra.color.set(tinta);
   MAT.nubeSombra.color.set(tinta);

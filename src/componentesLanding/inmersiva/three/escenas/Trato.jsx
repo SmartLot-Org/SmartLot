@@ -5,14 +5,11 @@ import { MUNDO } from '../mundo';
 import { MAT, tenirSumados } from '../paleta';
 import { vivo } from '../vivo';
 
-const limitar = (v) => (v < 0 ? 0 : v > 1 ? 1 : v);
-
 // La oficina, los garages y el recorrido que los une. El azul señal aparece
 // solo donde hay un lugar para vos: el contorno de un garage con plazas, el
 // recorrido y el techo del garage que aceptó el trato.
 // En /para-garages el garage del trato es tu garage: mientras está fuera del mapa
-// (fx.fuera) va en línea de trazos y tinta tenue, sin nada azul; cuando se dibuja en
-// el alta (fx.alta), los trazos dejan lugar a las aristas en tinta (Alta.jsx).
+// (fx.fuera) va en línea de trazos y tinta tenue, sin nada azul.
 export function Trato() {
   const geo = useMemo(() => {
     const de = (m) => ({ caras: geometria(m.caras), aristas: geometria(m.aristas), techos: m.techos && geometria(m.techos) });
@@ -32,7 +29,7 @@ export function Trato() {
   useLayoutEffect(() => { trazos.current.computeLineDistances(); }, []);
 
   useFrame(() => {
-    const { traza, trato: aceptado, red, fuera, alta } = vivo.fx;
+    const { traza, trato: aceptado, red, fuera } = vivo.fx;
     // El techo termina de irse un poco antes que el resto, para que la planta quede limpia.
     const tapa = Math.min(1, vivo.fx.tapa * 1.25);
     const enElMapa = 1 - fuera;
@@ -49,7 +46,7 @@ export function Trato() {
     trato.current.visible = tapa < 0.99;
     MAT.techoTrato.opacity = aceptado * (1 - tapa) * enElMapa;
     techoTrato.current.visible = MAT.techoTrato.opacity > 0.01;
-    MAT.fueraLinea.opacity = vivo.aparecen * (1 - tapa) * fuera * (1 - limitar((alta - 0.45) / 0.2));
+    MAT.fueraLinea.opacity = vivo.aparecen * (1 - tapa) * fuera;
     trazos.current.visible = MAT.fueraLinea.opacity > 0.01;
 
     MAT.techoOtros.opacity = red;

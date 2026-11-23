@@ -85,13 +85,16 @@ test('el cierre: tu garage en el mapa, el trato aceptado, el techo puesto y las 
 
 test('cada cosa pasa en su sección y en orden', () => {
   const final = (id) => componer(avancesFinales(SECCIONES.findIndex((s) => s.id === id)), false).fx;
-  // Hasta el alta, tu garage sigue fuera del mapa; en el alta queda dibujado.
+  // Hasta el problema, tu garage sigue fuera del mapa.
   assert.equal(final('problema').fuera, 1);
-  assert.equal(final('alta').fuera, 1);
-  assert.equal(final('alta').alta, 1);
-  // En el mapa entra al mapa y la búsqueda lo encuentra.
+  assert.equal(final('problema').ficha, 0);
+  // En el mapa entra al mapa, la búsqueda lo encuentra y la flecha lleva a su tarjeta.
   assert.equal(final('mapa').fuera, 0);
   assert.equal(final('mapa').busqueda, 1);
+  assert.equal(final('mapa').ficha, 1);
+  assert.equal(final('mapa').vueltas, 0);
+  // La tarjeta de la búsqueda no sigue en el pedido.
+  assert.equal(final('trato').ficha, 0);
   // El trato se acepta en su sección y la ocupación la mueven las reservas en la operación.
   assert.equal(final('trato').trato, 1);
   assert.equal(final('trato').llenas, 0);
@@ -101,11 +104,24 @@ test('cada cosa pasa en su sección y en orden', () => {
   assert.equal(final('control').tapa, 0);
 });
 
-test('el techo se pinta recién con la ruta completa, y las aristas del alta se borran sin verse', () => {
+test('el techo se pinta recién con la ruta completa, y la flecha sale cuando tu garage ya está en el mapa', () => {
   for (const e of recorrer(false, 0.005)) {
     // Regla 5: nada se activa antes de que llegue el pedido.
     if (e.fx.trato > 0) assert.equal(e.fx.traza, 1);
-    // El alta se dibuja con tu garage fuera del mapa y se borra cuando ya está en azul.
-    if (e.fx.alta > 0 && e.fx.alta < 1) assert.ok(e.fx.fuera === 1 || e.fx.fuera === 0, `alta ${e.fx.alta}, fuera ${e.fx.fuera}`);
+    // La flecha señala tu garage en el mapa: nunca mientras está fuera de él, y nunca a la
+    // vez que la línea del pedido.
+    if (e.fx.ficha > 0) {
+      assert.equal(e.fx.fuera, 0, `ficha ${e.fx.ficha}, fuera ${e.fx.fuera}`);
+      assert.equal(e.fx.traza, 0, `ficha ${e.fx.ficha}, traza ${e.fx.traza}`);
+    }
   }
+});
+
+test('en mapa, primero aparecen las distancias y después la flecha', () => {
+  const { fx } = COREOGRAFIA_GARAGES.mapa;
+  const tramo = (clave) => fx.find((f) => f.clave === clave);
+  assert.ok(tramo('fuera').hasta <= tramo('busqueda').desde);
+  assert.ok(tramo('busqueda').desde < tramo('ficha').desde);
+  // La flecha termina dentro de la estadía, con lugar para leer la tarjeta antes de irse.
+  assert.ok(tramo('ficha').hasta <= SECCIONES.find((s) => s.id === 'mapa').weight - 0.15);
 });

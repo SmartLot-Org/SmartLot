@@ -1,13 +1,11 @@
 // Chunk 3D de /para-garages: se carga con lazy() desde paginas/garagesEscena.js y lo monta
 // PaginaPlano en las mismas condiciones que el de la home. Es la misma ciudad vista desde
 // el otro lado del trato, sobre el escenario común: las escenas compartidas con lo que
-// cambia por página y las propias (sedes, alta, búsqueda y llegadas). Sin el pin, la
+// cambia por página y las propias (sedes, búsqueda, la ficha del mapa y llegadas). Sin el pin, la
 // jornada, el QR ni la interacción con el mouse de la home. Todo acá es decorativo.
-import { CHAT, ROTULOS, SOLICITUD } from '../contenido/garages';
+import { BUSQUEDA, CHAT, SOLICITUD } from '../contenido/garages';
 import { CapaChats, ProyectorChats } from './Chats';
-import { CapaCotas, ProyectorCotas } from './CotasAlta';
 import { Escenario } from './Escenario';
-import { Alta } from './escenas/Alta';
 import { Busqueda } from './escenas/Busqueda';
 import { Ciudad } from './escenas/Ciudad';
 import { Clima } from './escenas/Clima';
@@ -18,6 +16,7 @@ import { Sedes } from './escenas/Sedes';
 import { Trafico } from './escenas/Trafico';
 import { Trato } from './escenas/Trato';
 import { Vueltas } from './escenas/Vueltas';
+import { CapaFichaMapa, ProyectorFichaMapa } from './FichaMapa';
 import { ANCLAS, G1, G2, G3 } from './mundo';
 import { Proyector, Rotulos } from './Rotulos';
 import { ROTULOS_GARAGES } from './rotulosGarages';
@@ -50,7 +49,7 @@ function rodeaTuGarage(px, py, caja, size, horizontal) {
 const CAPAS = (
   <>
     <Rotulos rotulos={ROTULOS_GARAGES} lente={false} />
-    <CapaCotas cotas={ROTULOS.alta} />
+    <CapaFichaMapa busqueda={BUSQUEDA} seccion="mapa" />
     <CapaChats mensajes={CHAT} />
     <CapaSolicitud solicitud={SOLICITUD} />
   </>
@@ -65,7 +64,6 @@ export default function ExperienceGarages() {
         <Clima />
         <Sedes />
         <Trato />
-        <Alta />
         <Vueltas />
         <Garage />
         <Trafico />
@@ -74,7 +72,7 @@ export default function ExperienceGarages() {
         <Llegadas />
       </group>
       <Proyector rotulos={ROTULOS_GARAGES} />
-      <ProyectorCotas cotas={ROTULOS.alta} />
+      <ProyectorFichaMapa />
       <ProyectorChats mensajes={CHAT} ancla={ANCLAS.g1} comparar={SIN_DESLIZADOR} colocar={rodeaTuGarage} />
       <ProyectorSolicitud solicitud={SOLICITUD} />
     </Escenario>

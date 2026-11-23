@@ -23,7 +23,7 @@ export const FX_CERO = Object.freeze({
   // De /para-garages. En 0 son el estado de la home, así una escena compartida que las
   // lea no cambia nada en la home.
   fuera: 0,     // tu garage, fuera del mapa: línea de trazos y sin cartel
-  alta: 0,      // el volumen de tu garage se dibuja con las cotas del alta
+  ficha: 0,     // la flecha sale de tu garage hacia la tarjeta de la búsqueda
   sedes: 0,     // las sedes de las empresas, en tinta, con su anillo de búsqueda
   busqueda: 0,  // los anillos de las sedes alcanzan tu garage y aparece la distancia
   llegan: 0,    // desde cada sede, una ruta punteada llega hasta tu garage

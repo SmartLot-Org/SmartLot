@@ -16,8 +16,9 @@ export const ROTULOS_GARAGES = [
   { id: 'g1', ancla: ANCLAS.g1, clase: 'plano-senal-e', texto: ROTULOS.senal, opacidad: (fx) => vivo.aparecen * (1 - fx.tapa) * (1 - fx.fuera) },
   { id: 'g2', ancla: ANCLAS.g2, clase: 'plano-senal-e', texto: ROTULOS.senal, opacidad: () => vivo.aparecen },
   { id: 'g3', ancla: ANCLAS.g3, clase: 'plano-senal-e', texto: ROTULOS.senal, opacidad: () => vivo.aparecen },
-  // "Tu garage", debajo de su esquina de adelante; en el alta lo nombran sus cotas.
-  { id: 'tuyo', ancla: [G1.x1, 0, G1.z1], clase: 'plano-rotulo', texto: ROTULOS.garage, debajo: true, opacidad: (fx) => vivo.aparecen * (1 - fx.tapa) * (1 - limitar(fx.alta * 2)) },
+  // "Tu garage", debajo de su esquina de adelante; cuando sale la flecha, lo nombra la
+  // tarjeta de la búsqueda (FichaMapa.jsx) y el rótulo se va para no repetirlo.
+  { id: 'tuyo', ancla: [G1.x1, 0, G1.z1], clase: 'plano-rotulo', texto: ROTULOS.garage, debajo: true, opacidad: (fx) => vivo.aparecen * (1 - fx.tapa) * (1 - limitar(fx.ficha * 2)) },
   ...SEDES.map((s, i) => ({
     id: `sede-${i}`, ancla: ANCLAS.sedes[i], clase: 'plano-rotulo', texto: ROTULOS.sede,
     opacidad: (fx) => vivo.aparecen * fx.sedes * (1 - fx.tapa),

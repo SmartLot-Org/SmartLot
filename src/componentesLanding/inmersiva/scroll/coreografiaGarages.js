@@ -1,8 +1,8 @@
 // Guion técnico de /para-garages: qué encuadre y qué estado del dibujo le toca a cada
 // sección, con el mismo vocabulario de fx que la home (FX_CERO, en coreografia.js).
 // Es la misma ciudad vista desde el otro lado del trato: arranca en el mapa con tu
-// garage afuera, baja para dibujarlo, sube para mostrar quién lo encuentra y cierra con
-// la ciudad entera apuntando a tu garage.
+// garage afuera, baja a la cuadra del problema, sube para mostrar quién lo encuentra y
+// cómo lo ve, y cierra con la ciudad entera apuntando a tu garage.
 //
 // Como en la home, `desde` y `hasta` se miden en pantallas de scroll desde que la
 // sección asoma por abajo: de 0 a 1 es la entrada (viaja la cámara) y de 1 a `weight`,
@@ -32,33 +32,28 @@ export const COREOGRAFIA_GARAGES = {
       { clave: 'vueltas', valor: 1, desde: 0.3, hasta: 0.95 },
     ],
   },
-  // Tu garage de cerca: el volumen se dibuja y aparecen las cotas del alta.
-  alta: {
-    camara: { x: 24.59, z: 8.36, zoom: 4.6 },
-    camaraVertical: { x: 23.47, z: 6.08, zoom: 2.6 },
-    fx: [
-      { clave: 'vueltas', valor: 0, desde: 0, hasta: 0.45 },
-      { clave: 'alta', valor: 1, desde: 0.45, hasta: 1.25 },
-    ],
-  },
   // El único momento audaz: la cámara sube, tu garage pasa a azul señal con el cartel E
-  // y los anillos de las sedes lo alcanzan. Las aristas del alta se borran recién
-  // cuando ya no se ven (fuera en 0), así el relato vuelve igual hacia atrás.
+  // y los anillos de las sedes lo alcanzan. Recién con las distancias puestas, una flecha
+  // sale de tu garage hacia la tarjeta de la búsqueda: lo que la empresa ve de vos, que
+  // son los datos del alta (three/FichaMapa.jsx).
   mapa: {
     camara: { x: 15.56, z: 1.11, zoom: 1.02 },
-    camaraVertical: { x: 28.27, z: 14.02, zoom: 0.56 },
+    camaraVertical: { x: 31.27, z: 17.02, zoom: 0.56 },
     fx: [
-      { clave: 'fuera', valor: 0, desde: 0.55, hasta: 0.85 },
-      { clave: 'busqueda', valor: 1, desde: 0.85, hasta: 1.5 },
-      { clave: 'alta', valor: 0, desde: 0.9, hasta: 1.05 },
+      { clave: 'vueltas', valor: 0, desde: 0, hasta: 0.45 },
+      { clave: 'fuera', valor: 0, desde: 0.45, hasta: 0.75 },
+      { clave: 'busqueda', valor: 1, desde: 0.75, hasta: 1.35 },
+      { clave: 'ficha', valor: 1, desde: 1.25, hasta: 1.8 },
     ],
   },
-  // El pedido: la búsqueda se guarda, la línea azul recorre los 300 m desde la sede y,
-  // con la solicitud aceptada, el techo se pinta (regla 5).
+  // El pedido: la flecha y la tarjeta se van antes de que salga la línea, la búsqueda
+  // se guarda, la línea azul recorre los 300 m desde la sede y, con la solicitud
+  // aceptada, el techo se pinta (regla 5).
   trato: {
     camara: { x: 10.18, z: -1.44, zoom: 2.81 },
     camaraVertical: { x: 23.26, z: 15.75, zoom: 2.3 },
     fx: [
+      { clave: 'ficha', valor: 0, desde: 0, hasta: 0.3 },
       { clave: 'busqueda', valor: 0, desde: 0, hasta: 0.4 },
       { clave: 'traza', valor: 1, desde: 0.4, hasta: 1 },
       { clave: 'trato', valor: 1, desde: 1.05, hasta: 1.25 },

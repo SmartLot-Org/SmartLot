@@ -9,7 +9,8 @@ import { MUNDO } from '../three/mundo.js';
 
 const PEDIDO = `${MUNDO.ruta.metros} ${ROTULOS.distancia.unidad}`;
 
-const GUION = ['gancho', 'problema', 'alta', 'mapa', 'trato', 'operacion', 'control', 'accion'];
+// Siete secciones: el alta y la búsqueda son una sola, `mapa` (pedido del 2026-11-23).
+const GUION = ['gancho', 'problema', 'mapa', 'trato', 'operacion', 'control', 'accion'];
 const pesos = (t) => Number(t.replace(/[^\d]/g, ''));
 const horas = (t) => {
   const [, h, m] = t.match(/^(\d+) h (\d+) min$/);
@@ -117,17 +118,29 @@ test('en la tabla de consumos las filas suman el total y el tiempo por la tarifa
   for (const f of [...filas, total]) assert.equal(Math.round(horas(f.tiempo) * pesos(tarifa)), pesos(f.importe), f.empresa ?? f.etiqueta);
 });
 
-test('la ficha, el alta, la solicitud y el dibujo cuentan el mismo garage', () => {
+test('mapa dice que las empresas te encuentran y conserva lo que cargás en el alta', () => {
+  const mapa = SECCIONES.find((s) => s.id === 'mapa');
+  assert.equal(mapa.titulo, 'Las empresas cercanas te encuentran');
+  assert.match(mapa.cuerpo, /busca garages cerca de una de sus sedes/);
+  // Ubicación, días y horario, plazas y tarifas: los datos del alta (crear_garage_dueño.jsx).
+  for (const dato of [/el punto que marcaste/, /días y horario/, /plazas disponibles/, /tarifas por hora para auto, moto y pickup/]) {
+    assert.match(mapa.cuerpo, dato);
+  }
+  assert.match(mapa.cuerpo, /te pide cocheras/);
+});
+
+test('la ficha, la solicitud, los consumos y el dibujo cuentan el mismo garage', () => {
   // La distancia de la ficha es la cota del pedido: 0,3 km son 300 m.
   const km = Number(BUSQUEDA.distancia.match(/^([\d,]+) km/)[1].replace(',', '.'));
   assert.equal(`${Math.round(km * 1000)} m`, PEDIDO);
-  // Las plazas para reservas del alta son las disponibles de la ficha.
-  const [, plazas, reservas] = ROTULOS.alta.plazas.match(/^(\d+) plazas · (\d+) para reservas$/);
-  assert.equal(BUSQUEDA.disponibles, `${reservas} de ${plazas} disponibles`);
-  // Las tarifas son las mismas en la ficha, en la cota del alta y en la tabla.
-  assert.ok(ROTULOS.alta.tarifas.startsWith(BUSQUEDA.tarifas));
+  // La ficha tiene la forma de la tarjeta real: "X de Y disponibles", "HH:MM a HH:MM · días"
+  // y las tres tarifas en el orden del producto.
+  const [, reservas, plazas] = BUSQUEDA.disponibles.match(/^(\d+) de (\d+) disponibles$/);
+  assert.ok(Number(reservas) <= Number(plazas));
+  assert.match(BUSQUEDA.horario, /^\d\d:\d\d a \d\d:\d\d · (Lun|Mar|Mié|Jue|Vie|Sáb|Dom)(, (Lun|Mar|Mié|Jue|Vie|Sáb|Dom))*$/);
+  assert.match(BUSQUEDA.tarifas, /^Auto \$ [\d.]+ · Moto \$ [\d.]+ · Pickup \$ [\d.]+$/);
+  // La tarifa de auto de la ficha es la de la tabla de consumos.
   assert.match(BUSQUEDA.tarifas, new RegExp(`^Auto ${CONSUMOS.tarifa.replace('/h', '').replace(/[$.]/g, '\\$&')} `));
-  assert.match(BUSQUEDA.horario, new RegExp(`^${ROTULOS.alta.horario.split(' · ')[0]} · `));
   // El pedido entra en las plazas disponibles y la empresa es la de la primera fila de consumos.
   assert.ok(SOLICITUD.cocheras >= 1 && SOLICITUD.cocheras <= Number(reservas));
   assert.equal(SOLICITUD.empresa, CONSUMOS.filas[0].empresa);

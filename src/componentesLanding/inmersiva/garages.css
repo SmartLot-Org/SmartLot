@@ -64,6 +64,21 @@
   cursor: default;
 }
 
+/* Con 3D la tarjeta se ve en el dibujo (three/FichaMapa.jsx): en la nota queda solo
+   para lectores de pantalla. Oculta a la vista con un recorte, nunca con display ni
+   visibility, que la sacarían del árbol de accesibilidad. */
+.plano .garages-ficha--en-dibujo {
+  position: absolute;
+  width: 1px;
+  height: 1px; /* taste-skill-ignore: recorte para lectores de pantalla, no es una línea */
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  border: 0;
+  white-space: nowrap;
+}
+
 /* ── operacion: "Consumos por empresa" ── */
 /* La planilla de la home no corta renglones; acá los encabezados (y el nombre, si un
    celular es más angosto que 390 px) pueden ir en dos líneas, así las cuatro columnas

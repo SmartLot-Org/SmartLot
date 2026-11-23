@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync } from 'node:fs';
 import { readdir, readFile } from 'node:fs/promises';
-import { CTA, ENLACE } from '../componentesLanding/inmersiva/contenido/garages.js';
+import { CTA, ENLACE, SECCIONES, VISIBILIDAD } from '../componentesLanding/inmersiva/contenido/garages.js';
 import { useGarages } from '../componentesLanding/inmersiva/estado/garages.js';
 
 // /para-garages es el armazón del plano con el objeto de página de garages
@@ -85,6 +85,36 @@ test('las piezas son fragmentos del producto: data-ui, sin h1 ni h2 y con los da
   // El botón de la ficha ("Solicitud pendiente", deshabilitado) es parte de la imagen:
   // no es un control que no hace nada.
   assert.doesNotMatch(await pieza('FichaBusqueda'), /<button|<a |onClick|tabIndex/);
+});
+
+test('mapa: con 3D la ficha se ve en el dibujo, al final de la flecha, y en la nota queda como texto', async () => {
+  const ficha = await pieza('FichaBusqueda');
+  // Una sola tarjeta para la nota y el dibujo: las dos replican la tarjeta real.
+  assert.match(ficha, /export function TarjetaBusqueda\(\)/);
+  assert.match(ficha, /export function FichaBusqueda\(\{ sinEscena = true \}\)/);
+  assert.match(ficha, /sinEscena \? 'garages-ficha' : 'garages-ficha garages-ficha--en-dibujo'/);
+  // Oculta solo a la vista: sigue en el árbol de accesibilidad (nunca display ni visibility).
+  const oculta = sinComentarios(estilos).match(/\.plano \.garages-ficha--en-dibujo \{[^}]*\}/)?.[0] ?? '';
+  assert.match(oculta, /clip-path: inset\(50%\);/);
+  assert.doesNotMatch(oculta, /display|visibility|opacity/);
+  // La capa del dibujo usa la misma tarjeta, es decorativa (el escenario es aria-hidden)
+  // y anima solo opacidad, transform y el trazo del SVG.
+  const capa = await leer('componentesLanding/inmersiva/three/FichaMapa.jsx');
+  assert.match(capa, /import \{ TarjetaBusqueda \} from '\.\.\/ui\/garages\/FichaBusqueda';/);
+  assert.match(capa, /<TarjetaBusqueda \/>/);
+  assert.doesNotMatch(sinComentarios(capa), /visibility|autoAlpha|tabIndex|<button|<a /);
+  assert.match(capa, /stroke-dashoffset/);
+  const composicion = await leer('componentesLanding/inmersiva/three/ExperienceGarages.jsx');
+  assert.match(composicion, /<CapaFichaMapa busqueda=\{BUSQUEDA\} seccion="mapa" \/>/);
+  assert.match(composicion, /<ProyectorFichaMapa \/>/);
+  assert.ok(SECCIONES.some((s) => s.id === 'mapa' && s.piezas?.includes('busqueda')));
+});
+
+test('hay un póster por sección y el del borrador, y ninguno de más', async () => {
+  const carpeta = new URL('../public/landing/posters/garages/', src);
+  const archivos = (await readdir(carpeta)).sort();
+  const nombres = [...SECCIONES.map((s) => s.poster ?? s.id), VISIBILIDAD.borrador.poster];
+  assert.deepEqual(archivos, nombres.flatMap((n) => [`${n}-600.webp`, `${n}.webp`]).sort());
 });
 
 test('los estilos de garages cuelgan de .plano y el movimiento respeta las reglas de interfaz', () => {

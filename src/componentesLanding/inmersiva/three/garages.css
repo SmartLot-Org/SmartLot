@@ -1,23 +1,33 @@
-/* Capas HTML del dibujo de /para-garages (three/ExperienceGarages.jsx): las cotas del
-   alta y la solicitud. Entran con el chunk 3D de garages y usan los tokens de .plano
+/* Capas HTML del dibujo de /para-garages (three/ExperienceGarages.jsx): la flecha con
+   la tarjeta de la búsqueda y la solicitud. Entran con el chunk 3D de garages y usan los tokens de .plano
    (inmersiva.css). Decorativas: el escenario entero es aria-hidden. */
 
-/* ── Cotas del alta: los datos del alta como cotas del plano, en tinta, con su guía ──
-   El azul queda para lo disponible: tu garage todavía no está en el mapa. */
-.plano .plano-cotas { position: absolute; inset: 0; pointer-events: none; }
-.plano .plano-cotas__guias { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
-.plano .plano-cotas__guias polyline { fill: none; stroke: var(--tinta); stroke-width: 1; }
-.plano .plano-cotas__guias circle { fill: var(--tinta); }
-.plano .plano-cota--alta {
+/* ── Ficha del mapa: la flecha desde tu garage y la tarjeta de la búsqueda ──
+   La flecha es una guía del plano, en tinta y de 1 px como las cotas, con un punto en
+   tu garage y una punta abierta en la tarjeta. La tarjeta es la del listado de "Buscar
+   garages" (sus estilos, en inmersiva/garages.css bajo [data-ui='busqueda']) sobre el
+   papel de las capas flotantes, con su sombra plana. */
+.plano .plano-ficha-mapa { position: absolute; inset: 0; pointer-events: none; }
+.plano .plano-ficha-mapa__flecha { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.plano .plano-ficha-mapa__flecha polyline { fill: none; stroke: var(--tinta); stroke-width: 1; stroke-linecap: round; stroke-linejoin: round; }
+.plano .plano-ficha-mapa__flecha circle { fill: var(--tinta); }
+.plano .plano-ficha-mapa__tarjeta {
   position: absolute;
   left: 0;
   top: 0;
-  color: var(--tinta);
-  font-weight: 600;
-  line-height: 1.3;
-  white-space: normal;
+  display: grid;
+  gap: 8px;
+  width: 312px;
+  padding: 10px;
+  border: 1px solid var(--borde); /* taste-skill-ignore: borde hairline de las capas del plano (DESIGN.md) */
+  border-radius: 10px;
+  background: var(--papel);
+  box-shadow: 4px 4px 0 color-mix(in srgb, var(--tinta) 10%, transparent); /* taste-skill-ignore: capa que flota sobre el plano, sombra plana (DESIGN.md, Elevation) */
+  transform-origin: 0 0;
   will-change: transform, opacity;
 }
+.plano .plano-ficha-mapa__titulo { margin: 0; padding-inline: 4px; color: var(--tinta); font: 700 13px/1.3 var(--font-body); }
+.plano .plano-ficha-mapa__titulo small { margin-left: 6px; color: var(--texto-suave); font-size: 12px; font-weight: 400; }
 
 /* ── Solicitud: la tarjeta del pedido como la ve el dueño, junto a tu garage ── */
 .plano .plano-solicitud {
