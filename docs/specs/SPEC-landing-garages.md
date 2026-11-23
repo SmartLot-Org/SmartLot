@@ -2,7 +2,9 @@
 
 > Estado: Implementada, con los "Por defecto" de las preguntas abiertas (pendientes de confirmación del dueño del producto)
 > Módulo: `landing-garages`
-> Última actualización: 2026-11-19
+> Última actualización: 2026-11-23
+
+> Cambio pedido por el usuario (2026-11-23): `alta` y `mapa` pasan a ser una sola sección, `mapa`, con el mensaje "Las empresas cercanas te encuentran", y en el dibujo una flecha sale de tu garage hacia la tarjeta con los datos de cómo te ve una empresa. Son siete secciones. Detalle en "Alta y mapa en una sección (2026-11-23)".
 
 > Decisión del usuario (2026-11-18): se implementa sin esperar la aprobación. Las recomendaciones de "Preguntas abiertas" valen como decisiones por defecto (marcadas "Por defecto"). Si el dueño del producto responde distinto, esta spec se actualiza antes de seguir con la etapa afectada.
 
@@ -26,7 +28,7 @@ Por qué ahora (capturas y línea base del 2026-11-18):
 **Criterios de aceptación:**
 
 - [ ] El `h1` "Aparecé en el mapa de las empresas", el cuerpo y la CTA "Registrá tu garage" (hacia `/register?modo=garage`) son HTML y están en el primer render de la ruta, sin esperar al 3D ni a una animación.
-- [ ] Las ocho secciones se leen completas y la CTA funciona en las cuatro versiones: normal, sin 3D (`?sin3d`), con movimiento reducido y estática (sin WebGL).
+- [ ] Las siete secciones se leen completas y la CTA funciona en las cuatro versiones: normal, sin 3D (`?sin3d`), con movimiento reducido y estática (sin WebGL).
 - [ ] El interruptor "Visible / En borrador" funciona con teclado, mouse y toque en las cuatro versiones y anuncia el cambio.
 - [ ] Perfil móvil de la línea base (mediana de tres corridas): LCP menor a 2,5 s (hoy 2752 ms), con el `h1` o el párrafo del hero como elemento LCP; CLS menor a 0,1 en la carga y durante el scroll; INP menor a 200 ms en el interruptor y en la CTA.
 - [ ] Se cumplen los presupuestos de JS y de 3D de la tabla "Presupuestos".
@@ -71,16 +73,15 @@ Es el eje del relato. Solo lo que sigue cuenta como evidencia de las secciones.
 - Quien llega desde el enlace "Para garages" de la home ya tiene en caché la parte compartida del 3D.
 - Es la misma ciudad, vista desde el otro lado del trato.
 
-La spec de la home había anticipado "nivel 1 o 2" para esta página (ver "Preguntas abiertas"). Para que pese menos que la home: ocho secciones y unas 8,9 pantallas de scroll (la home tiene 9,8), sin cajetín de entrada, sin el detalle del QR, sin la jornada y sin la interacción con el mouse.
+La spec de la home había anticipado "nivel 1 o 2" para esta página (ver "Preguntas abiertas"). Para que pese menos que la home: siete secciones y unas 9 pantallas de scroll (la home tiene 9,8), sin cajetín de entrada, sin el detalle del QR, sin la jornada y sin la interacción con el mouse.
 
-**Adónde va la cámara.** La home baja de la ciudad a la plaza, desde el lado de la empresa. Garages hace el camino inverso: arranca en el mapa con tu garage afuera, baja para dibujarlo, sube para mostrar quién lo encuentra y cierra con la ciudad entera apuntando a tu garage.
+**Adónde va la cámara.** La home baja de la ciudad a la plaza, desde el lado de la empresa. Garages hace el camino inverso: arranca en el mapa con tu garage afuera, baja a la cuadra del problema, sube para mostrar quién lo encuentra y cómo lo ve, y cierra con la ciudad entera apuntando a tu garage.
 
 **Cómo se escenifica "aparecé en el mapa de las empresas":**
 
 1. En el hero, el mapa ya tiene las sedes de cuatro empresas (tinta plena, con el rótulo "Sede") y dos garages con el cartel E. Tu garage está en línea de trazos y tinta tenue: todavía fuera del mapa. De cada sede sale, lento, un anillo de búsqueda.
-2. En `alta`, la cámara baja a tu garage y el volumen se dibuja con sus cotas: ubicación, horario, plazas y tarifas.
-3. En `mapa`, la cámara sube, tu garage pasa de tinta a azul señal y lleva el cartel E. Cuando el anillo de una sede lo alcanza, aparece sobre esa sede la distancia por la calle. Es el único momento audaz de la página.
-4. En `control`, el interruptor lo devuelve a la línea de trazos y los anillos pasan sin encontrarlo. Al restaurarlo, se enciende otra vez.
+2. En `mapa`, la cámara sube, tu garage pasa de tinta a azul señal y lleva el cartel E. Cuando el anillo de una sede lo alcanza, aparece sobre esa sede la distancia por la calle. Después, una flecha fina sale de tu garage y lleva a la tarjeta con lo que ve la empresa: distancia, horario y días, disponibles y tarifas (los datos del alta). Es el único momento audaz de la página.
+3. En `control`, el interruptor lo devuelve a la línea de trazos y los anillos pasan sin encontrarlo. Al restaurarlo, se enciende otra vez.
 
 El azul señal conserva su único significado (`DESIGN.md`): un lugar disponible. Tu garage es azul cuando las empresas lo ven; las sedes y sus anillos van en tinta.
 
@@ -92,8 +93,7 @@ Títulos de unos 35 caracteres como máximo, para que entren en dos o tres líne
 |---|---|---|---|---|---|---|
 | `gancho` | La ciudad desde arriba: cuatro sedes en tinta, dos garages con el cartel E y tu garage en línea de trazos, fuera del mapa. De cada sede sale un anillo de búsqueda | Aparecé en el mapa de las empresas | Publicás tu garage, las empresas piden lugar para su gente y vos manejás tratos, ocupación y consumos. Sin hardware, sin planillas. | `PRODUCT.md`, frase canónica para garages | rastrea | 1,0 |
 | `problema` | La cuadra: autos que dan vueltas a la manzana de una sede y, a 300 m, tu garage sin cartel, rodeado por los globos de un chat que no para | Plazas libres que nadie encuentra | Mientras las empresas de la zona no encuentran dónde estacionar, tus cocheras vacías no generan nada. Y lo que se arregla por WhatsApp o en papel no queda registrado. | `PRODUCT.md`, problema del lado del garage | orbita | 1,1 |
-| `alta` | Tu garage de cerca: el volumen se dibuja arista por arista y aparecen sus cotas (ubicación, horario, plazas y tarifas) | Tu garage, con tus horarios y precios | Marcás la ubicación en el mapa, los días y el horario, cuántas plazas destinás a reservas y tus tarifas por hora para auto, moto y pickup. | Alta de garage (punto 6); claim de las tres tarifas | se dibuja | 1,3 |
-| `mapa` | La cámara sube: tu garage pasa a azul señal y lleva el cartel E; los anillos de las sedes lo alcanzan y sobre cada una aparece la distancia por la calle | Las empresas cercanas te encuentran | Cuando una empresa busca garages cerca de una de sus sedes, ve el tuyo en el mapa con la distancia, las plazas disponibles, tus horarios y tus tarifas. Desde ahí te pide cocheras. | Búsqueda de `/gestion_garages` y su mapa (puntos 1 a 3) | asciende | 1,6 |
+| `mapa` | La cámara sube: tu garage pasa a azul señal y lleva el cartel E; los anillos de las sedes lo alcanzan y sobre cada una aparece la distancia por la calle. Una flecha fina sale de tu garage hacia la tarjeta "Así te ve una empresa" | Las empresas cercanas te encuentran | Cuando una empresa busca garages cerca de una de sus sedes, ve el tuyo en el punto que marcaste, con la distancia, tus días y horario, las plazas disponibles y tus tarifas por hora para auto, moto y pickup. Desde ahí te pide cocheras. | Alta de garage (punto 6); búsqueda de `/gestion_garages`, su mapa y su tarjeta (puntos 1 a 3); claim de las tres tarifas | asciende | 2,0 |
 | `trato` | Una línea azul recorre los 300 m desde la sede hasta tu garage; junto al garage, la solicitud pasa de "Pendiente" a "Trato aceptado" y el techo se pinta | Vos aceptás o rechazás cada pedido | Ves qué empresa pide, para qué sede, cuántas cocheras y si las paga la empresa o el empleado. Nada se activa sin tu confirmación, tampoco un cambio en la cantidad de cocheras. | Regla 5; respuesta del dueño (puntos 4 y 5) | se traza | 1,3 |
 | `operacion` | Se levanta el techo: las plazas del trato se pintan a medida que se reservan y sobre cada una se apilan sus horas de uso | El detalle, reserva por reserva | Todo es 100% online: la ocupación la mueven las reservas y los ingresos con QR, nunca una carga a mano. Cada consumo queda con su tiempo, tarifa e importe, con 24 meses de historial y exportación a PDF y Excel. | Regla 4; consumos (punto 8); claims de 24 meses, PDF y Excel, y 100% online | se llena | 1,4 |
 | `control` | La ciudad a media altura: con el interruptor, tu garage vuelve a la línea de trazos y los anillos pasan sin encontrarlo; al restaurarlo, se enciende de nuevo | Vos decidís cuándo aparecés | Si pasás un garage a borrador, deja de aparecer para las empresas, y lo restaurás cuando quieras. Cada dueño ve solo sus garages. | Reglas 6 y 7; borrador (punto 7) | alterna | 1,2 |
@@ -109,7 +109,7 @@ Reglas de negocio en el relato:
 
 ### Piezas de la nota (datos de ejemplo)
 
-- **`mapa`, "Así te ve una empresa":** réplica de la tarjeta del listado de búsqueda, con "0,3 km · 2 min", "Tu garage", "08:00 a 20:00 · Lun, Mar, Mié, Jue, Vie, Sáb", "25 de 40 disponibles", "Auto $ 1.200 · Moto $ 600 · Pickup $ 1.500" y el botón en su estado deshabilitado "Solicitud pendiente" (el que el producto muestra después de pedir cocheras), inerte. La distancia coincide con la cota de 300 m del dibujo.
+- **`mapa`, "Así te ve una empresa":** réplica de la tarjeta del listado de búsqueda, con "0,3 km · 2 min", "Tu garage", "08:00 a 20:00 · Lun, Mar, Mié, Jue, Vie, Sáb", "25 de 40 disponibles", "Auto $ 1.200 · Moto $ 600 · Pickup $ 1.500" y el botón en su estado deshabilitado "Solicitud pendiente" (el que el producto muestra después de pedir cocheras), inerte. La distancia coincide con la cota de 300 m del dibujo. Con 3D, la tarjeta se ve en el dibujo, al final de la flecha que sale de tu garage, y en la nota queda la misma ficha como texto para lectores de pantalla (visualmente oculta, nunca `display: none`). Sin 3D se ve en la nota. Una sola fuente de marcado (`TarjetaBusqueda`) para las dos.
 - **`operacion`, "Consumos por empresa":** las columnas de la pantalla del dueño (Empresa, Reservas, Tiempo, Importe generado), tres filas y un total que suman, sin scroll horizontal en 390 px. Al pie: "Son consumos generados, no cobros. Se exportan a PDF y Excel."
 - **`control`, el interruptor "Tu garage en el mapa de las empresas":** Visible o En borrador, con el texto "Aparece cuando una empresa busca garages cerca de su sede." o "No aparece para las empresas. Lo restaurás cuando quieras.". Es lo único que el visitante maneja en la página.
 
@@ -120,10 +120,10 @@ En el dibujo, decorativas y dentro del escenario con `aria-hidden`: los globos d
 | Bloque actual | Destino | Por qué |
 |---|---|---|
 | Hero: título partido en líneas que vuelan, sin subtítulo ni botón | Se conserva el `h1`; se suman la frase canónica y la CTA | El hero tiene que decir qué es y qué hacer |
-| Ticker con los cuatro claims | Se va el componente; los claims pasan al texto de `gancho`, `alta` y `operacion` | El ticker y las cifras-héroe son marcas de plantilla (`DESIGN.md`) |
+| Ticker con los cuatro claims | Se va el componente; los claims pasan al texto de `gancho`, `mapa` y `operacion` | El ticker y las cifras-héroe son marcas de plantilla (`DESIGN.md`) |
 | Dolores, cuatro tarjetas | Se fusionan en `problema` y en el chat del dibujo | Una sección, una idea |
-| Cómo funciona, pasos 01/02/03 | Se reparten entre `alta`, `mapa`, `trato` y `operacion` | Los pasos son el relato. Se van "en minutos ya está publicado" y "cobrá por uso" |
-| Bento, cuatro funciones | El alta con mapa va a `alta`, las solicitudes a `trato` y los consumos a `operacion`. Se va "Portafolio con estado real" | El panel interno no ayuda a decidir el registro |
+| Cómo funciona, pasos 01/02/03 | Se reparten entre `mapa`, `trato` y `operacion` | Los pasos son el relato. Se van "en minutos ya está publicado" y "cobrá por uso" |
+| Bento, cuatro funciones | El alta con mapa va a `mapa`, las solicitudes a `trato` y los consumos a `operacion`. Se va "Portafolio con estado real" | El panel interno no ayuda a decidir el registro |
 | Vitrina 4 / 78 % / 12 / 260 | Se va | Cifras de ejemplo usadas como héroe |
 | Reportes, lista y tabla de ejemplo | `operacion`, con la tabla alineada a la pantalla real del dueño | Es la prueba con el producto |
 | Seguridad, cuatro puntos | La aprobación va a `trato`, la ocupación a `operacion`, el borrador y "cada dueño ve solo sus garages" a `control`. Se va "Cuenta protegida" | Lo demás no es un argumento de la landing |
@@ -142,7 +142,7 @@ Se hereda el estudio A, "Plano", sin tokens nuevos: papel `#F5F7FB`, tinta plena
 - **Sede:** volumen en tinta plena con líneas de piso, como la oficina de la home, y el rótulo "Sede". La oficina de la home es una de las cuatro. Nunca va en azul.
 - **Anillo de búsqueda:** un círculo fino en tinta media que crece desde la base de cada sede, como la marca de un compás. Con movimiento reducido queda quieto, con el radio que llega a tu garage.
 - **Fuera del mapa:** tu garage en línea de trazos y tinta tenue, la notación de lo que todavía no está, sin cartel.
-- **Cotas del alta:** los datos del alta como cotas del plano (`.plano-cota`).
+- **Flecha de la búsqueda:** una línea guía de 1 px en tinta, como las cotas, con un punto sobre el techo de tu garage, un quiebre y una punta abierta que toca la tarjeta "Así te ve una empresa". Se traza con el scroll desde el garage hacia la tarjeta y la tarjeta entra cuando la flecha llega. Reemplaza a las cotas del alta: los datos del alta son los de la tarjeta.
 - **Distancia:** una cota azul sobre cada sede cuando su anillo encuentra tu garage, medida por la calle como la de 300 m de la home.
 
 **Clichés que se evitan:**
@@ -156,7 +156,7 @@ Tampoco vuelven las marcas de la página actual.
 **Capa HTML.** Su dueña es `design-taste-frontend`, dentro de las reglas de `DESIGN.md`:
 
 - La composición de la nota es la de la home: hasta 480 px, a la izquierda en horizontal y abajo en vertical. En 390 × 844 la nota ocupa como mucho el 60 % del alto.
-- Cada nota lleva como mucho una pieza, y las vecinas cambian de forma: texto en `gancho`, `problema` y `alta`; tarjeta en `mapa`; texto con la tarjeta en el dibujo en `trato`; tabla en `operacion`; interruptor en `control`; texto en `accion`.
+- Cada nota lleva como mucho una pieza, y las vecinas cambian de forma: texto en `gancho` y `problema`; tarjeta en `mapa` (al final de la flecha del dibujo con 3D, en la nota sin 3D); texto con la tarjeta en el dibujo en `trato`; tabla en `operacion`; interruptor en `control`; texto en `accion`.
 - Las piezas son fragmentos reales del producto, marcados con `data-ui`. No agregan `h1` ni `h2` (a lo sumo `h3`) y dicen "Datos de ejemplo".
 - No hay rótulos sobre los títulos, tarjetas con ícono, numeración en el contenido, cifras-héroe ni pastillas fuera de los fragmentos.
 - No hay cajetín de entrada: es de la home y se ve una vez por sesión.
@@ -173,6 +173,52 @@ Tampoco vuelven las marcas de la página actual.
 - La regla de progreso numera las secciones, como en la home.
 
 No se usa `draw.mjs`: la dirección la eligió el dueño del producto para la home y esta página la continúa.
+
+## Alta y mapa en una sección (2026-11-23)
+
+Pedido del usuario: "Unificá las secciones 3 y 4, diciendo lo de que las empresas te encuentran y que salga una flechita del garage 3D con los datos de cómo te ve una empresa." Se aplica sin esperar aprobación.
+
+**Guion (siete secciones):**
+
+| `id` | Título | `weight` |
+|---|---|---|
+| `gancho` | Aparecé en el mapa de las empresas | 1,0 |
+| `problema` | Plazas libres que nadie encuentra | 1,1 |
+| `mapa` | Las empresas cercanas te encuentran | 2,0 |
+| `trato` | Vos aceptás o rechazás cada pedido | 1,3 |
+| `operacion` | El detalle, reserva por reserva | 1,4 |
+| `control` | Vos decidís cuándo aparecés | 1,2 |
+| `accion` | Sumá tu garage al mapa | 1,0 |
+
+**Qué se conserva.** El cuerpo de `mapa` dice lo del alta (el punto que marcaste, días y horario, plazas disponibles y tarifas por hora para auto, moto y pickup) dentro del mensaje de la búsqueda. Los cuatro claims siguen en los cuerpos. Ningún claim nuevo.
+
+**Qué se va.** La escena `Alta` (el volumen dibujado arista por arista), las cotas del alta (`CotasAlta.jsx`, `alta.js`, `ROTULOS.alta`), la clave `alta` de `FX_CERO` (pasa a ser `ficha`, en 0 en la home) y el póster `alta`, que se generó en esta rama y nunca se publicó.
+
+**Coreografía de `mapa`** (pantallas desde que la sección asoma; entrada de 0 a 1, estadía de 1 a 2):
+
+| fx | valor | desde | hasta | Qué se ve |
+|---|---|---|---|---|
+| `vueltas` | 0 | 0 | 0,45 | los autos de la cuadra dejan de dar vueltas mientras sube la cámara |
+| `fuera` | 0 | 0,45 | 0,75 | tu garage pasa de la línea de trazos al azul señal con el cartel E |
+| `busqueda` | 1 | 0,75 | 1,35 | los anillos de las sedes lo alcanzan y aparecen las distancias |
+| `ficha` | 1 | 1,25 | 1,8 | la flecha se traza desde tu garage y la tarjeta entra cuando llega |
+
+En `trato`, `ficha` vuelve a 0 entre 0 y 0,3, antes de que empiece la línea del pedido. Con movimiento reducido, la cámara salta al estado final de la sección: flecha entera y tarjeta quieta, sin viaje.
+
+**La flecha y la tarjeta.** Capa HTML anclada a tu garage (`three/FichaMapa.jsx`, mismo patrón que `Solicitud.jsx` y las cotas): un SVG con la guía y una tarjeta que repite el marcado de `FichaBusqueda` (`TarjetaBusqueda`, rotulada "Datos de ejemplo"). Decorativa, dentro del escenario `aria-hidden`; anima solo `opacity`, `transform` y el trazo del SVG, nunca `visibility`. La tarjeta va debajo de tu garage y la flecha sale de la esquina de abajo que la mira: en horizontal, entre la nota y la regla, sin tapar las sedes; en 390 × 844, entre tu garage y la nota, sin bajar del borde de arriba de la nota (en 390 tapa la sede de 740 m, la más lejana: quedan a la vista las de 300, 380 y 430 m). El encuadre vertical de `mapa` sube un poco el dibujo para dar lugar a la flecha.
+
+**La ficha de la nota.** Se queda: sin 3D es la única forma de ver la tarjeta, y con 3D es el texto accesible de la tarjeta del dibujo (regla: nunca contenido que exista solo en el Canvas). Con 3D se oculta solo a la vista, así la nota de 390 px vuelve a ser corta y deja lugar a la tarjeta; sin 3D se ve como siempre.
+
+**Fidelidad con la tarjeta real.** `main` cambió `vistasAdmin/gestion_garages.jsx`: "Ver en mapa" aparece solo si el garage tiene ubicación y el mapa cargó, y la tarjeta solo es clicable en ese caso. La ficha conserva el orden y los datos de la tarjeta real (distancia y tiempo, nombre, horario y días, disponibles, tarifas y el botón deshabilitado) y deja afuera la dirección y "Ver en mapa": en la página la flecha hace ese papel, une la tarjeta con el garage en el mapa.
+
+**Criterios de aceptación del cambio:**
+
+- [ ] Siete secciones con los ids de la tabla; `garages.test.js`, `coreografiaGarages.test.js`, `ajustesGarages.test.js`, `paraGarages.source.test.js` y `mundo.test.js` al día y en verde.
+- [ ] Con 3D, en 390 × 844 y 1440 × 900, al final de `mapa` se ven la flecha entera y la tarjeta, sin que la nota, la barra ni la regla las tapen, y sin tapar las distancias de las sedes.
+- [ ] La flecha y la tarjeta entran con el scroll, hacia adelante y hacia atrás; con movimiento reducido aparecen en su estado final.
+- [ ] El árbol de accesibilidad de `mapa` tiene la ficha completa en las cuatro versiones; axe sin serious ni critical.
+- [ ] Pósters regenerados (el de `mapa` cambia, el de `alta` se va) y en total hasta 600 kB.
+- [ ] La home idéntica (< 0,5 % de píxeles distintos con movimiento reducido) y los presupuestos de la tabla "Presupuestos".
 
 ## Arquitectura: un mundo, dos páginas
 
@@ -201,10 +247,10 @@ Los singletons pueden quedarse, porque hay una sola página montada por vez. Lo 
 1. **La página es un parámetro.** Cada página es un objeto (`inmersiva/paginas/home.js` y `inmersiva/paginas/garages.js`) con su contenido, su CTA, sus piezas, sus pósters, su escena y su guion. Es el contrato entre la base y cada página (ver "Estilo de código").
 2. **Un armazón común.** `ui/PaginaPlano.jsx` hace lo que hoy hace `Landing.jsx`: llama a `asegurarInicio()` antes del primer render, decide la versión (`mostrar3d`, `sinEscena`, el botón "Ver sin 3D"), inicia Lenis y el director, y arma el salto al contenido, la barra, la regla, las secciones y el pie. `Landing.jsx` queda en `<PaginaPlano pagina={PAGINA_HOME} />` y `ParaGarages.jsx` en `<PaginaPlano pagina={PAGINA_GARAGES} />`. Una página sin `escena` se muestra en el flujo sin 3D y sin el botón "Ver sin 3D".
 3. **El guion se arma por página.** `scroll/guion.js` exporta `crearGuion(pagina)`, una función pura que devuelve los pesos, `componer` y `avancesFinales` a partir de las secciones y la coreografía de esa página, más un `inicial` opcional con los fx de arranque. `scroll/estado.js` sigue exportando lo de la home con los mismos nombres, armado con `crearGuion`, así `estado.test.js` no cambia. El director recibe la página; los controles de la nota que recomponen el dibujo entran por `guion.suscribir` y `guion.ajustar` (el deslizador de la home, el interruptor de garages).
-4. **Un solo vocabulario de fx.** `FX_CERO` suma las claves de garages: `fuera`, `alta`, `sedes`, `busqueda` y `llegan`. Cada clave nueva vale 0 en el estado de la home, así una escena compartida que la lea no cambia nada en la home. Garages reutiliza `vueltas`, `traza`, `trato`, `tapa`, `llenas` y `consumos`.
+4. **Un solo vocabulario de fx.** `FX_CERO` suma las claves de garages: `fuera`, `ficha`, `sedes`, `busqueda` y `llegan`. Cada clave nueva vale 0 en el estado de la home, así una escena compartida que la lea no cambia nada en la home. Garages reutiliza `vueltas`, `traza`, `trato`, `tapa`, `llenas` y `consumos`.
 5. **El 3D: un escenario, dos composiciones.** `three/Escenario.jsx` sale de `Experience.jsx` con el Canvas, `PerformanceMonitor`, `CameraRig`, `FrameBridge`, el aviso del primer cuadro, el contexto perdido y los colores desde los tokens. `three/Experience.jsx` queda como la composición de la home, con el mismo archivo y la misma importación diferida, y `three/ExperienceGarages.jsx` es la de garages. Vite separa lo común (three, R3F, drei, maath, el mundo y las escenas compartidas) en un chunk compartido: la home no descarga las escenas de garages, y quien pasa de una página a la otra baja solo la parte propia.
 6. **Escenas compartidas, con valores por defecto.** Las escenas que necesitan otro dato reciben props cuyo valor por defecto reproduce la home: `Rotulos` (la lista de rótulos), `Chats` (los mensajes y el ancla), `Pulsos` (los focos) y `Trato` (lee `fuera` para la línea de trazos de tu garage). `Red` y la nueva `Llegadas` comparten el trazado de recorridos por la calle en `three/trazos.js`. `Ciudad`, `Clima`, `Trafico`, `Vueltas` y `Garage` se reutilizan tal cual.
-7. **Escenas nuevas.** `Sedes`, `Alta`, `Busqueda` y `Llegadas`, en `three/escenas/`, y la tarjeta de solicitud como capa HTML (`three/Solicitud.jsx`). `mundo.js` suma `SEDES`: tres edificios altos en direcciones distintas desde tu garage, a entre 300 m y 1 km por la calle, que no quedan delante de él en la dirección de la cámara. Se eligen entre los edificios ya generados, así la ciudad de la home no cambia.
+7. **Escenas nuevas.** `Sedes`, `Busqueda` y `Llegadas`, en `three/escenas/`, y dos capas HTML: la tarjeta de solicitud (`three/Solicitud.jsx`) y la flecha con la tarjeta de la búsqueda (`three/FichaMapa.jsx`). `mundo.js` suma `SEDES`: tres edificios altos en direcciones distintas desde tu garage, a entre 300 m y 1 km por la calle, que no quedan delante de él en la dirección de la cámara. Se eligen entre los edificios ya generados, así la ciudad de la home no cambia.
 8. **El estado de garages, aparte.** El interruptor usa un store chico propio (`estado/garages.js`). `estado/store.js` no cambia.
 9. **Estilos.** `inmersiva.css` sigue siendo de las dos páginas. Lo propio de garages (piezas y capas del dibujo) va en `inmersiva/garages.css`, con todos los selectores bajo `.plano` e importado solo por la página de garages, así la entrada no crece.
 10. **La nota se desvanece solo con `opacity` (ya hecho, commit `3011f5c`).** `Seccion`, `useTituloCinetico` y `TablaConsumos` animan solo la opacidad; la nota del todo desvanecida lleva `data-desvanecida` y `pointer-events: none`, y con el foco del teclado se ve entera (`.plano-nota:has(:focus-visible)`). `notas_accesibles.source.test.js` prohíbe `autoAlpha` y `visibility` en `ui/` y `scroll/`, salvo en lo decorativo. Es un requisito vigente para todo lo nuevo de garages: piezas, revelados y capas. El test se extiende a las subcarpetas de `ui/` y a `paginas/` (lo hace la base).
@@ -286,8 +332,8 @@ npx vite preview --outDir <dir temporal> --port 4317 --strictPort
 - `inmersiva/estado/garages.js` → el store del interruptor.
 - `inmersiva/scroll/guion.js` (+ `guion.test.js`) → `crearGuion`.
 - `inmersiva/scroll/coreografiaGarages.js` y `ajustesGarages.js` → encuadres, fx, `inicial` y el ajuste del interruptor (etapa 4).
-- `inmersiva/three/Escenario.jsx`, `ExperienceGarages.jsx`, `trazos.js`, `Solicitud.jsx` y `escenas/{Sedes,Alta,Busqueda,Llegadas}.jsx` → el 3D de garages (etapas 4 y 5).
-- `inmersiva/garages.css` → estilos de la página y de sus piezas; `inmersiva/three/garages.css` → estilos de las capas del dibujo (solicitud, rótulos de sede, cotas), que entran con el chunk 3D. Todos los selectores bajo `.plano`.
+- `inmersiva/three/Escenario.jsx`, `ExperienceGarages.jsx`, `trazos.js`, `Solicitud.jsx`, `FichaMapa.jsx` y `escenas/{Sedes,Busqueda,Llegadas}.jsx` → el 3D de garages (etapas 4 y 5).
+- `inmersiva/garages.css` → estilos de la página y de sus piezas; `inmersiva/three/garages.css` → estilos de las capas del dibujo (solicitud, flecha y tarjeta de la búsqueda, rótulos de sede), que entran con el chunk 3D. Todos los selectores bajo `.plano`.
 - `public/landing/posters/garages/` → pósters de las versiones sin 3D (etapa 6).
 
 ## Estilo de código
@@ -422,11 +468,11 @@ Cada archivo tiene un solo dueño por etapa, así 2A, 2B y el 3D pueden trabajar
 
 ### Verificación de cada etapa
 
-- **2A:** `npm test` en verde, con `estado.test.js`, `secciones.test.js`, `mundo.test.js` y `jornada.test.js` sin cambios. La home idéntica: capturas con movimiento reducido del estado final de cada sección en 390 y 1440 (menos del 0,5 % de píxeles distintos), el recorrido normal sin diferencias a ojo y las cuatro versiones. axe en la home: `page-has-heading-one` sigue pasando con el scroll al final y el árbol sigue teniendo los ocho `h2` (lo arregló `3011f5c`; el armazón no puede romperlo). Entrada hasta 3 kB más; el 3D de la home no cambia (2A no toca `three/`). eslint limpio en lo tocado y `npm run build`.
-- **2B:** `npm test` en verde, con `garages.test.js` y `paraGarages.source.test.js`. `/para-garages` en 390 y 1440: las ocho secciones en el flujo, con `h1`, cuerpo y CTA en el primer render de la ruta; la CTA y la barra llevan a `/register?modo=garage`; están "Iniciar sesión" y "Para empresas", y con sesión "Ir a mi panel". El interruptor funciona con teclado y anuncia el estado, todavía sin efecto en el dibujo. `a11y.cjs` sin serious ni critical, un `h1` y un `h2` por sección, objetivos de 44 px o más y la tabla sin scroll horizontal en 390. `medir.cjs`: LCP móvil menor a 2,5 s, JS inicial hasta 186 kB y chunk de ruta hasta 20 kB. No quedan los archivos retirados ni sus referencias, y login y registro se ven igual que antes (capturas en 390 y 1440). `DESIGN.md` y `PRODUCT.md` al día en lo que cambió.
+- **2A:** `npm test` en verde, con `estado.test.js`, `secciones.test.js`, `mundo.test.js` y `jornada.test.js` sin cambios. La home idéntica: capturas con movimiento reducido del estado final de cada sección en 390 y 1440 (menos del 0,5 % de píxeles distintos), el recorrido normal sin diferencias a ojo y las cuatro versiones. axe en la home: `page-has-heading-one` sigue pasando con el scroll al final y el árbol sigue teniendo los ocho `h2` de la home (lo arregló `3011f5c`; el armazón no puede romperlo). Entrada hasta 3 kB más; el 3D de la home no cambia (2A no toca `three/`). eslint limpio en lo tocado y `npm run build`.
+- **2B:** `npm test` en verde, con `garages.test.js` y `paraGarages.source.test.js`. `/para-garages` en 390 y 1440: las secciones en el flujo, con `h1`, cuerpo y CTA en el primer render de la ruta; la CTA y la barra llevan a `/register?modo=garage`; están "Iniciar sesión" y "Para empresas", y con sesión "Ir a mi panel". El interruptor funciona con teclado y anuncia el estado, todavía sin efecto en el dibujo. `a11y.cjs` sin serious ni critical, un `h1` y un `h2` por sección, objetivos de 44 px o más y la tabla sin scroll horizontal en 390. `medir.cjs`: LCP móvil menor a 2,5 s, JS inicial hasta 186 kB y chunk de ruta hasta 20 kB. No quedan los archivos retirados ni sus referencias, y login y registro se ven igual que antes (capturas en 390 y 1440). `DESIGN.md` y `PRODUCT.md` al día en lo que cambió.
 - **4:** la home idéntica otra vez, porque la extracción de `Escenario` y las props de las escenas compartidas tocan su 3D. Garages con cajas grises en las escenas nuevas, tiempos y encuadres validados con capturas hacia adelante y hacia atrás, y los tests del guion de garages.
 - **5:** escenas definitivas, capa de solicitud y rótulos; la home idéntica; presupuestos del 3D, fps y draw calls.
-- **6:** nueve pósters de garages (uno por sección y el del borrador), sacados del 3D con un script fuera del repositorio, en dos tamaños y hasta 600 kB en total. Sin 3D, el interruptor cambia de póster. Con movimiento reducido la cámara salta por sección y los anillos quedan quietos. La versión estática se ve igual que la sin 3D.
+- **6:** ocho pósters de garages (uno por sección y el del borrador), sacados del 3D con un script fuera del repositorio, en dos tamaños y hasta 600 kB en total. Sin 3D, el interruptor cambia de póster. Con movimiento reducido la cámara salta por sección y los anillos quedan quietos. La versión estática se ve igual que la sin 3D.
 - **7, cierre del hub, en este orden:**
   1. `design-taste-frontend`: `inspect.mjs` sobre la build, con `--out` fuera del repositorio y los `--allow` de "Dirección de arte", y la ronda de mirar y corregir con `references/critique.md` (hasta tres vueltas). `lint.mjs` sobre los archivos nuevos de garages.
   2. `impeccable` audit, una sola pasada: se corrigen los P0 y P1 y el resto se informa.
