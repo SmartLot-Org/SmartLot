@@ -6,7 +6,7 @@
 
 > Cambio pedido por el usuario (2026-11-23): `alta` y `mapa` pasan a ser una sola sección, `mapa`, con el mensaje "Las empresas cercanas te encuentran", y en el dibujo una flecha sale de tu garage hacia la tarjeta con los datos de cómo te ve una empresa. Son siete secciones. Detalle en "Alta y mapa en una sección (2026-11-23)".
 
-> Cambio pedido por el usuario (2026-11-25): el logo 3D de la rama `claude/logo-3d-qysndm` se integra. En el cierre de la home el logo flota sobre la oficina y, en el de esta página, sobre tu garage, donde convergen las rutas de las sedes. La home cambia a propósito en su cierre. Detalle en "Logo 3D en el cierre (2026-11-25)".
+> Cambio pedido por el usuario (2026-11-25): el logo 3D de la rama `claude/logo-3d-qysndm` se integra. En el cierre de la home el logo flota sobre la oficina y, en el de esta página, sobre tu garage, donde convergen las rutas de las sedes. La home cambia a propósito en su cierre. Detalle en "Logo 3D en el cierre (2026-11-25)". Ajuste del mismo día, pedido por el usuario: "hacé que el logo 3D del final de las landings sea un poco más pequeño y gire en el lugar".
 
 > Decisión del usuario (2026-11-18): se implementa sin esperar la aprobación. Las recomendaciones de "Preguntas abiertas" valen como decisiones por defecto (marcadas "Por defecto"). Si el dueño del producto responde distinto, esta spec se actualiza antes de seguir con la etapa afectada.
 
@@ -227,9 +227,9 @@ El fx de la ficha arranca apenas antes de 1 porque el dibujo amortiguado (0,2 s)
 
 Pedido del usuario: "Lo que le falta es la landing para garages: usar el logo 3D en el final y hacer lo mismo que hice en la landing principal, que al final aparece ese logo 3D sobre la empresa; que en garages aparezca sobre el garage." Se aplica sin esperar aprobación. El recurso está documentado en `docs/logo-3d.md`.
 
-**Qué se ve.** En `accion`, mientras las rutas punteadas de las sedes llegan a tu garage, el logo de SmartLot en volumen sube desde su techo, queda de frente a la cámara y se mece, con el hilo de 1 px que lo une al techo asomando sobre el cartel E. Es el mismo cierre que la home, donde el logo flota sobre la oficina: el relato termina con la marca sobre quien lo recibe.
+**Qué se ve.** En `accion`, mientras las rutas punteadas de las sedes llegan a tu garage, el logo de SmartLot en volumen sube desde su techo de frente a la cámara y, al llegar, gira en el lugar sobre su eje vertical (una vuelta cada 10 s), con el hilo de 1 px que lo une al techo asomando sobre el cartel E. Es el mismo cierre que la home, donde el logo flota sobre la oficina: el relato termina con la marca sobre quien lo recibe.
 
-**Una escena para las dos páginas.** `three/escenas/Logo.jsx` recibe por props el techo sobre el que flota (`base`), su tamaño (`tamano`) y el aire hasta el techo (`aire`), con la oficina de la home por defecto (mismo patrón que `Rotulos`, `Chats`, `Pulsos` y `Trato`). Garages lo monta en `ExperienceGarages.jsx` sobre el centro de `G1`, con `tamano` 17 y `aire` 8 (la home usa 15 y 4,6): tu garage es bajo y lleva el cartel E encima, y con el aire de la home el cartel tapaba el pie del logo; la cámara de este cierre abre más que la de la home (zoom 0,56 contra 0,74 en vertical), por eso el logo es un poco más grande. La geometría sale del código (`logo3d/formaLogo.js` + `geometriaLogo.js`); el GLB de alta de `modelos3d/` no entra al bundle.
+**Una escena para las dos páginas.** `three/escenas/Logo.jsx` recibe por props el techo sobre el que flota (`base`), su tamaño (`tamano`) y el aire hasta el techo (`aire`), con la oficina de la home por defecto (mismo patrón que `Rotulos`, `Chats`, `Pulsos` y `Trato`). Garages lo monta en `ExperienceGarages.jsx` sobre el centro de `G1`, con `tamano` 13 y `aire` 9,5 (la home usa 12 y 4,6; antes del ajuste eran 17 y 8 en garages y 15 en la home): tu garage es bajo y lleva el cartel E encima, y con el aire de la home el cartel tapaba el pie del logo; la cámara de este cierre abre más que la de la home (zoom 0,56 contra 0,74 en vertical), por eso el logo es un poco más grande. Con el tamaño nuevo ya no toca la sede de 300 m en 1440. La geometría sale del código (`logo3d/formaLogo.js` + `geometriaLogo.js`); el GLB de alta de `modelos3d/` no entra al bundle.
 
 **Coreografía de `accion`** (pantallas desde que la sección asoma; entrada de 0 a 1, `weight` 1):
 
@@ -238,7 +238,9 @@ Pedido del usuario: "Lo que le falta es la landing para garages: usar el logo 3D
 | `llegan` | 1 | 0,3 | 0,9 | desde cada sede, una ruta punteada llega hasta tu garage |
 | `logo` | 1 | 0,45 | 1 | el logo sube desde el techo de tu garage y queda flotando |
 
-Es el mismo fx y el mismo tramo que el cierre de la home (`scroll/coreografia.js`); `logo` vale 0 en `FX_CERO` y en el resto de las secciones. Con movimiento reducido la cámara salta al estado final: el logo aparece quieto, de frente, sin subir ni mecerse.
+Es el mismo fx y el mismo tramo que el cierre de la home (`scroll/coreografia.js`); `logo` vale 0 en `FX_CERO` y en el resto de las secciones. Con movimiento reducido la cámara salta al estado final: el logo aparece quieto, de frente, sin subir ni girar.
+
+**El giro.** Un ángulo acumulado en `Logo.jsx` avanza con el delta de `vivo.tiempo` a una vuelta cada 10 s, multiplicado por un *smoothstep* del final del tramo (`fx.logo` de 0,85 a 1): arranca suave cuando el logo llega y, si se vuelve con el scroll, se frena donde está, sin saltar. Cuando el logo se oculta, el ángulo vuelve a 0 y la próxima vez sube de frente. `vivo.tiempo` no corre con movimiento reducido, así que ahí no gira. El giro va sobre el eje vertical del propio logo (la silueta está centrada en el origen) y el hilo queda fijo; la inclinación hacia el cursor de la home se mantiene. Se sacó el vaivén vertical para que gire en el lugar sin desplazarse.
 
 **Versiones sin 3D y estática.** El póster de `accion` se regeneró con el logo (mismo script y parámetros que los demás) y su descripción lo nombra. Pósters de garages: 596,6 kB en total.
 

@@ -18,14 +18,14 @@ La reconstrucción siguió el método de [img2threejs](https://github.com/img2th
 ## Landing (`/`)
 
 - Escena `inmersiva/three/escenas/Logo.jsx`, fx `logo` en la sección `accion` (`scroll/coreografia.js`).
-- En el cierre el logo ocupa el lugar del pin del hero: sube desde la terraza de la oficina, queda de frente a la cámara y se mece sin ponerse de canto. El pin ya no vuelve en el cierre.
+- En el cierre el logo ocupa el lugar del pin del hero: sube desde la terraza de la oficina de frente a la cámara y, cuando llega, gira en el lugar sobre su eje vertical, lento y constante (una vuelta cada 10 s, que arranca suave al final de su tramo y se frena sin saltar si se vuelve con el scroll). Con movimiento reducido queda quieto y de frente. Mide 12 unidades de alto. El pin ya no vuelve en el cierre.
 - Materiales `logoCara`, `logoLado` y `logoLinea` en `paleta.js`, coloreados con los tokens `--senal`, `--senal-activa` y `--tinta`.
 
 ## Para garages (`/para-garages`)
 
 - La misma escena `Logo.jsx`, montada en `inmersiva/three/ExperienceGarages.jsx` con el fx `logo` en la sección `accion` ("Sumá tu garage al mapa", `scroll/coreografiaGarages.js`), con el mismo tramo que en la home.
-- El logo flota sobre tu garage (`G1` en `three/mundo.js`), donde convergen las rutas punteadas que salen de cada sede. Recibe por props el techo (`base`), el tamaño (`tamano`, 17) y el aire hasta el techo (`aire`, 8): tu garage es bajo y lleva el cartel E, y la cámara de este cierre abre más que la de la home.
-- Con movimiento reducido queda en su estado final, quieto. Sin 3D, el póster de `accion` (`public/landing/posters/garages/accion*.webp`) ya muestra el logo.
+- El logo flota sobre tu garage (`G1` en `three/mundo.js`), donde convergen las rutas punteadas que salen de cada sede. Recibe por props el techo (`base`), el tamaño (`tamano`, 13; 12 en la home) y el aire hasta el techo (`aire`, 9,5; 4,6 en la home): tu garage es bajo y lleva el cartel E, y la cámara de este cierre abre más que la de la home.
+- Gira igual que en la home; con movimiento reducido queda en su estado final, quieto y de frente. Sin 3D, el póster de `accion` (`public/landing/posters/garages/accion*.webp`) ya muestra el logo.
 
 ## Las dos páginas a la vez
 
