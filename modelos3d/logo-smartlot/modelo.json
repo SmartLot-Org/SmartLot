@@ -1,0 +1,15 @@
+{
+  "archivo": "logo-smartlot-alta.glb",
+  "unidades": "metros (alto del logo = 1)",
+  "profundidad": 0.14,
+  "bisel": 0.008,
+  "segmentosBisel": 10,
+  "detalleCurvas": 8,
+  "mallas": [
+    "P",
+    "Flecha"
+  ],
+  "triangulos": 49932,
+  "vertices": 40582,
+  "bytes": 1275840
+}

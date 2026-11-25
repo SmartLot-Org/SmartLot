@@ -201,6 +201,6 @@ export const SECCIONES = [
     movimiento: 'asciende',
     weight: 1,
     cta: true,
-    figura: 'La ciudad otra vez desde arriba, ahora con más garages marcados en azul alrededor de la oficina.',
+    figura: 'La ciudad otra vez desde arriba, ahora con más garages marcados en azul alrededor de la oficina y el logo de SmartLot flotando sobre ella.',
   },
 ];

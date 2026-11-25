@@ -7,6 +7,7 @@ import { Clima } from './escenas/Clima';
 import { Estaciona } from './escenas/Estaciona';
 import { Garage } from './escenas/Garage';
 import { Jornada } from './escenas/Jornada';
+import { Logo } from './escenas/Logo';
 import { Noche } from './escenas/Noche';
 import { Onda } from './escenas/Onda';
 import { Pin } from './escenas/Pin';
@@ -57,6 +58,7 @@ export default function Experience() {
         <Eleccion />
         <Realce />
         <Pin />
+        <Logo />
       </group>
       <Proyector />
       <ProyectorInteraccion />

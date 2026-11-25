@@ -8,7 +8,7 @@ import { vivo } from '../vivo';
 // Protagonista del hero: el pin de "acá hay lugar", en volumen, flotando sobre
 // la oficina. Cae con rebote cuando el plano termina de dibujarse, gira lento,
 // se inclina hacia el cursor y emite una onda sobre la terraza. Se guarda al
-// pasar al problema y vuelve en el cierre (fx.pinFuera).
+// pasar al problema (fx.pinFuera); en el cierre su lugar lo toma el logo (Logo.jsx).
 const R = 1;                 // radio de la cabeza
 const C = 1.75;              // altura del centro de la cabeza sobre la punta
 const ESCALA = 4.6;
