@@ -1,7 +1,7 @@
 // Chunk 3D de /para-garages: se carga con lazy() desde paginas/garagesEscena.js y lo monta
 // PaginaPlano en las mismas condiciones que el de la home. Es la misma ciudad vista desde
 // el otro lado del trato, sobre el escenario común: las escenas compartidas con lo que
-// cambia por página y las propias (sedes, búsqueda, la ficha del mapa y llegadas). Sin el pin, la
+// cambia por página y las propias (sedes, búsqueda, la ficha del mapa y llegadas) y el logo del cierre. Sin el pin, la
 // jornada, el QR ni la interacción con el mouse de la home. Todo acá es decorativo.
 import { BUSQUEDA, CHAT, SOLICITUD } from '../contenido/garages';
 import { CapaChats, ProyectorChats } from './Chats';
@@ -11,6 +11,7 @@ import { Ciudad } from './escenas/Ciudad';
 import { Clima } from './escenas/Clima';
 import { Garage } from './escenas/Garage';
 import { Llegadas } from './escenas/Llegadas';
+import { Logo } from './escenas/Logo';
 import { Pulsos } from './escenas/Pulsos';
 import { Sedes } from './escenas/Sedes';
 import { Trafico } from './escenas/Trafico';
@@ -45,6 +46,14 @@ function rodeaTuGarage(px, py, caja, size, horizontal) {
   return [Math.max(8, (size.width - caja.width) / 2), Math.min(py + BAJO_TU_GARAGE * vivo.pxPorUnidad + 48, size.height - caja.height - 16)];
 }
 
+// En el cierre el logo flota sobre tu garage, como en la home sobre la oficina: las
+// rutas de las sedes convergen ahí. Tu garage es bajo y lleva encima el cartel E, así que
+// el logo sube más para que el hilo asome sobre el cartel; y como la cámara de este cierre
+// abre más que la de la home (sobre todo en vertical), es un poco más grande.
+const SOBRE_TU_GARAGE = [centro(G1)[0], G1.h + 0.03, centro(G1)[1]];
+const LOGO_TAMANO = 17;
+const LOGO_AIRE = 8;
+
 // Capas HTML del dibujo, encima del Canvas y en este orden (las últimas quedan arriba).
 const CAPAS = (
   <>
@@ -70,6 +79,7 @@ export default function ExperienceGarages() {
         <Pulsos focos={FOCOS} />
         <Busqueda />
         <Llegadas />
+        <Logo base={SOBRE_TU_GARAGE} tamano={LOGO_TAMANO} aire={LOGO_AIRE} />
       </group>
       <Proyector rotulos={ROTULOS_GARAGES} />
       <ProyectorFichaMapa />

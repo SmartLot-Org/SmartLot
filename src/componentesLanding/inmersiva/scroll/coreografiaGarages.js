@@ -84,12 +84,15 @@ export const COREOGRAFIA_GARAGES = {
       { clave: 'busqueda', valor: 1, desde: 0.55, hasta: 1.1 },
     ],
   },
-  // La ciudad entera: desde cada sede, una ruta punteada llega hasta tu garage.
+  // La ciudad entera: desde cada sede, una ruta punteada llega hasta tu garage y el logo
+  // de SmartLot sube sobre él, como en el cierre de la home sobre la oficina (mismo fx y
+  // mismo tramo, escena Logo.jsx).
   accion: {
     camara: { x: 15.28, z: 0.99, zoom: 0.98 },
     camaraVertical: { x: 9.52, z: -4.73, zoom: 0.56 },
     fx: [
       { clave: 'llegan', valor: 1, desde: 0.3, hasta: 0.9 },
+      { clave: 'logo', valor: 1, desde: 0.45, hasta: 1 },
     ],
   },
 };

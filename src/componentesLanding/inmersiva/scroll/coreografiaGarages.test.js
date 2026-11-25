@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { SECCIONES } from '../contenido/garages.js';
-import { FX_CERO } from './coreografia.js';
+import { COREOGRAFIA, FX_CERO } from './coreografia.js';
 import { COREOGRAFIA_GARAGES, INICIAL_GARAGES } from './coreografiaGarages.js';
 import { crearGuion } from './guion.js';
 import { avancesEn, largoTotal } from './rangos.js';
@@ -81,6 +81,17 @@ test('el cierre: tu garage en el mapa, el trato aceptado, el techo puesto y las 
   assert.equal(fin.llegan, 1);
   assert.equal(fin.sedes, 1);
   assert.equal(fin.vueltas, 0);
+  // El logo de SmartLot flota sobre tu garage, como en la home sobre la oficina.
+  assert.equal(fin.logo, 1);
+});
+
+test('el logo del cierre sale recién en accion, con el mismo tramo que en la home', () => {
+  const i = SECCIONES.findIndex((s) => s.id === 'accion');
+  assert.equal(componer(avancesFinales(i - 1), false).fx.logo, 0);
+  assert.deepEqual(
+    COREOGRAFIA_GARAGES.accion.fx.find((f) => f.clave === 'logo'),
+    COREOGRAFIA.accion.fx.find((f) => f.clave === 'logo'),
+  );
 });
 
 test('cada cosa pasa en su sección y en orden', () => {

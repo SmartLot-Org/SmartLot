@@ -6,12 +6,14 @@ import { OFICINA } from '../mundo';
 import { MAT } from '../paleta';
 import { vivo } from '../vivo';
 
-// Cierre: el logo de SmartLot en volumen, flotando sobre la oficina en el lugar
-// que ocupaba el pin del hero (fx.logo). Sube desde la terraza, queda de frente
-// a la cámara y se mece sin ponerse nunca de canto, para que la P siempre se lea.
+// Cierre: el logo de SmartLot en volumen, flotando sobre quien recibe el relato
+// (fx.logo). En la home es la oficina, en el lugar que ocupaba el pin del hero; en
+// /para-garages, tu garage. Sube desde el techo, queda de frente a la cámara y se
+// mece sin ponerse nunca de canto, para que la P siempre se lea.
 const ALTO = 15;             // alto del logo en unidades del mundo
-const FLOTA = 4.6;           // aire entre el pie del logo y la terraza
-const TERRAZA = OFICINA.h + 0.03;
+const FLOTA = 4.6;           // aire entre el pie del logo y el techo
+// Por defecto, la terraza de la oficina de la home: [x, alto del techo, z].
+const SOBRE_LA_OFICINA = [0, OFICINA.h + 0.03, 0];
 const DE_FRENTE = Math.PI / 4;   // la cámara mira en diagonal (x = z)
 
 const limitar = (v) => (v < 0 ? 0 : v > 1 ? 1 : v);
@@ -22,7 +24,8 @@ function conPasado(t) {
   return 1 + (c + 1) * u * u * u + c * u * u;
 }
 
-export function Logo() {
+export function Logo({ base = SOBRE_LA_OFICINA, tamano = ALTO, aire = FLOTA }) {
+  const [x, techo, z] = base;
   const geo = useMemo(() => {
     const cuerpo = geometriaLogo({ profundidad: 0.07 });
     const hilo = new BufferGeometry();
@@ -40,9 +43,9 @@ export function Logo() {
     if (!raiz.current.visible) return;
 
     const crece = conPasado(t);
-    const alto = ALTO * Math.max(0.001, crece);
+    const alto = tamano * Math.max(0.001, crece);
     const flota = Math.sin(tiempo * 1.2) * 0.3 * t;
-    const pie = TERRAZA + FLOTA * t + flota;
+    const pie = techo + aire * t + flota;
     logo.current.position.y = pie + alto / 2;
     logo.current.scale.setScalar(alto);
     logo.current.rotation.set(
@@ -55,14 +58,14 @@ export function Logo() {
     MAT.logoLado.opacity = opacidad;
     MAT.logoLinea.opacity = opacidad;
 
-    // Cota entre el pie del logo y la terraza, como el hilo del pin.
+    // Cota entre el pie del logo y el techo, como el hilo del pin.
     hilo.current.position.y = pie;
-    hilo.current.scale.y = Math.max(0.001, pie - TERRAZA);
+    hilo.current.scale.y = Math.max(0.001, pie - techo);
     hilo.current.visible = t > 0.9;
   });
 
   return (
-    <group ref={raiz} visible={false}>
+    <group ref={raiz} visible={false} position={[x, 0, z]}>
       <group ref={logo}>
         <mesh geometry={geo.cuerpo} material={[MAT.logoCara, MAT.logoLado]} renderOrder={8} />
         <lineSegments geometry={geo.aristas} material={MAT.logoLinea} renderOrder={8} />

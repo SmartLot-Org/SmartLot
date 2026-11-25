@@ -115,7 +115,7 @@ export const SECCIONES = [
     movimiento: 'converge',
     weight: 1,
     cta: true,
-    figura: 'La ciudad entera desde arriba: desde cada sede, una ruta punteada llega hasta tu garage, marcado en azul.',
+    figura: 'La ciudad entera desde arriba: desde cada sede, una ruta punteada llega hasta tu garage, marcado en azul, y el logo de SmartLot flota sobre él.',
   },
 ];
 
