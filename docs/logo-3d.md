@@ -23,9 +23,15 @@ La reconstrucción siguió el método de [img2threejs](https://github.com/img2th
 
 ## Para garages (`/para-garages`)
 
-- `paraGarages/GarageLogo.jsx` (capa DOM, sin three) monta `GarageLogoEscena.jsx` con `lazy()` recién cuando el cierre se acerca a la pantalla y solo si hay WebGL. Sin WebGL no se muestra nada (es decorativo, `aria-hidden`).
-- La escena es un garage dibujado en líneas (portón, plazas pintadas, vereda) con el logo flotando sobre el techo y ondas en la terraza. Colores desde los tokens `--color-brand-*` vía variables CSS del contenedor.
-- Fuera de pantalla no dibuja (`frameloop="demand"`); con movimiento reducido queda un solo cuadro quieto.
+- La misma escena `Logo.jsx`, montada en `inmersiva/three/ExperienceGarages.jsx` con el fx `logo` en la sección `accion` ("Sumá tu garage al mapa", `scroll/coreografiaGarages.js`), con el mismo tramo que en la home.
+- El logo flota sobre tu garage (`G1` en `three/mundo.js`), donde convergen las rutas punteadas que salen de cada sede. Recibe por props el techo (`base`), el tamaño (`tamano`, 17) y el aire hasta el techo (`aire`, 8): tu garage es bajo y lleva el cartel E, y la cámara de este cierre abre más que la de la home.
+- Con movimiento reducido queda en su estado final, quieto. Sin 3D, el póster de `accion` (`public/landing/posters/garages/accion*.webp`) ya muestra el logo.
+
+## Las dos páginas a la vez
+
+- `Logo.jsx` toma la oficina de la home por defecto: la home no le pasa props.
+- Los materiales son los mismos (`logoCara`, `logoLado`, `logoLinea`) y la geometría vive en el chunk 3D compartido por las dos páginas.
+- La notación está en `DESIGN.md` ("Plano", "Logo en volumen").
 
 ## Regenerar el modelo de alta
 

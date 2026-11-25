@@ -2,9 +2,11 @@
 
 > Estado: Implementada, con los "Por defecto" de las preguntas abiertas (pendientes de confirmación del dueño del producto)
 > Módulo: `landing-garages`
-> Última actualización: 2026-11-23
+> Última actualización: 2026-11-25
 
 > Cambio pedido por el usuario (2026-11-23): `alta` y `mapa` pasan a ser una sola sección, `mapa`, con el mensaje "Las empresas cercanas te encuentran", y en el dibujo una flecha sale de tu garage hacia la tarjeta con los datos de cómo te ve una empresa. Son siete secciones. Detalle en "Alta y mapa en una sección (2026-11-23)".
+
+> Cambio pedido por el usuario (2026-11-25): el logo 3D de la rama `claude/logo-3d-qysndm` se integra. En el cierre de la home el logo flota sobre la oficina y, en el de esta página, sobre tu garage, donde convergen las rutas de las sedes. La home cambia a propósito en su cierre. Detalle en "Logo 3D en el cierre (2026-11-25)".
 
 > Decisión del usuario (2026-11-18): se implementa sin esperar la aprobación. Las recomendaciones de "Preguntas abiertas" valen como decisiones por defecto (marcadas "Por defecto"). Si el dueño del producto responde distinto, esta spec se actualiza antes de seguir con la etapa afectada.
 
@@ -97,7 +99,7 @@ Títulos de unos 35 caracteres como máximo, para que entren en dos o tres líne
 | `trato` | Una línea azul recorre los 300 m desde la sede hasta tu garage; junto al garage, la solicitud pasa de "Pendiente" a "Trato aceptado" y el techo se pinta | Vos aceptás o rechazás cada pedido | Ves qué empresa pide, para qué sede, cuántas cocheras y si las paga la empresa o el empleado. Nada se activa sin tu confirmación, tampoco un cambio en la cantidad de cocheras. | Regla 5; respuesta del dueño (puntos 4 y 5) | se traza | 1,3 |
 | `operacion` | Se levanta el techo: las plazas del trato se pintan a medida que se reservan y sobre cada una se apilan sus horas de uso | El detalle, reserva por reserva | Todo es 100% online: la ocupación la mueven las reservas y los ingresos con QR, nunca una carga a mano. Cada consumo queda con su tiempo, tarifa e importe, con 24 meses de historial y exportación a PDF y Excel. | Regla 4; consumos (punto 8); claims de 24 meses, PDF y Excel, y 100% online | se llena | 1,4 |
 | `control` | La ciudad a media altura: con el interruptor, tu garage vuelve a la línea de trazos y los anillos pasan sin encontrarlo; al restaurarlo, se enciende de nuevo | Vos decidís cuándo aparecés | Si pasás un garage a borrador, deja de aparecer para las empresas, y lo restaurás cuando quieras. Cada dueño ve solo sus garages. | Reglas 6 y 7; borrador (punto 7) | alterna | 1,2 |
-| `accion` | La ciudad entera: desde cada sede, una ruta punteada llega hasta tu garage, marcado en azul | Sumá tu garage al mapa | Creá tu cuenta de dueño, cargá tu garage y empezá a recibir pedidos de empresas. | Registro de dueño (punto 6) | converge | 1,0 |
+| `accion` | La ciudad entera: desde cada sede, una ruta punteada llega hasta tu garage, marcado en azul, y el logo de SmartLot sube y flota sobre él | Sumá tu garage al mapa | Creá tu cuenta de dueño, cargá tu garage y empezá a recibir pedidos de empresas. | Registro de dueño (punto 6) | converge | 1,0 |
 
 CTA: "Registrá tu garage", igual en el hero, en la barra y en `accion`, hacia `/register?modo=garage`. El hero lleva solo esa acción. La secundaria es "Iniciar sesión", en la barra, para el dueño que ya tiene cuenta, como en la home. El tercer nivel es el enlace "Para empresas", hacia `/`, en la barra (escritorio) y en el pie (todos los tamaños). Con sesión, la barra muestra "Ir a mi panel".
 
@@ -220,6 +222,33 @@ El fx de la ficha arranca apenas antes de 1 porque el dibujo amortiguado (0,2 s)
 - [ ] El árbol de accesibilidad de `mapa` tiene la ficha completa en las cuatro versiones; axe sin serious ni critical.
 - [ ] Pósters regenerados (el de `alta` se va; el de `mapa` no cambia porque el encuadre horizontal es el mismo y va sin la tarjeta) y en total hasta 600 kB.
 - [ ] La home idéntica (< 0,5 % de píxeles distintos con movimiento reducido) y los presupuestos de la tabla "Presupuestos".
+
+## Logo 3D en el cierre (2026-11-25)
+
+Pedido del usuario: "Lo que le falta es la landing para garages: usar el logo 3D en el final y hacer lo mismo que hice en la landing principal, que al final aparece ese logo 3D sobre la empresa; que en garages aparezca sobre el garage." Se aplica sin esperar aprobación. El recurso está documentado en `docs/logo-3d.md`.
+
+**Qué se ve.** En `accion`, mientras las rutas punteadas de las sedes llegan a tu garage, el logo de SmartLot en volumen sube desde su techo, queda de frente a la cámara y se mece, con el hilo de 1 px que lo une al techo asomando sobre el cartel E. Es el mismo cierre que la home, donde el logo flota sobre la oficina: el relato termina con la marca sobre quien lo recibe.
+
+**Una escena para las dos páginas.** `three/escenas/Logo.jsx` recibe por props el techo sobre el que flota (`base`), su tamaño (`tamano`) y el aire hasta el techo (`aire`), con la oficina de la home por defecto (mismo patrón que `Rotulos`, `Chats`, `Pulsos` y `Trato`). Garages lo monta en `ExperienceGarages.jsx` sobre el centro de `G1`, con `tamano` 17 y `aire` 8 (la home usa 15 y 4,6): tu garage es bajo y lleva el cartel E encima, y con el aire de la home el cartel tapaba el pie del logo; la cámara de este cierre abre más que la de la home (zoom 0,56 contra 0,74 en vertical), por eso el logo es un poco más grande. La geometría sale del código (`logo3d/formaLogo.js` + `geometriaLogo.js`); el GLB de alta de `modelos3d/` no entra al bundle.
+
+**Coreografía de `accion`** (pantallas desde que la sección asoma; entrada de 0 a 1, `weight` 1):
+
+| fx | valor | desde | hasta | Qué se ve |
+|---|---|---|---|---|
+| `llegan` | 1 | 0,3 | 0,9 | desde cada sede, una ruta punteada llega hasta tu garage |
+| `logo` | 1 | 0,45 | 1 | el logo sube desde el techo de tu garage y queda flotando |
+
+Es el mismo fx y el mismo tramo que el cierre de la home (`scroll/coreografia.js`); `logo` vale 0 en `FX_CERO` y en el resto de las secciones. Con movimiento reducido la cámara salta al estado final: el logo aparece quieto, de frente, sin subir ni mecerse.
+
+**Versiones sin 3D y estática.** El póster de `accion` se regeneró con el logo (mismo script y parámetros que los demás) y su descripción lo nombra. Pósters de garages: 596,6 kB en total.
+
+**Criterios de aceptación del cambio:**
+
+- [x] Con 3D, en 390 × 844 y 1440 × 900, al final de `accion` el logo flota sobre tu garage, con el hilo visible sobre el cartel E, sin tapar la nota, la barra ni las distancias de las sedes.
+- [x] Con movimiento reducido aparece en su estado final, sin viaje.
+- [x] La home queda igual que en la rama del usuario (0 píxeles distintos con movimiento reducido en las 18 capturas de 390 y 1440).
+- [x] `coreografiaGarages.test.js` cubre el logo en el cierre y el tramo igual al de la home; `formaLogo.test.js` en verde.
+- [x] Pósters hasta 600 kB; 3D de garages por debajo de 350 kB gzip; LCP móvil menor a 2,5 s en las dos páginas.
 
 ## Arquitectura: un mundo, dos páginas
 

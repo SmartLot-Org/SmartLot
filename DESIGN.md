@@ -155,6 +155,7 @@ Un solo acento cromático sobre una base neutra fría; los estados usan semánti
 - **Distancia** (`/para-garages`): la cota azul aparece sobre el rótulo "Sede" cuando su anillo encuentra tu garage, en metros por la calle, como la cota de 300 m de la home.
 - **Solicitud** (`/para-garages`, sección `trato`): tarjeta de papel con borde hairline, radio de 10px y sombra plana, decorativa como el resto del dibujo. "Pendiente" va neutro y "Trato aceptado", en azul señal.
 - **Rutas de llegada** (`/para-garages`, sección `accion`): una cinta punteada azul por la calle, desde cada sede hasta tu garage.
+- **Logo en volumen** (cierre de las dos páginas, `accion`): la P con la flecha extruida, con caras en azul señal, laterales en azul señal activo y aristas en tinta, sin luces (`three/escenas/Logo.jsx`, silueta en `logo3d/formaLogo.js`). Flota sobre quien recibe el relato: la oficina en la home y tu garage en `/para-garages`, unido al techo por un hilo de 1 px en tinta, como el pin del hero. Sube con el scroll, queda de frente a la cámara y se mece sin ponerse de canto; con movimiento reducido queda quieto, en su estado final. Es el único azul del dibujo que no marca un lugar disponible: es la firma de la marca y aparece solo en el cierre, una vez por página.
 - Las páginas Plano son siempre claras: no tienen variante oscura (decisión del 2026-11-17).
 
 ### Neutral
