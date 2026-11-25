@@ -92,7 +92,7 @@ export const COREOGRAFIA_GARAGES = {
     camaraVertical: { x: 9.52, z: -4.73, zoom: 0.56 },
     fx: [
       { clave: 'llegan', valor: 1, desde: 0.3, hasta: 0.9 },
-      { clave: 'logo', valor: 1, desde: 0.45, hasta: 1 },
+      { clave: 'logo', valor: 1, desde: 0.45, hasta: 0.8 },
     ],
   },
 };

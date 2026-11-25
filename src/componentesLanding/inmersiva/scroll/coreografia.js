@@ -92,7 +92,7 @@ export const COREOGRAFIA = {
     camaraVertical: { x: 4, z: 0, zoom: 0.74 },
     fx: [
       { clave: 'red', valor: 1, desde: 0.45, hasta: 0.85 },
-      { clave: 'logo', valor: 1, desde: 0.45, hasta: 1 },
+      { clave: 'logo', valor: 1, desde: 0.45, hasta: 0.8 },
       { clave: 'final', valor: 1, desde: 0.8, hasta: 1 },
     ],
   },

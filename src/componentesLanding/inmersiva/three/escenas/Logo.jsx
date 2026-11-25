@@ -19,12 +19,14 @@ const VUELTA = 10;           // segundos por vuelta
 const SOBRE_LA_OFICINA = [0, OFICINA.h + 0.03, 0];
 const DE_FRENTE = Math.PI / 4;   // la cámara mira en diagonal (x = z)
 
-const VELOCIDAD = (Math.PI * 2) / VUELTA;
+// Negativa: visto desde arriba gira en sentido horario (pedido del dueño del producto).
+const VELOCIDAD = -(Math.PI * 2) / VUELTA;
 
 const limitar = (v) => (v < 0 ? 0 : v > 1 ? 1 : v);
-// El giro entra y sale suave con el final del tramo: nunca arranca ni se corta de golpe.
+// El giro entra suave apenas el logo se ve (no espera al final del tramo, que según
+// el alto de la pantalla puede no completarse en el fondo de la página).
 const llegada = (t) => {
-  const u = limitar((t - 0.85) / 0.15);
+  const u = limitar((t - 0.4) / 0.3);
   return u * u * (3 - 2 * u);
 };
 // Sale con un leve pasado y vuelve: entra con peso, como el pin al caer.
