@@ -51,8 +51,8 @@ function rodeaTuGarage(px, py, caja, size, horizontal) {
 // el logo sube más para que el hilo asome sobre el cartel; y como la cámara de este cierre
 // abre más que la de la home (sobre todo en vertical), es un poco más grande.
 const SOBRE_TU_GARAGE = [centro(G1)[0], G1.h + 0.03, centro(G1)[1]];
-const LOGO_TAMANO = 17;
-const LOGO_AIRE = 8;
+const LOGO_TAMANO = 13;
+const LOGO_AIRE = 9.5;
 
 // Capas HTML del dibujo, encima del Canvas y en este orden (las últimas quedan arriba).
 const CAPAS = (

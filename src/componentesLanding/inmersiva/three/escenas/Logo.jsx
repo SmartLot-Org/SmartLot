@@ -8,15 +8,25 @@ import { vivo } from '../vivo';
 
 // Cierre: el logo de SmartLot en volumen, flotando sobre quien recibe el relato
 // (fx.logo). En la home es la oficina, en el lugar que ocupaba el pin del hero; en
-// /para-garages, tu garage. Sube desde el techo, queda de frente a la cámara y se
-// mece sin ponerse nunca de canto, para que la P siempre se lea.
-const ALTO = 15;             // alto del logo en unidades del mundo
+// /para-garages, tu garage. Sube desde el techo de frente a la cámara y, cuando
+// llega, gira en el lugar sobre su eje vertical, lento y constante. El giro avanza con
+// el tiempo ambiental (vivo.tiempo), que con movimiento reducido no corre: ahí queda
+// quieto y de frente.
+const ALTO = 12;             // alto del logo en unidades del mundo
 const FLOTA = 4.6;           // aire entre el pie del logo y el techo
+const VUELTA = 10;           // segundos por vuelta
 // Por defecto, la terraza de la oficina de la home: [x, alto del techo, z].
 const SOBRE_LA_OFICINA = [0, OFICINA.h + 0.03, 0];
 const DE_FRENTE = Math.PI / 4;   // la cámara mira en diagonal (x = z)
 
+const VELOCIDAD = (Math.PI * 2) / VUELTA;
+
 const limitar = (v) => (v < 0 ? 0 : v > 1 ? 1 : v);
+// El giro entra y sale suave con el final del tramo: nunca arranca ni se corta de golpe.
+const llegada = (t) => {
+  const u = limitar((t - 0.85) / 0.15);
+  return u * u * (3 - 2 * u);
+};
 // Sale con un leve pasado y vuelve: entra con peso, como el pin al caer.
 function conPasado(t) {
   const c = 1.6;
@@ -35,22 +45,31 @@ export function Logo({ base = SOBRE_LA_OFICINA, tamano = ALTO, aire = FLOTA }) {
   const raiz = useRef(null);
   const logo = useRef(null);
   const hilo = useRef(null);
+  // Ángulo acumulado del giro y último tiempo leído: se integra con el delta para que
+  // al frenarse (scroll hacia atrás) quede donde estaba, sin saltar.
+  const giro = useRef({ angulo: 0, tiempo: 0 });
 
   useFrame(() => {
     const { tiempo, mira, fx } = vivo;
     const t = limitar(fx.logo);
+    const g = giro.current;
+    const dt = tiempo - g.tiempo;
+    g.tiempo = tiempo;
     raiz.current.visible = t > 0.01;
-    if (!raiz.current.visible) return;
+    if (!raiz.current.visible) {
+      g.angulo = 0;    // la próxima vez vuelve a subir de frente
+      return;
+    }
+    g.angulo = (g.angulo + VELOCIDAD * llegada(t) * Math.max(0, dt)) % (Math.PI * 2);
 
     const crece = conPasado(t);
     const alto = tamano * Math.max(0.001, crece);
-    const flota = Math.sin(tiempo * 1.2) * 0.3 * t;
-    const pie = techo + aire * t + flota;
+    const pie = techo + aire * t;
     logo.current.position.y = pie + alto / 2;
     logo.current.scale.setScalar(alto);
     logo.current.rotation.set(
       mira.y * 0.1,
-      DE_FRENTE + Math.sin(tiempo * 0.45) * 0.42 + mira.x * 0.35 + (1 - t) * 1.2,
+      DE_FRENTE + g.angulo + mira.x * 0.35 + (1 - t) * 1.2,
       -mira.x * 0.06,
     );
     const opacidad = limitar(t * 1.6);
